@@ -40,9 +40,9 @@ def exp_convolve(tensor, decay=.8, reverse=False, initializer=None, axis=0):
     filtered = tf.transpose(filtered, perm)
     return filtered
 
-# not yet biological-valued, nor sparse, nor adapting, nor constrained by Dale's Law 
+# not yet sparse, nor adapting, nor constrained by Dale's Law (fixed E and I unit identities)
 class LIFCell(tf.keras.layers.Layer):
-    def __init__(self, units, tau=20., thr=1., dt=1, n_refractory=5, dampening_factor=.3):
+    def __init__(self, units, thr, EL, tau, dt, n_refractory, dampening_factor):
         super().__init__()
         self.units = units
 
@@ -62,8 +62,11 @@ class LIFCell(tf.keras.layers.Layer):
         self.state_size = (units, units, units)
 
     def zero_state(self, batch_size, dtype=tf.float32):
-        v0 = tf.zeros((batch_size, self.units), dtype)
+        # voltage
+        v0 = tf.zeros((batch_size, self.units), dtype) + EL
+        # refractory
         r0 = tf.zeros((batch_size, self.units), tf.int32)
+        # spike
         z_buf0 = tf.zeros((batch_size, self.units), tf.float32)
         return v0, r0, z_buf0
 
@@ -110,7 +113,7 @@ class LIFCell(tf.keras.layers.Layer):
 
         return output, new_state
 
-
+# this will require editing
 class SpikeVoltageRegularization(tf.keras.layers.Layer):
     def __init__(self, cell, rate_cost=.1, voltage_cost=.01, target_rate=.02):
         self._rate_cost = rate_cost
