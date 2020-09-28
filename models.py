@@ -114,8 +114,35 @@ class LIFCell(tf.keras.layers.Layer):
         return output, new_state
 
 # this will require editing
+
+class SpikeRegularization(tf.keras.layers.Layer):
+    def __init__(self, cell, rate_cost=.1, voltage_cost=.01, target_rate=.02): # rate in spikes/ms for ease
+        self._rate_cost = rate_cost
+        self._voltage_cost = voltage_cost
+        self._target_rate = target_rate
+        self._cell = cell
+        super().__init__()
+
+    def call(self, inputs, **kwargs):
+        voltage = inputs[0]
+        spike = inputs[1]
+        upper_threshold = self._cell.threshold
+
+        rate = tf.reduce_mean(spike, axis=(0, 1))
+        # av = Second * tf.reduce_mean(z, axis=(0, 1)) / flags.dt
+        #regularization_coeff = tf.Variable(np.ones(flags.n_neurons) * flags.reg_fr, dtype=tf.float32, trainable=False)
+        #loss_reg_fr = tf.reduce_sum(tf.square(rate - flags.target_rate) * regularization_coeff)
+        global_rate = tf.reduce_mean(rate)
+        self.add_metric(global_rate, name='rate', aggregation='mean')
+
+        reg_loss = tf.reduce_sum(tf.square(rate - self._target_rate)) * self._rate_cost
+        self.add_loss(reg_loss)
+        self.add_metric(reg_loss, name='rate_loss', aggregation='mean')
+        
+        return inputs
+
 class SpikeVoltageRegularization(tf.keras.layers.Layer):
-    def __init__(self, cell, rate_cost=.1, voltage_cost=.01, target_rate=.02):
+    def __init__(self, cell, rate_cost=.1, voltage_cost=.01, target_rate=.02): # rate in spikes/ms for ease
         self._rate_cost = rate_cost
         self._voltage_cost = voltage_cost
         self._target_rate = target_rate

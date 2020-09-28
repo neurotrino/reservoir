@@ -60,7 +60,7 @@ flags.DEFINE_integer('batch_size', 32, 'trials in each training batch')
 """
 # flags to be used in future versions
 flags.DEFINE_bool('random_eprop', False, 'random or symmetric eprop feedback weights')
-flags.DEFINE_integer('target_rate', 20, 'spikes/s; for rate regularization') # right now hard-coded in SpikeVoltageRegularization() in models.py
+flags.DEFINE_integer('target_rate', 20, 'spikes/s; for rate regularization') # right now separate layer in models.py
 flags.DEFINE_float('reg_f', 1., 'regularization coefficient for firing rate')
 flags.DEFINE_integer('print_every', 50, 'print out metrics to terminal after this many iterations to assess how training is going')
 """
@@ -78,7 +78,7 @@ def create_model(seq_len=flags.seq_len, n_input=flags.n_input, n_recurrent=flags
     batch_size = tf.shape(inputs)[0]
     initial_state = cell.zero_state(batch_size)
     rnn_output = rnn(inputs, initial_state=initial_state)
-    regularization_layer = models.SpikeVoltageRegularization(cell)
+    regularization_layer = models.SpikeRegularization(cell)
     voltages, spikes = regularization_layer(rnn_output)
     voltages = tf.identity(voltages, name='voltages')
     spikes = tf.identity(spikes, name='spikes')
