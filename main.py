@@ -153,8 +153,8 @@ class PlotCallback(tf.keras.callbacks.Callback):
         plt.pause(.2)
 
 def main():
-    model = create_model()
-    data_set = create_data_set()
+    model = create_model(seq_len, n_input, n_recurrent)
+    data_set = create_data_set(seq_len, n_input, n_batch=1)
     it = iter(data_set)
     test_example = next(it)
 
