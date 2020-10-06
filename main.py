@@ -6,7 +6,7 @@ from absl import flags
 FLAGS = flags.FLAGS
 
 import models
-import tfrecord_dataset
+# import tfrecord_dataset
 
 root_path = '../data'
 
