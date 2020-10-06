@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 import models
 import os
-import pickle 
+import pickle
 # import tfrecord_dataset
 
 root_path = '../data'
@@ -164,7 +164,7 @@ def main():
         plt.ion()
         fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
         plot_callback = PlotCallback(test_example, fig, axes)
-        fig.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/test.png', dpi=300)))
+        fig.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/test.png')), dpi=300)
 
     # train the model
     opt = tf.keras.optimizers.Adam(lr=learning_rate)
