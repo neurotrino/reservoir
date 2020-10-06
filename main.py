@@ -152,7 +152,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
         self.axes[3].legend(frameon=False)
         [ax.yaxis.set_label_coords(-.05, .5) for ax in self.axes]
         plt.draw()
-        plt.pause(.2)
+        #plt.pause(.2)
 
 def main():
     model = create_model(seq_len, n_input, n_recurrent)
@@ -164,7 +164,7 @@ def main():
         plt.ion()
         fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
         plot_callback = PlotCallback(test_example, fig, axes)
-        fig.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/test.png')), dpi=300)
+        #fig.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/test.png')), dpi=300)
 
     # train the model
     opt = tf.keras.optimizers.Adam(lr=learning_rate)
