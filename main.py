@@ -32,7 +32,7 @@ nSiemens = Siemens / 1e9
 Hertz = 1 / Second
 
 # these ones are for LIF
-thr = -55.4 * mVolt
+thr = -50.4 * mVolt
 EL = -70.6 * mVolt
 n_refrac = 4
 tau = 20.
