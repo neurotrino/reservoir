@@ -53,8 +53,8 @@ flags.DEFINE_integer('seq_len', 1000, '')
 flags.DEFINE_float('learning_rate', 1e-3, '')
 flags.DEFINE_integer('n_epochs', 10, '')
 
-flags.DEFINE_integer('target_rate', 0.02, 'spikes/ms; for rate regularization') # right now separate layer in models.py
-flags.DEFINE_integer('rate_cost', 0.1, '')
+flags.DEFINE_float('target_rate', 0.02, 'spikes/ms; for rate regularization') # right now separate layer in models.py
+flags.DEFINE_float('rate_cost', 0.1, '')
 
 flags.DEFINE_bool('do_plot', True, 'plotting')
 flags.DEFINE_bool('do_save', True, 'saving data and plots')
