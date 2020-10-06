@@ -164,13 +164,16 @@ def main():
         plt.ion()
         fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
         plot_callback = PlotCallback(test_example, fig, axes)
-        #fig.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/test.png')), dpi=300)
+        fig.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/test.png')), dpi=300)
 
     # train the model
     opt = tf.keras.optimizers.Adam(lr=learning_rate)
     mse = tf.keras.losses.MeanSquaredError()
     model.compile(optimizer=opt, loss=dict(tf_op_layer_output=mse))
-    model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback])
+    if do_plot:
+        model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback])
+    else:
+        model.fit(data_set, epochs = n_epochs)
 
     # analyse the model
     inputs = test_example[0]
