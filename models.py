@@ -106,7 +106,8 @@ class LIFCell(tf.keras.layers.Layer):
         i_reset = -self.threshold * old_z
         input_current = i_in + i_rec + i_reset + self.bias_currents[None]
 
-        new_v = self._decay * (-old_v) + input_current
+        # doing this hacky thing so that we are actually becoming more negative as opposed to positive 
+        new_v = (2-self._decay) * old_v + input_current
 
         is_refractory = tf.greater(old_r, 0)
         #v_scaled = (new_v - self.threshold) / self.threshold
