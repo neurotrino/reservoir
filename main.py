@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 #FLAGS = flags.FLAGS
 
 import models
+import os
+import pickle 
 # import tfrecord_dataset
 
 root_path = '../data'
