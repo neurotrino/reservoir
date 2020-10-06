@@ -56,6 +56,7 @@ class LIFCell(tf.keras.layers.Layer):
         self.disconnect_mask = None
 
         self.threshold = thr
+        self.EL = EL
         self._dampening_factor = dampening_factor
 
         #                  voltage, refractory, previous spikes
@@ -63,7 +64,7 @@ class LIFCell(tf.keras.layers.Layer):
 
     def zero_state(self, batch_size, dtype=tf.float32):
         # voltage
-        v0 = tf.zeros((batch_size, self.units), dtype) + EL
+        v0 = tf.zeros((batch_size, self.units), dtype) + self.EL
         # refractory
         r0 = tf.zeros((batch_size, self.units), tf.int32)
         # spike
