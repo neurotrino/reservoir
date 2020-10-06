@@ -47,7 +47,7 @@ class LIFCell(tf.keras.layers.Layer):
         self.units = units
 
         self._dt = float(dt)
-        self._decay = tf.exp(-dt / tau)
+        self._decay = tf.exp(dt / tau)
         self._n_refractory = n_refractory
 
         self.input_weights = None
