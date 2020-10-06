@@ -8,6 +8,14 @@ def pseudo_derivative(v_scaled, dampening_factor):
 
 @tf.custom_gradient
 def spike_function(v_scaled, dampening_factor):
+    """
+    originally,
+    :param v_scaled: scaled version of the voltage being -1 at rest and 0 at the threshold
+    so we must make sure our membrane dynamics (with negative real valued thresholds, etc.) is consistent with this voltage-scaling spike generation mechanic
+    in this case, we are normalizing using -(thr-V)/(thr-EL), which is a variation on the way one would normalize x between 0 and 1 using (x-min)/(max-min)
+    (it would be a case of -(max-x)/(max-min)
+    :param dampening_factor: parameter to stabilize learning
+    """
     z_ = tf.greater(v_scaled, 0.)
     z_ = tf.cast(z_, tf.float32)
 
@@ -47,7 +55,7 @@ class LIFCell(tf.keras.layers.Layer):
         self.units = units
 
         self._dt = float(dt)
-        self._decay = tf.exp(dt / tau)
+        self._decay = tf.exp(-dt / tau)
         self._n_refractory = n_refractory
 
         self.input_weights = None
@@ -98,10 +106,11 @@ class LIFCell(tf.keras.layers.Layer):
         i_reset = -self.threshold * old_z
         input_current = i_in + i_rec + i_reset + self.bias_currents[None]
 
-        new_v = self._decay * old_v + input_current
+        new_v = self._decay * (-old_v) + input_current
 
         is_refractory = tf.greater(old_r, 0)
-        v_scaled = (new_v - self.threshold) / self.threshold
+        #v_scaled = (new_v - self.threshold) / self.threshold
+        v_scaled = -(self.threshold-new_v) / (self.threshold-self.EL)
         new_z = spike_function(v_scaled, self._dampening_factor)
         new_z = tf.where(is_refractory, tf.zeros_like(new_z), new_z)
         new_r = tf.clip_by_value(
