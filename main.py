@@ -8,6 +8,8 @@ FLAGS = flags.FLAGS
 import models
 import tfrecord_dataset
 
+root_path = '../data'
+
 # neuron model param flags
 # some of these are not currently used, but will be needed for adapting units, adex, conductance-based synapses, etc.
 Volt = 1e3
@@ -51,23 +53,29 @@ flags.DEFINE_integer('seq_len', 1000, '')
 flags.DEFINE_float('learning_rate', 1e-3, '')
 flags.DEFINE_integer('n_epochs', 10, '')
 
+flags.DEFINE_integer('target_rate', 0.02, 'spikes/ms; for rate regularization') # right now separate layer in models.py
+flags.DEFINE_integer('rate_cost', 0.1, '')
+
+flags.DEFINE_bool('do_plot', True, 'plotting')
+flags.DEFINE_bool('do_save', True, 'saving data and plots')
+
 """
 # you may need to define these flags based on task set-up; some of these are currently hard-baked into this toy script
 flags.DEFINE_integer('n_iter', 10000, 'total number of iterations')
 flags.DEFINE_integer('batch_size', 32, 'trials in each training batch')
+flags.DEFINE_integer('voltage_cost', 0.01, 'for voltage regularization')
 """
 
 """
 # flags to be used in future versions
 flags.DEFINE_bool('random_eprop', False, 'random or symmetric eprop feedback weights')
-flags.DEFINE_integer('target_rate', 20, 'spikes/s; for rate regularization') # right now separate layer in models.py
 flags.DEFINE_float('reg_f', 1., 'regularization coefficient for firing rate')
 flags.DEFINE_integer('print_every', 50, 'print out metrics to terminal after this many iterations to assess how training is going')
 """
 
 # SNN model architecture flags
-flags.DEFINE_integer('n_input', 20, '')
-flags.DEFINE_integer('n_recurrent', 100, '')
+flags.DEFINE_integer('n_input', 20, '') # 20 input channels
+flags.DEFINE_integer('n_recurrent', 100, '') # recurrent network of 100 spiking units
 
 def create_model(seq_len=flags.seq_len, n_input=flags.n_input, n_recurrent=flags.n_recurrent):
     inputs = tf.keras.layers.Input(shape=(seq_len, n_input))
@@ -78,7 +86,7 @@ def create_model(seq_len=flags.seq_len, n_input=flags.n_input, n_recurrent=flags
     batch_size = tf.shape(inputs)[0]
     initial_state = cell.zero_state(batch_size)
     rnn_output = rnn(inputs, initial_state=initial_state)
-    regularization_layer = models.SpikeRegularization(cell)
+    regularization_layer = models.SpikeRegularization(cell, flags.target_rate, flags.rate_cost)
     voltages, spikes = regularization_layer(rnn_output)
     voltages = tf.identity(voltages, name='voltages')
     spikes = tf.identity(spikes, name='spikes')
@@ -127,7 +135,6 @@ class PlotCallback(tf.keras.callbacks.Callback):
         plt.draw()
         plt.pause(.2)
 
-
 def main():
     model = create_model()
     data_set = create_data_set()
@@ -138,6 +145,7 @@ def main():
         plt.ion()
         fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
         plot_callback = PlotCallback(test_example, fig, axes)
+        fig.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/test.png', dpi=300)
 
     # train the model
     opt = tf.keras.optimizers.Adam(lr=flags.learning_rate)

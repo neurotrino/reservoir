@@ -113,12 +113,10 @@ class LIFCell(tf.keras.layers.Layer):
 
         return output, new_state
 
-# this will require editing
 
 class SpikeRegularization(tf.keras.layers.Layer):
-    def __init__(self, cell, rate_cost=.1, voltage_cost=.01, target_rate=.02): # rate in spikes/ms for ease
+    def __init__(self, cell, target_rate, rate_cost): # rate in spikes/ms for ease
         self._rate_cost = rate_cost
-        self._voltage_cost = voltage_cost
         self._target_rate = target_rate
         self._cell = cell
         super().__init__()
@@ -138,7 +136,7 @@ class SpikeRegularization(tf.keras.layers.Layer):
         reg_loss = tf.reduce_sum(tf.square(rate - self._target_rate)) * self._rate_cost
         self.add_loss(reg_loss)
         self.add_metric(reg_loss, name='rate_loss', aggregation='mean')
-        
+
         return inputs
 
 class SpikeVoltageRegularization(tf.keras.layers.Layer):
