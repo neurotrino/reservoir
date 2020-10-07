@@ -81,7 +81,7 @@ class LIFCell(tf.keras.layers.Layer):
 
     def build(self, input_shape):
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
-                                             initializer=tf.keras.initializers.RandomNormal(
+                                             initializer=tf.keras.initializers.RandomNormal(mean=1.,
                                                  stddev=1. / np.sqrt(input_shape[-1] + self.units)),
                                              name='input_weights')
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool)
@@ -106,7 +106,7 @@ class LIFCell(tf.keras.layers.Layer):
         i_reset = -self.threshold * old_z
         input_current = i_in + i_rec + i_reset + self.bias_currents[None]
 
-        # doing this hacky thing so that we are actually becoming more negative as opposed to positive 
+        # doing this hacky thing so that we are actually becoming more negative as opposed to positive
         new_v = (2-self._decay) * old_v + input_current
 
         is_refractory = tf.greater(old_r, 0)

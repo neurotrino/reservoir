@@ -141,9 +141,12 @@ class PlotCallback(tf.keras.callbacks.Callback):
         v = output[0].numpy()[0]
         z = output[1].numpy()[0]
         out = output[2].numpy()[0, :, 0]
-        abs_max = np.abs(v).max()
-        self.axes[1].pcolormesh(v.T, cmap='seismic', vmin=-abs_max, vmax=abs_max)
+        # abs_max = np.abs(v).max()
+        # plot transpose of voltage matrix as colormap
+        # self.axes[1].pcolormesh(v.T, cmap='seismic', vmin=-abs_max, vmax=abs_max)
+        self.axes[1].pcolormesh(v.T, cmap='seismic')
         self.axes[1].set_ylabel('voltage')
+        # plot transpose of spike matrix
         self.axes[2].pcolormesh(z.T, cmap='Greys')
         self.axes[2].set_ylabel('spike')
         self.axes[3].plot(self.test_example[1]['tf_op_layer_output'][0, :, 0], 'k--', lw=2, alpha=.7, label='target')
@@ -152,7 +155,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
         self.axes[3].legend(frameon=False)
         [ax.yaxis.set_label_coords(-.05, .5) for ax in self.axes]
         plt.draw()
-        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/test.png')), dpi=300)
+        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/test_epoch_{}.png'.format(epoch))), dpi=300)
         #plt.pause(.2)
 
 def main():
