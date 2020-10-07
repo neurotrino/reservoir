@@ -138,6 +138,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
         [ax.clear() for ax in self.axes]
         self.axes[0].pcolormesh(self.test_example[0].numpy()[0].T, cmap='cividis')
         self.axes[0].set_ylabel('input')
+        fig.colorbar(ax = self.axes[0])
         v = output[0].numpy()[0]
         z = output[1].numpy()[0]
         out = output[2].numpy()[0, :, 0]
@@ -145,9 +146,11 @@ class PlotCallback(tf.keras.callbacks.Callback):
         # plot transpose of voltage matrix as colormap
         # self.axes[1].pcolormesh(v.T, cmap='seismic', vmin=-abs_max, vmax=abs_max)
         self.axes[1].pcolormesh(v.T, cmap='seismic')
+        fig.colorbar(ax = self.axes[1])
         self.axes[1].set_ylabel('voltage')
         # plot transpose of spike matrix
         self.axes[2].pcolormesh(z.T, cmap='Greys')
+        fig.colorbar(ax = self.axes[2])
         self.axes[2].set_ylabel('spike')
         self.axes[3].plot(self.test_example[1]['tf_op_layer_output'][0, :, 0], 'k--', lw=2, alpha=.7, label='target')
         self.axes[3].plot(out, 'b', lw=2, alpha=.7, label='prediction')
