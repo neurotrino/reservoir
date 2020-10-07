@@ -80,11 +80,12 @@ class LIFCell(tf.keras.layers.Layer):
         return v0, r0, z_buf0
 
     def build(self, input_shape):
+        # using uniform weight dist for inputs as opposed to RandomNormal(mean=1., stddev=1. / np.sqrt(input_shape[-1] + self.units))
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
-                                             initializer=tf.keras.initializers.RandomNormal(mean=1.,
-                                                 stddev=1. / np.sqrt(input_shape[-1] + self.units)),
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=0.3,
                                              name='input_weights')
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool)
+        # eventually we want sth different than Orthogonal(gain=.7) recurrent weights
         self.recurrent_weights = self.add_weight(
             shape=(self.units, self.units),
             initializer=tf.keras.initializers.Orthogonal(gain=.7),
