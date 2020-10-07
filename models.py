@@ -16,8 +16,8 @@ def spike_function(v_scaled, dampening_factor):
     (it would be a case of -(max-x)/(max-min)
     :param dampening_factor: parameter to stabilize learning
     """
-    z_ = tf.greater(v_scaled, 0.)
-    z_ = tf.cast(z_, tf.float32)
+    z_ = tf.greater(v_scaled, 0.) # returns bool of whether v_scaled is above thr or not, since it would be equal to 0 at thr
+    z_ = tf.cast(z_, tf.float32) # cast as number [0, 1]
 
     def grad(dy):
         de_dz = dy
