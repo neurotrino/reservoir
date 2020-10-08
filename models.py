@@ -235,7 +235,7 @@ class Adex(tf.keras.layers.Layer):
         # Refractory (all 0)
         r0 = tf.zeros((batch_size, self.units), tf.int32)
         # Adaptation (all 0)
-        w0 = tf.zeros((batch_size, self.units), tf.int32)
+        w0 = tf.zeros((batch_size, self.units), tf.float32)
         # Spike (all not spiking)
         z_buf0 = tf.zeros((batch_size, self.units), tf.float32)
         return [v0, r0, w0, z_buf0]
@@ -371,7 +371,7 @@ class Adex_EI(tf.keras.layers.Layer):
         # Refractory (all 0)
         r0 = tf.zeros((batch_size, self.units), tf.int32)
         # Adaptation (all 0)
-        w0 = tf.zeros((batch_size, self.units), tf.int32)
+        w0 = tf.zeros((batch_size, self.units), tf.float32)
         # Spike (all not spiking)
         z_buf0 = tf.zeros((batch_size, self.units), tf.float32)
         return [v0, r0, w0, z_buf0]
