@@ -145,7 +145,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
         # abs_max = np.abs(v).max()
         # plot transpose of voltage matrix as colormap
         # self.axes[1].pcolormesh(v.T, cmap='seismic', vmin=-abs_max, vmax=abs_max)
-        im = self.axes[1].pcolormesh(v.T, cmap='seismic', vmin=EL-5, vmax=thr+5)
+        im = self.axes[1].pcolormesh(v.T, cmap='seismic', vmin=EL-15, vmax=thr+15)
         cb2 = self.fig.colorbar(im, ax = self.axes[1])
         self.axes[1].set_ylabel('voltage')
         # plot transpose of spike matrix

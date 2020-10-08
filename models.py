@@ -105,7 +105,10 @@ class LIFCell(tf.keras.layers.Layer):
 
         i_in = tf.matmul(inputs, self.input_weights)
         i_rec = tf.matmul(old_z, no_autapse_w_rec)
-        i_reset = -self.threshold * old_z
+        # to circumvent the problem of voltage reset, we have a subtractive current applied if a spike occurred in previous time step
+        # i_reset = -self.threshold * old_z # in the toy-valued case, we can just subtract threshold which was 1, to return to baseline 0, or approximately baseline
+        # now to have the analogous behavior using real voltage values, we must subtract the difference between thr and EL
+        i_reset = -(self.threshold-self.EL) * old_z # approx driving the voltage 20 mV more negative 
         input_current = i_in + i_rec + i_reset + self.bias_currents[None]
 
         # doing this hacky thing so that we are actually becoming more negative as opposed to positive
