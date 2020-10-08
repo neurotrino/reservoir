@@ -10,7 +10,7 @@ import os
 import pickle
 # import tfrecord_dataset
 
-root_path = '../data'
+root_path = '../tarek2/testAdextf2'
 
 # neuron model param flags
 # some of these are not currently used, but will be needed for adapting units, adex, conductance-based synapses, etc.
