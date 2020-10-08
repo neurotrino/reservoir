@@ -193,13 +193,12 @@ class SpikeVoltageRegularization(tf.keras.layers.Layer):
         return inputs
 
 class Adex(tf.keras.layers.Layer):
-    def __init__(self, units, n_neurons, n_in, thr, n_refrac, dt, dampening_factor, tauw, a, b, stop_gradients, gL, EL, C, deltaT, V_reset, p):
+    def __init__(self, n_neurons, n_in, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p):
 
         if tauw is None: raise ValueError("Time constant for adaptive bias must be set.")
         if a is None: raise ValueError("a parameter for adaptive bias must be set.")
 
         super().__init__()
-        self.units = units
 
         self._dt = float(dt)
 
@@ -211,7 +210,6 @@ class Adex(tf.keras.layers.Layer):
         self.tauw = tauw
         self.a = a
         self.b = b
-        self.stop_gradients = stop_gradients
         self.gL = gL
         self.EL = EL
         self.C = C
@@ -226,10 +224,10 @@ class Adex(tf.keras.layers.Layer):
         self.recurrent_weights = None
         self.disconnect_mask = None
 
-        #                  voltage, refractory, adaptation, spikes (spiking or not)
-        self.state_size = (units, units, units, units)
-        #                  voltage, spikes
-        self.output_size = (units, units)
+        #                  voltage,    refractory, adaptation, spikes (spiking or not)
+        self.state_size = (self.units, self.units, self.units, self.units)
+        #                  voltage,     spikes
+        self.output_size = (self.units, self.units)
 
     def zero_state(self, batch_size, dtype=tf.float32):
         # Voltage (all at EL)
@@ -325,20 +323,19 @@ class Adex(tf.keras.layers.Layer):
 
 class Adex_EI(tf.keras.layers.Layer):
     
-    def __init__(self, units, n_neurons, frac_e, n_in, thr, n_refrac, dt, dampening_factor, tauw, a, b, stop_gradients, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii):
+    def __init__(self, n_neurons, frac_e, n_in, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii):
         
         if tauw is None: raise ValueError("Time constant for adaptive bias must be set.")
         if a is None: raise ValueError("a parameter for adaptive bias must be set.")
         if (frac_e * n_neurons) % 1 != 0: raise ValueError("The resulting number of excitatory neurons should be an integer.")
 
         super().__init__()
-        self.units = units
 
         self._dt = float(dt)
 
-        self.n_neurons = n_neurons
-        self.n_excite = frac_e * self.n_neurons
-        self.n_inhib = self.n_neurons - self.n_excite
+        self.units = n_neurons
+        self.n_excite = frac_e * self.units
+        self.n_inhib = self.units - self.n_excite
         self.n_in = n_in
         self.thr = thr
         self.n_refrac = n_refrac
@@ -346,7 +343,6 @@ class Adex_EI(tf.keras.layers.Layer):
         self.tauw = tauw
         self.a = a
         self.b = b
-        self.stop_gradients = stop_gradients
         self.gL = gL
         self.EL = EL
         self.C = C
@@ -364,10 +360,10 @@ class Adex_EI(tf.keras.layers.Layer):
         self.recurrent_weights = None
         self.disconnect_mask = None
 
-        #                  voltage, refractory, adaptation, spikes (spiking or not)
-        self.state_size = (units, units, units, units)
-        #                  voltage, spikes
-        self.output_size = (units, units)
+        #                  voltage,    refractory, adaptation, spikes (spiking or not)
+        self.state_size = (self.units, self.units, self.units, self.units)
+        #                   voltage,    spikes
+        self.output_size = (self.units, self.units)
 
     def zero_state(self, batch_size, dtype=tf.float32):
         # Voltage (all at EL)

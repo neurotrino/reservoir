@@ -31,14 +31,15 @@ mSiemens = Siemens / 1e3
 nSiemens = Siemens / 1e9
 Hertz = 1 / Second
 
-# these ones are for LIF
+# Parameters values for LIF cells
+"""
 thr = -50.4 * mVolt
 EL = -70.6 * mVolt
 n_refrac = 4
 tau = 20.
 dt = 1.
 dampening_factor = 0.3
-
+"""
 seq_len = 1000
 learning_rate = 1e-2
 n_epochs = 10
@@ -62,7 +63,7 @@ flags.DEFINE_float('dampening_factor', 0.3, 'factor that controls amplitude of p
 """
 
 # Parameters values for Adex cells (currently used by Tarek)
-"""
+
 EL = -70.6 * mVolt
 gL = 30 * nSiemens
 C = 281 * uFarad
@@ -76,7 +77,7 @@ n_refrac = 2
 p = 0.2
 dt = 1. * mSecond
 dampening_factor = 0.3
-"""
+
 """
 flags.DEFINE_float('EL', -70.6 * mVolt, 'Equilibrium potential for leak (all) channels')
 flags.DEFINE_float('gL', 30 * nSiemens, 'Leak conductance')
@@ -172,7 +173,9 @@ flags.DEFINE_integer('n_recurrent', 100, '') # recurrent network of 100 spiking 
 def create_model(seq_len, n_input, n_recurrent):
     inputs = tf.keras.layers.Input(shape=(seq_len, n_input))
 
-    cell = models.LIFCell(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor)
+    # cell = models.LIFCell(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor)
+    cell = models.Adex(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p)
+    # cell = models.AdexEI(n_recurrent, frac_e, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii)
     rnn = tf.keras.layers.RNN(cell, return_sequences=True)
 
     batch_size = tf.shape(inputs)[0]
