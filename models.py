@@ -112,10 +112,10 @@ class LIFCell(tf.keras.layers.Layer):
         input_current = i_in + i_rec + i_reset + self.bias_currents[None]
 
         # doing this hacky thing so that we are actually becoming more negative as opposed to positive when above EL
-        if old_v > self.EL:
-            new_v = (2-self._decay) * old_v + input_current
-        else: # and becoming more positive when below EL
-            new_v = (self._decay) * old_v + input_current
+        #if old_v > self.EL:
+            #new_v = (2-self._decay) * old_v + input_current
+        #else: # and becoming more positive when below EL
+        new_v = (self._decay) * old_v + input_current
         # previously, if old_v was below 0 or above 0, you would still decay gradually back to 0
         # the equation was simply new_v = self._decay * old_v + input_current
 
