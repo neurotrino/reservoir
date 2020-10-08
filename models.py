@@ -247,17 +247,17 @@ class Adex(tf.keras.layers.Layer):
         # Calculate input current
         i_in = tf.matmul(inputs, self.input_weights)
         i_rec = tf.matmul(old_z, no_autapse_w_rec)
-        i_reset = -self.thr * old_z
-        i_t = i_in + i_rec + i_reset  # + self.bias_currents[None]
+        # There is no reset current because we are setting new_V to V_reset if old_z > 0.5
+        i_t = i_in + i_rec  # + self.bias_currents[None]
 
         # Update voltage
-        exp_terms = tf.clip_by_value(self.gL * self.deltaT * tf.exp((old_v - self.thr)/self.deltaT), -1e6, 30 / self.dt_gL__C)
+        exp_terms = tf.clip_by_value(tf.exp((old_v - self.thr)/self.deltaT), -1e6, 30 / self.dt_gL__C)  # These min and max values were taken from tf1
         exp_terms = tf.stop_gradient(exp_terms)  # I think we need this but I am not 100% sure
-        new_v = old_v - self.dt_gL__C * (old_v - self.EL) + self.dt_gL__C * exp_terms + (i_t - old_w) * self._dt / self.C
+        new_v = old_v - (self.dt_gL__C * (old_v - self.EL)) + (self.dt_gL__C * self.deltaT * exp_terms) + ((i_t - old_w) * self._dt / self.C)
         new_v = tf.where(old_z > .5, tf.ones_like(new_v) * self.V_reset, new_v)
 
         # Update adaptation term
-        new_w = old_w - self._dt / self.tauw * old_w + self.dt_a__tauw * (old_v - self.EL)
+        new_w = old_w - ((self._dt / self.tauw) * old_w) + (self.dt_a__tauw * (old_v - self.EL))
         new_w += self.b * old_z
 
         # Determine if the neuron is spiking
@@ -390,17 +390,17 @@ class Adex_EI(tf.keras.layers.Layer):
         # Calculate input current
         i_in = tf.matmul(inputs, self.input_weights)
         i_rec = tf.matmul(old_z, constrained_w_rec)
-        i_reset = -self.thr * old_z
-        i_t = i_in + i_rec + i_reset  # + self.bias_currents[None]
+        # There is no reset current because we are setting new_V to V_reset if old_z > 0.5
+        i_t = i_in + i_rec  # + self.bias_currents[None]
 
         # Update voltage
-        exp_terms = tf.clip_by_value(self.gL * self.deltaT * tf.exp((old_v - self.thr)/self.deltaT), -1e6, 30 / self.dt_gL__C)
+        exp_terms = tf.clip_by_value(tf.exp((old_v - self.thr)/self.deltaT), -1e6, 30 / self.dt_gL__C)  # These min and max values were taken from tf1
         exp_terms = tf.stop_gradient(exp_terms)  # I think we need this but I am not 100% sure
-        new_v = old_v - self.dt_gL__C * (old_v - self.EL) + self.dt_gL__C * exp_terms + (i_t - old_w) * self._dt / self.C
+        new_v = old_v - (self.dt_gL__C * (old_v - self.EL)) + (self.dt_gL__C * self.deltaT * exp_terms) + ((i_t - old_w) * self._dt / self.C)
         new_v = tf.where(old_z > .5, tf.ones_like(new_v) * self.V_reset, new_v)
 
         # Update adaptation term
-        new_w = old_w - self._dt / self.tauw * old_w + self.dt_a__tauw * (old_v - self.EL)
+        new_w = old_w - ((self._dt / self.tauw) * old_w) + (self.dt_a__tauw * (old_v - self.EL))
         new_w += self.b * old_z
 
         # Determine if the neuron is spiking
