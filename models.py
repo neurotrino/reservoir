@@ -108,11 +108,16 @@ class LIFCell(tf.keras.layers.Layer):
         # to circumvent the problem of voltage reset, we have a subtractive current applied if a spike occurred in previous time step
         # i_reset = -self.threshold * old_z # in the toy-valued case, we can just subtract threshold which was 1, to return to baseline 0, or approximately baseline
         # now to have the analogous behavior using real voltage values, we must subtract the difference between thr and EL
-        i_reset = -(self.threshold-self.EL) * old_z # approx driving the voltage 20 mV more negative 
+        i_reset = -(self.threshold-self.EL) * old_z # approx driving the voltage 20 mV more negative
         input_current = i_in + i_rec + i_reset + self.bias_currents[None]
 
-        # doing this hacky thing so that we are actually becoming more negative as opposed to positive
-        new_v = (2-self._decay) * old_v + input_current
+        # doing this hacky thing so that we are actually becoming more negative as opposed to positive when above EL
+        if old_v > self.EL:
+            new_v = (2-self._decay) * old_v + input_current
+        else: # and becoming more positive when below EL
+            new_v = (self._decay) * old_v + input_current
+        # previously, if old_v was below 0 or above 0, you would still decay gradually back to 0
+        # the equation was simply new_v = self._decay * old_v + input_current
 
         is_refractory = tf.greater(old_r, 0)
         #v_scaled = (new_v - self.threshold) / self.threshold
