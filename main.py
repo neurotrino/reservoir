@@ -35,6 +35,44 @@ flags.DEFINE_float('tau', 20., 'membrane time constant')
 flags.DEFINE_float('dt', 1. * mSecond, 'simulation time step')
 flags.DEFINE_float('dampening_factor', 0.3, 'factor that controls amplitude of pseudoderivative')
 
+# Parameters values for Adex cells (currently used by Tarek)
+"""
+flags.DEFINE_float('EL', -70.6 * mVolt, 'Equilibrium potential for leak (all) channels')
+flags.DEFINE_float('gL', 30 * nSiemens, 'Leak conductance')
+flags.DEFINE_float('C', 281 * uFarad, 'Membrane capacitance')
+flags.DEFINE_float('deltaT', 2 * mVolt, 'Slope factor')
+flags.DEFINE_float('thr', -40.4 * mVolt, 'Threshold at which neuron spikes')
+flags.DEFINE_float('tauw', 144 * mSecond, 'Time constant for adaptation')
+flags.DEFINE_float('a', 4 * nSiemens, 'Subthreshhold adaptation')
+flags.DEFINE_float('b', 80.5 * pAmpere, 'Spike-triggered adaptation')
+flags.DEFINE_float('V_reset', -70.6 * mVolt, 'After spike voltage')
+flags.DEFINE_integer('n_refrac', 2, 'Number of refractory steps after each spike [ms]')
+flags.DEFINE_float('p', 0.2, 'Connectivity probability')
+flags.DEFINE_float('dt', 1. * mSecond, 'Simulation time step')
+flags.DEFINE_float('dampening_factor', 0.3, 'Factor that controls amplitude of pseudoderivative')
+"""
+
+# Parameters values for Adex_EI cells (currently used by Tarek)
+"""
+flags.DEFINE_float('frac_e', 0.8, 'Proportion of excitatory cells')
+flags.DEFINE_float('EL', -70.6 * mVolt, 'Equilibrium potential for leak (all) channels')
+flags.DEFINE_float('gL', 30 * nSiemens, 'Leak conductance')
+flags.DEFINE_float('C', 281 * uFarad, 'Membrane capacitance')
+flags.DEFINE_float('deltaT', 2 * mVolt, 'Slope factor')
+flags.DEFINE_float('thr', -40.4 * mVolt, 'Threshold at which neuron spikes')
+flags.DEFINE_float('tauw', 144 * mSecond, 'Time constant for adaptation')
+flags.DEFINE_float('a', 4 * nSiemens, 'Subthreshhold adaptation')
+flags.DEFINE_float('b', 80.5 * pAmpere, 'Spike-triggered adaptation')
+flags.DEFINE_float('V_reset', -70.6 * mVolt, 'After spike voltage')
+flags.DEFINE_integer('n_refrac', 2, 'Number of refractory steps after each spike [ms]')
+flags.DEFINE_float('p_ee', 0.160, 'Connectivity probability from excitatory to excitaotry neurons')
+flags.DEFINE_float('p_ei', 0.244, 'Connectivity probability from excitatory to inhibitory neurons')
+flags.DEFINE_float('p_ie', 0.318, 'Connectivity probability from inhibitory to excitaotry neurons')
+flags.DEFINE_float('p_ii', 0.343, 'Connectivity probability from inhibitory to inhibitory neurons')
+flags.DEFINE_float('dt', 1. * mSecond, 'Simulation time step')
+flags.DEFINE_float('dampening_factor', 0.3, 'Factor that controls amplitude of pseudoderivative')
+"""
+
 """
 # these ones are for later neuron models
 flags.DEFINE_float('gL', 0.00003 * mSiemens, 'leak conductance')
