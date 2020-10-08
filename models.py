@@ -84,7 +84,7 @@ class LIFCell(tf.keras.layers.Layer):
         #self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
                                              #initializer=tf.keras.initializers.RandomNormal(stddev=1. / np.sqrt(input_shape[-1] + self.units)), name='input_weights')
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
-                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1.2), name='input_weights')
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1.), name='input_weights')
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool)
         # eventually we want sth different than Orthogonal(gain=.7) recurrent weights
         self.recurrent_weights = self.add_weight(
@@ -111,12 +111,14 @@ class LIFCell(tf.keras.layers.Layer):
         i_reset = -(self.threshold-self.EL) * old_z # approx driving the voltage 20 mV more negative
         input_current = i_in + i_rec + i_reset + self.bias_currents[None]
 
-        # doing this hacky thing so that we are actually becoming more negative as opposed to positive when above EL
-        # new_v[idx] = (2-self._decay) * x + input_current
-        #else: # and becoming more positive when below EL
-        # new_v = (self._decay) * old_v + input_current
-        # previously, if old_v was below 0 or above 0, you would still decay gradually back to 0
+        # previously, whether old_v was below or above 0, you would still decay gradually back to 0
+        # decay was dependent on the distance between your old voltage and resting 0
         # the equation was simply new_v = self._decay * old_v + input_current
+        # we are now writing it with the same concept: the decay is dependent on the distance between old voltage and rest at -70mV
+        # that decay is then added to the resting value
+        # in the same way that decay was previously implicitly added to 0 (rest)
+        # this ensures the same basic behavior s.t. if you're above EL, you hyperpolarize to EL
+        # and if you are below EL, you depolarize to EL 
         new_v = self.EL + (self._decay) * (old_v - self.EL) + input_current
 
         is_refractory = tf.greater(old_r, 0)
