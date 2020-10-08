@@ -37,6 +37,21 @@ flags.DEFINE_float('dampening_factor', 0.3, 'factor that controls amplitude of p
 
 # Parameters values for Adex cells (currently used by Tarek)
 """
+EL = -70.6 * mVolt
+gL = 30 * nSiemens
+C = 281 * uFarad
+deltaT = 2 * mVolt
+thr = -40.4 * mVolt
+tauw = 144 * mSecond
+a = 4 * nSiemens
+b = 80.5 * pAmpere
+V_reset = -70.6 * mVolt
+n_refrac = 2
+p = 0.2
+dt = 1. * mSecond
+dampening_factor = 0.3
+"""
+"""
 flags.DEFINE_float('EL', -70.6 * mVolt, 'Equilibrium potential for leak (all) channels')
 flags.DEFINE_float('gL', 30 * nSiemens, 'Leak conductance')
 flags.DEFINE_float('C', 281 * uFarad, 'Membrane capacitance')
@@ -53,6 +68,25 @@ flags.DEFINE_float('dampening_factor', 0.3, 'Factor that controls amplitude of p
 """
 
 # Parameters values for Adex_EI cells (currently used by Tarek)
+"""
+frac_e = 0.8
+EL = -70.6 * mVolt
+gL = 30 * nSiemens
+C = 281 * uFarad
+deltaT = 2 * mVolt
+thr = -40.4 * mVolt
+tauw = 144 * mSecond
+a = 4 * nSiemens
+b = 80.5 * pAmpere
+V_reset = -70.6 * mVolt
+n_refrac = 2
+p_ee = 0.160
+p_ei = 0.244
+p_ie = 0.318
+p_ii = 0.343
+dt = 1. * mSecond
+dampening_factor = 0.3
+"""
 """
 flags.DEFINE_float('frac_e', 0.8, 'Proportion of excitatory cells')
 flags.DEFINE_float('EL', -70.6 * mVolt, 'Equilibrium potential for leak (all) channels')
