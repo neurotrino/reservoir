@@ -204,7 +204,7 @@ class Adex(tf.keras.layers.Layer):
 
         self.units = n_neurons
         self.n_in = n_in
-        self.thr = thr
+        self.threshold = thr
         self.n_refrac = n_refrac
         self.dampening_factor = dampening_factor
         self.tauw = tauw
@@ -296,7 +296,7 @@ class Adex(tf.keras.layers.Layer):
         i_t = i_in + i_rec  # + self.bias_currents[None]
 
         # Update voltage
-        exp_terms = tf.clip_by_value(tf.exp((old_v - self.thr)/self.deltaT), -1e6, 30 / self.dt_gL__C)  # These min and max values were taken from tf1
+        exp_terms = tf.clip_by_value(tf.exp((old_v - self.threshold)/self.deltaT), -1e6, 30 / self.dt_gL__C)  # These min and max values were taken from tf1
         exp_terms = tf.stop_gradient(exp_terms)  # I think we need this but I am not 100% sure
         new_v = old_v - (self.dt_gL__C * (old_v - self.EL)) + (self.dt_gL__C * self.deltaT * exp_terms) + ((i_t - old_w) * self._dt / self.C)
         new_v = tf.where(old_z > .5, tf.ones_like(new_v) * self.V_reset, new_v)
@@ -308,7 +308,7 @@ class Adex(tf.keras.layers.Layer):
         # Determine if the neuron is spiking
         is_refractory = tf.greater(old_r, 0)
         # v_scaled = (new_v - self.thr) / self.thr
-        v_scaled = -(self.thr-new_v) / (self.thr-self.EL)
+        v_scaled = -(self.threshold-new_v) / (self.threshold-self.EL)
         new_z = spike_function(v_scaled, self.dampening_factor)
         new_z = tf.where(is_refractory, tf.zeros_like(new_z), new_z)
 
@@ -337,7 +337,7 @@ class Adex_EI(tf.keras.layers.Layer):
         self.n_excite = frac_e * self.units
         self.n_inhib = self.units - self.n_excite
         self.n_in = n_in
-        self.thr = thr
+        self.threshold = thr
         self.n_refrac = n_refrac
         self.dampening_factor = dampening_factor
         self.tauw = tauw
@@ -437,7 +437,7 @@ class Adex_EI(tf.keras.layers.Layer):
         i_t = i_in + i_rec  # + self.bias_currents[None]
 
         # Update voltage
-        exp_terms = tf.clip_by_value(tf.exp((old_v - self.thr)/self.deltaT), -1e6, 30 / self.dt_gL__C)  # These min and max values were taken from tf1
+        exp_terms = tf.clip_by_value(tf.exp((old_v - self.threshold)/self.deltaT), -1e6, 30 / self.dt_gL__C)  # These min and max values were taken from tf1
         exp_terms = tf.stop_gradient(exp_terms)  # I think we need this but I am not 100% sure
         new_v = old_v - (self.dt_gL__C * (old_v - self.EL)) + (self.dt_gL__C * self.deltaT * exp_terms) + ((i_t - old_w) * self._dt / self.C)
         new_v = tf.where(old_z > .5, tf.ones_like(new_v) * self.V_reset, new_v)
@@ -449,7 +449,7 @@ class Adex_EI(tf.keras.layers.Layer):
         # Determine if the neuron is spiking
         is_refractory = tf.greater(old_r, 0)
         # v_scaled = (new_v - self.thr) / self.thr
-        v_scaled = -(self.thr-new_v) / (self.thr-self.EL)
+        v_scaled = -(self.threshold-new_v) / (self.threshold-self.EL)
         new_z = spike_function(v_scaled, self.dampening_factor)
         new_z = tf.where(is_refractory, tf.zeros_like(new_z), new_z)
 
