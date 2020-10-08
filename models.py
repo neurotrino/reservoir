@@ -10,8 +10,16 @@ def pseudo_derivative(v_scaled, dampening_factor):
 
 @tf.custom_gradient
 def spike_function(v_scaled, dampening_factor):
-    z_ = tf.greater(v_scaled, 0.)
-    z_ = tf.cast(z_, tf.float32)
+    """
+    originally,
+    :param v_scaled: scaled version of the voltage being -1 at rest and 0 at the threshold
+    so we must make sure our membrane dynamics (with negative real valued thresholds, etc.) is consistent with this voltage-scaling spike generation mechanic
+    in this case, we are normalizing using -(thr-V)/(thr-EL), which is a variation on the way one would normalize x between 0 and 1 using (x-min)/(max-min)
+    (it would be a case of -(max-x)/(max-min)
+    :param dampening_factor: parameter to stabilize learning
+    """
+    z_ = tf.greater(v_scaled, 0.) # returns bool of whether v_scaled is above thr or not, since it would be equal to 0 at thr
+    z_ = tf.cast(z_, tf.float32) # cast as number [0, 1]
 
     def grad(dy):
         de_dz = dy
@@ -51,7 +59,6 @@ class LIFCell(tf.keras.layers.Layer):
         self._dt = float(dt)
         self._decay = tf.exp(-dt / tau)
         self._n_refractory = n_refractory
-        self.EL = EL
 
         self.input_weights = None
         self.bias_currents = None
@@ -59,6 +66,7 @@ class LIFCell(tf.keras.layers.Layer):
         self.disconnect_mask = None
 
         self.threshold = thr
+        self.EL = EL
         self._dampening_factor = dampening_factor
 
         #                  voltage, refractory, previous spikes
@@ -74,11 +82,13 @@ class LIFCell(tf.keras.layers.Layer):
         return v0, r0, z_buf0
 
     def build(self, input_shape):
+        # using uniform weight dist for inputs as opposed to RandomNormal(mean=1., stddev=1. / np.sqrt(input_shape[-1] + self.units))
+        #self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
+                                             #initializer=tf.keras.initializers.RandomNormal(stddev=1. / np.sqrt(input_shape[-1] + self.units)), name='input_weights')
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
-                                             initializer=tf.keras.initializers.RandomNormal(
-                                                 stddev=1. / np.sqrt(input_shape[-1] + self.units)),
-                                             name='input_weights')
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=0.5), name='input_weights')
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool)
+        # eventually we want sth different than Orthogonal(gain=.7) recurrent weights
         self.recurrent_weights = self.add_weight(
             shape=(self.units, self.units),
             initializer=tf.keras.initializers.Orthogonal(gain=.7),
@@ -97,13 +107,25 @@ class LIFCell(tf.keras.layers.Layer):
 
         i_in = tf.matmul(inputs, self.input_weights)
         i_rec = tf.matmul(old_z, no_autapse_w_rec)
-        i_reset = -self.threshold * old_z
+        # to circumvent the problem of voltage reset, we have a subtractive current applied if a spike occurred in previous time step
+        # i_reset = -self.threshold * old_z # in the toy-valued case, we can just subtract threshold which was 1, to return to baseline 0, or approximately baseline
+        # now to have the analogous behavior using real voltage values, we must subtract the difference between thr and EL
+        i_reset = -(self.threshold-self.EL) * old_z # approx driving the voltage 20 mV more negative
         input_current = i_in + i_rec + i_reset + self.bias_currents[None]
 
-        new_v = self._decay * old_v + input_current
+        # previously, whether old_v was below or above 0, you would still decay gradually back to 0
+        # decay was dependent on the distance between your old voltage and resting 0
+        # the equation was simply new_v = self._decay * old_v + input_current
+        # we are now writing it with the same concept: the decay is dependent on the distance between old voltage and rest at -70mV
+        # that decay is then added to the resting value
+        # in the same way that decay was previously implicitly added to 0 (rest)
+        # this ensures the same basic behavior s.t. if you're above EL, you hyperpolarize to EL
+        # and if you are below EL, you depolarize to EL
+        new_v = self.EL + (self._decay) * (old_v - self.EL) + input_current
 
         is_refractory = tf.greater(old_r, 0)
-        v_scaled = (new_v - self.threshold) / self.threshold
+        #v_scaled = (new_v - self.threshold) / self.threshold
+        v_scaled = -(self.threshold-new_v) / (self.threshold-self.EL)
         new_z = spike_function(v_scaled, self._dampening_factor)
         new_z = tf.where(is_refractory, tf.zeros_like(new_z), new_z)
         new_r = tf.clip_by_value(
@@ -116,9 +138,34 @@ class LIFCell(tf.keras.layers.Layer):
 
         return output, new_state
 
-# this will require editing
+
+class SpikeRegularization(tf.keras.layers.Layer):
+    def __init__(self, cell, target_rate, rate_cost): # rate in spikes/ms for ease
+        self._rate_cost = rate_cost
+        self._target_rate = target_rate
+        self._cell = cell
+        super().__init__()
+
+    def call(self, inputs, **kwargs):
+        voltage = inputs[0]
+        spike = inputs[1]
+        upper_threshold = self._cell.threshold
+
+        rate = tf.reduce_mean(spike, axis=(0, 1))
+        # av = Second * tf.reduce_mean(z, axis=(0, 1)) / flags.dt
+        #regularization_coeff = tf.Variable(np.ones(flags.n_neurons) * flags.reg_fr, dtype=tf.float32, trainable=False)
+        #loss_reg_fr = tf.reduce_sum(tf.square(rate - flags.target_rate) * regularization_coeff)
+        global_rate = tf.reduce_mean(rate)
+        self.add_metric(global_rate, name='rate', aggregation='mean')
+
+        reg_loss = tf.reduce_sum(tf.square(rate - self._target_rate)) * self._rate_cost
+        self.add_loss(reg_loss)
+        self.add_metric(reg_loss, name='rate_loss', aggregation='mean')
+
+        return inputs
+
 class SpikeVoltageRegularization(tf.keras.layers.Layer):
-    def __init__(self, cell, rate_cost=.1, voltage_cost=.01, target_rate=.02):
+    def __init__(self, cell, rate_cost=.1, voltage_cost=.01, target_rate=.02): # rate in spikes/ms for ease
         self._rate_cost = rate_cost
         self._voltage_cost = voltage_cost
         self._target_rate = target_rate
@@ -206,7 +253,7 @@ class Adex(tf.keras.layers.Layer):
                                              name='input_weights')
         '''
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
-                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1.2),
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1),
                                              name='input_weights')
         
         # Create the recurrent weights, their value here is not important
@@ -344,7 +391,7 @@ class Adex_EI(tf.keras.layers.Layer):
                                              name='input_weights')
         '''
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
-                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1.2),
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1),
                                              name='input_weights')        
         # Create the recurrent weights, their value here is not important
         self.recurrent_weights = self.add_weight(shape=(self.units, self.units), 

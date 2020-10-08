@@ -1,12 +1,16 @@
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from absl import app
-from absl import flags
-FLAGS = flags.FLAGS
+#from absl import app
+#from absl import flags
+#FLAGS = flags.FLAGS
 
 import models
-import tfrecord_dataset
+import os
+import pickle
+# import tfrecord_dataset
+
+root_path = '../data'
 
 # neuron model param flags
 # some of these are not currently used, but will be needed for adapting units, adex, conductance-based synapses, etc.
@@ -28,12 +32,34 @@ nSiemens = Siemens / 1e9
 Hertz = 1 / Second
 
 # these ones are for LIF
+thr = -50.4 * mVolt
+EL = -70.6 * mVolt
+n_refrac = 4
+tau = 20.
+dt = 1.
+dampening_factor = 0.3
+
+seq_len = 1000
+learning_rate = 1e-2
+n_epochs = 10
+
+target_rate = 0.02
+rate_cost = 0.1
+
+do_plot = True
+do_save = True
+
+n_input = 20
+n_recurrent = 100
+
+"""
 flags.DEFINE_float('thr', -50.4 * mVolt, 'threshold at which neuron spikes')
 flags.DEFINE_float('EL', -70.6 * mVolt, 'equilibrium potential for leak (all) channels')
 flags.DEFINE_integer('n_refrac', 4, 'Number of refractory steps after each spike [ms]')
 flags.DEFINE_float('tau', 20., 'membrane time constant')
 flags.DEFINE_float('dt', 1. * mSecond, 'simulation time step')
 flags.DEFINE_float('dampening_factor', 0.3, 'factor that controls amplitude of pseudoderivative')
+"""
 
 # Parameters values for Adex cells (currently used by Tarek)
 """
@@ -116,41 +142,43 @@ flags.DEFINE_float('tauw', 144 * mSecond, 'tau for adaptation term w in adex')
 flags.DEFINE_float('C', .000281 * uFarad, 'membrane capacitance')
 flags.DEFINE_float('b', 0.0805 * nAmpere, 'amount by which adaptation value w is changed per spike in adex')
 flags.DEFINE_float('V_reset', -70.6 * mVolt, 'reset voltage after spike (equal to EL)')
-"""
 
 # flags for task / training set-up
 flags.DEFINE_integer('seq_len', 1000, '')
 flags.DEFINE_float('learning_rate', 1e-3, '')
 flags.DEFINE_integer('n_epochs', 10, '')
 
-"""
+flags.DEFINE_float('target_rate', 0.02, 'spikes/ms; for rate regularization') # right now separate layer in models.py
+flags.DEFINE_float('rate_cost', 0.1, '')
+
+flags.DEFINE_bool('do_plot', True, 'plotting')
+flags.DEFINE_bool('do_save', True, 'saving data and plots')
+
 # you may need to define these flags based on task set-up; some of these are currently hard-baked into this toy script
 flags.DEFINE_integer('n_iter', 10000, 'total number of iterations')
 flags.DEFINE_integer('batch_size', 32, 'trials in each training batch')
-"""
+flags.DEFINE_integer('voltage_cost', 0.01, 'for voltage regularization')
 
-"""
 # flags to be used in future versions
 flags.DEFINE_bool('random_eprop', False, 'random or symmetric eprop feedback weights')
-flags.DEFINE_integer('target_rate', 20, 'spikes/s; for rate regularization') # right now hard-coded in SpikeVoltageRegularization() in models.py
 flags.DEFINE_float('reg_f', 1., 'regularization coefficient for firing rate')
 flags.DEFINE_integer('print_every', 50, 'print out metrics to terminal after this many iterations to assess how training is going')
-"""
 
 # SNN model architecture flags
-flags.DEFINE_integer('n_input', 20, '')
-flags.DEFINE_integer('n_recurrent', 100, '')
+flags.DEFINE_integer('n_input', 20, '') # 20 input channels
+flags.DEFINE_integer('n_recurrent', 100, '') # recurrent network of 100 spiking units
+"""
 
-def create_model(seq_len=flags.seq_len, n_input=flags.n_input, n_recurrent=flags.n_recurrent):
+def create_model(seq_len, n_input, n_recurrent):
     inputs = tf.keras.layers.Input(shape=(seq_len, n_input))
 
-    cell = models.LIFCell(n_recurrent, flags.thr, flags.EL, flags.tau, flags.dt, flags.n_refrac, flags.dampening_factor)
+    cell = models.LIFCell(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor)
     rnn = tf.keras.layers.RNN(cell, return_sequences=True)
 
     batch_size = tf.shape(inputs)[0]
     initial_state = cell.zero_state(batch_size)
     rnn_output = rnn(inputs, initial_state=initial_state)
-    regularization_layer = models.SpikeVoltageRegularization(cell)
+    regularization_layer = models.SpikeRegularization(cell, target_rate, rate_cost)
     voltages, spikes = regularization_layer(rnn_output)
     voltages = tf.identity(voltages, name='voltages')
     spikes = tf.identity(spikes, name='spikes')
@@ -164,7 +192,7 @@ def create_model(seq_len=flags.seq_len, n_input=flags.n_input, n_recurrent=flags
     return tf.keras.Model(inputs=inputs, outputs=[voltages, spikes, prediction])
 
 # generate placeholder input data
-def create_data_set(seq_len=flags.seq_len, n_input=flags.n_input, n_batch=1):
+def create_data_set(seq_len, n_input, n_batch=1):
     x = tf.random.uniform(shape=(seq_len, n_input))[None] * .5
     y = tf.sin(tf.linspace(0., 4 * np.pi, seq_len))[None, :, None]
 
@@ -181,15 +209,21 @@ class PlotCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         output = self.model(self.test_example[0])
         [ax.clear() for ax in self.axes]
-        self.axes[0].pcolormesh(self.test_example[0].numpy()[0].T, cmap='cividis')
+        im = self.axes[0].pcolormesh(self.test_example[0].numpy()[0].T, cmap='cividis')
         self.axes[0].set_ylabel('input')
+        cb1 = self.fig.colorbar(im, ax = self.axes[0])
         v = output[0].numpy()[0]
         z = output[1].numpy()[0]
         out = output[2].numpy()[0, :, 0]
-        abs_max = np.abs(v).max()
-        self.axes[1].pcolormesh(v.T, cmap='seismic', vmin=-abs_max, vmax=abs_max)
+        # abs_max = np.abs(v).max()
+        # plot transpose of voltage matrix as colormap
+        # self.axes[1].pcolormesh(v.T, cmap='seismic', vmin=-abs_max, vmax=abs_max)
+        im = self.axes[1].pcolormesh(v.T, cmap='seismic', vmin=EL-15, vmax=thr+15)
+        cb2 = self.fig.colorbar(im, ax = self.axes[1])
         self.axes[1].set_ylabel('voltage')
-        self.axes[2].pcolormesh(z.T, cmap='Greys')
+        # plot transpose of spike matrix
+        im = self.axes[2].pcolormesh(z.T, cmap='Greys', vmin=0, vmax=1)
+        cb3 = self.fig.colorbar(im, ax = self.axes[2])
         self.axes[2].set_ylabel('spike')
         self.axes[3].plot(self.test_example[1]['tf_op_layer_output'][0, :, 0], 'k--', lw=2, alpha=.7, label='target')
         self.axes[3].plot(out, 'b', lw=2, alpha=.7, label='prediction')
@@ -197,25 +231,31 @@ class PlotCallback(tf.keras.callbacks.Callback):
         self.axes[3].legend(frameon=False)
         [ax.yaxis.set_label_coords(-.05, .5) for ax in self.axes]
         plt.draw()
-        plt.pause(.2)
-
+        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/test_epoch_{}.png'.format(epoch))), dpi=300)
+        #plt.pause(.2)
+        cb1.remove()
+        cb2.remove()
+        cb3.remove()
 
 def main():
-    model = create_model()
-    data_set = create_data_set()
+    model = create_model(seq_len, n_input, n_recurrent)
+    data_set = create_data_set(seq_len, n_input, n_batch=1)
     it = iter(data_set)
     test_example = next(it)
 
-    if flags.do_plot:
+    if do_plot:
         plt.ion()
         fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
         plot_callback = PlotCallback(test_example, fig, axes)
 
     # train the model
-    opt = tf.keras.optimizers.Adam(lr=flags.learning_rate)
+    opt = tf.keras.optimizers.Adam(lr=learning_rate)
     mse = tf.keras.losses.MeanSquaredError()
     model.compile(optimizer=opt, loss=dict(tf_op_layer_output=mse))
-    model.fit(data_set, epochs=flags.n_epochs, callbacks=[plot_callback])
+    if do_plot:
+        model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback])
+    else:
+        model.fit(data_set, epochs = n_epochs)
 
     # analyse the model
     inputs = test_example[0]
