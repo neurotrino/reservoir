@@ -179,8 +179,10 @@ class Adex(tf.keras.layers.Layer):
         self.recurrent_weights = None
         self.disconnect_mask = None
 
-        #                  voltage, refractory, adaptation, previous spikes (spiking or not)
+        #                  voltage, refractory, adaptation, spikes (spiking or not)
         self.state_size = (units, units, units, units)
+        #                  voltage, spikes
+        self.output_size = (units, units)
 
     def zero_state(self, batch_size, dtype=tf.float32):
         # Voltage (all at EL)
@@ -191,14 +193,20 @@ class Adex(tf.keras.layers.Layer):
         w0 = tf.zeros((batch_size, self.units), tf.int32)
         # Spike (all not spiking)
         z_buf0 = tf.zeros((batch_size, self.units), tf.float32)
-        return v0, r0, w0, z_buf0
+        return [v0, r0, w0, z_buf0]
 
     def build(self, input_shape):
         
         # Create the input weights which should be of the form:
         #   np.array([[input1toN1, ..., input1toNn], ..., [inputktoN1, ..., inputktoNn]], dtype=np.float32)
+        # Not sure why this choice of distribution; included also uniform used in LIFCell model
+        '''
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
                                              initializer=tf.keras.initializers.RandomNormal(stddev=1. / np.sqrt(input_shape[-1] + self.units)),
+                                             name='input_weights')
+        '''
+        self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1.2),
                                              name='input_weights')
         
         # Create the recurrent weights, their value here is not important
@@ -239,7 +247,7 @@ class Adex(tf.keras.layers.Layer):
         # Calculate input current
         i_in = tf.matmul(inputs, self.input_weights)
         i_rec = tf.matmul(old_z, no_autapse_w_rec)
-        i_reset = -self.thr * old_z  # This doesn't make sense to me because thr in V not A (from Yuqing LIFCell)
+        i_reset = -self.thr * old_z
         i_t = i_in + i_rec + i_reset  # + self.bias_currents[None]
 
         # Update voltage
@@ -254,7 +262,8 @@ class Adex(tf.keras.layers.Layer):
 
         # Determine if the neuron is spiking
         is_refractory = tf.greater(old_r, 0)
-        v_scaled = (new_v - self.thr) / self.thr
+        # v_scaled = (new_v - self.thr) / self.thr
+        v_scaled = -(self.thr-new_v) / (self.thr-self.EL)
         new_z = spike_function(v_scaled, self.dampening_factor)
         new_z = tf.where(is_refractory, tf.zeros_like(new_z), new_z)
 
@@ -308,8 +317,10 @@ class Adex_EI(tf.keras.layers.Layer):
         self.recurrent_weights = None
         self.disconnect_mask = None
 
-        #                  voltage, refractory, adaptation, previous spikes (spiking or not)
+        #                  voltage, refractory, adaptation, spikes (spiking or not)
         self.state_size = (units, units, units, units)
+        #                  voltage, spikes
+        self.output_size = (units, units)
 
     def zero_state(self, batch_size, dtype=tf.float32):
         # Voltage (all at EL)
@@ -320,16 +331,21 @@ class Adex_EI(tf.keras.layers.Layer):
         w0 = tf.zeros((batch_size, self.units), tf.int32)
         # Spike (all not spiking)
         z_buf0 = tf.zeros((batch_size, self.units), tf.float32)
-        return v0, r0, w0, z_buf0
+        return [v0, r0, w0, z_buf0]
     
     def build(self, input_shape):
 
         # Create the input weights which should be of the form:
         #   np.array([[input1toN1, ..., input1toNn], ..., [inputktoN1, ..., inputktoNn]], dtype=np.float32)
+        # Not sure why this choice of distribution; included also uniform used in LIFCell model
+        '''
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
                                              initializer=tf.keras.initializers.RandomNormal(stddev=1. / np.sqrt(input_shape[-1] + self.units)),
                                              name='input_weights')
-        
+        '''
+        self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1.2),
+                                             name='input_weights')        
         # Create the recurrent weights, their value here is not important
         self.recurrent_weights = self.add_weight(shape=(self.units, self.units), 
                                                  initializer=tf.keras.initializers.Orthogonal(gain=.7),
@@ -374,7 +390,7 @@ class Adex_EI(tf.keras.layers.Layer):
         # Calculate input current
         i_in = tf.matmul(inputs, self.input_weights)
         i_rec = tf.matmul(old_z, constrained_w_rec)
-        i_reset = -self.thr * old_z  # This doesn't make sense to me because thr in V not A (from Yuqing LIFCell)
+        i_reset = -self.thr * old_z
         i_t = i_in + i_rec + i_reset  # + self.bias_currents[None]
 
         # Update voltage
@@ -389,7 +405,8 @@ class Adex_EI(tf.keras.layers.Layer):
 
         # Determine if the neuron is spiking
         is_refractory = tf.greater(old_r, 0)
-        v_scaled = (new_v - self.thr) / self.thr
+        # v_scaled = (new_v - self.thr) / self.thr
+        v_scaled = -(self.thr-new_v) / (self.thr-self.EL)
         new_z = spike_function(v_scaled, self.dampening_factor)
         new_z = tf.where(is_refractory, tf.zeros_like(new_z), new_z)
 
