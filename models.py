@@ -245,16 +245,15 @@ class Adex(tf.keras.layers.Layer):
         # Create the input weights which should be of the form:
         #   np.array([[input1toN1, ..., input1toNn], ..., [inputktoN1, ..., inputktoNn]], dtype=np.float32)
         # Not sure why this choice of distribution; included also uniform used in LIFCell model
-        
+        '''
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
                                              initializer=tf.keras.initializers.RandomNormal(stddev=1. / np.sqrt(input_shape[-1] + self.units)),
                                              name='input_weights')
-        
         '''
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
-                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1),
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=2),
                                              name='input_weights')
-        '''
+        
         # Create the recurrent weights, their value here is not important
         self.recurrent_weights = self.add_weight(shape=(self.units, self.units), 
                                                  initializer=tf.keras.initializers.Orthogonal(gain=.7),

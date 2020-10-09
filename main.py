@@ -76,7 +76,7 @@ V_reset = -70.6 * mVolt
 n_refrac = 2
 p = 0.20
 dt = 1. * mSecond
-dampening_factor = 0.30 
+dampening_factor = 1  # 0.30 
 
 """
 flags.DEFINE_float('EL', -70.6 * mVolt, 'Equilibrium potential for leak (all) channels')
