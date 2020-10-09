@@ -68,15 +68,15 @@ EL = -70.6 * mVolt
 gL = 30 * nSiemens
 C = 281 * uFarad
 deltaT = 2 * mVolt
-thr = -50.4 * mVolt  # usually use -40.4
+thr = -40.4 * mVolt
 tauw = 144 * mSecond
 a = 4 * nSiemens
 b = 80.5 * pAmpere
 V_reset = -70.6 * mVolt
 n_refrac = 2
-p = 0.25  # was 0.20
+p = 0.20
 dt = 1. * mSecond
-dampening_factor = 0.001 # from Adex Toy Problem (was 0.3) 
+dampening_factor = 1.  # was 0.30 
 
 """
 flags.DEFINE_float('EL', -70.6 * mVolt, 'Equilibrium potential for leak (all) channels')
