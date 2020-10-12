@@ -10,6 +10,8 @@ import os
 import pickle
 # import tfrecord_dataset
 
+from keras.callbacks import ModelCheckpoint
+
 root_path = '../data'
 # root_path = '../tarek2/testAdextf2'
 
@@ -234,9 +236,22 @@ class PlotCallback(tf.keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs=None):
 
-        # save weights
-        fname = str(root_path) + "/test_epoch_" + str(epoch) + ".hdf5"
-        self.model.save_weights(fname)
+        # loop over each layer and get weights and biases
+        for layer_i in range(len(self.model.layers)):
+            w = self.model.layers[layer_i].get_weights()[0]
+
+            # save all weights and biases inside a dictionary
+            if epoch == 0:
+                self.weight_dict['w_'+str(layer_i+1)] = w
+            else:
+                # append new weights to previously-created weights array
+                self.weight_dict['w_'+str(layer_i+1)] = np.dstack(
+                    (self.weight_dict['w_'+str(layer_i+1)], w))
+
+        filepath = str(root_path) + "/tf2_testing/test_epoch_" + str(epoch) + ".pkl"
+        f = open(filepath,"wb")
+        pickle.dump(dict,f)
+        f.close()
 
         output = self.model(self.test_example[0])
         #weights = self.model.layers[0].get_weights()[0]
