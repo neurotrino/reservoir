@@ -19,7 +19,7 @@ class ConnectivityMatrixGenerator(object):
         self.weight_mat = numpy.zeros((self.n_neurons, self.n_neurons))
 
         self.mu = mu
-        self.sigma = sigma 
+        self.sigma = sigma
 
         # Calculate total number of connections per neuron (remove neuron from target if included (ee and ii))
         self.k = int(round(p * (self.n_neurons - 1)))
@@ -38,7 +38,7 @@ class ConnectivityMatrixGenerator(object):
                 raise Exception('Failed to weight connectivity matrix.')
             print("Weighted")
 
-            return self.weight_mat
+            return self.weight_mat/10
 
         except Exception as e:
             print(e)
