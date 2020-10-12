@@ -224,13 +224,6 @@ def create_data_set(seq_len, n_input, n_batch=1):
 
     return tf.data.Dataset.from_tensor_slices((x, dict(tf_op_layer_output=y))).repeat(count=20).batch(n_batch)
 
-class SaveCallback(tf.keras.callbacks.Callback):
-    def __init__(self):
-        super().__init__()
-
-    def on_epoch_end(self,epoch):
-        savepath = os.path.join(root_path, 'tf2_testing/test_epoch_{}.h5',format(epoch))
-        self.model.save_weights(savepath)
 
 class PlotCallback(tf.keras.callbacks.Callback):
     def __init__(self, test_example, fig, axes):
@@ -240,6 +233,11 @@ class PlotCallback(tf.keras.callbacks.Callback):
         self.axes = axes
 
     def on_epoch_end(self, epoch, logs=None):
+
+        # save weights 
+        savepath = os.path.join(root_path, 'tf2_testing/test_epoch_{}.h5',format(epoch))
+        self.model.save_weights(savepath)
+
         output = self.model(self.test_example[0])
         #weights = self.model.layers[0].get_weights()[0]
         [ax.clear() for ax in self.axes]
@@ -291,7 +289,7 @@ def main():
     mse = tf.keras.losses.MeanSquaredError()
     model.compile(optimizer=opt, loss=dict(tf_op_layer_output=mse))
     if do_plot:
-        model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback, save_callback])
+        model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback])
     else:
         model.fit(data_set, epochs = n_epochs)
 
