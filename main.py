@@ -195,7 +195,7 @@ flags.DEFINE_integer('n_recurrent', 100, '') # recurrent network of 100 spiking 
 def create_model(seq_len, n_input, n_recurrent):
     inputs = tf.keras.layers.Input(shape=(seq_len, n_input))
 
-    cell = models.LIFCell(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor)
+    cell = models.LIFCell(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor, p)
     # cell = models.Adex(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p)
     # cell = models.AdexEI(n_recurrent, frac_e, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii)
     # cell = models.AdexCS(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, tauS, VS)
