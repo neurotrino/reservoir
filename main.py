@@ -224,7 +224,7 @@ def create_data_set(seq_len, n_input, n_batch=1):
 
     return tf.data.Dataset.from_tensor_slices((x, dict(tf_op_layer_output=y))).repeat(count=20).batch(n_batch)
 
-class SaveCallback()
+class SaveCallback(tf.keras.callbacks.Callback):
     def __init__(self):
         super().__init__()
 
