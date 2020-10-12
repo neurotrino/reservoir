@@ -102,9 +102,9 @@ class LIFCell(tf.keras.layers.Layer):
         # !!!!! might need to change how we set the weights because current based synapses
 
         # weights are lognormal, see ConnMatGenerator.py > def make_weighted(self)
-        connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p)
-        initial_weights_mat = connmat_generator.run_generator()
-        self.set_weights([self.input_weights.value(), initial_weights_mat])
+        #connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p)
+        #initial_weights_mat = connmat_generator.run_generator()
+        #self.set_weights([self.input_weights.value(), initial_weights_mat])
 
         # not currently using bias currents
         #self.bias_currents = self.add_weight(shape=(self.units,),
