@@ -33,19 +33,21 @@ nSiemens = Siemens / 1e9
 Hertz = 1 / Second
 
 # Parameters values for LIF cells
-"""
+
 thr = -50.4 * mVolt
 EL = -70.6 * mVolt
 n_refrac = 4
 tau = 20.
 dt = 1.
 dampening_factor = 0.3
-"""
+
+p = 1 # full connectivity
+
 seq_len = 1000
 learning_rate = 1e-3
-n_epochs = 100
+# n_epochs = 100
 # learning_rate = 1e-2
-# n_epochs = 20
+n_epochs = 20
 
 target_rate = 0.02
 rate_cost = 0.1
@@ -66,7 +68,7 @@ flags.DEFINE_float('dampening_factor', 0.3, 'factor that controls amplitude of p
 """
 
 # Parameters values for Adex cells (currently used by Tarek)
-
+"""
 EL = -70.6 * mVolt
 gL = 30 * nSiemens
 C = 281 * uFarad
@@ -79,8 +81,8 @@ V_reset = -70.6 * mVolt
 n_refrac = 2
 p = 0.40  # 0.20
 dt = 1. * mSecond
-dampening_factor = 0.30 
-
+dampening_factor = 0.30
+"""
 """
 flags.DEFINE_float('EL', -70.6 * mVolt, 'Equilibrium potential for leak (all) channels')
 flags.DEFINE_float('gL', 30 * nSiemens, 'Leak conductance')
@@ -112,7 +114,7 @@ p = 0.20
 tauS = 10 * mSecond
 VS = 0 * mVolt
 dt = 1. * mSecond
-dampening_factor = 0.30 
+dampening_factor = 0.30
 """
 # Parameters values for Adex_EI cells (currently used by Tarek)
 """
@@ -193,8 +195,8 @@ flags.DEFINE_integer('n_recurrent', 100, '') # recurrent network of 100 spiking 
 def create_model(seq_len, n_input, n_recurrent):
     inputs = tf.keras.layers.Input(shape=(seq_len, n_input))
 
-    # cell = models.LIFCell(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor)
-    cell = models.Adex(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p)
+    cell = models.LIFCell(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor)
+    # cell = models.Adex(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p)
     # cell = models.AdexEI(n_recurrent, frac_e, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii)
     # cell = models.AdexCS(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, tauS, VS)
     rnn = tf.keras.layers.RNN(cell, return_sequences=True)
@@ -232,6 +234,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs=None):
         output = self.model(self.test_example[0])
+        weights = self.model.layers[1].get_weights()[0]
         [ax.clear() for ax in self.axes]
         im = self.axes[0].pcolormesh(self.test_example[0].numpy()[0].T, cmap='cividis')
         self.axes[0].set_ylabel('input')
@@ -253,10 +256,13 @@ class PlotCallback(tf.keras.callbacks.Callback):
         self.axes[3].plot(out, 'b', lw=2, alpha=.7, label='prediction')
         self.axes[3].set_ylabel('output')
         self.axes[3].legend(frameon=False)
+        # plot weight distribution after this epoch
+        self.axes[4].hist(weights)
+        self.axes[4].set_ylabel('count')
+        self.axes[4].set_xlabel('recurrent weights')
         [ax.yaxis.set_label_coords(-.05, .5) for ax in self.axes]
         plt.draw()
         plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/test_epoch_{}.png'.format(epoch))), dpi=300)
-        #plt.pause(.2)
         cb1.remove()
         cb2.remove()
         cb3.remove()
@@ -269,7 +275,7 @@ def main():
 
     if do_plot:
         plt.ion()
-        fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
+        fig, axes = plt.subplots(5, figsize=(6, 8), sharex=True)
         plot_callback = PlotCallback(test_example, fig, axes)
 
     # train the model

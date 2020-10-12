@@ -50,9 +50,9 @@ def exp_convolve(tensor, decay=.8, reverse=False, initializer=None, axis=0):
     filtered = tf.transpose(filtered, perm)
     return filtered
 
-# not yet sparse, nor adapting, nor constrained by Dale's Law (fixed E and I unit identities)
+
 class LIFCell(tf.keras.layers.Layer):
-    def __init__(self, units, thr, EL, tau, dt, n_refractory, dampening_factor):
+    def __init__(self, units, thr, EL, tau, dt, n_refractory, dampening_factor, p):
         super().__init__()
         self.units = units
 
@@ -85,18 +85,30 @@ class LIFCell(tf.keras.layers.Layer):
         # using uniform weight dist for inputs as opposed to RandomNormal(mean=1., stddev=1. / np.sqrt(input_shape[-1] + self.units))
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
                                              initializer=tf.keras.initializers.RandomNormal(stddev=1. / np.sqrt(input_shape[-1] + self.units)), name='input_weights')
-        #self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
-                                             #initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=0.5), name='input_weights')
+
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool) # disconnect self-recurrent weights
-        # eventually we want sth different than Orthogonal(gain=.7) recurrent weights
+        # doesn't really matter what weights are here as they'll be rewritten using conmat_generator
         self.recurrent_weights = self.add_weight(
             shape=(self.units, self.units),
             initializer=tf.keras.initializers.Orthogonal(gain=.7),
             #initializer = tf.keras.initializers.RandomNormal();
             name='recurrent_weights')
-        self.bias_currents = self.add_weight(shape=(self.units,),
-                                             initializer=tf.keras.initializers.Zeros(),
-                                             name='bias_currents')
+
+        # Set the desired values for recurrent weights while accounting for p
+        # Input weights remain the same
+        # initial_weights_mat should be of the same form self.recurrent_weight.value(), i.e.:
+        #   np.array([[N1toN1, ..., N1toNn], ..., [NntoN1, ..., NntoNn]], dtype=np.float32)
+        # !!!!! might need to change how we set the weights because current based synapses
+
+        # weights are lognormal, see ConnMatGenerator.py > def make_weighted(self)
+        connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p)
+        initial_weights_mat = connmat_generator.run_generator()
+        self.set_weights([self.input_weights.value(), initial_weights_mat])
+
+        # not currently using bias currents
+        #self.bias_currents = self.add_weight(shape=(self.units,),
+                                             #initializer=tf.keras.initializers.Zeros(),
+                                             #name='bias_currents')
         super().build(input_shape)
 
     def call(self, inputs, state):
@@ -242,7 +254,7 @@ class Adex(tf.keras.layers.Layer):
         return [v0, r0, w0, z_buf0]
 
     def build(self, input_shape):
-        
+
         # Create the input weights which should be of the form:
         #   np.array([[input1toN1, ..., input1toNn], ..., [inputktoN1, ..., inputktoNn]], dtype=np.float32)
         # Not sure why this choice of distribution; included also uniform used in LIFCell model
@@ -254,34 +266,34 @@ class Adex(tf.keras.layers.Layer):
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
                                              initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=0.5),
                                              name='input_weights')
-        
+
         # Create the recurrent weights, their value here is not important
-        self.recurrent_weights = self.add_weight(shape=(self.units, self.units), 
+        self.recurrent_weights = self.add_weight(shape=(self.units, self.units),
                                                  initializer=tf.keras.initializers.Orthogonal(gain=.7),
                                                  name='recurrent_weights')
-        
+
         # Set the desired values for recurrent weights while accounting for p
         # Input weights remain the same
         # initial_weights_mat should be of the same form self.recurrent_weight.value(), i.e.:
         #   np.array([[N1toN1, ..., N1toNn], ..., [NntoN1, ..., NntoNn]], dtype=np.float32)
         # !!!!! might need to change how we set the weights because current based synapses
-        
+
         connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p)
         initial_weights_mat = connmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
-        
+
         # To make sure that all self-connections are 0 after call
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool)
-        
+
         # Bias_currents; commented out because we are not using it and it might affect the way I am assigning the weights
         # self.bias_currents = self.add_weight(shape=(self.units,),
         #                                      initializer=tf.keras.initializers.Zeros(),
         #                                      name='bias_currents')
-        
+
         super().build(input_shape)
 
     def call(self, inputs, state):
-        
+
         # Old states
         old_v = state[0]
         old_r = state[1]
@@ -321,12 +333,12 @@ class Adex(tf.keras.layers.Layer):
         new_state = (new_v, new_r, new_w, new_z)
         output = (new_v, new_z)
 
-        return output, new_state        
+        return output, new_state
 
 class Adex_EI(tf.keras.layers.Layer):
-    
+
     def __init__(self, n_neurons, frac_e, n_in, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii):
-        
+
         if tauw is None: raise ValueError("Time constant for adaptive bias must be set.")
         if a is None: raise ValueError("a parameter for adaptive bias must be set.")
         if (frac_e * n_neurons) % 1 != 0: raise ValueError("The resulting number of excitatory neurons should be an integer.")
@@ -377,7 +389,7 @@ class Adex_EI(tf.keras.layers.Layer):
         # Spike (all not spiking)
         z_buf0 = tf.zeros((batch_size, self.units), tf.float32)
         return [v0, r0, w0, z_buf0]
-    
+
     def build(self, input_shape):
 
         # Create the input weights which should be of the form:
@@ -390,12 +402,12 @@ class Adex_EI(tf.keras.layers.Layer):
         '''
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
                                              initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1),
-                                             name='input_weights')        
+                                             name='input_weights')
         # Create the recurrent weights, their value here is not important
-        self.recurrent_weights = self.add_weight(shape=(self.units, self.units), 
+        self.recurrent_weights = self.add_weight(shape=(self.units, self.units),
                                                  initializer=tf.keras.initializers.Orthogonal(gain=.7),
                                                  name='recurrent_weights')
-        
+
         # Set the desired values for recurrent weights while accounting for p
         # Input weights remain the same
         # initial_weights_mat should be of the same form self.recurrent_weight.value(), i.e.:
@@ -404,7 +416,7 @@ class Adex_EI(tf.keras.layers.Layer):
         EIconnmat_generator = EIconnmat.ConnectivityMatrixGenerator(self.n_excite, self.n_inhib, self.p_ee, self.p_ei, self.p_ie, self.p_ii)
         initial_weights_mat = EIconnmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
-        
+
         # To make sure that all self-connections are 0 after call
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool)
 
@@ -415,7 +427,7 @@ class Adex_EI(tf.keras.layers.Layer):
         # self.bias_currents = self.add_weight(shape=(self.units,),
         #                                      initializer=tf.keras.initializers.Zeros(),
         #                                      name='bias_currents')
-        
+
         super().build(input_shape)
 
     def call(self, inputs, state):
@@ -462,7 +474,7 @@ class Adex_EI(tf.keras.layers.Layer):
         new_state = (new_v, new_r, new_w, new_z)
         output = (new_v, new_z)
 
-        return output, new_state 
+        return output, new_state
 
 class AdexCS(tf.keras.layers.Layer):
     def __init__(self, n_neurons, n_in, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, tauS, VS):
@@ -517,7 +529,7 @@ class AdexCS(tf.keras.layers.Layer):
         return [v0, r0, w0, g0, z_buf0]
 
     def build(self, input_shape):
-        
+
         # Create the input weights which should be of the form:
         #   np.array([[input1toN1, ..., input1toNn], ..., [inputktoN1, ..., inputktoNn]], dtype=np.float32)
         # Not sure why this choice of distribution; included also uniform used in LIFCell model
@@ -529,12 +541,12 @@ class AdexCS(tf.keras.layers.Layer):
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
                                              initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1.),
                                              name='input_weights')
-        
+
         # Create the recurrent weights, their value here is not important
-        self.recurrent_weights = self.add_weight(shape=(self.units, self.units), 
+        self.recurrent_weights = self.add_weight(shape=(self.units, self.units),
                                                  initializer=tf.keras.initializers.Orthogonal(gain=.7),
                                                  name='recurrent_weights')
-        
+
         # Set the desired values for recurrent weights while accounting for p
         # Input weights remain the same
         # initial_weights_mat should be of the same form self.recurrent_weight.value(), i.e.:
@@ -543,19 +555,19 @@ class AdexCS(tf.keras.layers.Layer):
         connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p)
         initial_weights_mat = connmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
-        
+
         # To make sure that all self-connections are 0 after call
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool)
-        
+
         # Bias_currents; commented out because we are not using it and it might affect the way I am assigning the weights
         # self.bias_currents = self.add_weight(shape=(self.units,),
         #                                      initializer=tf.keras.initializers.Zeros(),
         #                                      name='bias_currents')
-        
+
         super().build(input_shape)
 
     def call(self, inputs, state):
-        
+
         # Old states
         old_v = state[0]
         old_r = state[1]
