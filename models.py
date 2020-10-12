@@ -56,7 +56,7 @@ class LogNormal(tf.keras.initializers.Initializer):
         self.mean = mean
         self.stddev = stddev
 
-    def __call__(self, shape, dtype=None)`:
+    def __call__(self, shape, dtype=None):
         connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p, self.mean, self.stddev)
         initial_weights_mat = connmat_generator.run_generator()
         return tf.convert_to_tensor(initial_weights_mat)
