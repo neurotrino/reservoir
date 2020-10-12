@@ -125,7 +125,7 @@ class LIFCell(tf.keras.layers.Layer):
         # i_reset = -self.threshold * old_z # in the toy-valued case, we can just subtract threshold which was 1, to return to baseline 0, or approximately baseline
         # now to have the analogous behavior using real voltage values, we must subtract the difference between thr and EL
         i_reset = -(self.threshold-self.EL) * old_z # approx driving the voltage 20 mV more negative
-        input_current = i_in + i_rec + i_reset + self.bias_currents[None]
+        input_current = i_in + i_rec + i_reset # + self.bias_currents[None]
 
         # previously, whether old_v was below or above 0, you would still decay gradually back to 0
         # decay was dependent on the distance between your old voltage and resting 0
@@ -234,7 +234,7 @@ class Adex(tf.keras.layers.Layer):
         self.dt_a__tauw = self._dt * self.a / self.tauw
 
         self.input_weights = None
-        self.bias_currents = None
+        # self.bias_currents = None
         self.recurrent_weights = None
         self.disconnect_mask = None
 
