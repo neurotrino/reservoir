@@ -51,8 +51,21 @@ def exp_convolve(tensor, decay=.8, reverse=False, initializer=None, axis=0):
     return filtered
 
 
+class LogNormal(tf.keras.initializers.Initializer)
+    def __init__(self, mean, stddev):
+        self.mean = mean
+        self.stddev = stddev
+
+    def __call__(self, shape, dtype=None)`:
+        connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p, self.mean, self.stddev)
+        initial_weights_mat = connmat_generator.run_generator()
+        return tf.convert_to_tensor(initial_weights_mat)
+        #normdist = tf.random.normal(shape, mean=self.mean, stddev=self.stddev, dtype=dtype)
+        #return tf.math.exp(normdist)
+
+
 class LIFCell(tf.keras.layers.Layer):
-    def __init__(self, units, thr, EL, tau, dt, n_refractory, dampening_factor, p):
+    def __init__(self, units, thr, EL, tau, dt, n_refractory, dampening_factor, p, mu, sigma):
         super().__init__()
         self.units = units
 
@@ -69,6 +82,8 @@ class LIFCell(tf.keras.layers.Layer):
         self.EL = EL
         self._dampening_factor = dampening_factor
         self.p = p
+        self.mu = mu
+        self.sigma = sigma
 
         #                  voltage, refractory, previous spikes
         self.state_size = (units, units, units)
@@ -91,12 +106,13 @@ class LIFCell(tf.keras.layers.Layer):
 
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool) # disconnect self-recurrent weights
         # doesn't really matter what weights are here as they'll be rewritten using conmat_generator
-        self.recurrent_weights = self.add_weight(
-            shape=(self.units, self.units),
-            initializer=tf.keras.initializers.Orthogonal(gain=.7),
+        self.recurrent_weights = self.add_weight(shape=(self.units, self.units), initializer = LogNormal(self.mu, self.sigma), trainable=True, name='recurrent_weights')
+        #self.recurrent_weights = self.add_weight(
+            #shape=(self.units, self.units),
+            #initializer=tf.keras.initializers.Orthogonal(gain=.7),
             #initializer = tf.keras.initializers.RandomNormal();
-            trainable = True,
-            name='recurrent_weights')
+            #trainable = True,
+            #name='recurrent_weights')
 
         # Set the desired values for recurrent weights while accounting for p
         # Input weights remain the same
@@ -105,7 +121,7 @@ class LIFCell(tf.keras.layers.Layer):
         # !!!!! might need to change how we set the weights because current based synapses
 
         # weights are lognormal, see ConnMatGenerator.py > def make_weighted(self)
-        #connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p)
+        #connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p, self.mu, self.sigma)
         #initial_weights_mat = connmat_generator.run_generator()
         #self.set_weights([self.input_weights.value(), initial_weights_mat])
 

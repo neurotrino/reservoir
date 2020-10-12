@@ -8,7 +8,7 @@ from os import path, makedirs
 
 class ConnectivityMatrixGenerator(object):
 
-    def __init__(self, n_neurons, p):
+    def __init__(self, n_neurons, p, mu, sigma):
 
         self.n_neurons = n_neurons
 
@@ -17,6 +17,9 @@ class ConnectivityMatrixGenerator(object):
 
         # Initialize weight matrix
         self.weight_mat = numpy.zeros((self.n_neurons, self.n_neurons))
+
+        self.mu = mu
+        self.sigma = sigma 
 
         # Calculate total number of connections per neuron (remove neuron from target if included (ee and ii))
         self.k = int(round(p * (self.n_neurons - 1)))
@@ -66,7 +69,7 @@ class ConnectivityMatrixGenerator(object):
             for i in range(0, self.n_neurons):
                 for j in range(0, self.n_neurons):
                     if self.conn_mat[i][j] == 1:
-                        self.weight_mat[i][j] = (numpy.random.lognormal(-0.64, 0.51))
+                        self.weight_mat[i][j] = (numpy.random.lognormal(self.mu, self.sigma))
 
             return True
 

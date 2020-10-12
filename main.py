@@ -44,6 +44,9 @@ dt = 1.
 dampening_factor = 0.3
 
 p = 1 # full connectivity
+mu = -0.64
+sigma = 0.51
+# mu and sigma for normal dist which we exponentiate for lognormal weights
 
 seq_len = 1000
 # learning_rate = 1e-3
