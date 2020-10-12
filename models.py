@@ -113,7 +113,7 @@ class LIFCell(tf.keras.layers.Layer):
         self.recurrent_weights = self.add_weight(
             shape=(self.units, self.units),
             initializer=tf.keras.initializers.Orthogonal(gain=.7),
-            initializer = tf.keras.initializers.RandomNormal();
+            #initializer = tf.keras.initializers.RandomNormal();
             trainable = True,
             name='recurrent_weights')
 
