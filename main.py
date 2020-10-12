@@ -46,9 +46,9 @@ dampening_factor = 0.3
 p = 1 # full connectivity
 
 seq_len = 1000
-learning_rate = 1e-3
+# learning_rate = 1e-3
 # n_epochs = 100
-# learning_rate = 1e-2
+learning_rate = 1e-2
 n_epochs = 20
 
 target_rate = 0.02
