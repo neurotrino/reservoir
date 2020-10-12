@@ -44,6 +44,9 @@ dampening_factor = 0.3
 seq_len = 1000
 learning_rate = 1e-3
 n_epochs = 100
+# learning_rate = 1e-2
+# n_epochs = 20
+
 
 target_rate = 0.02
 rate_cost = 0.1
