@@ -68,6 +68,7 @@ class LIFCell(tf.keras.layers.Layer):
         self.threshold = thr
         self.EL = EL
         self._dampening_factor = dampening_factor
+        self.p = p
 
         #                  voltage, refractory, previous spikes
         self.state_size = (units, units, units)
