@@ -224,6 +224,13 @@ def create_data_set(seq_len, n_input, n_batch=1):
 
     return tf.data.Dataset.from_tensor_slices((x, dict(tf_op_layer_output=y))).repeat(count=20).batch(n_batch)
 
+class SaveCallback()
+    def __init__(self):
+        super().__init__()
+
+    def on_epoch_end(self,epoch):
+        savepath = os.path.join(root_path, 'tf2_testing/test_epoch_{}.h5',format(epoch))
+        self.model.save_weights(savepath)
 
 class PlotCallback(tf.keras.callbacks.Callback):
     def __init__(self, test_example, fig, axes):
@@ -234,7 +241,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs=None):
         output = self.model(self.test_example[0])
-        weights = self.model.layers[0].get_weights()[0]
+        #weights = self.model.layers[0].get_weights()[0]
         [ax.clear() for ax in self.axes]
         im = self.axes[0].pcolormesh(self.test_example[0].numpy()[0].T, cmap='cividis')
         self.axes[0].set_ylabel('input')
@@ -257,9 +264,9 @@ class PlotCallback(tf.keras.callbacks.Callback):
         self.axes[3].set_ylabel('output')
         self.axes[3].legend(frameon=False)
         # plot weight distribution after this epoch
-        self.axes[4].hist(weights)
-        self.axes[4].set_ylabel('count')
-        self.axes[4].set_xlabel('recurrent weights')
+        #self.axes[4].hist(weights)
+        #self.axes[4].set_ylabel('count')
+        #self.axes[4].set_xlabel('recurrent weights')
         [ax.yaxis.set_label_coords(-.05, .5) for ax in self.axes]
         plt.draw()
         plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/test_epoch_{}.png'.format(epoch))), dpi=300)
@@ -275,15 +282,16 @@ def main():
 
     if do_plot:
         plt.ion()
-        fig, axes = plt.subplots(5, figsize=(6, 8), sharex=True)
+        fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
         plot_callback = PlotCallback(test_example, fig, axes)
+        save_callback = SaveCallback()
 
     # train the model
     opt = tf.keras.optimizers.Adam(lr=learning_rate)
     mse = tf.keras.losses.MeanSquaredError()
     model.compile(optimizer=opt, loss=dict(tf_op_layer_output=mse))
     if do_plot:
-        model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback])
+        model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback, save_callback])
     else:
         model.fit(data_set, epochs = n_epochs)
 
