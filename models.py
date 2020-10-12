@@ -107,14 +107,15 @@ class LIFCell(tf.keras.layers.Layer):
                                              initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=0.4), name='input_weights')
 
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool) # disconnect self-recurrent weights
-        # doesn't really matter what weights are here as they'll be rewritten using conmat_generator
-        self.recurrent_weights = self.add_weight(shape=(self.units, self.units), initializer = LogNormal(self.mu, self.sigma, self.units, self.p), trainable=True, name='recurrent_weights')
-        #self.recurrent_weights = self.add_weight(
-            #shape=(self.units, self.units),
-            #initializer=tf.keras.initializers.Orthogonal(gain=.7),
-            #initializer = tf.keras.initializers.RandomNormal();
-            #trainable = True,
-            #name='recurrent_weights')
+
+        # self.recurrent_weights = self.add_weight(shape=(self.units, self.units), initializer = LogNormal(self.mu, self.sigma, self.units, self.p), trainable=True, name='recurrent_weights')
+
+        self.recurrent_weights = self.add_weight(
+            shape=(self.units, self.units),
+            initializer=tf.keras.initializers.Orthogonal(gain=.7),
+            initializer = tf.keras.initializers.RandomNormal();
+            trainable = True,
+            name='recurrent_weights')
 
         # Set the desired values for recurrent weights while accounting for p
         # Input weights remain the same
@@ -123,9 +124,9 @@ class LIFCell(tf.keras.layers.Layer):
         # !!!!! might need to change how we set the weights because current based synapses
 
         # weights are lognormal, see ConnMatGenerator.py > def make_weighted(self)
-        #connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p, self.mu, self.sigma)
-        #initial_weights_mat = connmat_generator.run_generator()
-        #self.set_weights([self.input_weights.value(), initial_weights_mat])
+        connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p, self.mu, self.sigma)
+        initial_weights_mat = connmat_generator.run_generator()
+        self.set_weights([self.input_weights.value(), initial_weights_mat])
 
         # not currently using bias currents
         #self.bias_currents = self.add_weight(shape=(self.units,),
