@@ -10,7 +10,8 @@ import os
 import pickle
 # import tfrecord_dataset
 
-root_path = '../tarek2/testAdextf2'
+root_path = '../data'
+# root_path = '../tarek2/testAdextf2'
 
 # neuron model param flags
 # some of these are not currently used, but will be needed for adapting units, adex, conductance-based synapses, etc.
@@ -41,8 +42,8 @@ dt = 1.
 dampening_factor = 0.3
 """
 seq_len = 1000
-learning_rate = 1e-1
-n_epochs = 20
+learning_rate = 1e-3
+n_epochs = 100
 
 target_rate = 0.02
 rate_cost = 0.1
@@ -74,9 +75,9 @@ a = 4 * nSiemens
 b = 80.5 * pAmpere
 V_reset = -70.6 * mVolt
 n_refrac = 2
-p = 0.20
+p = 0.40  # 0.20
 dt = 1. * mSecond
-dampening_factor = 1.  # 0.30 
+dampening_factor = 0.30 
 
 """
 flags.DEFINE_float('EL', -70.6 * mVolt, 'Equilibrium potential for leak (all) channels')

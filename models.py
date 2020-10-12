@@ -245,15 +245,15 @@ class Adex(tf.keras.layers.Layer):
         # Create the input weights which should be of the form:
         #   np.array([[input1toN1, ..., input1toNn], ..., [inputktoN1, ..., inputktoNn]], dtype=np.float32)
         # Not sure why this choice of distribution; included also uniform used in LIFCell model
-        
+        '''
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
                                              initializer=tf.keras.initializers.RandomNormal(stddev=1. / np.sqrt(input_shape[-1] + self.units)),
                                              name='input_weights')
         '''
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
-                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=2),
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=0.5),
                                              name='input_weights')
-        '''
+        
         # Create the recurrent weights, their value here is not important
         self.recurrent_weights = self.add_weight(shape=(self.units, self.units), 
                                                  initializer=tf.keras.initializers.Orthogonal(gain=.7),
@@ -264,11 +264,11 @@ class Adex(tf.keras.layers.Layer):
         # initial_weights_mat should be of the same form self.recurrent_weight.value(), i.e.:
         #   np.array([[N1toN1, ..., N1toNn], ..., [NntoN1, ..., NntoNn]], dtype=np.float32)
         # !!!!! might need to change how we set the weights because current based synapses
-        """
+        
         connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p)
         initial_weights_mat = connmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
-        """
+        
         # To make sure that all self-connections are 0 after call
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool)
         
@@ -571,7 +571,7 @@ class AdexCS(tf.keras.layers.Layer):
         # There is no reset current because we are setting new_V to V_reset if old_z > 0.5
         # i_t = i_in + i_rec  # + self.bias_currents[None]
         i_w = tf.reduce_sum(i_rec)
-        gS = old_g + i_w
+        gS = old_g + i_w  # Need to change this but that's the idea
 
         # Update voltage
         exp_terms = tf.clip_by_value(tf.exp((old_v - self.threshold)/self.deltaT), -1e6, 30 / self.dt_gL__C)  # These min and max values were taken from tf1
