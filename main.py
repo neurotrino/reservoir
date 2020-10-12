@@ -41,8 +41,8 @@ dt = 1.
 dampening_factor = 0.3
 """
 seq_len = 1000
-learning_rate = 1e-3
-n_epochs = 10
+learning_rate = 1e-1
+n_epochs = 20
 
 target_rate = 0.02
 rate_cost = 0.1
@@ -63,7 +63,7 @@ flags.DEFINE_float('dampening_factor', 0.3, 'factor that controls amplitude of p
 """
 
 # Parameters values for Adex cells (currently used by Tarek)
-"""
+
 EL = -70.6 * mVolt
 gL = 30 * nSiemens
 C = 281 * uFarad
@@ -77,7 +77,7 @@ n_refrac = 2
 p = 0.20
 dt = 1. * mSecond
 dampening_factor = 1.  # 0.30 
-"""
+
 """
 flags.DEFINE_float('EL', -70.6 * mVolt, 'Equilibrium potential for leak (all) channels')
 flags.DEFINE_float('gL', 30 * nSiemens, 'Leak conductance')
@@ -94,7 +94,7 @@ flags.DEFINE_float('dt', 1. * mSecond, 'Simulation time step')
 flags.DEFINE_float('dampening_factor', 0.3, 'Factor that controls amplitude of pseudoderivative')
 """
 # Parameters values for Adex cells with conductance-based synapses (currently used by Tarek)
-
+"""
 EL = -70.6 * mVolt
 gL = 30 * nSiemens
 C = 281 * uFarad
@@ -110,7 +110,7 @@ tauS = 10 * mSecond
 VS = 0 * mVolt
 dt = 1. * mSecond
 dampening_factor = 0.30 
-
+"""
 # Parameters values for Adex_EI cells (currently used by Tarek)
 """
 frac_e = 0.8
@@ -191,9 +191,9 @@ def create_model(seq_len, n_input, n_recurrent):
     inputs = tf.keras.layers.Input(shape=(seq_len, n_input))
 
     # cell = models.LIFCell(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor)
-    # cell = models.Adex(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p)
+    cell = models.Adex(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p)
     # cell = models.AdexEI(n_recurrent, frac_e, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii)
-    cell = models.AdexCS(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, tauS, VS)
+    # cell = models.AdexCS(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, tauS, VS)
     rnn = tf.keras.layers.RNN(cell, return_sequences=True)
 
     batch_size = tf.shape(inputs)[0]
