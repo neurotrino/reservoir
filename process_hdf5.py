@@ -6,7 +6,7 @@ import h5py
 # eventually create loop
 # for f in fullconn_w:
 # hf = h5py.File(f, 'r')
-hf = h5py.File("test_epoch_18.hdf5",'r')
+hf = h5py.File("fullconn/test_epoch_0.hdf5",'r')
 n1 = hf.get('rnn')
 n2 = n1.get('rnn')
 lif_cell = n2.get('lif_cell')
@@ -24,4 +24,4 @@ axes[1].hist(rec_w)
 axes[1].set_title('recurrent weights')
 fig.subplots_adjust(hspace=.5)
 plt.show()
-plt.savefig('test_epoch_18_weights.png')
+plt.savefig('fullconn/test_epoch_0_weights.png')

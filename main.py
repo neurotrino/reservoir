@@ -239,7 +239,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs=None):
 
-        filepath = str(root_path) + "/tf2_testing/test_epoch_" + str(epoch) + ".hdf5"
+        filepath = str(root_path) + "/tf2_testing/fullconn/test_epoch_" + str(epoch) + ".hdf5"
         self.model.save_weights(filepath)
 
         output = self.model(self.test_example[0])
@@ -271,7 +271,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
         #self.axes[4].set_xlabel('recurrent weights')
         [ax.yaxis.set_label_coords(-.05, .5) for ax in self.axes]
         plt.draw()
-        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/test_epoch_{}.png'.format(epoch))), dpi=300)
+        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/fullconn/test_epoch_{}.png'.format(epoch))), dpi=300)
         cb1.remove()
         cb2.remove()
         cb3.remove()

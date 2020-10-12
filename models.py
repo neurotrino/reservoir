@@ -51,7 +51,7 @@ def exp_convolve(tensor, decay=.8, reverse=False, initializer=None, axis=0):
     return filtered
 
 
-class LogNormal(tf.keras.initializers.Initializer)
+class LogNormal(tf.keras.initializers.Initializer):
     def __init__(self, mean, stddev):
         self.mean = mean
         self.stddev = stddev
