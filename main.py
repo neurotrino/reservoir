@@ -236,7 +236,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs=None):
 
-        filepath = str(root_path) + "/tf2_testing/test_epoch_" + str(epoch) + ".pkl"
+        filepath = str(root_path) + "/tf2_testing/test_epoch_" + str(epoch) + ".hdf5"
         self.model.save_weights(filepath)
 
         output = self.model(self.test_example[0])
