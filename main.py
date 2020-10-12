@@ -235,8 +235,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
 
         # save weights
-        savepath = os.path.join(root_path, 'tf2_testing/test_epoch_{}.h5',format(epoch))
-        self.model.save_weights(savepath)
+        self.model.save_weights(os.path.expanduser(os.path.join(root_path, 'tf2_testing/test_epoch_{}.h5',format(epoch))))
 
         output = self.model(self.test_example[0])
         #weights = self.model.layers[0].get_weights()[0]
