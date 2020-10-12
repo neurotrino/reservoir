@@ -525,7 +525,7 @@ class AdexCS(tf.keras.layers.Layer):
                                              name='input_weights')
         '''
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
-                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=0.8),
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1.),
                                              name='input_weights')
         
         # Create the recurrent weights, their value here is not important
@@ -568,13 +568,14 @@ class AdexCS(tf.keras.layers.Layer):
         i_in = tf.matmul(inputs, self.input_weights)
         i_rec = tf.matmul(old_z, no_autapse_w_rec)
         # There is no reset current because we are setting new_V to V_reset if old_z > 0.5
-        i_t = tf.reduce_sum(i_in + i_rec)  # + self.bias_currents[None]
-        gS = old_g + i_t
+        # i_t = i_in + i_rec  # + self.bias_currents[None]
+        i_w = tf.reduce_sum(i_rec)
+        gS = old_g + i_w
 
         # Update voltage
         exp_terms = tf.clip_by_value(tf.exp((old_v - self.threshold)/self.deltaT), -1e6, 30 / self.dt_gL__C)  # These min and max values were taken from tf1
         exp_terms = tf.stop_gradient(exp_terms)  # I think we need this but I am not 100% sure
-        new_v = old_v - (self.dt_gL__C * (old_v - self.EL)) + (self.dt_gL__C * self.deltaT * exp_terms) + ((gS * (self.VS - old_v) - old_w) * self._dt / self.C)
+        new_v = old_v - (self.dt_gL__C * (old_v - self.EL)) + (self.dt_gL__C * self.deltaT * exp_terms) + ((i_in + (gS * (self.VS - old_v)) - old_w) * self._dt / self.C)
         new_v = tf.where(old_z > .5, tf.ones_like(new_v) * self.V_reset, new_v)
 
         # Update adaptation term
