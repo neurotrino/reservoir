@@ -52,9 +52,11 @@ def exp_convolve(tensor, decay=.8, reverse=False, initializer=None, axis=0):
 
 
 class LogNormal(tf.keras.initializers.Initializer):
-    def __init__(self, mean, stddev):
+    def __init__(self, mean, stddev, units, p):
         self.mean = mean
         self.stddev = stddev
+        self.units = units
+        self.p = p
 
     def __call__(self, shape, dtype=None):
         connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p, self.mean, self.stddev)
@@ -106,7 +108,7 @@ class LIFCell(tf.keras.layers.Layer):
 
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool) # disconnect self-recurrent weights
         # doesn't really matter what weights are here as they'll be rewritten using conmat_generator
-        self.recurrent_weights = self.add_weight(shape=(self.units, self.units), initializer = LogNormal(self.mu, self.sigma), trainable=True, name='recurrent_weights')
+        self.recurrent_weights = self.add_weight(shape=(self.units, self.units), initializer = LogNormal(self.mu, self.sigma, self.units, self.p), trainable=True, name='recurrent_weights')
         #self.recurrent_weights = self.add_weight(
             #shape=(self.units, self.units),
             #initializer=tf.keras.initializers.Orthogonal(gain=.7),
