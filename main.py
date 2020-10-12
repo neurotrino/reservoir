@@ -234,7 +234,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs=None):
 
-        # save weights 
+        # save weights
         savepath = os.path.join(root_path, 'tf2_testing/test_epoch_{}.h5',format(epoch))
         self.model.save_weights(savepath)
 
@@ -282,7 +282,6 @@ def main():
         plt.ion()
         fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
         plot_callback = PlotCallback(test_example, fig, axes)
-        save_callback = SaveCallback()
 
     # train the model
     opt = tf.keras.optimizers.Adam(lr=learning_rate)
