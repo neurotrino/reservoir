@@ -85,11 +85,12 @@ class LIFCell(tf.keras.layers.Layer):
                                              initializer=tf.keras.initializers.RandomNormal(stddev=1. / np.sqrt(input_shape[-1] + self.units)), name='input_weights')
         #self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
                                              #initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=0.5), name='input_weights')
-        self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool)
+        self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool) # disconnect self-recurrent weights
         # eventually we want sth different than Orthogonal(gain=.7) recurrent weights
         self.recurrent_weights = self.add_weight(
             shape=(self.units, self.units),
             initializer=tf.keras.initializers.Orthogonal(gain=.7),
+            #initializer = tf.keras.initializers.RandomNormal();
             name='recurrent_weights')
         self.bias_currents = self.add_weight(shape=(self.units,),
                                              initializer=tf.keras.initializers.Zeros(),
