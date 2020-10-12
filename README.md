@@ -11,14 +11,14 @@ _Last updated: 06-Oct-20_
 - [ ] E & I units in LIF
 - [ ] E & I units w/ differing time constants
 - [ ] ALIF
-- [ ] Sparse connectivity probabilities
+- [X] Sparse connectivity probabilities
 - [ ] Rewiring during training
 - [ ] eProp1 symmetric feedback
 - [ ] eProp1 random feedback
-- [ ] AdEx
-- [ ] E & I units in AdEx
-- [x] Rate regularization
-- [x] Voltage regularization (new from Maass group)
+- [X] AdEx
+- [X] E & I units in AdEx
+- [X] Rate regularization
+- [X] Voltage regularization (new, from Maass group)
 - [ ] Real-time assessment (plot rasters, print losses to terminal, etc)
 
 ## Working on the Project
