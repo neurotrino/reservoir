@@ -234,7 +234,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs=None):
         output = self.model(self.test_example[0])
-        weights = self.model.layers[1].get_weights()[0]
+        weights = self.model.layers[0].get_weights()[0]
         [ax.clear() for ax in self.axes]
         im = self.axes[0].pcolormesh(self.test_example[0].numpy()[0].T, cmap='cividis')
         self.axes[0].set_ylabel('input')
