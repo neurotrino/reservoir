@@ -67,7 +67,7 @@ class LogNormal(tf.keras.initializers.Initializer):
 
 
 class LIFCell(tf.keras.layers.Layer):
-    def __init__(self, units, thr, EL, tau, dt, n_refractory, dampening_factor, p, mu, sigma):
+    def __init__(self, units, thr, EL, tau, dt, n_refractory, dampening_factor, p, mu, sigma, dales_law, rewiring):
         super().__init__()
         self.units = units
 
@@ -86,6 +86,9 @@ class LIFCell(tf.keras.layers.Layer):
         self.p = p
         self.mu = mu
         self.sigma = sigma
+
+        self.dales_law = dales_law # boolean for whether e and i synapses must always be constrained
+        self.rewiring = rewiring # boolean for whether a synapse becoming 0 will lead to a new synapse being drawn elsewhere
 
         #                  voltage, refractory, previous spikes
         self.state_size = (units, units, units)
@@ -132,6 +135,10 @@ class LIFCell(tf.keras.layers.Layer):
         #self.bias_currents = self.add_weight(shape=(self.units,),
                                              #initializer=tf.keras.initializers.Zeros(),
                                              #name='bias_currents')
+
+        # Store the signs of all the recurrent weights 
+        self.rec_sign = tf.sign(self.recurrent_weights)
+
         super().build(input_shape)
 
     def call(self, inputs, state):
@@ -141,12 +148,20 @@ class LIFCell(tf.keras.layers.Layer):
 
         no_autapse_w_rec = tf.where(self.disconnect_mask, tf.zeros_like(self.recurrent_weights), self.recurrent_weights)
 
+        # If the sign of a weight changed, make the weight 0
+        if self.dales_law == True:
+            constrained_w_rec = tf.where(self.rec_sign * no_autapse_w_rec >= 0, no_autapse_w_rec, 0)
+            i_rec = tf.matmul(old_z, constrained_w_rec)
+        else:
+            i_rec = tf.matmul(old_z, no_autapse_w_rec)
+
         i_in = tf.matmul(inputs, self.input_weights)
-        i_rec = tf.matmul(old_z, no_autapse_w_rec)
+
         # to circumvent the problem of voltage reset, we have a subtractive current applied if a spike occurred in previous time step
         # i_reset = -self.threshold * old_z # in the toy-valued case, we can just subtract threshold which was 1, to return to baseline 0, or approximately baseline
         # now to have the analogous behavior using real voltage values, we must subtract the difference between thr and EL
         i_reset = -(self.threshold-self.EL) * old_z # approx driving the voltage 20 mV more negative
+
         input_current = i_in + i_rec + i_reset # + self.bias_currents[None]
 
         # previously, whether old_v was below or above 0, you would still decay gradually back to 0
