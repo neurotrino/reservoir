@@ -66,7 +66,7 @@ rate_cost = 0.1
 
 do_plot = True
 do_save = True
-dales_law = False
+dales_law = True
 rewiring = False
 
 n_input = 20
