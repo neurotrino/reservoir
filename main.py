@@ -241,7 +241,6 @@ def create_data_set(seq_len, n_input, n_batch=1):
 class SaveCallback(tf.keras.callbacks.Callback):
     def __init__(self):
         super().__init__()
-        self.test_example = test_example
 
     def on_epoch_begin(self, epoch, logs=None):
         filepath = str(root_path) + "/tf2_testing/halfconn/begin_epoch_" + str(epoch) + ".hdf5"
