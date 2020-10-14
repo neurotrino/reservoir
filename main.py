@@ -306,13 +306,13 @@ def main():
         plot_callback = PlotCallback(test_example, fig, axes)
 
     if do_save:
-        save_callback = SaveCallback() # eventually args will include what vars to save; currently just weights 
+        save_callback = SaveCallback() # eventually args will include what vars to save; currently just weights
 
     # train the model
     opt = tf.keras.optimizers.Adam(lr=learning_rate)
     mse = tf.keras.losses.MeanSquaredError()
     model.compile(optimizer=opt, loss=dict(tf_op_layer_output=mse))
-    if do_plot && do_save:
+    if do_plot and do_save:
         model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback, save_callback])
     elif do_plot:
         model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback])
