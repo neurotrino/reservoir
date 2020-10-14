@@ -238,6 +238,18 @@ def create_data_set(seq_len, n_input, n_batch=1):
 
     return tf.data.Dataset.from_tensor_slices((x, dict(tf_op_layer_output=y))).repeat(count=20).batch(n_batch)
 
+class SaveCallback(tf.keras.callbacks.Callback):
+    def __init__(self):
+        super().__init__()
+        self.test_example = test_example
+
+    def on_epoch_begin(self, epoch, logs=None):
+        filepath = str(root_path) + "/tf2_testing/halfconn/begin_epoch_" + str(epoch) + ".hdf5"
+        self.model.save_weights(filepath)
+
+    def on_epoch_end(self, epoch, logs=None):
+        filepath = str(root_path) + "/tf2_testing/halfconn/end_epoch_" + str(epoch) + ".hdf5"
+        self.model.save_weights(filepath)
 
 class PlotCallback(tf.keras.callbacks.Callback):
     def __init__(self, test_example, fig, axes):
@@ -247,9 +259,6 @@ class PlotCallback(tf.keras.callbacks.Callback):
         self.axes = axes
 
     def on_epoch_end(self, epoch, logs=None):
-
-        filepath = str(root_path) + "/tf2_testing/halfconn/test_epoch_" + str(epoch) + ".hdf5"
-        self.model.save_weights(filepath)
 
         output = self.model(self.test_example[0])
         #weights = self.model.layers[0].get_weights()[0]
@@ -296,12 +305,19 @@ def main():
         fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
         plot_callback = PlotCallback(test_example, fig, axes)
 
+    if do_save:
+        save_callback = SaveCallback() # eventually args will include what vars to save; currently just weights 
+
     # train the model
     opt = tf.keras.optimizers.Adam(lr=learning_rate)
     mse = tf.keras.losses.MeanSquaredError()
     model.compile(optimizer=opt, loss=dict(tf_op_layer_output=mse))
-    if do_plot:
+    if do_plot && do_save:
+        model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback, save_callback])
+    elif do_plot:
         model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback])
+    elif do_save:
+        model.fit(data_set, epochs=n_epochs, callbacks=[save_callback])
     else:
         model.fit(data_set, epochs = n_epochs)
 
