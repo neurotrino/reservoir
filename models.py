@@ -467,7 +467,7 @@ class Adex_EI(tf.keras.layers.Layer):
 
         # Calculate input current
         i_in = tf.matmul(inputs, self.input_weights)
-        i_rec = tf.matmul(old_z, constrained_w_rec)
+        i_rec = tf.matmul(old_z, self.recurrent_weights)
         # There is no reset current because we are setting new_V to V_reset if old_z > 0.5
         i_t = i_in + i_rec  # + self.bias_currents[None]
 
