@@ -309,8 +309,8 @@ class Adex(tf.keras.layers.Layer):
         initial_weights_mat = connmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
 
-        # To make sure that all self-connections are 0 after call
-        self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool)
+        # Store the initial signs for later
+        self.rec_sign = tf.sign(self.recurrent_weights)
 
         # Bias_currents; commented out because we are not using it and it might affect the way I am assigning the weights
         # self.bias_currents = self.add_weight(shape=(self.units,),
@@ -327,12 +327,12 @@ class Adex(tf.keras.layers.Layer):
         old_w = state[2]
         old_z = state[3]
 
-        # No self-connections (diagonal in disconnect_mask is all True so diagonal in recurrent_weights will be like the diagonal in zeros)
-        no_autapse_w_rec = tf.where(self.disconnect_mask, tf.zeros_like(self.recurrent_weights), self.recurrent_weights)
+        # If the sign of a weight changed or the weight is no longer 0, make the weight 0
+        self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
 
         # Calculate input current
         i_in = tf.matmul(inputs, self.input_weights)
-        i_rec = tf.matmul(old_z, no_autapse_w_rec)
+        i_rec = tf.matmul(old_z, self.recurrent_weights)
         # There is no reset current because we are setting new_V to V_reset if old_z > 0.5
         i_t = i_in + i_rec  # + self.bias_currents[None]
 
@@ -444,9 +444,6 @@ class Adex_EI(tf.keras.layers.Layer):
         initial_weights_mat = EIconnmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
 
-        # To make sure that all self-connections are 0 after call
-        self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool)
-
         # Store the initial signs for later
         self.rec_sign = tf.sign(self.recurrent_weights)
 
@@ -465,11 +462,8 @@ class Adex_EI(tf.keras.layers.Layer):
         old_w = state[2]
         old_z = state[3]
 
-        # No self-connections (diagonal in disconnect_mask is all True so diagonal in recurrent_weights will be like the diagonal in zeros)
-        no_autapse_w_rec = tf.where(self.disconnect_mask, tf.zeros_like(self.recurrent_weights), self.recurrent_weights)
-
-        # If the sign of a weight changed, make the weight 0
-        constrained_w_rec = tf.where(self.rec_sign * no_autapse_w_rec >= 0, no_autapse_w_rec, 0)
+        # If the sign of a weight changed or the weight is no longer 0, make the weight 0
+        self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
 
         # Calculate input current
         i_in = tf.matmul(inputs, self.input_weights)
