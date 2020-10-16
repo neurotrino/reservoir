@@ -51,23 +51,8 @@ def exp_convolve(tensor, decay=.8, reverse=False, initializer=None, axis=0):
     return filtered
 
 
-class LogNormal(tf.keras.initializers.Initializer):
-    def __init__(self, mean, stddev, units, p):
-        self.mean = mean
-        self.stddev = stddev
-        self.units = units
-        self.p = p
-
-    def __call__(self, shape, dtype=None):
-        connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p, self.mean, self.stddev)
-        initial_weights_mat = connmat_generator.run_generator()
-        return tf.convert_to_tensor(tf.cast(initial_weights_mat, tf.float32))
-        #normdist = tf.random.normal(shape, mean=self.mean, stddev=self.stddev, dtype=dtype)
-        #return tf.math.exp(normdist)
-
-
 class LIFCell(tf.keras.layers.Layer):
-    def __init__(self, units, thr, EL, tau, dt, n_refractory, dampening_factor, p, mu, sigma, dales_law, rewiring):
+    def __init__(self, units, thr, EL, tau, dt, n_refractory, dampening_factor, p, mu, sigma, rewiring):
         super().__init__()
         self.units = units
 
@@ -87,10 +72,9 @@ class LIFCell(tf.keras.layers.Layer):
         self.mu = mu
         self.sigma = sigma
 
-        self.dales_law = dales_law # boolean for whether e and i synapses must always be constrained
         self.rewiring = rewiring # boolean for whether a synapse becoming 0 will lead to a new synapse being drawn elsewhere
 
-        #                  voltage, refractory, previous spikes
+        # voltage, refractory, previous spikes
         self.state_size = (units, units, units)
 
     def zero_state(self, batch_size, dtype=tf.float32):
@@ -120,11 +104,6 @@ class LIFCell(tf.keras.layers.Layer):
             trainable = True,
             name='recurrent_weights')
 
-        # Set the desired values for recurrent weights while accounting for p
-        # Input weights remain the same
-        # initial_weights_mat should be of the same form self.recurrent_weight.value(), i.e.:
-        #   np.array([[N1toN1, ..., N1toNn], ..., [NntoN1, ..., NntoNn]], dtype=np.float32)
-        # !!!!! might need to change how we set the weights because current based synapses
 
         # weights are lognormal, see ConnMatGenerator.py > def make_weighted(self)
         connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p, self.mu, self.sigma)
@@ -136,7 +115,7 @@ class LIFCell(tf.keras.layers.Layer):
                                              #initializer=tf.keras.initializers.Zeros(),
                                              #name='bias_currents')
 
-        # Store the signs of all the recurrent weights 
+        # Store signs of all the initialized recurrent weights
         self.rec_sign = tf.sign(self.recurrent_weights)
 
         super().build(input_shape)
@@ -146,16 +125,11 @@ class LIFCell(tf.keras.layers.Layer):
         old_r = state[1]
         old_z = state[2]
 
-        no_autapse_w_rec = tf.where(self.disconnect_mask, tf.zeros_like(self.recurrent_weights), self.recurrent_weights)
-
-        # If the sign of a weight changed, make the weight 0
-        if self.dales_law == True:
-            constrained_w_rec = tf.where(self.rec_sign * no_autapse_w_rec >= 0, no_autapse_w_rec, 0)
-            i_rec = tf.matmul(old_z, constrained_w_rec)
-        else:
-            i_rec = tf.matmul(old_z, no_autapse_w_rec)
+        # If the sign of a weight changed or the weight is no longer 0, make the weight 0
+        self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
 
         i_in = tf.matmul(inputs, self.input_weights)
+        i_rec = tf.matmul(old_z, self.recurrent_weights)
 
         # to circumvent the problem of voltage reset, we have a subtractive current applied if a spike occurred in previous time step
         # i_reset = -self.threshold * old_z # in the toy-valued case, we can just subtract threshold which was 1, to return to baseline 0, or approximately baseline
