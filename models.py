@@ -253,8 +253,8 @@ class LIF_EI(tf.keras.layers.Layer):
         self.p_ii = p_ii
         self.mu = mu
         self.sigma = sigma
-
-        self.rewiring = rewiring # boolean for whether a synapse becoming 0 will lead to a new synapse being drawn elsewhere
+        self.rewiring = rewiring 
+        # boolean for whether a synapse becoming 0 will lead to a new synapse being drawn elsewhere
 
         # voltage, refractory, previous spikes
         self.state_size = (units, units, units)
