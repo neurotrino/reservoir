@@ -12,8 +12,8 @@ import pickle
 
 from keras.callbacks import ModelCheckpoint
 
-root_path = '../data'
-# root_path = '../tarek2/testAdextf2'
+# root_path = '../data'
+root_path = '../tarek2'
 
 # neuron model param flags
 # some of these are not currently used, but will be needed for adapting units, adex, conductance-based synapses, etc.
@@ -34,57 +34,37 @@ mSiemens = Siemens / 1e3
 nSiemens = Siemens / 1e9
 Hertz = 1 / Second
 
-# Parameters values for LIF cells
+# Training parameters needed for all models
+seq_len = 1000
+learning_rate = 1e-2
+n_epochs = 20
+target_rate = 0.02
+rate_cost = 0.1
+do_plot = True
+do_save = True
+rewiring = False
+n_input = 20
+n_recurrent = 100
+frac_e = 0.8  # in LIF_EI and Adex_EI, the fraction of total recurrent units that are excitatory
+mu = -0.64  # mu for normal dist which we exponentiate for lognormal weights
+sigma = 0.51  # sigma for normal dist which we exponentiate for lognormal weights
+p = 0.2  # connectivity probability when using LIF or Adex model
+p_ee = 0.160  # connectivity probability from E to E when using Adex_EI or LIF_EI
+p_ei = 0.244  # connectivity probability from E to I when using Adex_EI or LIF_EI
+p_ie = 0.318  # connectivity probability from I to E when using Adex_EI or LIF_EI
+p_ii = 0.343  # connectivity probability from I to I when using Adex_EI or LIF_EI
 
+# Parameters values for LIF cells
+"""
 thr = -50.4 * mVolt
 EL = -70.6 * mVolt
 n_refrac = 4
 tau = 20.
 dt = 1.
 dampening_factor = 0.3
-
-p = 0.2
-
-p_ee = 0.160
-p_ei = 0.244
-p_ie = 0.318
-p_ii = 0.343
-
-mu = -0.64
-sigma = 0.51
-# mu and sigma for normal dist which we exponentiate for lognormal weights
-# currently based on conductance; must change for current
-
-seq_len = 1000
-# learning_rate = 1e-3
-# n_epochs = 100
-learning_rate = 1e-2
-n_epochs = 20
-
-target_rate = 0.02
-rate_cost = 0.1
-
-do_plot = True
-do_save = True
-
-rewiring = False
-
-n_input = 20
-n_recurrent = 100
-frac_e = 0.8 # in LIF_EI and Adex_EI, the fraction of total recurrent units that are excitatory
-
-
 """
-flags.DEFINE_float('thr', -50.4 * mVolt, 'threshold at which neuron spikes')
-flags.DEFINE_float('EL', -70.6 * mVolt, 'equilibrium potential for leak (all) channels')
-flags.DEFINE_integer('n_refrac', 4, 'Number of refractory steps after each spike [ms]')
-flags.DEFINE_float('tau', 20., 'membrane time constant')
-flags.DEFINE_float('dt', 1. * mSecond, 'simulation time step')
-flags.DEFINE_float('dampening_factor', 0.3, 'factor that controls amplitude of pseudoderivative')
-"""
-
 # Parameters values for Adex cells (currently used by Tarek)
-"""
+
 EL = -70.6 * mVolt
 gL = 30 * nSiemens
 C = 281 * uFarad
@@ -95,26 +75,10 @@ a = 4 * nSiemens
 b = 80.5 * pAmpere
 V_reset = -70.6 * mVolt
 n_refrac = 2
-p = 0.40  # 0.20
 dt = 1. * mSecond
 dampening_factor = 0.30
-"""
-"""
-flags.DEFINE_float('EL', -70.6 * mVolt, 'Equilibrium potential for leak (all) channels')
-flags.DEFINE_float('gL', 30 * nSiemens, 'Leak conductance')
-flags.DEFINE_float('C', 281 * uFarad, 'Membrane capacitance')
-flags.DEFINE_float('deltaT', 2 * mVolt, 'Slope factor')
-flags.DEFINE_float('thr', -40.4 * mVolt, 'Threshold at which neuron spikes')
-flags.DEFINE_float('tauw', 144 * mSecond, 'Time constant for adaptation')
-flags.DEFINE_float('a', 4 * nSiemens, 'Subthreshhold adaptation')
-flags.DEFINE_float('b', 80.5 * pAmpere, 'Spike-triggered adaptation')
-flags.DEFINE_float('V_reset', -70.6 * mVolt, 'After spike voltage')
-flags.DEFINE_integer('n_refrac', 2, 'Number of refractory steps after each spike [ms]')
-flags.DEFINE_float('p', 0.2, 'Connectivity probability')
-flags.DEFINE_float('dt', 1. * mSecond, 'Simulation time step')
-flags.DEFINE_float('dampening_factor', 0.3, 'Factor that controls amplitude of pseudoderivative')
-"""
-# Parameters values for Adex cells with conductance-based synapses (currently used by Tarek)
+
+# Parameters values for Adex cells with conductance-based synapses (model not working yet)
 """
 EL = -70.6 * mVolt
 gL = 30 * nSiemens
@@ -126,52 +90,12 @@ a = 4 * nSiemens
 b = 80.5 * pAmpere
 V_reset = -70.6 * mVolt
 n_refrac = 2
-p = 0.20
 tauS = 10 * mSecond
 VS = 0 * mVolt
 dt = 1. * mSecond
 dampening_factor = 0.30
 """
-# Parameters values for Adex_EI cells (currently used by Tarek)
-"""
-frac_e = 0.8
-EL = -70.6 * mVolt
-gL = 30 * nSiemens
-C = 281 * uFarad
-deltaT = 2 * mVolt
-thr = -40.4 * mVolt
-tauw = 144 * mSecond
-a = 4 * nSiemens
-b = 80.5 * pAmpere
-V_reset = -70.6 * mVolt
-n_refrac = 2
-p_ee = 0.160
-p_ei = 0.244
-p_ie = 0.318
-p_ii = 0.343
-dt = 1. * mSecond
-dampening_factor = 0.3
-"""
-"""
-flags.DEFINE_float('frac_e', 0.8, 'Proportion of excitatory cells')
-flags.DEFINE_float('EL', -70.6 * mVolt, 'Equilibrium potential for leak (all) channels')
-flags.DEFINE_float('gL', 30 * nSiemens, 'Leak conductance')
-flags.DEFINE_float('C', 281 * uFarad, 'Membrane capacitance')
-flags.DEFINE_float('deltaT', 2 * mVolt, 'Slope factor')
-flags.DEFINE_float('thr', -40.4 * mVolt, 'Threshold at which neuron spikes')
-flags.DEFINE_float('tauw', 144 * mSecond, 'Time constant for adaptation')
-flags.DEFINE_float('a', 4 * nSiemens, 'Subthreshhold adaptation')
-flags.DEFINE_float('b', 80.5 * pAmpere, 'Spike-triggered adaptation')
-flags.DEFINE_float('V_reset', -70.6 * mVolt, 'After spike voltage')
-flags.DEFINE_integer('n_refrac', 2, 'Number of refractory steps after each spike [ms]')
-flags.DEFINE_float('p_ee', 0.160, 'Connectivity probability from excitatory to excitaotry neurons')
-flags.DEFINE_float('p_ei', 0.244, 'Connectivity probability from excitatory to inhibitory neurons')
-flags.DEFINE_float('p_ie', 0.318, 'Connectivity probability from inhibitory to excitaotry neurons')
-flags.DEFINE_float('p_ii', 0.343, 'Connectivity probability from inhibitory to inhibitory neurons')
-flags.DEFINE_float('dt', 1. * mSecond, 'Simulation time step')
-flags.DEFINE_float('dampening_factor', 0.3, 'Factor that controls amplitude of pseudoderivative')
-"""
-
+# Old parameters kept in case we need them
 """
 # these ones are for later neuron models
 flags.DEFINE_float('gL', 0.00003 * mSiemens, 'leak conductance')
@@ -210,10 +134,10 @@ flags.DEFINE_integer('n_recurrent', 100, '') # recurrent network of 100 spiking 
 
 def create_model(seq_len, n_input, n_recurrent):
     inputs = tf.keras.layers.Input(shape=(seq_len, n_input))
-
+    
     # cell = models.LIFCell(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor, p, mu, sigma, rewiring)
-    cell = models.LIF_EI(n_recurrent, frac_e, thr, EL, tau, dt, n_refrac, dampening_factor, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring)
-    # cell = models.Adex(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p)
+    # cell = models.LIF_EI(n_recurrent, frac_e, thr, EL, tau, dt, n_refrac, dampening_factor, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring)
+    cell = models.Adex(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, mu, sigma)
     # cell = models.AdexEI(n_recurrent, frac_e, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii)
     # cell = models.AdexCS(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, tauS, VS)
     rnn = tf.keras.layers.RNN(cell, return_sequences=True)
