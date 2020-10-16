@@ -233,6 +233,7 @@ class LIF_EI(tf.keras.layers.Layer):
         super().__init__()
         self.units = units
         self.n_excite = frac_e * self.units
+        tf.cast(self.n_excite, tf.int32)
         self.n_inhib = self.units - self.n_excite
 
         self._dt = float(dt)
@@ -253,7 +254,7 @@ class LIF_EI(tf.keras.layers.Layer):
         self.p_ii = p_ii
         self.mu = mu
         self.sigma = sigma
-        self.rewiring = rewiring 
+        self.rewiring = rewiring
         # boolean for whether a synapse becoming 0 will lead to a new synapse being drawn elsewhere
 
         # voltage, refractory, previous spikes
