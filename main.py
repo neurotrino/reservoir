@@ -43,7 +43,7 @@ tau = 20.
 dt = 1.
 dampening_factor = 0.3
 
-p = 0.5
+p = 0.2
 
 p_ee = 0.160
 p_ei = 0.244
@@ -71,6 +71,8 @@ rewiring = False
 
 n_input = 20
 n_recurrent = 100
+frac_e = 0.8 # in LIF_EI and Adex_EI, the fraction of total recurrent units that are excitatory 
+
 
 """
 flags.DEFINE_float('thr', -50.4 * mVolt, 'threshold at which neuron spikes')
@@ -238,6 +240,7 @@ def create_data_set(seq_len, n_input, n_batch=1):
     y = tf.sin(tf.linspace(0., 4 * np.pi, seq_len))[None, :, None]
 
     return tf.data.Dataset.from_tensor_slices((x, dict(tf_op_layer_output=y))).repeat(count=20).batch(n_batch)
+    # 20 repetitions of truly the exact same input sinusoid
 
 class SaveCallback(tf.keras.callbacks.Callback):
     def __init__(self):

@@ -52,6 +52,14 @@ def exp_convolve(tensor, decay=.8, reverse=False, initializer=None, axis=0):
 
 
 class LIFCell(tf.keras.layers.Layer):
+    # October 16th, 2020
+    # In this version of LIF, when a synaptic weight changes sign from its initialization, it goes to zero.
+    # However, it need not remain at zero. It is allowed to change in the direction of its initial sign.
+    # Due to the initialization with a lognormal distribution, all synapses here are excitatory.
+    # Only synapses that begin at 0 must remain at 0. These include self-recurrent connections.
+    # Therefore connectivity can never go above initial p, but it can go below it.
+    # We have not yet implemented rewiring. That will come with its own considerations.
+
     def __init__(self, units, thr, EL, tau, dt, n_refractory, dampening_factor, p, mu, sigma, rewiring):
         super().__init__()
         self.units = units
@@ -108,6 +116,178 @@ class LIFCell(tf.keras.layers.Layer):
         # weights are lognormal, see ConnMatGenerator.py > def make_weighted(self)
         connmat_generator = connmat.ConnectivityMatrixGenerator(self.units, self.p, self.mu, self.sigma)
         initial_weights_mat = connmat_generator.run_generator()
+        self.set_weights([self.input_weights.value(), initial_weights_mat])
+
+        # not currently using bias currents
+        #self.bias_currents = self.add_weight(shape=(self.units,),
+                                             #initializer=tf.keras.initializers.Zeros(),
+                                             #name='bias_currents')
+
+        # Store signs of all the initialized recurrent weights
+        self.rec_sign = tf.sign(self.recurrent_weights)
+
+        super().build(input_shape)
+
+    def call(self, inputs, state):
+        old_v = state[0]
+        old_r = state[1]
+        old_z = state[2]
+
+        # If the sign of a weight changed or the weight is no longer 0, make the weight 0
+        self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
+
+        i_in = tf.matmul(inputs, self.input_weights)
+        i_rec = tf.matmul(old_z, self.recurrent_weights)
+
+        # to circumvent the problem of voltage reset, we have a subtractive current applied if a spike occurred in previous time step
+        # i_reset = -self.threshold * old_z # in the toy-valued case, we can just subtract threshold which was 1, to return to baseline 0, or approximately baseline
+        # now to have the analogous behavior using real voltage values, we must subtract the difference between thr and EL
+        i_reset = -(self.threshold-self.EL) * old_z # approx driving the voltage 20 mV more negative
+
+        input_current = i_in + i_rec + i_reset # + self.bias_currents[None]
+
+        # previously, whether old_v was below or above 0, you would still decay gradually back to 0
+        # decay was dependent on the distance between your old voltage and resting 0
+        # the equation was simply new_v = self._decay * old_v + input_current
+        # we are now writing it with the same concept: the decay is dependent on the distance between old voltage and rest at -70mV
+        # that decay is then added to the resting value
+        # in the same way that decay was previously implicitly added to 0 (rest)
+        # this ensures the same basic behavior s.t. if you're above EL, you hyperpolarize to EL
+        # and if you are below EL, you depolarize to EL
+        new_v = self.EL + (self._decay) * (old_v - self.EL) + input_current
+
+        is_refractory = tf.greater(old_r, 0)
+        #v_scaled = (new_v - self.threshold) / self.threshold
+        v_scaled = -(self.threshold-new_v) / (self.threshold-self.EL)
+        new_z = spike_function(v_scaled, self._dampening_factor)
+        new_z = tf.where(is_refractory, tf.zeros_like(new_z), new_z)
+        new_r = tf.clip_by_value(
+            old_r - 1 + tf.cast(new_z * self._n_refractory, tf.int32),
+            0,
+            self._n_refractory)
+
+        new_state = (new_v, new_r, new_z)
+        output = (new_v, new_z)
+
+        return output, new_state
+
+
+class SpikeRegularization(tf.keras.layers.Layer):
+    def __init__(self, cell, target_rate, rate_cost): # rate in spikes/ms for ease
+        self._rate_cost = rate_cost
+        self._target_rate = target_rate
+        self._cell = cell
+        super().__init__()
+
+    def call(self, inputs, **kwargs):
+        voltage = inputs[0]
+        spike = inputs[1]
+        upper_threshold = self._cell.threshold
+
+        rate = tf.reduce_mean(spike, axis=(0, 1))
+        # av = Second * tf.reduce_mean(z, axis=(0, 1)) / flags.dt
+        #regularization_coeff = tf.Variable(np.ones(flags.n_neurons) * flags.reg_fr, dtype=tf.float32, trainable=False)
+        #loss_reg_fr = tf.reduce_sum(tf.square(rate - flags.target_rate) * regularization_coeff)
+        global_rate = tf.reduce_mean(rate)
+        self.add_metric(global_rate, name='rate', aggregation='mean')
+
+        reg_loss = tf.reduce_sum(tf.square(rate - self._target_rate)) * self._rate_cost
+        self.add_loss(reg_loss)
+        self.add_metric(reg_loss, name='rate_loss', aggregation='mean')
+
+        return inputs
+
+class SpikeVoltageRegularization(tf.keras.layers.Layer):
+    def __init__(self, cell, rate_cost=.1, voltage_cost=.01, target_rate=.02): # rate in spikes/ms for ease
+        self._rate_cost = rate_cost
+        self._voltage_cost = voltage_cost
+        self._target_rate = target_rate
+        self._cell = cell
+        super().__init__()
+
+    def call(self, inputs, **kwargs):
+        voltage = inputs[0]
+        spike = inputs[1]
+        upper_threshold = self._cell.threshold
+
+        rate = tf.reduce_mean(spike, axis=(0, 1))
+        global_rate = tf.reduce_mean(rate)
+        self.add_metric(global_rate, name='rate', aggregation='mean')
+
+        reg_loss = tf.reduce_sum(tf.square(rate - self._target_rate)) * self._rate_cost
+        self.add_loss(reg_loss)
+        self.add_metric(reg_loss, name='rate_loss', aggregation='mean')
+
+        v_pos = tf.square(tf.clip_by_value(tf.nn.relu(voltage - upper_threshold), 0., 1.))
+        v_neg = tf.square(tf.clip_by_value(tf.nn.relu(-voltage - self._cell.threshold), 0., 1.))
+        voltage_loss = tf.reduce_mean(tf.reduce_sum(v_pos + v_neg, -1)) * self._voltage_cost
+        self.add_loss(voltage_loss)
+        self.add_metric(voltage_loss, name='voltage_loss', aggregation='mean')
+        return inputs
+
+
+class LIF_EI(tf.keras.layers.Layer):
+    # base template from October 16th, 2020 version of LIFCell
+
+    def __init__(self, units, frac_e, thr, EL, tau, dt, n_refractory, dampening_factor, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring):
+        super().__init__()
+        self.units = units
+        self.n_excite = frac_e * self.units
+        self.n_inhib = self.units - self.n_excite
+
+        self._dt = float(dt)
+        self._decay = tf.exp(-dt / tau)
+        self._n_refractory = n_refractory
+
+        self.input_weights = None
+        self.bias_currents = None
+        self.recurrent_weights = None
+        self.disconnect_mask = None
+
+        self.threshold = thr
+        self.EL = EL
+        self._dampening_factor = dampening_factor
+        self.p_ee = p_ee
+        self.p_ei = p_ei
+        self.p_ie = p_ie
+        self.p_ii = p_ii
+        self.mu = mu
+        self.sigma = sigma
+
+        self.rewiring = rewiring # boolean for whether a synapse becoming 0 will lead to a new synapse being drawn elsewhere
+
+        # voltage, refractory, previous spikes
+        self.state_size = (units, units, units)
+
+    def zero_state(self, batch_size, dtype=tf.float32):
+        # voltage
+        v0 = tf.zeros((batch_size, self.units), dtype) + self.EL
+        # refractory
+        r0 = tf.zeros((batch_size, self.units), tf.int32)
+        # spike
+        z_buf0 = tf.zeros((batch_size, self.units), tf.float32)
+        return v0, r0, z_buf0
+
+    def build(self, input_shape):
+        # using uniform weight dist for inputs as opposed to RandomNormal(mean=1., stddev=1. / np.sqrt(input_shape[-1] + self.units))
+        #self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
+                                             #initializer=tf.keras.initializers.RandomNormal(stddev=1. / np.sqrt(input_shape[-1] + self.units)), name='input_weights')
+        self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=0.4), trainable = True, name='input_weights')
+
+        self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool) # disconnect self-recurrent weights
+
+        # weights set here do not matter
+        self.recurrent_weights = self.add_weight(
+            shape=(self.units, self.units),
+            initializer=tf.keras.initializers.Orthogonal(gain=.7),
+            #initializer = tf.keras.initializers.RandomNormal();
+            trainable = True,
+            name='recurrent_weights')
+
+        # weights are lognormal
+        EIconnmat_generator = EIconnmat.ConnectivityMatrixGenerator(self.n_excite, self.n_inhib, self.p_ee, self.p_ei, self.p_ie, self.p_ii, self.mu, self.sigma)
+        initial_weights_mat = EIconnmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
 
         # not currently using bias currents
