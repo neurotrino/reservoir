@@ -38,7 +38,8 @@ class ConnectivityMatrixGenerator(object):
                 raise Exception('Failed to weight connectivity matrix.')
             print("Weighted")
 
-            return self.weight_mat/10
+            return self.weight_mat/10 # hard-coded decrease weights by /10;
+            # later on we will need to change the mu and sigma to reflect current rather than conductance anyway 
 
         except Exception as e:
             print(e)

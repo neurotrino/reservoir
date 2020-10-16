@@ -4,11 +4,11 @@ We're migrating all SNN training components from TensorFlow 1 to TensorFlow 2.
 
 ## Status
 
-_Last updated: 06-Oct-20_
+_Last updated: 16-Oct-20_
 
 - [x] LIF
 - [x] BPTT
-- [ ] E & I units in LIF
+- [x] E & I units in LIF
 - [ ] E & I units w/ differing time constants
 - [ ] ALIF
 - [X] Sparse connectivity probabilities
