@@ -71,7 +71,7 @@ rewiring = False
 
 n_input = 20
 n_recurrent = 100
-frac_e = 0.8 # in LIF_EI and Adex_EI, the fraction of total recurrent units that are excitatory 
+frac_e = 0.8 # in LIF_EI and Adex_EI, the fraction of total recurrent units that are excitatory
 
 
 """
@@ -211,8 +211,8 @@ flags.DEFINE_integer('n_recurrent', 100, '') # recurrent network of 100 spiking 
 def create_model(seq_len, n_input, n_recurrent):
     inputs = tf.keras.layers.Input(shape=(seq_len, n_input))
 
-    cell = models.LIFCell(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor, p, mu, sigma, rewiring)
-    # cell = models.LIF_EI(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring)
+    # cell = models.LIFCell(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor, p, mu, sigma, rewiring)
+    cell = models.LIF_EI(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring)
     # cell = models.Adex(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p)
     # cell = models.AdexEI(n_recurrent, frac_e, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii)
     # cell = models.AdexCS(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, tauS, VS)
@@ -247,11 +247,13 @@ class SaveCallback(tf.keras.callbacks.Callback):
         super().__init__()
 
     def on_epoch_begin(self, epoch, logs=None):
-        filepath = str(root_path) + "/tf2_testing/LIF/p" + str(int(p*100)) + "/begin_epoch_" + str(epoch) + ".hdf5"
+        filepath = str(root_path) + "/tf2_testing/LIF_EI/begin_epoch_" + str(epoch) + ".hdf5"
+        #filepath = str(root_path) + "/tf2_testing/LIF/p" + str(int(p*100)) + "/begin_epoch_" + str(epoch) + ".hdf5"
         self.model.save_weights(filepath)
 
     def on_epoch_end(self, epoch, logs=None):
-        filepath = str(root_path) + "/tf2_testing/LIF/p" + str(int(p*100)) + "/end_epoch_" + str(epoch) + ".hdf5"
+        filepath = str(root_path) + "/tf2_testing/LIF_EI/end_epoch_" + str(epoch) + ".hdf5"
+        # filepath = str(root_path) + "/tf2_testing/LIF/p" + str(int(p*100)) + "/end_epoch_" + str(epoch) + ".hdf5"
         self.model.save_weights(filepath)
 
 class PlotCallback(tf.keras.callbacks.Callback):
@@ -292,7 +294,8 @@ class PlotCallback(tf.keras.callbacks.Callback):
         #self.axes[4].set_xlabel('recurrent weights')
         [ax.yaxis.set_label_coords(-.05, .5) for ax in self.axes]
         plt.draw()
-        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/LIF/p{}/test_epoch_{}.png'.format(int(p*100), epoch))), dpi=300)
+        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing,LIF_EI/test_epoch_{}.png'.format(epoch))), dpi=300)
+        #plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/LIF/p{}/test_epoch_{}.png'.format(int(p*100), epoch))), dpi=300)
         cb1.remove()
         cb2.remove()
         cb3.remove()
