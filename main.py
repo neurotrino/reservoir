@@ -294,7 +294,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
         #self.axes[4].set_xlabel('recurrent weights')
         [ax.yaxis.set_label_coords(-.05, .5) for ax in self.axes]
         plt.draw()
-        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing,LIF_EI/test_epoch_{}.png'.format(epoch))), dpi=300)
+        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/LIF_EI/test_epoch_{}.png'.format(epoch))), dpi=300)
         #plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/LIF/p{}/test_epoch_{}.png'.format(int(p*100), epoch))), dpi=300)
         cb1.remove()
         cb2.remove()
