@@ -37,8 +37,8 @@ def LIF_EI_begin_end_compare(epoch):
     hf = h5py.File(begin_fname,'r')
     n1 = hf.get('rnn')
     n2 = n1.get('rnn')
-    lif_cell = n2.get('lif_cell')
-    rec_w = lif_cell.get('recurrent_weights:0')
+    lif_ei = n2.get('lif_ei')
+    rec_w = lif_ei.get('recurrent_weights:0')
     begin_rec_w = np.array(rec_w)
 
     print("count of zeros at beginning of epoch:")
@@ -51,8 +51,8 @@ def LIF_EI_begin_end_compare(epoch):
     hf = h5py.File(end_fname,'r')
     n1 = hf.get('rnn')
     n2 = n1.get('rnn')
-    lif_cell = n2.get('lif_cell')
-    rec_w = lif_cell.get('recurrent_weights:0')
+    lif_ei = n2.get('lif_ei')
+    rec_w = lif_ei.get('recurrent_weights:0')
     end_rec_w = np.array(rec_w)
 
     print("count of zeros at end of epoch:")
