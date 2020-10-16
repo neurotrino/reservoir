@@ -232,8 +232,7 @@ class LIF_EI(tf.keras.layers.Layer):
     def __init__(self, units, frac_e, thr, EL, tau, dt, n_refractory, dampening_factor, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring):
         super().__init__()
         self.units = units
-        self.n_excite = frac_e * self.units
-        tf.cast(self.n_excite, tf.int32)
+        self.n_excite = tf.cast(frac_e * self.units, tf.int32)
         self.n_inhib = self.units - self.n_excite
 
         self._dt = float(dt)
