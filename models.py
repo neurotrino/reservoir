@@ -344,59 +344,6 @@ class LIF_EI(tf.keras.layers.Layer):
         return output, new_state
 
 
-class SpikeRegularization(tf.keras.layers.Layer):
-    def __init__(self, cell, target_rate, rate_cost): # rate in spikes/ms for ease
-        self._rate_cost = rate_cost
-        self._target_rate = target_rate
-        self._cell = cell
-        super().__init__()
-
-    def call(self, inputs, **kwargs):
-        voltage = inputs[0]
-        spike = inputs[1]
-        upper_threshold = self._cell.threshold
-
-        rate = tf.reduce_mean(spike, axis=(0, 1))
-        # av = Second * tf.reduce_mean(z, axis=(0, 1)) / flags.dt
-        #regularization_coeff = tf.Variable(np.ones(flags.n_neurons) * flags.reg_fr, dtype=tf.float32, trainable=False)
-        #loss_reg_fr = tf.reduce_sum(tf.square(rate - flags.target_rate) * regularization_coeff)
-        global_rate = tf.reduce_mean(rate)
-        self.add_metric(global_rate, name='rate', aggregation='mean')
-
-        reg_loss = tf.reduce_sum(tf.square(rate - self._target_rate)) * self._rate_cost
-        self.add_loss(reg_loss)
-        self.add_metric(reg_loss, name='rate_loss', aggregation='mean')
-
-        return inputs
-
-class SpikeVoltageRegularization(tf.keras.layers.Layer):
-    def __init__(self, cell, rate_cost=.1, voltage_cost=.01, target_rate=.02): # rate in spikes/ms for ease
-        self._rate_cost = rate_cost
-        self._voltage_cost = voltage_cost
-        self._target_rate = target_rate
-        self._cell = cell
-        super().__init__()
-
-    def call(self, inputs, **kwargs):
-        voltage = inputs[0]
-        spike = inputs[1]
-        upper_threshold = self._cell.threshold
-
-        rate = tf.reduce_mean(spike, axis=(0, 1))
-        global_rate = tf.reduce_mean(rate)
-        self.add_metric(global_rate, name='rate', aggregation='mean')
-
-        reg_loss = tf.reduce_sum(tf.square(rate - self._target_rate)) * self._rate_cost
-        self.add_loss(reg_loss)
-        self.add_metric(reg_loss, name='rate_loss', aggregation='mean')
-
-        v_pos = tf.square(tf.clip_by_value(tf.nn.relu(voltage - upper_threshold), 0., 1.))
-        v_neg = tf.square(tf.clip_by_value(tf.nn.relu(-voltage - self._cell.threshold), 0., 1.))
-        voltage_loss = tf.reduce_mean(tf.reduce_sum(v_pos + v_neg, -1)) * self._voltage_cost
-        self.add_loss(voltage_loss)
-        self.add_metric(voltage_loss, name='voltage_loss', aggregation='mean')
-        return inputs
-
 class Adex(tf.keras.layers.Layer):
     def __init__(self, n_neurons, n_in, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, mu, sigma):
 
@@ -458,7 +405,7 @@ class Adex(tf.keras.layers.Layer):
                                              name='input_weights')
         '''
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
-                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=0.5),
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=0.4),
                                              trainable=True,
                                              name='input_weights')
 
@@ -533,7 +480,7 @@ class Adex(tf.keras.layers.Layer):
 
 class Adex_EI(tf.keras.layers.Layer):
 
-    def __init__(self, n_neurons, frac_e, n_in, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii):
+    def __init__(self, n_neurons, frac_e, n_in, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii, mu, sigma):
 
         if tauw is None: raise ValueError("Time constant for adaptive bias must be set.")
         if a is None: raise ValueError("a parameter for adaptive bias must be set.")
@@ -562,6 +509,8 @@ class Adex_EI(tf.keras.layers.Layer):
         self.p_ei = p_ei
         self.p_ie = p_ie
         self.p_ii = p_ii
+        self.mu = mu
+        self.sigma = sigma
         self.dt_gL__C = self._dt * self.gL / self.C
         self.dt_a__tauw = self._dt * self.a / self.tauw
 
@@ -597,11 +546,13 @@ class Adex_EI(tf.keras.layers.Layer):
                                              name='input_weights')
         '''
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
-                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1),
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=0.4), 
+                                             trainable = True, 
                                              name='input_weights')
         # Create the recurrent weights, their value here is not important
         self.recurrent_weights = self.add_weight(shape=(self.units, self.units),
                                                  initializer=tf.keras.initializers.Orthogonal(gain=.7),
+                                                 trainable = True,
                                                  name='recurrent_weights')
 
         # Set the desired values for recurrent weights while accounting for p
@@ -609,7 +560,7 @@ class Adex_EI(tf.keras.layers.Layer):
         # initial_weights_mat should be of the same form self.recurrent_weight.value(), i.e.:
         #   np.array([[N1toN1, ..., N1toNn], ..., [NntoN1, ..., NntoNn]], dtype=np.float32)
         # !!!!! might need to change how we set the weights because current based synapses
-        EIconnmat_generator = EIconnmat.ConnectivityMatrixGenerator(self.n_excite, self.n_inhib, self.p_ee, self.p_ei, self.p_ie, self.p_ii)
+        EIconnmat_generator = EIconnmat.ConnectivityMatrixGenerator(self.n_excite, self.n_inhib, self.p_ee, self.p_ei, self.p_ie, self.p_ii, self.mu, self.sigma)
         initial_weights_mat = EIconnmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
 
@@ -731,12 +682,14 @@ class AdexCS(tf.keras.layers.Layer):
                                              name='input_weights')
         '''
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
-                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1.),
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=0.4),
+                                             trainable=True,
                                              name='input_weights')
 
         # Create the recurrent weights, their value here is not important
         self.recurrent_weights = self.add_weight(shape=(self.units, self.units),
                                                  initializer=tf.keras.initializers.Orthogonal(gain=.7),
+                                                 trainable=True,
                                                  name='recurrent_weights')
 
         # Set the desired values for recurrent weights while accounting for p
@@ -748,8 +701,8 @@ class AdexCS(tf.keras.layers.Layer):
         initial_weights_mat = connmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
 
-        # To make sure that all self-connections are 0 after call
-        self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)), tf.bool)
+        # Store the initial signs for later
+        self.rec_sign = tf.sign(self.recurrent_weights)
 
         # Bias_currents; commented out because we are not using it and it might affect the way I am assigning the weights
         # self.bias_currents = self.add_weight(shape=(self.units,),
@@ -767,12 +720,12 @@ class AdexCS(tf.keras.layers.Layer):
         old_g = state[3]
         old_z = state[4]
 
-        # No self-connections (diagonal in disconnect_mask is all True so diagonal in recurrent_weights will be like the diagonal in zeros)
-        no_autapse_w_rec = tf.where(self.disconnect_mask, tf.zeros_like(self.recurrent_weights), self.recurrent_weights)
-
+        # If the sign of a weight changed or the weight is no longer 0, make the weight 0
+        self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
+        
         # Calculate input current
         i_in = tf.matmul(inputs, self.input_weights)
-        i_rec = tf.matmul(old_z, no_autapse_w_rec)
+        i_rec = tf.matmul(old_z, self.recurrent_weights)
         # There is no reset current because we are setting new_V to V_reset if old_z > 0.5
         # i_t = i_in + i_rec  # + self.bias_currents[None]
         i_w = tf.reduce_sum(i_rec)
