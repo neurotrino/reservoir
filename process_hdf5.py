@@ -46,8 +46,8 @@ def LIF_EI_begin_end_compare(epoch):
     begin_diag = begin_rec_w.diagonal()
     print("count of self-recurrent synapses that are zero")
     print(begin_diag[begin_diag==0].shape[0])
-    print("count of inhibitory synapses")
-    print(begin_rec_w[begin_rec_w<0].shape[0])
+    print("ratio of e:i synapses")
+    print(begin_rec_w[begin_rec_w>0].shape[0]/begin_rec_w[begin_rec_w<0].shape[0])
 
     end_fname = "tf2_testing/LIF_EI/end_epoch_" + str(epoch) + ".hdf5"
     hf = h5py.File(end_fname,'r')
@@ -62,8 +62,8 @@ def LIF_EI_begin_end_compare(epoch):
     end_diag = end_rec_w.diagonal()
     print("count of self-recurrent synapses that are zero")
     print(end_diag[end_diag==0].shape[0])
-    print("count of inhibitory synapses")
-    print(end_rec_w[end_rec_w<0].shape[0])
+    print("ratio of e:i synapses")
+    print(end_rec_w[end_rec_w>0].shape[0]/end_rec_w[end_rec_w<0].shape[0])
 
     fig, axes = plt.subplots(2)
     axes[0].hist(begin_rec_w)
