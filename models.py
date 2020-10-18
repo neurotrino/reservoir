@@ -345,7 +345,7 @@ class LIF_EI(tf.keras.layers.Layer):
 
 
 class Adex(tf.keras.layers.Layer):
-    def __init__(self, n_neurons, n_in, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, mu, sigma):
+    def __init__(self, n_neurons, n_in, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, mu, sigma, rewiring):
 
         if tauw is None: raise ValueError("Time constant for adaptive bias must be set.")
         if a is None: raise ValueError("a parameter for adaptive bias must be set.")
@@ -377,6 +377,7 @@ class Adex(tf.keras.layers.Layer):
         # self.bias_currents = None
         self.recurrent_weights = None
         self.disconnect_mask = None
+        self.rewiring = rewiring
 
         #                  voltage,    refractory, adaptation, spikes (spiking or not)
         self.state_size = (self.units, self.units, self.units, self.units)
@@ -428,6 +429,9 @@ class Adex(tf.keras.layers.Layer):
         # Store the initial signs for later
         self.rec_sign = tf.sign(self.recurrent_weights)
 
+        # Needed to disconnect self-connections if self.rewiring
+        self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)),tf.bool)
+
         # Bias_currents; commented out because we are not using it and it might affect the way I am assigning the weights
         # self.bias_currents = self.add_weight(shape=(self.units,),
         #                                      initializer=tf.keras.initializers.Zeros(),
@@ -443,8 +447,14 @@ class Adex(tf.keras.layers.Layer):
         old_w = state[2]
         old_z = state[3]
 
-        # If the sign of a weight changed or the weight is no longer 0, make the weight 0
-        self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
+        if self.rewiring:
+            # Make sure all self-connections are 0
+            self.recurrent_weights.assign(tf.where(self.disconnect_mask, tf.zeros_like(self.recurrent_weights), self.recurrent_weights))
+            # If the sign of a weight changed, make it 0
+            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights >= 0, self.recurrent_weights, 0))
+        else:
+            # If the sign of a weight changed or the weight is no longer 0, make the weight 0
+            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
 
         # Calculate input current
         i_in = tf.matmul(inputs, self.input_weights)
@@ -480,7 +490,7 @@ class Adex(tf.keras.layers.Layer):
 
 class Adex_EI(tf.keras.layers.Layer):
 
-    def __init__(self, n_neurons, frac_e, n_in, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii, mu, sigma):
+    def __init__(self, n_neurons, frac_e, n_in, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring):
 
         if tauw is None: raise ValueError("Time constant for adaptive bias must be set.")
         if a is None: raise ValueError("a parameter for adaptive bias must be set.")
@@ -518,6 +528,7 @@ class Adex_EI(tf.keras.layers.Layer):
         self.bias_currents = None
         self.recurrent_weights = None
         self.disconnect_mask = None
+        self.rewiring = rewiring
 
         #                  voltage,    refractory, adaptation, spikes (spiking or not)
         self.state_size = (self.units, self.units, self.units, self.units)
@@ -567,6 +578,9 @@ class Adex_EI(tf.keras.layers.Layer):
         # Store the initial signs for later
         self.rec_sign = tf.sign(self.recurrent_weights)
 
+        # Needed to disconnect self-connections if self.rewiring
+        self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)),tf.bool)
+
         # Bias_currents; commented out because we are not using it and it might affect the way I am assigning the weights
         # self.bias_currents = self.add_weight(shape=(self.units,),
         #                                      initializer=tf.keras.initializers.Zeros(),
@@ -582,8 +596,14 @@ class Adex_EI(tf.keras.layers.Layer):
         old_w = state[2]
         old_z = state[3]
 
-        # If the sign of a weight changed or the weight is no longer 0, make the weight 0
-        self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
+        if self.rewiring:
+            # Make sure all self-connections are 0
+            self.recurrent_weights.assign(tf.where(self.disconnect_mask, tf.zeros_like(self.recurrent_weights), self.recurrent_weights))
+            # If the sign of a weight changed, make it 0
+            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights >= 0, self.recurrent_weights, 0))
+        else:
+            # If the sign of a weight changed or the weight is no longer 0, make the weight 0
+            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
 
         # Calculate input current
         i_in = tf.matmul(inputs, self.input_weights)
@@ -618,7 +638,7 @@ class Adex_EI(tf.keras.layers.Layer):
         return output, new_state
 
 class AdexCS(tf.keras.layers.Layer):
-    def __init__(self, n_neurons, n_in, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, mu, sigma, tauS, VS):
+    def __init__(self, n_neurons, n_in, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, mu, sigma, tauS, VS, rewiring):
 
         if tauw is None: raise ValueError("Time constant for adaptive bias must be set.")
         if a is None: raise ValueError("a parameter for adaptive bias must be set.")
@@ -652,6 +672,7 @@ class AdexCS(tf.keras.layers.Layer):
         self.bias_currents = None
         self.recurrent_weights = None
         self.disconnect_mask = None
+        self.rewiring = rewiring
 
         #                  voltage,    refractory, adaptation, synaptic conductance, spikes (spiking or not)
         self.state_size = (self.units, self.units, self.units, self.units, self.units)
@@ -704,6 +725,9 @@ class AdexCS(tf.keras.layers.Layer):
         # Store the initial signs for later
         self.rec_sign = tf.sign(self.recurrent_weights)
 
+        # Needed to disconnect self-connections if self.rewiring
+        self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)),tf.bool)
+
         # Bias_currents; commented out because we are not using it and it might affect the way I am assigning the weights
         # self.bias_currents = self.add_weight(shape=(self.units,),
         #                                      initializer=tf.keras.initializers.Zeros(),
@@ -720,8 +744,14 @@ class AdexCS(tf.keras.layers.Layer):
         old_g = state[3]
         old_z = state[4]
 
-        # If the sign of a weight changed or the weight is no longer 0, make the weight 0
-        self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
+        if self.rewiring:
+            # Make sure all self-connections are 0
+            self.recurrent_weights.assign(tf.where(self.disconnect_mask, tf.zeros_like(self.recurrent_weights), self.recurrent_weights))
+            # If the sign of a weight changed, make it 0
+            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights >= 0, self.recurrent_weights, 0))
+        else:
+            # If the sign of a weight changed or the weight is no longer 0, make the weight 0
+            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
         
         # Calculate input current
         i_in = tf.matmul(inputs, self.input_weights)
