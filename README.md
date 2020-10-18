@@ -12,7 +12,7 @@ _Last updated: 16-Oct-20_
 - [ ] E & I units w/ differing time constants
 - [ ] ALIF
 - [X] Sparse connectivity probabilities
-- [ ] Rewiring during training
+- [X] Rewiring during training
 - [ ] eProp1 symmetric feedback
 - [ ] eProp1 random feedback
 - [X] AdEx
