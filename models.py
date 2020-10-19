@@ -302,7 +302,7 @@ class LIF_EI(tf.keras.layers.Layer):
 
         # Store neurons' signs
         if self.rewiring:
-            wmat = -1 * np.ones(self.units, self.units)
+            wmat = -1 * np.ones([self.units, self.units])
             wmat[0:n_excite,:] = -1 * wmat[0:n_excite,:]
             self.rec_sign = tf.convert_to_tensor(wmat) # +1 for excitatory and -1 for inhibitory
         else:
