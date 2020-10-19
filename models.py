@@ -11,10 +11,9 @@ def pseudo_derivative(v_scaled, dampening_factor):
 @tf.custom_gradient
 def spike_function(v_scaled, dampening_factor):
     """
-    originally,
     :param v_scaled: scaled version of the voltage being -1 at rest and 0 at the threshold
-    so we must make sure our membrane dynamics (with negative real valued thresholds, etc.) is consistent with this voltage-scaling spike generation mechanic
-    in this case, we are normalizing using -(thr-V)/(thr-EL), which is a variation on the way one would normalize x between 0 and 1 using (x-min)/(max-min)
+    we must ensure our membrane dynamics (with negative real valued thresholds, etc.) remains consistent with this voltage-scaling spike mechanic
+    in this case, we normalize using -(thr-V)/(thr-EL), which is a variation on the way one would normalize x between 0 and 1 using (x-min)/(max-min)
     (it would be a case of -(max-x)/(max-min)
     :param dampening_factor: parameter to stabilize learning
     """
@@ -133,8 +132,14 @@ class LIFCell(tf.keras.layers.Layer):
         old_r = state[1]
         old_z = state[2]
 
-        # If the sign of a weight changed or the weight is no longer 0, make the weight 0
-        self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
+        if self.rewiring:
+            # Make sure all self-connections are 0
+            self.recurrent_weights.assign(tf.where(self.disconnect_mask, tf.zeros_like(self.recurrent_weights), self.recurrent_weights))
+            # If the sign of a weight changed, make it 0
+            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights >= 0, self.recurrent_weights, 0))
+        else:
+            # If the sign of a weight changed or the weight is no longer 0, make the weight 0
+            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
 
         i_in = tf.matmul(inputs, self.input_weights)
         i_rec = tf.matmul(old_z, self.recurrent_weights)
@@ -295,8 +300,13 @@ class LIF_EI(tf.keras.layers.Layer):
                                              #initializer=tf.keras.initializers.Zeros(),
                                              #name='bias_currents')
 
-        # Store signs of all the initialized recurrent weights
-        self.rec_sign = tf.sign(self.recurrent_weights)
+        # Store neurons' signs
+        if self.rewiring:
+            wmat = -1 * np.ones(self.units, self.units)
+            wmat[0:n_excite,:] = -1 * wmat[0:n_excite,:]
+            self.rec_sign = tf.convert_to_tensor(wmat) # +1 for excitatory and -1 for inhibitory
+        else:
+            self.rec_sign = tf.sign(self.recurrent_weights) # as above but 0 for zeros
 
         super().build(input_shape)
 
@@ -305,8 +315,15 @@ class LIF_EI(tf.keras.layers.Layer):
         old_r = state[1]
         old_z = state[2]
 
-        # If the sign of a weight changed or the weight is no longer 0, make the weight 0
-        self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
+        if self.rewiring:
+            # Make sure all self-connections remain 0
+            self.recurrent_weights.assign(tf.where(self.disconnect_mask, tf.zeros_like(self.recurrent_weights), self.recurrent_weights))
+            # If the sign of a weight changed from the original unit's designation, make it 0
+            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
+        else:
+            # If the sign of a weight changed from the original or the weight is no longer 0, make the weight 0
+            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
+
 
         i_in = tf.matmul(inputs, self.input_weights)
         i_rec = tf.matmul(old_z, self.recurrent_weights)
@@ -557,8 +574,8 @@ class Adex_EI(tf.keras.layers.Layer):
                                              name='input_weights')
         '''
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
-                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=0.4), 
-                                             trainable = True, 
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=0.4),
+                                             trainable = True,
                                              name='input_weights')
         # Create the recurrent weights, their value here is not important
         self.recurrent_weights = self.add_weight(shape=(self.units, self.units),
@@ -752,7 +769,7 @@ class AdexCS(tf.keras.layers.Layer):
         else:
             # If the sign of a weight changed or the weight is no longer 0, make the weight 0
             self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
-        
+
         # Calculate input current
         i_in = tf.matmul(inputs, self.input_weights)
         i_rec = tf.matmul(old_z, self.recurrent_weights)

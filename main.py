@@ -1,9 +1,6 @@
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
-#from absl import app
-#from absl import flags
-#FLAGS = flags.FLAGS
 
 import models
 import os
@@ -12,8 +9,8 @@ import pickle
 
 from keras.callbacks import ModelCheckpoint
 
-# root_path = '../data'
-root_path = '../tarek2'
+root_path = '../data'
+# root_path = '../tarek2'
 
 # neuron model param flags
 # some of these are not currently used, but will be needed for adapting units, adex, conductance-based synapses, etc.
@@ -42,7 +39,7 @@ target_rate = 0.02
 rate_cost = 0.1
 do_plot = True
 do_save = True
-rewiring = False
+rewiring = True
 n_input = 20
 n_recurrent = 100
 frac_e = 0.8  # in LIF_EI and Adex_EI, the fraction of total recurrent units that are excitatory
@@ -55,7 +52,6 @@ p_ie = 0.318  # connectivity probability from I to E when using Adex_EI or LIF_E
 p_ii = 0.343  # connectivity probability from I to I when using Adex_EI or LIF_EI
 
 # Parameters values for LIF cells
-"""
 thr = -50.4 * mVolt
 EL = -70.6 * mVolt
 n_refrac = 4
@@ -79,7 +75,7 @@ dt = 1. * mSecond
 dampening_factor = 0.30
 
 # Parameters values for Adex cells with conductance-based synapses (model not working yet)
-"""
+
 EL = -70.6 * mVolt
 gL = 30 * nSiemens
 C = 281 * uFarad
@@ -134,10 +130,10 @@ flags.DEFINE_integer('n_recurrent', 100, '') # recurrent network of 100 spiking 
 
 def create_model(seq_len, n_input, n_recurrent):
     inputs = tf.keras.layers.Input(shape=(seq_len, n_input))
-    
+
     # cell = models.LIFCell(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor, p, mu, sigma, rewiring)
-    # cell = models.LIF_EI(n_recurrent, frac_e, thr, EL, tau, dt, n_refrac, dampening_factor, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring)
-    cell = models.Adex(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, mu, sigma, rewiring)
+    cell = models.LIF_EI(n_recurrent, frac_e, thr, EL, tau, dt, n_refrac, dampening_factor, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring)
+    # cell = models.Adex(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, mu, sigma, rewiring)
     # cell = models.AdexEI(n_recurrent, frac_e, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring)
     # cell = models.AdexCS(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, tauS, VS, mu, sigma, rewiring)
     rnn = tf.keras.layers.RNN(cell, return_sequences=True)
@@ -164,21 +160,33 @@ def create_data_set(seq_len, n_input, n_batch=1):
     y = tf.sin(tf.linspace(0., 4 * np.pi, seq_len))[None, :, None]
 
     return tf.data.Dataset.from_tensor_slices((x, dict(tf_op_layer_output=y))).repeat(count=20).batch(n_batch)
-    # 20 repetitions of truly the exact same input sinusoid
+    # 20 repetitions of truly the exact same input sinusoid.
+    # should create a set with random small displacements along the x and y axes.
 
 class SaveCallback(tf.keras.callbacks.Callback):
-    def __init__(self):
+    def __init__(self, test_example):
         super().__init__()
+        self.test_example = test_example
 
     def on_epoch_begin(self, epoch, logs=None):
-        filepath = str(root_path) + "/tf2_testing/LIF_EI/begin_epoch_" + str(epoch) + ".hdf5"
+        filepath = str(root_path) + "/tf2_testing/LIF_EI/rewiring/begin_epoch_" + str(epoch) + ".hdf5"
         #filepath = str(root_path) + "/tf2_testing/LIF/p" + str(int(p*100)) + "/begin_epoch_" + str(epoch) + ".hdf5"
         self.model.save_weights(filepath)
 
     def on_epoch_end(self, epoch, logs=None):
-        filepath = str(root_path) + "/tf2_testing/LIF_EI/end_epoch_" + str(epoch) + ".hdf5"
+        filepath = str(root_path) + "/tf2_testing/LIF_EI/rewiring/end_epoch_" + str(epoch) + ".hdf5"
         # filepath = str(root_path) + "/tf2_testing/LIF/p" + str(int(p*100)) + "/end_epoch_" + str(epoch) + ".hdf5"
         self.model.save_weights(filepath)
+
+        # in addition to weights, save spikes, target, prediction, loss, rate, and rate loss for trials in this epoch.
+        # so not for a test example as in PlotCallback, but truly what was happening in the training trials.
+        # okay but for now, save output for a test example
+        output = self.model(self.test_example[0])
+        v = output[0].numpy()[0]
+        z = output[1].numpy()[0]
+        out = output[2].numpy()[0, :, 0]
+        # OKAY, look into tensorboard and tf.summary.scalar
+
 
 class PlotCallback(tf.keras.callbacks.Callback):
     def __init__(self, test_example, fig, axes):
@@ -218,7 +226,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
         #self.axes[4].set_xlabel('recurrent weights')
         [ax.yaxis.set_label_coords(-.05, .5) for ax in self.axes]
         plt.draw()
-        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/LIF_EI/test_epoch_{}.png'.format(epoch))), dpi=300)
+        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/LIF_EI/rewiring/test_epoch_{}.png'.format(epoch))), dpi=300)
         #plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/LIF/p{}/test_epoch_{}.png'.format(int(p*100), epoch))), dpi=300)
         cb1.remove()
         cb2.remove()
@@ -236,7 +244,7 @@ def main():
         plot_callback = PlotCallback(test_example, fig, axes)
 
     if do_save:
-        save_callback = SaveCallback() # eventually args will include what vars to save; currently just weights
+        save_callback = SaveCallback(test_example) # eventually args will include what vars to save; currently just weights
 
     # train the model
     opt = tf.keras.optimizers.Adam(lr=learning_rate)
@@ -252,7 +260,7 @@ def main():
         model.fit(data_set, epochs = n_epochs)
 
     # analyse the model
-    inputs = test_example[0]
+    inputs = test_example[0] # sample
     targets = test_example[1]['tf_op_layer_output'].numpy()
     voltage, spikes, prediction = model(inputs)
 
