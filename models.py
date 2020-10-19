@@ -122,8 +122,13 @@ class LIFCell(tf.keras.layers.Layer):
                                              #initializer=tf.keras.initializers.Zeros(),
                                              #name='bias_currents')
 
-        # Store signs of all the initialized recurrent weights
-        self.rec_sign = tf.sign(self.recurrent_weights)
+        # Store neurons' signs
+        if self.rewiring:
+            wmat = -1 * np.ones([self.units, self.units])
+            wmat[0:self.n_excite,:] = -1 * wmat[0:self.n_excite,:]
+            self.rec_sign = tf.convert_to_tensor(wmat, dtype = tf.float32) # +1 for excitatory and -1 for inhibitory
+        else:
+            self.rec_sign = tf.sign(self.recurrent_weights) # as above but 0 for zerosself.rec_sign = tf.sign(self.recurrent_weights)
 
         super().build(input_shape)
 
@@ -133,12 +138,12 @@ class LIFCell(tf.keras.layers.Layer):
         old_z = state[2]
 
         if self.rewiring:
-            # Make sure all self-connections are 0
+            # Make sure all self-connections remain 0
             self.recurrent_weights.assign(tf.where(self.disconnect_mask, tf.zeros_like(self.recurrent_weights), self.recurrent_weights))
-            # If the sign of a weight changed, make it 0
-            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights >= 0, self.recurrent_weights, 0))
+            # If the sign of a weight changed from the original unit's designation, make it 0
+            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
         else:
-            # If the sign of a weight changed or the weight is no longer 0, make the weight 0
+            # If the sign of a weight changed from the original or the weight is no longer 0, make the weight 0
             self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
 
         i_in = tf.matmul(inputs, self.input_weights)
@@ -443,8 +448,13 @@ class Adex(tf.keras.layers.Layer):
         initial_weights_mat = connmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
 
-        # Store the initial signs for later
-        self.rec_sign = tf.sign(self.recurrent_weights)
+        # Store neurons' signs
+        if self.rewiring:
+            wmat = -1 * np.ones([self.units, self.units])
+            wmat[0:self.n_excite,:] = -1 * wmat[0:self.n_excite,:]
+            self.rec_sign = tf.convert_to_tensor(wmat, dtype = tf.float32) # +1 for excitatory and -1 for inhibitory
+        else:
+            self.rec_sign = tf.sign(self.recurrent_weights) # as above but 0 for zeros
 
         # Needed to disconnect self-connections if self.rewiring
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)),tf.bool)
@@ -468,7 +478,7 @@ class Adex(tf.keras.layers.Layer):
             # Make sure all self-connections are 0
             self.recurrent_weights.assign(tf.where(self.disconnect_mask, tf.zeros_like(self.recurrent_weights), self.recurrent_weights))
             # If the sign of a weight changed, make it 0
-            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights >= 0, self.recurrent_weights, 0))
+            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
         else:
             # If the sign of a weight changed or the weight is no longer 0, make the weight 0
             self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
@@ -592,8 +602,13 @@ class Adex_EI(tf.keras.layers.Layer):
         initial_weights_mat = EIconnmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
 
-        # Store the initial signs for later
-        self.rec_sign = tf.sign(self.recurrent_weights)
+        # Store neurons' signs
+        if self.rewiring:
+            wmat = -1 * np.ones([self.units, self.units])
+            wmat[0:self.n_excite,:] = -1 * wmat[0:self.n_excite,:]
+            self.rec_sign = tf.convert_to_tensor(wmat, dtype = tf.float32) # +1 for excitatory and -1 for inhibitory
+        else:
+            self.rec_sign = tf.sign(self.recurrent_weights) # as above but 0 for zeros
 
         # Needed to disconnect self-connections if self.rewiring
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)),tf.bool)
@@ -617,7 +632,7 @@ class Adex_EI(tf.keras.layers.Layer):
             # Make sure all self-connections are 0
             self.recurrent_weights.assign(tf.where(self.disconnect_mask, tf.zeros_like(self.recurrent_weights), self.recurrent_weights))
             # If the sign of a weight changed, make it 0
-            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights >= 0, self.recurrent_weights, 0))
+            self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
         else:
             # If the sign of a weight changed or the weight is no longer 0, make the weight 0
             self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
