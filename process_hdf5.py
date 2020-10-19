@@ -118,32 +118,105 @@ def plot_rewiring_over_time(end_epoch):
         if idx==len(filelist)-1:
             end_w_dist = rec_w
 
-    fig, ax = plt.subplots(4,1)
-    ax[0].plot(avg_e_w, label="mean e weight")
-    ax[0].plot(max_e, label="highest e weight")
-    ax[0].plot(avg_i_w, label="mean i weight")
-    ax[0].plot(max_i, label="lowest i weight")
-    ax[0].set_xlabel("epoch")
-    ax[0].set_ylabel("weight")
-    ax[0].legend()
-    ax[1].hist(begin_w_dist, bins=20, fc=(0, 0, 1, 0.5), label="initial")
-    ax[1].hist(end_w_dist, bins=20, fc=(1, 0, 0, 0.5), label="end")
-    ax[1].set_xlabel("weights")
-    ax[1].set_ylabel("counts")
-    ax[1].legend()
+    fig, ax = plt.subplots(4, figsize=(6, 7))
+    fig.suptitle("LIF with unconstrained rewiring")
+
+    ax[0].hist(begin_w_dist.flatten(), bins=50, fc=(0, 0, 1, 0.5), label="initial")
+    ax[0].hist(end_w_dist.flatten(), bins=50, fc=(1, 0, 0, 0.5), label="end")
+    ax[0].set_xlabel("weights")
+    ax[0].set_ylabel("counts")
+    ax[0].legend(prop={'size': 5})
+
+    ax[1].plot(avg_e_w, 'b-', label="mean e weight")
+    ax[1].plot(max_e, 'b*', label="highest e weight")
+    ax[1].plot(avg_i_w, 'r-', label="mean i weight")
+    ax[1].plot(max_i, 'r*', label="lowest i weight")
+    ax[1].set_xlabel("epoch")
+    ax[1].set_ylabel("weight")
+    ax[1].legend(prop={'size': 5})
 
     ax[2].plot(conn, label = "recurrent connectivity")
     ax[2].set_xlabel("epoch")
     ax[2].set_ylabel("percent")
-    ax[2].legend()
+    ax[2].legend(prop={'size': 5})
 
     ax[3].plot(loss)
     ax[3].set_xlabel("epoch")
     ax[3].set_ylabel("total loss")
 
-    [axis.yaxis.set_label_coords(-.05, .5) for axis in ax]
+    fig.subplots_adjust(hspace=1)
+    fig.subplots_adjust(hspace=1)
     plt.draw()
     plt.savefig(data_path + "rewiring_over_time.png", dpi=300)
+
+
+def plot_sparse_over_time(19):
+    data_path = "tf2_testing/LIF_EI/"
+    filelist = [];
+    for file in os.listdir(data_path):
+        if file.endswith(".hdf5"):
+            if file.startswith("begin"):
+                filelist.append(os.path.join(data_path, file))
+
+    avg_i_w = []
+    max_i = []
+    avg_e_w = []
+    max_e = []
+    conn = []
+
+    # goodness, for now loss is handwritten
+    loss = []
+
+    for idx in range(len(filelist)):
+        fname = data_path + "begin_epoch_" + str(idx) + ".hdf5"
+        hf = h5py.File(fname)
+        n1 = hf.get('rnn')
+        n2 = n1.get('rnn')
+        lif_ei = n2.get('lif_ei')
+        rec_w = lif_ei.get('recurrent_weights:0')
+        rec_w = np.array(rec_w)
+        zero_ct = rec_w[rec_w==0].shape[0]
+        total_ct = np.size(rec_w)
+        conn.append((total_ct - zero_ct)/float(total_ct))
+        avg_i_w.append(np.mean(rec_w[rec_w<0]))
+        avg_e_w.append(np.mean(rec_w[rec_w>0]))
+        max_i.append(np.amin(rec_w[rec_w<0]))
+        max_e.append(np.amax(rec_w[rec_w>0]))
+        if idx==0:
+            begin_w_dist = rec_w
+        if idx==len(filelist)-1:
+            end_w_dist = rec_w
+
+    fig, ax = plt.subplots(4, figsize=(6, 7))
+    fig.suptitle("LIF with sparsity constraint")
+
+    ax[0].hist(begin_w_dist.flatten(), bins=50, fc=(0, 0, 1, 0.5), label="initial")
+    ax[0].hist(end_w_dist.flatten(), bins=50, fc=(1, 0, 0, 0.5), label="end")
+    ax[0].set_xlabel("weights")
+    ax[0].set_ylabel("counts")
+    ax[0].legend(prop={'size': 5})
+
+    ax[1].plot(avg_e_w, 'b-', label="mean e weight")
+    ax[1].plot(max_e, 'b*', label="highest e weight")
+    ax[1].plot(avg_i_w, 'r-', label="mean i weight")
+    ax[1].plot(max_i, 'r*', label="lowest i weight")
+    ax[1].set_xlabel("epoch")
+    ax[1].set_ylabel("weight")
+    ax[1].legend(prop={'size': 5})
+
+    ax[2].plot(conn, label = "recurrent connectivity")
+    ax[2].set_xlabel("epoch")
+    ax[2].set_ylabel("percent")
+    ax[2].legend(prop={'size': 5})
+
+    ax[3].plot(loss)
+    ax[3].set_xlabel("epoch")
+    ax[3].set_ylabel("total loss")
+
+    fig.subplots_adjust(hspace=1)
+    fig.subplots_adjust(hspace=1)
+    plt.draw()
+    plt.savefig(data_path + "sparse_over_time.png", dpi=300)
 
 
 def rewiring_begin_end_compare(epoch):

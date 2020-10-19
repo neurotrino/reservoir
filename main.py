@@ -39,7 +39,7 @@ target_rate = 0.02
 rate_cost = 0.1
 do_plot = True
 do_save = True
-rewiring = True
+rewiring = False
 n_input = 20
 n_recurrent = 100
 frac_e = 0.8  # in LIF_EI and Adex_EI, the fraction of total recurrent units that are excitatory
@@ -169,12 +169,12 @@ class SaveCallback(tf.keras.callbacks.Callback):
         self.test_example = test_example
 
     def on_epoch_begin(self, epoch, logs=None):
-        filepath = str(root_path) + "/tf2_testing/LIF_EI/rewiring/begin_epoch_" + str(epoch) + ".hdf5"
+        filepath = str(root_path) + "/tf2_testing/LIF_EI/begin_epoch_" + str(epoch) + ".hdf5"
         #filepath = str(root_path) + "/tf2_testing/LIF/p" + str(int(p*100)) + "/begin_epoch_" + str(epoch) + ".hdf5"
         self.model.save_weights(filepath)
 
     def on_epoch_end(self, epoch, logs=None):
-        filepath = str(root_path) + "/tf2_testing/LIF_EI/rewiring/end_epoch_" + str(epoch) + ".hdf5"
+        filepath = str(root_path) + "/tf2_testing/LIF_EI/end_epoch_" + str(epoch) + ".hdf5"
         # filepath = str(root_path) + "/tf2_testing/LIF/p" + str(int(p*100)) + "/end_epoch_" + str(epoch) + ".hdf5"
         self.model.save_weights(filepath)
 
@@ -226,7 +226,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
         #self.axes[4].set_xlabel('recurrent weights')
         [ax.yaxis.set_label_coords(-.05, .5) for ax in self.axes]
         plt.draw()
-        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/LIF_EI/rewiring/test_epoch_{}.png'.format(epoch))), dpi=300)
+        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/LIF_EI/test_epoch_{}.png'.format(epoch))), dpi=300)
         #plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/LIF/p{}/test_epoch_{}.png'.format(int(p*100), epoch))), dpi=300)
         cb1.remove()
         cb2.remove()
