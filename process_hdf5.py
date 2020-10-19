@@ -3,6 +3,7 @@
 import sys
 sys.path.append("tf2_migration/")
 from process_hdf5 import *
+end_epoch=19
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -150,7 +151,7 @@ def plot_rewiring_over_time(end_epoch):
     plt.savefig(data_path + "rewiring_over_time.png", dpi=300)
 
 
-def plot_sparse_over_time(19):
+def plot_sparse_over_time(end_epoch):
     data_path = "tf2_testing/LIF_EI/"
     filelist = [];
     for file in os.listdir(data_path):
@@ -165,7 +166,7 @@ def plot_sparse_over_time(19):
     conn = []
 
     # goodness, for now loss is handwritten
-    loss = []
+    loss = [0.5160,0.4762,0.4418,0.4299,0.4298,0.4239,0.4180,0.4113,0.4090,0.3901,0.3576,0.2922,0.2409,0.1926,0.1846,0.1791,0.1455,0.1513,0.1493,0.1850]
 
     for idx in range(len(filelist)):
         fname = data_path + "begin_epoch_" + str(idx) + ".hdf5"
