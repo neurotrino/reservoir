@@ -150,6 +150,60 @@ def plot_rewiring_over_time(end_epoch):
     plt.draw()
     plt.savefig(data_path + "rewiring_over_time.png", dpi=300)
 
+def plot_histogram_compare_LIF():
+    # epoch 0, 9, 19 weight distributions of sparse enforced LIF_EI and rewiring enabled LIF_EI
+    data_path = "tf2_testing/LIF_EI/"
+    for idx in [0,9,19]:
+        fname = data_path + "begin_epoch_" + str(idx) + ".hdf5"
+        hf = h5py.File(fname)
+        n1 = hf.get('rnn')
+        n2 = n1.get('rnn')
+        lif_ei = n2.get('lif_ei')
+        rec_w = lif_ei.get('recurrent_weights:0')
+        rec_w = np.array(rec_w)
+        if idx == 0:
+            begin_w_dist = rec_w
+        if idx == 9:
+            mid_w_dist = rec_w
+        if idx == 19:
+            end_w_dist = rec_w
+
+    fig, ax = plt.subplots(2, figsize=(6,9))
+
+    ax[0].hist(begin_w_dist.flatten(), bins=20, fc=(0, 0, 1, 0.5), label="initial")
+    ax[0].hist(mid_w_dist.flatten(), bins=20, fc=(0, 1, 0, 0.5), label="middle")
+    ax[0].hist(end_w_dist.flatten(), bins=20, fc=(1, 0, 0, 0.5), label="end")
+    ax[0].set_xlabel("weights")
+    ax[0].set_ylabel("counts")
+    ax[0].set_title("sparse enforced LIF")
+    ax[0].legend()
+
+    for idx in [0,9,19]:
+        fname = data_path + "rewiring/begin_epoch_" + str(idx) + ".hdf5"
+        hf = h5py.File(fname)
+        n1 = hf.get('rnn')
+        n2 = n1.get('rnn')
+        lif_ei = n2.get('lif_ei')
+        rec_w = lif_ei.get('recurrent_weights:0')
+        rec_w = np.array(rec_w)
+        if idx == 0:
+            begin_w_dist = rec_w
+        if idx == 9:
+            mid_w_dist = rec_w
+        if idx == 19:
+            end_w_dist = rec_w
+
+    ax[1].hist(begin_w_dist.flatten(), bins=20, fc=(0, 0, 1, 0.5), label="initial")
+    ax[1].hist(mid_w_dist.flatten(), bins=20, fc=(0, 1, 0, 0.5), label="middle")
+    ax[1].hist(end_w_dist.flatten(), bins=20, fc=(1, 0, 0, 0.5), label="end")
+    ax[1].set_xlabel("weights")
+    ax[1].set_ylabel("counts")
+    ax[1].set_title("unconstrained rewiring LIF")
+    ax[1].legend()
+
+    plt.draw()
+    plt.savefig(data_path + "compare_LIF_models_w.png", dpi=300)
+
 
 def plot_sparse_over_time(end_epoch):
     data_path = "tf2_testing/LIF_EI/"
