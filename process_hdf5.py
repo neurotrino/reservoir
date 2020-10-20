@@ -4,7 +4,7 @@ import sys
 sys.path.append("tf2_migration/")
 from process_hdf5 import *
 end_epoch=19
-set=2
+set=4
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -226,7 +226,10 @@ def plot_sparse_over_time(end_epoch,set):
     # set 2
     # loss = [0.5385,0.4949,0.4753,0.4673,0.4396,0.4378,0.4574,0.4542,0.4298,0.4440,0.4484,0.4317,0.4227,0.4010,0.3820,0.3462,0.2593,0.2249,0.2111,0.2098]
     # set 3
+    # loss = [0.5249,0.4919,0.4761,0.4718,0.4637,0.4591,0.4607,0.4574,0.4559,0.4514,0.4487,0.4471,0.4426,0.4365,0.4270,0.4048,0.3706,0.3642,0.3714,0.3553]
+    # set 4
     loss = []
+
 
     for idx in range(len(filelist)):
         fname = data_path + "begin_epoch_" + str(idx) + ".hdf5"
