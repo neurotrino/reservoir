@@ -205,8 +205,8 @@ def plot_histogram_compare_LIF():
     plt.savefig(data_path + "compare_LIF_models_w.png", dpi=300)
 
 
-def plot_sparse_over_time(end_epoch):
-    data_path = "tf2_testing/LIF_EI/"
+def plot_sparse_over_time(end_epoch,set):
+    data_path = "tf2_testing/LIF_EI/sparse/set" + str(set) + "/"
     filelist = [];
     for file in os.listdir(data_path):
         if file.endswith(".hdf5"):
@@ -220,7 +220,10 @@ def plot_sparse_over_time(end_epoch):
     conn = []
 
     # goodness, for now loss is handwritten
-    loss = [0.5160,0.4762,0.4418,0.4299,0.4298,0.4239,0.4180,0.4113,0.4090,0.3901,0.3576,0.2922,0.2409,0.1926,0.1846,0.1791,0.1455,0.1513,0.1493,0.1850]
+    # set 1
+    # loss = [0.5160,0.4762,0.4418,0.4299,0.4298,0.4239,0.4180,0.4113,0.4090,0.3901,0.3576,0.2922,0.2409,0.1926,0.1846,0.1791,0.1455,0.1513,0.1493,0.1850]
+    # set 2
+    loss = []
 
     for idx in range(len(filelist)):
         fname = data_path + "begin_epoch_" + str(idx) + ".hdf5"
@@ -243,7 +246,7 @@ def plot_sparse_over_time(end_epoch):
             end_w_dist = rec_w
 
     fig, ax = plt.subplots(4, figsize=(6, 7))
-    fig.suptitle("LIF with sparsity constraint")
+    fig.suptitle("LIF with sparsity constraint, set" + str(set))
 
     ax[0].hist(begin_w_dist.flatten(), bins=50, fc=(0, 0, 1, 0.5), label="initial")
     ax[0].hist(end_w_dist.flatten(), bins=50, fc=(1, 0, 0, 0.5), label="end")
