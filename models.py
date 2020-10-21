@@ -528,7 +528,7 @@ class Adex_EI(tf.keras.layers.Layer):
         self._dt = float(dt)
 
         self.units = n_neurons
-        self.n_excite = frac_e * self.units
+        self.n_excite = int(frac_e * self.units)
         self.n_inhib = self.units - self.n_excite
         self.n_in = n_in
         self.threshold = thr
