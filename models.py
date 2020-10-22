@@ -479,7 +479,7 @@ class ALIF_EI(tf.keras.layers.Layer):
         new_v = self.EL + (self._decay) * (old_v - self.EL) + input_current
 
         is_refractory = tf.greater(old_r, 0)
-        adaptive_thr = self.thr + old_b * self.beta
+        adaptive_thr = self.threshold + old_b * self.beta
         v_scaled = -(adaptive_thr-new_v) / (adaptive_thr-self.EL)
         new_b = self.decay_b * old_b + old_z
         new_z = spike_function(v_scaled, self._dampening_factor)
