@@ -3,8 +3,7 @@
 import sys
 sys.path.append("tf2_migration/")
 from process_hdf5 import *
-end_epoch=19
-set=5
+top_percentile=10
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -151,6 +150,7 @@ def plot_rewiring_over_time(end_epoch):
     plt.draw()
     plt.savefig(data_path + "rewiring_over_time.png", dpi=300)
 
+
 def plot_histogram_compare_LIF():
     # epoch 0, 9, 19 weight distributions of sparse enforced LIF_EI and rewiring enabled LIF_EI
     data_path = "tf2_testing/LIF_EI/"
@@ -204,6 +204,28 @@ def plot_histogram_compare_LIF():
 
     plt.draw()
     plt.savefig(data_path + "compare_LIF_models_w.png", dpi=300)
+
+
+def analyze_sparse_strong_weights(top_percentile):
+    data_path = "tf2_testing/LIF_EI/sparse/"
+    setlist = np.arange(1,6)
+    for i in setlist: # for each set of 20 epochs
+        setpath = data_path + "set" + str(set) + "/"
+        for file in os.listdir(setpath):
+            if file.endswith(".hdf5"):
+                if file.startswith("begin"):
+                    hf = h5py.File(os.path.join(setpath, file))
+                    n1 = hf.get('rnn')
+                    n2 = n1.get('rnn')
+                    lif_ei = n2.get('lif_ei')
+                    rec_w = lif_ei.get('recurrent_weights:0')
+                    rec_w = np.array(rec_w)
+                    
+
+            zero_ct = rec_w[rec_w==0].shape[0]
+            total_ct = np.size(rec_w)
+            conn.append((total_ct - zero_ct)/float(total_ct))
+
 
 
 def plot_sparse_over_time(end_epoch,set):

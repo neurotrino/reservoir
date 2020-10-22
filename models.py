@@ -584,7 +584,7 @@ class Adex_EI(tf.keras.layers.Layer):
                                              name='input_weights')
         '''
         self.input_weights = self.add_weight(shape=(input_shape[-1], self.units),
-                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=10),
+                                             initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=20),
                                              trainable = True,
                                              name='input_weights')
         # Create the recurrent weights, their value here is not important
