@@ -3,12 +3,13 @@
 import sys
 sys.path.append("tf2_migration/")
 from process_hdf5 import *
-top_percentile=10
+top_percentile=0.1
 """
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py
 import os
+import heapq
 
 # eventually create loop
 # for f in fullconn_w:
@@ -206,26 +207,140 @@ def plot_histogram_compare_LIF():
     plt.savefig(data_path + "compare_LIF_models_w.png", dpi=300)
 
 
-def analyze_sparse_strong_weights(top_percentile):
+def get_weights(fname):
+    hf = h5py.File(fname)
+    n1 = hf.get('rnn')
+    n2 = n1.get('rnn')
+    lif_ei = n2.get('lif_ei')
+    rec_w = lif_ei.get('recurrent_weights:0')
+    rec_w = np.array(rec_w)
+    return rec_w
+
+
+def analyze_starting_sparse_strong_weights(top_percentile):
     data_path = "tf2_testing/LIF_EI/sparse/"
     setlist = np.arange(1,6)
-    for i in setlist: # for each set of 20 epochs
+    e_change_by_set = []
+    i_change_by_set = []
+
+    for set in setlist: # for each set of 20 epochs
         setpath = data_path + "set" + str(set) + "/"
+        setfilelist = []
         for file in os.listdir(setpath):
             if file.endswith(".hdf5"):
                 if file.startswith("begin"):
-                    hf = h5py.File(os.path.join(setpath, file))
-                    n1 = hf.get('rnn')
-                    n2 = n1.get('rnn')
-                    lif_ei = n2.get('lif_ei')
-                    rec_w = lif_ei.get('recurrent_weights:0')
-                    rec_w = np.array(rec_w)
-                    
+                    setfilelist.append(os.path.join(setpath, file))
 
-            zero_ct = rec_w[rec_w==0].shape[0]
-            total_ct = np.size(rec_w)
-            conn.append((total_ct - zero_ct)/float(total_ct))
+        # get the indices of the starting top_percentile weights
+        idx = 0
+        fname = setpath + "begin_epoch_" + str(idx) + ".hdf5"
+        rec_w = get_weights(fname)
+        zero_ct = rec_w[rec_w==0].shape[0]
+        non_zero_ct = rec_w.size - zero_ct
+        top_ct = int(top_percentile * non_zero_ct)
+        top_inhib_indices = heapq.nlargest(top_ct, range(rec_w.size), (-rec_w).take)
+        # note inhib weights start out 10x stronger
+        top_excit_indices = heapq.nlargest(top_ct, range(rec_w.size), (rec_w).take)
 
+
+        # now go through all the epochs in this set, getting the weights of the top starting indices
+        i_within_set = []
+        e_within_set = []
+        set_i_mean_ratio = np.zeros(len(setfilelist))
+        set_e_mean_ratio = np.zeros(len(setfilelist))
+        for idx in range(len(setfilelist)):
+            fname = setpath + "begin_epoch_" + str(idx) + ".hdf5"
+            rec_w = get_weights(fname)
+            i_within_set.append(rec_w.flatten()[top_inhib_indices])
+            set_i_mean = np.mean(rec_w.flatten()[top_inhib_indices])
+            epoch_top_inhib_indices = heapq.nlargest(top_ct, range(rec_w.size), (-rec_w).take)
+            set_i_mean_ratio[idx] = set_i_mean/np.mean(rec_w.flatten()[epoch_top_inhib_indices])
+            e_within_set.append(rec_w.flatten()[top_excit_indices])
+            set_e_mean = np.mean(rec_w.flatten()[top_excit_indices])
+            epoch_top_excit_indices = heapq.nlargest(top_ct, range(rec_w.size), (rec_w).take)
+            set_e_mean_ratio[idx] = set_e_mean/np.mean(rec_w.flatten()[epoch_top_excit_indices])
+        e_change_by_set.append(set_e_mean_ratio)
+        i_change_by_set.append(set_i_mean_ratio)
+
+    # plot how the starting top weighted synapses change over time
+    fig, ax = plt.subplots(2)
+    fig.suptitle("Evolution of the starting top 10% of weights in sparse LIF")
+    for i in range(len(e_change_by_set)):
+        ax[0].plot(e_change_by_set[i])
+    ax[0].set_xlabel("epoch")
+    ax[0].set_ylabel("ratio over epoch top 10%")
+    ax[0].set_title("excitatory weights")
+    for i in range(len(i_change_by_set)):
+        ax[1].plot(i_change_by_set[i])
+    ax[1].set_xlabel("epoch")
+    ax[1].set_ylabel("ratio over epoch top 10%")
+    ax[1].set_title("inhibitory weights")
+    fig.subplots_adjust(hspace=1)
+    plt.draw()
+    plt.savefig(data_path + "top_sparse_w_over_time.png", dpi=300)
+
+
+def analyze_ending_sparse_strong_weights(top_percentile):
+    data_path = "tf2_testing/LIF_EI/sparse/"
+    setlist = np.arange(1,6)
+    e_change_by_set = []
+    i_change_by_set = []
+
+    for set in setlist: # for each set of 20 epochs
+        setpath = data_path + "set" + str(set) + "/"
+        setfilelist = []
+        for file in os.listdir(setpath):
+            if file.endswith(".hdf5"):
+                if file.startswith("begin"):
+                    setfilelist.append(os.path.join(setpath, file))
+
+        # get the indices of the ending top_percentile weights
+        idx = 19
+        fname = setpath + "begin_epoch_" + str(idx) + ".hdf5"
+        rec_w = get_weights(fname)
+        zero_ct = rec_w[rec_w==0].shape[0]
+        non_zero_ct = rec_w.size - zero_ct
+        top_ct = int(top_percentile * non_zero_ct)
+        top_inhib_indices = heapq.nlargest(top_ct, range(rec_w.size), (-rec_w).take)
+        # note inhib weights start out 10x stronger
+        top_excit_indices = heapq.nlargest(top_ct, range(rec_w.size), (rec_w).take)
+
+
+        # now go through all the epochs in this set, getting the weights of the top ending indices
+        i_within_set = []
+        e_within_set = []
+        set_i_mean_ratio = np.zeros(len(setfilelist))
+        set_e_mean_ratio = np.zeros(len(setfilelist))
+        for idx in range(len(setfilelist)):
+            fname = setpath + "begin_epoch_" + str(idx) + ".hdf5"
+            rec_w = get_weights(fname)
+            i_within_set.append(rec_w.flatten()[top_inhib_indices])
+            set_i_mean = np.mean(rec_w.flatten()[top_inhib_indices])
+            epoch_top_inhib_indices = heapq.nlargest(top_ct, range(rec_w.size), (-rec_w).take)
+            set_i_mean_ratio[idx] = set_i_mean/np.mean(rec_w.flatten()[epoch_top_inhib_indices])
+            e_within_set.append(rec_w.flatten()[top_excit_indices])
+            set_e_mean = np.mean(rec_w.flatten()[top_excit_indices])
+            epoch_top_excit_indices = heapq.nlargest(top_ct, range(rec_w.size), (rec_w).take)
+            set_e_mean_ratio[idx] = set_e_mean/np.mean(rec_w.flatten()[epoch_top_excit_indices])
+        e_change_by_set.append(set_e_mean_ratio)
+        i_change_by_set.append(set_i_mean_ratio)
+
+    # plot how the end top weighted synapses changed over time. where did they start?
+    fig, ax = plt.subplots(2)
+    fig.suptitle("Evolution of the final top 10% of weights in sparse LIF")
+    for i in range(len(e_change_by_set)):
+        ax[0].plot(e_change_by_set[i])
+    ax[0].set_xlabel("epoch")
+    ax[0].set_ylabel("ratio over epoch top 10%")
+    ax[0].set_title("excitatory weights")
+    for i in range(len(i_change_by_set)):
+        ax[1].plot(i_change_by_set[i])
+    ax[1].set_xlabel("epoch")
+    ax[1].set_ylabel("ratio over epoch top 10%")
+    ax[1].set_title("inhibitory weights")
+    fig.subplots_adjust(hspace=1)
+    plt.draw()
+    plt.savefig(data_path + "ending_top_sparse_w_over_time.png", dpi=300)
 
 
 def plot_sparse_over_time(end_epoch,set):

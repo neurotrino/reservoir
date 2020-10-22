@@ -44,7 +44,7 @@ class ConnectivityMatrixGenerator(object):
                 raise Exception('Failed to weight connectivity matrix.')
             print("Weighted")
 
-            return self.weight_mat # again doing the hard-coded divide by 10 to make weights in the range that seems most trainable
+            return self.weight_mat/10 # again doing the hard-coded divide by 10 to make weights in the range that seems most trainable
 
         except Exception as e:
             print(e)

@@ -51,7 +51,7 @@ p_ei = 0.244  # connectivity probability from E to I when using Adex_EI or LIF_E
 p_ie = 0.318  # connectivity probability from I to E when using Adex_EI or LIF_EI
 p_ii = 0.343  # connectivity probability from I to I when using Adex_EI or LIF_EI
 
-"""
+
 # Parameters values for LIF cells
 thr = -50.4 * mVolt
 EL = -70.6 * mVolt
@@ -75,7 +75,7 @@ n_refrac = 2
 dt = 1. * mSecond
 dampening_factor = 0.30
 
-"""
+
 # Parameters values for Adex cells with conductance-based synapses (model not working yet)
 
 EL = -70.6 * mVolt
@@ -133,7 +133,7 @@ flags.DEFINE_integer('n_recurrent', 100, '') # recurrent network of 100 spiking 
 def create_model(seq_len, n_input, n_recurrent):
     inputs = tf.keras.layers.Input(shape=(seq_len, n_input))
 
-    # cell = models.LIFCell(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor, p, mu, sigma, rewiring)
+    # cell = models.LIF(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor, p, mu, sigma, rewiring)
     # cell = models.LIF_EI(n_recurrent, frac_e, thr, EL, tau, dt, n_refrac, dampening_factor, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring)
     # cell = models.Adex(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, mu, sigma, rewiring)
     cell = models.Adex_EI(n_recurrent, frac_e, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring)
