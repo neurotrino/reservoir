@@ -59,6 +59,10 @@ n_refrac = 4
 tau = 20.
 dt = 1.
 dampening_factor = 0.3
+
+# ALIF
+tau_adaptation = 100.
+beta = .16
 """
 # Parameters values for Adex cells
 
@@ -135,8 +139,9 @@ def create_model(seq_len, n_input, n_recurrent):
 
     # cell = models.LIF(n_recurrent, thr, EL, tau, dt, n_refrac, dampening_factor, p, mu, sigma, rewiring)
     # cell = models.LIF_EI(n_recurrent, frac_e, thr, EL, tau, dt, n_refrac, dampening_factor, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring)
+    cell = models.LIF_EI(n_recurrent, frac_e, thr, EL, tau, dt, n_refrac, dampening_factor, tau_adaptation, beta, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring)
     # cell = models.Adex(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, mu, sigma, rewiring)
-    cell = models.Adex_EI(n_recurrent, frac_e, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring)
+    # cell = models.Adex_EI(n_recurrent, frac_e, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p_ee, p_ei, p_ie, p_ii, mu, sigma, rewiring)
     # cell = models.AdexCS(n_recurrent, n_input, thr, n_refrac, dt, dampening_factor, tauw, a, b, gL, EL, C, deltaT, V_reset, p, tauS, VS, mu, sigma, rewiring)
     rnn = tf.keras.layers.RNN(cell, return_sequences=True)
 
@@ -171,12 +176,12 @@ class SaveCallback(tf.keras.callbacks.Callback):
         self.test_example = test_example
 
     def on_epoch_begin(self, epoch, logs=None):
-        filepath = str(root_path) + "/tf2_testing/Adex_EI/sparse/begin_epoch_" + str(epoch) + ".hdf5"
+        filepath = str(root_path) + "/tf2_testing/ALIF_EI/sparse/begin_epoch_" + str(epoch) + ".hdf5"
         #filepath = str(root_path) + "/tf2_testing/LIF/p" + str(int(p*100)) + "/begin_epoch_" + str(epoch) + ".hdf5"
         self.model.save_weights(filepath)
 
     def on_epoch_end(self, epoch, logs=None):
-        filepath = str(root_path) + "/tf2_testing/Adex_EI/sparse/end_epoch_" + str(epoch) + ".hdf5"
+        filepath = str(root_path) + "/tf2_testing/ALIF_EI/sparse/end_epoch_" + str(epoch) + ".hdf5"
         # filepath = str(root_path) + "/tf2_testing/LIF/p" + str(int(p*100)) + "/end_epoch_" + str(epoch) + ".hdf5"
         self.model.save_weights(filepath)
 
@@ -228,7 +233,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
         #self.axes[4].set_xlabel('recurrent weights')
         [ax.yaxis.set_label_coords(-.05, .5) for ax in self.axes]
         plt.draw()
-        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/Adex_EI/sparse/test_epoch_{}.png'.format(epoch))), dpi=300)
+        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/ALIF_EI/sparse/test_epoch_{}.png'.format(epoch))), dpi=300)
         #plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/LIF/p{}/test_epoch_{}.png'.format(int(p*100), epoch))), dpi=300)
         cb1.remove()
         cb2.remove()
