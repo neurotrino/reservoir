@@ -3,7 +3,6 @@
 import sys
 sys.path.append("tf2_migration/")
 from process_hdf5 import *
-top_percentile=0.1
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -344,7 +343,7 @@ def analyze_ending_sparse_strong_weights(top_percentile):
 
 
 def plot_sparse_over_time(end_epoch,set):
-    data_path = "tf2_testing/LIF_EI/sparse/set" + str(set) + "/"
+    data_path = "tf2_testing/ALIF_EI/sparse/set" + str(set) + "/"
     filelist = [];
     for file in os.listdir(data_path):
         if file.endswith(".hdf5"):
@@ -367,7 +366,10 @@ def plot_sparse_over_time(end_epoch,set):
     # set 4
     # loss = [0.5307,0.4837,0.4563,0.4226,0.4195,0.4063,0.4027,0.4375,0.4150,0.4040,0.3997,0.3682,0.2994,0.2852,0.2849,0.2326,0.2293,0.2101,0.1862,0.2069]
     # set 5
-    loss = [0.5425,0.5004,0.4829,0.4643,0.4486,0.4431,0.4322,0.4363,0.4066,0.3980,0.3866,0.3650,0.3085,0.2412,0.1794,0.1548,0.1554,0.1554,0.1557,0.1601]
+    # loss = [0.5425,0.5004,0.4829,0.4643,0.4486,0.4431,0.4322,0.4363,0.4066,0.3980,0.3866,0.3650,0.3085,0.2412,0.1794,0.1548,0.1554,0.1554,0.1557,0.1601]
+
+    # ALIF_EI set 0
+    loss = [0.5304,0.4908,0.4726,0.4669,0.4761,0.4666,0.4538,0.4540,0.4711,0.4720,0.4558,0.4512,0.4440,0.4277,0.3928,0.3322,0.3006,0.2826,0.2034,0.2032]
 
 
 
@@ -376,8 +378,8 @@ def plot_sparse_over_time(end_epoch,set):
         hf = h5py.File(fname)
         n1 = hf.get('rnn')
         n2 = n1.get('rnn')
-        lif_ei = n2.get('lif_ei')
-        rec_w = lif_ei.get('recurrent_weights:0')
+        alif_ei = n2.get('alif_ei')
+        rec_w = alif_ei.get('recurrent_weights:0')
         rec_w = np.array(rec_w)
         zero_ct = rec_w[rec_w==0].shape[0]
         total_ct = np.size(rec_w)
