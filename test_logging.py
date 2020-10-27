@@ -195,7 +195,7 @@ class SaveCallback(tf.keras.callbacks.Callback):
         out = output[2].numpy()[0, :, 0]
         data = [v,z,out]
         # OKAY, look into tensorboard and tf.summary.scalar
-        savepath = str(root_path) + "/tf2_testing/test_logging/epoch_" + str(epoch) + "_model_output.pkl")
+        savepath = str(root_path) + "/tf2_testing/test_logging/epoch_" + str(epoch) + "_model_output.pkl"
         with open(savepath, 'wb') as f:
             pickle.dump(data, f)
 
@@ -257,7 +257,7 @@ def main():
     mode='auto',
     save_best_only=True)
 
-    csv_logger = CSVLogger(str(root_path)+'/tf2_testing/log.csv', append=True, separator=',')
+    csv_logger = CSVLogger(str(root_path)+'/tf2_testing/test_logging/log.csv', append=True, separator=',')
 
     if do_plot:
         plt.ion()
@@ -280,9 +280,8 @@ def main():
     else:
         history = model.fit(data_set, epochs = n_epochs)
 
-    loss_history = history.history['loss']
-    train_loss = np.array(loss_history)
-    np.savetxt(str(root_path) + '/tf2_testing/trainhistory_set2.txt', train_loss, delimiter=",")
+    with open(str(root_path) + '/tf2_testing/test_logging/trainhistory.pkl', 'wb') as file_pi:
+        pickle.dump(history.history, file_pi)
 
     # analyse the model
     inputs = test_example[0] # sample
