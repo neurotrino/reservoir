@@ -8,6 +8,7 @@ import pickle
 # import tfrecord_dataset
 
 from keras.callbacks import ModelCheckpoint
+from keras.callbacks import CSVLogger
 
 root_path = '../data'
 # root_path = '../tarek2'
@@ -37,8 +38,8 @@ learning_rate = 1e-2
 n_epochs = 20
 target_rate = 0.02
 rate_cost = 0.1
-do_plot = False
-do_save = False
+do_plot = True
+do_save = True
 rewiring = False
 n_input = 20
 n_recurrent = 100
@@ -176,12 +177,12 @@ class SaveCallback(tf.keras.callbacks.Callback):
         self.test_example = test_example
 
     def on_epoch_begin(self, epoch, logs=None):
-        filepath = str(root_path) + "/tf2_testing/ALIF_EI/sparse/begin_epoch_" + str(epoch) + ".hdf5"
+        filepath = str(root_path) + "/tf2_testing/ALIF_EI/sparse/set2/begin_epoch_" + str(epoch) + ".hdf5"
         #filepath = str(root_path) + "/tf2_testing/LIF/p" + str(int(p*100)) + "/begin_epoch_" + str(epoch) + ".hdf5"
         self.model.save_weights(filepath)
 
     def on_epoch_end(self, epoch, logs=None):
-        filepath = str(root_path) + "/tf2_testing/ALIF_EI/sparse/end_epoch_" + str(epoch) + ".hdf5"
+        filepath = str(root_path) + "/tf2_testing/ALIF_EI/sparse/set2/end_epoch_" + str(epoch) + ".hdf5"
         # filepath = str(root_path) + "/tf2_testing/LIF/p" + str(int(p*100)) + "/end_epoch_" + str(epoch) + ".hdf5"
         self.model.save_weights(filepath)
 
@@ -192,7 +193,11 @@ class SaveCallback(tf.keras.callbacks.Callback):
         v = output[0].numpy()[0]
         z = output[1].numpy()[0]
         out = output[2].numpy()[0, :, 0]
+        data = [v,z,out]
         # OKAY, look into tensorboard and tf.summary.scalar
+        savepath = str(root_path) + "/tf2_testing/test_logging/epoch_" + str(epoch) + "_model_output.pkl")
+        with open(savepath, 'wb') as f:
+            pickle.dump(data, f)
 
 
 class PlotCallback(tf.keras.callbacks.Callback):
@@ -233,7 +238,7 @@ class PlotCallback(tf.keras.callbacks.Callback):
         #self.axes[4].set_xlabel('recurrent weights')
         [ax.yaxis.set_label_coords(-.05, .5) for ax in self.axes]
         plt.draw()
-        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/ALIF_EI/sparse/test_epoch_{}.png'.format(epoch))), dpi=300)
+        plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/ALIF_EI/sparse/set2/test_epoch_{}.png'.format(epoch))), dpi=300)
         #plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/LIF/p{}/test_epoch_{}.png'.format(int(p*100), epoch))), dpi=300)
         cb1.remove()
         cb2.remove()
@@ -252,6 +257,8 @@ def main():
     mode='auto',
     save_best_only=True)
 
+    csv_logger = CSVLogger(str(root_path)+'/tf2_testing/log.csv', append=True, separator=',')
+
     if do_plot:
         plt.ion()
         fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
@@ -265,7 +272,7 @@ def main():
     mse = tf.keras.losses.MeanSquaredError()
     model.compile(optimizer=opt, loss=dict(tf_op_layer_output=mse))
     if do_plot and do_save:
-        model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback, save_callback])
+        model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback, save_callback, csv_logger])
     elif do_plot:
         model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback])
     elif do_save:
@@ -273,8 +280,9 @@ def main():
     else:
         history = model.fit(data_set, epochs = n_epochs)
 
-    with open(str(root_path) + '/tf2_testing/trainHistoryDict', 'wb') as file_pi:
-        pickle.dump(history.history, file_pi)
+    loss_history = history.history['loss']
+    train_loss = np.array(loss_history)
+    np.savetxt(str(root_path) + '/tf2_testing/trainhistory_set2.txt', train_loss, delimiter=",")
 
     # analyse the model
     inputs = test_example[0] # sample
