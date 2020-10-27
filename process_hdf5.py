@@ -10,6 +10,16 @@ import h5py
 import os
 import heapq
 
+
+# note as of October 27th, 2020:
+# A few remarks on logging:
+# Unclear yet whether saving with history works.
+# CSV logger saves all the outputs that are displayed to the screen for epoch training.
+# hdf5 for standard saving of weights.
+# python3 pickle for the epochwise test example voltages and spikes and outputs (which is not ideal long-term)
+# This means there are THREE methods we must use simultaneously to save what we want: pickling spikes and voltages post-hoc, csv-ing losses etc, and save_weights as hdf5
+# SUPER not ideal. going to run with this now and I'm crunched for time to generate data, but will be eager to find a better solution or at least a better-organized one.
+
 # eventually create loop
 # for f in fullconn_w:
 # hf = h5py.File(f, 'r')

@@ -272,11 +272,11 @@ def main():
     mse = tf.keras.losses.MeanSquaredError()
     model.compile(optimizer=opt, loss=dict(tf_op_layer_output=mse))
     if do_plot and do_save:
-        model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback, save_callback, csv_logger])
+        history = model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback, save_callback, csv_logger])
     elif do_plot:
-        model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback])
+        history = model.fit(data_set, epochs=n_epochs, callbacks=[plot_callback])
     elif do_save:
-        model.fit(data_set, epochs=n_epochs, callbacks=[save_callback])
+        history = model.fit(data_set, epochs=n_epochs, callbacks=[save_callback])
     else:
         history = model.fit(data_set, epochs = n_epochs)
 
