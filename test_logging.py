@@ -271,7 +271,10 @@ def main():
     elif do_save:
         model.fit(data_set, epochs=n_epochs, callbacks=[save_callback])
     else:
-        model.fit(data_set, epochs = n_epochs, callbacks = [model_checkpoint_callback])
+        history = model.fit(data_set, epochs = n_epochs)
+
+    with open(str(root_path) + '/tf2_testing/trainHistoryDict', 'wb') as file_pi:
+        pickle.dump(history.history, file_pi)
 
     # analyse the model
     inputs = test_example[0] # sample
