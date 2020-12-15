@@ -11,8 +11,7 @@ An infrastructure for the creation and study of spiking neural networks.
 6. [License](#license)
 
 ## Installation
-These scripts must be run as source,
-[ideally](https://www.tensorflow.org/install/pip#2.-create-a-virtual-environment-recommended)
+These scripts must be run as source, [ideally](tensorflow.org/install/pip#2.-create-a-virtual-environment-recommended)
 in a Python virtual environment.
 
 To get setup, clone the repository and follow the instructions below:
@@ -35,78 +34,32 @@ pip install -e           # add this repository to the virtual environment
 ```
 
 ### Closing the virtual environment
-When you're done working with the codebase, `deactivate` closes the virtual
-environment.
-
-### Troubleshooting
-If at any point modules stop being recognized, delete the virtual environment
-and repeat the above steps.
+When you're done working with the codebase, `deactivate` closes the virtual environment.
 
 ## Usage
 
-### Summary Overview
-
-### Creating Models
-
-#### Rapid prototyping
-While you're adding and removing structural elements, working with the HJSON
-configuration could be more trouble than it's worth. It's advised you leave
-your HJSON a skeleton and use default values in the class definition while
-you're in this phase.
-
-### Creating Trainers
-
-### Configuring Experiments
-
-### Running Experiments
-
-### Loggers & TensorBoard
-
-
-
-
-
-
-
-
-
-
-
-
-There are three parts to this section, each describing the same workflow from
-a different perspective:
-1. **[Overview](#overview):** explains the codebase in general terms,
-   describing the roles and connections between modules, but light on specific
-   examples.
-2. **[Walkthrough](#walkthrough):** explains the codebase by walking through a
-   sample experiment, mentioning the more general aspects only where needed.
-3. **[Changes from version 1](#changes-from-version-1):** explains only the
-   prominent shifts in workflow relative to the previous version.
-
 ### Overview
-#### Console Flags
-### Walkthrough
-#### Creating new models
-- `uni` must be the first argument after `self` due to how the HJSON parser works
-  - (TODO: consider making a decorator to abstract all this away, like `@uni` or
-    `@doeverythingthatsboilerplatery`)
-### Changes from version 1
+Repository structure is an adaptation of the [Gemy Standard](https://github.com/MrGemy95/Tensorflow-Project-Template):
 
-
-
-
-
-
-Repository structure is an adaptation of the
-[Gemy Standard](https://github.com/MrGemy95/Tensorflow-Project-Template):
-
-
-**THIS LAYOUT IS SLIGHTLY OUT OF DATE**
 ```
  maclean-snn
 │
+├── configs
+│  └── *.hjson              - Model configs are set and stored in HJSON format
+│
+├── data
+│  └── *.py                 - Data generators and loaders
+│
+├── loggers
+│  ├── *.py                 - Logging API
+│  └── callbacks
+│     └── *.py              - Callback classes for logging and plotting
+│
+├── mains
+│  └── *.py                 - Each experiment template can have its own main
+│
 ├── models
-│  ├── base.py              - Base model inherited by experimental models
+│  ├── common.py            - Base model and other shared model components
 │  ├── *.py                 - Models used in experiments
 │  └── neurons
 │     ├── base.py           - Neuron model all other neurons inherit from
@@ -116,69 +69,19 @@ Repository structure is an adaptation of the
 ├── trainers
 │  └── *.py                 - Model trainers
 │
-├── mains
-│  └── *.py                 - Each experiment template can have its own main
-│
-├── data_loader
-│  ├── data_generator.py    - Contains all our data generators (might split)
-│  └── tools
-│     └── *                 - Apparati to make files used by data generators
-│
-├── configs
-│  └── *.hjson              - Model configs are set and stored in HJSON format
-│
 └── utils
-   ├── logger.py            - Contains logger(s) to run during training
-   ├── config.py            - Parser/loader for model configurations
-   └── *.py                 - Any other misc. utilities go here
+   └── *.py                 - Miscellaneous utility functions go here
 ```
 
-If you don't want to worry about modules (not recommended), just hard code
-parameters in a `models/*.py` file and do everything else in a `mains/*.py`
-file, like before. Otherwise, read on.
+#### Rapid prototyping
+While you're adding and removing structural elements, working with the HJSON
+configuration could be more trouble than it's worth. It's advised you leave
+your HJSON a skeleton and use default values in the class definition while
+you're in this phase.
 
-Additionally, most directories come with a template
-demonstrating how to use that part of the repository.
-
-### Build your architecture in `models/*.py`
-These files are meant to be semi-experiment-specific network architectures.
-Generic models, composed as best suits your need.
-
-Everything here is probably going to be a class. Definitely avoid putting
-values in here for parameters involved in the class instantiation. Those
-should all be maintained in an associated `configs/*.hjson`.
-
-### Set parameters in `configs`
-These files determine experiment-specific variables, allowing for quick
-adjustment to network and filesaving parameters without having to scroll
-through miles of python code.
-
-### Prepare training in `trainers`
-Classes to train models. Should be self-explanatory.
-
-### Generate data in `data_loader/data_generator.py`
-This contains all the functions and classes required to generate TensorFlow
-data for training. This should really only be for the generation of TensorFlow
-formatted data, however: generation of novel stimuli or large datasets is the
-purview of the `data_loader/tools/` directory, as that allows us to break off
-our data generating tools for other projects, sans hassle.
-
-### Verb noun in `utils`
-For the most part, the only thing you'll need to worry about here is
-`utils/logger.py`, where you can choose which logger you want. If you're
-entering this directory for any other reason, you probably already know what
-your looking for and what to do with it.
-
-### Make science in `mains`
-This is where the magic happens (by which I mean this is the entry point for
-your code). If you're going with the modular approach, this file should really
-only contain a few instantiations, a call to run training, and a post-training
-report. Each `mains/*.py` file is best associated with a specific class of
-experiment, allowing A) reuse; B) scalable allowance of multiple experiements
-in just one group repository; and C) always-up-to-date access to any new
-modules produced by other lab members, allowing easy exchange of models,
-methods, and data.
-
+### Troubleshooting
+- **Local modules aren't being recognized**
+  1. Delete the virtual environment and repeat the installation steps
 
 
 ## Documentation
@@ -210,21 +113,6 @@ _Description_
 
 
 ## Contributing
-
-
-_TODO_
-_TODO: use logging.x() instead of print() now_
-
-### Best practices
-
-### Style
-
-### Issue system
-
-
-### Things Chad Loses Sleep Over
-
-- [ ] Having the `_class` tag hardcoded is a little icky
 
 ### Style Guidelines
 
@@ -264,7 +152,7 @@ _TODO: explanation of credit_
 _The codebase wouldn't exist without prior contributions from the field, both
 technical and theoretical._
 
-_TODO: add content_
+- _TODO: add content_
 
 
 ## License
