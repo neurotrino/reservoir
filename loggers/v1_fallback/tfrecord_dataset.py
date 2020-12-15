@@ -1,3 +1,5 @@
+"""Create TFRecords dataset from DMC and/or CCD task stimuli."""
+
 import os
 import io
 import blosc
