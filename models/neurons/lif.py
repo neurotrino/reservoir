@@ -1,6 +1,4 @@
-"""
-TODO: module docs
-"""
+"""Leaky integrate-and-fire (LIF) neuron implementations."""
 
 from typing import Any, Dict, Union
 
@@ -17,12 +15,7 @@ from utils.connmat import ExInConnectivityMatrixGenerator as ExInCMG
 #┴───────────────────────────────────────────────────────────────────────────╯
 
 class _LIFCore(BaseNeuron):
-    """TODO: docs
-
-    Core properties/behaviors common to all LIF neurons in this file
-    (though the methods seen here might be overwritten or modified in
-    child classes)
-    """
+    """Properties core to all the following LIF implementations."""
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Special Methods                                                       │

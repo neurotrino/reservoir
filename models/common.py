@@ -1,7 +1,4 @@
-"""TODO: module docs
-TODO: not sure if it makes sense to split dedicated base model into own
-      module, at least for now
-"""
+"""Common SNN components."""
 
 from typing import Any
 
