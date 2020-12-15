@@ -23,14 +23,14 @@ Enter the directory containing `setup.py` and run the following:
 ```bash
 python -m venv venv         # create virtual environment
 source ./venv/bin/activate  # open virtual environment
-pip install -e              # add this repository to the virtual environment
+pip install -e .            # add this repository to the virtual environment
 ```
 
 #### On Windows
 ```bash
 python -m venv venv      # create virtual environment
 ./venv/Scripts/activate  # open virtual environment
-pip install -e           # add this repository to the virtual environment
+pip install -e .         # add this repository to the virtual environment
 ```
 
 ### Closing the virtual environment
