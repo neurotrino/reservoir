@@ -3,6 +3,7 @@
 tensorflow.org/tutorials/customization/custom_training_walkthrough
 """
 
+import logging
 import tensorflow as tf
 
 # local
@@ -19,17 +20,86 @@ class Trainer(BaseTrainer):
         cfg,
         model,
         data,
-        logger,
-        optimizer=tf.keras.optimizers.Adam
+        logger
     ):
         """TODO: docs  | note how `optimizer` isn't in the parent"""
         super().__init__(model, cfg, data, logger)
-        self.optimizer = optimizer
+
+        train_cfg = self.cfg['train']
+
+        # Configure the optimizer
+        self.optimizer = exec(train_cfg.optimizer)
+        try:
+            self.optimizer = self.optimizer(lr=train_cfg.learning_rate)
+        except e:
+            logging.warning(f"learning rate not set: {e}")
+
+        # TODO: maybe adjust this (will have to use for a bit to see
+        # what's best)
+        self.train_loss = tf.keras.metrics.Mean(name='train_loss')
+        self.train_acc: tf.keras.metrics.SparseCategoricalAccuracy(
+            name='train_acc'
+        )
+
+    def loss(self):
+        """TODO: docs"""
+        raise NotImplementedError("Trainer missing method: loss")
+
+    def grad(self):
+        """TODO: docs"""
+        raise NotImplementedError("Trainer missing method: grad")
+
+    @tf.function
+    def train_step(self, x, y):
+        """TODO: docs"""
+        with tf.GradientTape() as tape:
+            predictions = self.model(x)
+            loss = self.model.loss_object(y, predictions)
+        gradients = tape.gradient(loss, self.model.trainable_variables)
+        self.optimizer.apply_gradients(
+            zip(gradients, self.model.trainable_variables)
+        )
+
+        # Update step-level log variables
+        self.train_loss(loss)
+        self.train_acc(y, predictions)
+
+        # Report step-level log variables
+        return self.train_loss, self.train_acc
+
+    def train_epoch(self):
+        """TODO: docs"""
+        train_cfg = self.cfg['train']
+
+        lp = tqdm(range(self.))
+
+        # Declare epoch-level log variables
+        logvars = {
+            "losses": [],
+            "accs": []
+        }
+
+        # Complete one training epoch
+        for _, (bx, by) in zip(lp, self.data):
+            train_loss, train_acc = self.train_step(bx, by)
+
+            # Update epoch-level log variables
+            logvars['losses'].append(train_loss)
+            logvars['accs'].append(train_acc)
+
+        # Report epoch-level log variables
+        return logvars
 
 
     def train(self):
-        """Fit the model using Keras."""
+        """TODO: docs"""
         train_cfg = self.cfg['train']
+
+        for epoch in train_cfg.n_epochs:
+            loss, acc = self.train_epoch()
+            # TODO: logging via logger
+
+
 
         self.model.compile(
             optimizer=self.optimizer(lr=train_cfg.learning_rate),

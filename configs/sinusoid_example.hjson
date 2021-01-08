@@ -165,6 +165,8 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     train:
     {
+        optimizer: tf.optimizers.Adam
+
         batch_size: 5  // batch size
         n_batch: 5     // number of batches
         n_epochs: 20   // number of epochs the model is fit over
