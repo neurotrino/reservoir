@@ -43,32 +43,25 @@ class Trainer(BaseTrainer):
             name='train_acc'
         )
 
-    def loss(self, actual, prediction):
+    def loss(self, x, y):
         """TODO: docs | also, does this work for unlabelled data?"""
         loss_object = tf.keras.losses.MeanSquaredError()
-        return loss_object(actual, prediction)
+        y_prime = self.model(x)
+        # Dev note: see training=training in guide if we need to have
+        # diff training and inference behaviors
+        return loss_object(y_true=y, y_pred=y_prime)
 
-    def grad(self):
-        """TODO: docs"""
-        raise NotImplementedError("Trainer missing method: grad")
+    def grad(self, inputs, targets):
+        """Gradient calculation(s)"""
+        with tf.GradientTape() as tape:
+            loss_val = self.loss(inputs, targets)
+        return loss_val, tape.gradient(loss_val, model.trainable_variables)
 
     @tf.function
     def train_step(self, x, y):
-        """TODO: docs"""
-        with tf.GradientTape() as tape:
-            predictions = self.model(x)
-            loss = self.loss(y, predictions)
-        gradients = tape.gradient(loss, self.model.trainable_variables)
-        self.optimizer.apply_gradients(
-            zip(gradients, self.model.trainable_variables)
-        )
-
-        # Update step-level log variables
-        self.train_loss(loss)
-        self.train_acc(y, predictions)
-
-        # Report step-level log variables
-        return self.train_loss.result(), self.train_acc.result()
+        # TODO (?) : do we need this for logging purposes or can we get
+        # away with batch-level?
+        pass
 
     def train_epoch(self):
         """TODO: docs"""
@@ -82,10 +75,15 @@ class Trainer(BaseTrainer):
             "accs": []
         }
 
-        # Complete one training epoch
-        for _, (bx, by) in zip(lp, self.data):
-            train_loss, train_acc = self.train_step(bx, by)
+        # Iterate over batches
+        for _, (x, y) in zip(lp, self.data):
+            loss_val, grads = self.grad(x, y)
+            self.optimizer.apply_gradients(
+                zip(grads, model.trainable_variables)
+            )
 
+        """
+            train_loss, train_acc = self.train_step(x, y)
             # Update epoch-level log variables
             logvars['losses'].append(train_loss)
             logvars['accs'].append(train_acc)
@@ -94,6 +92,7 @@ class Trainer(BaseTrainer):
         logvars['accs'] = np.mean(logvars['accs'])
 
         # Report epoch-level log variables
+        """
         return logvars
 
 

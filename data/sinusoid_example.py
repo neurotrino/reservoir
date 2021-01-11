@@ -41,4 +41,9 @@ def load_data(config):
     data = tf.data.Dataset.from_tensor_slices(
         (x, dict(tf_op_layer_output=y))
     ).repeat(count=train_cfg.batch_size).batch(train_cfg.n_batch)
+    print()
+    print()
+    print(data)
+    print()
+    print()
     return data
