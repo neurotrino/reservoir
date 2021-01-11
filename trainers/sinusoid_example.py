@@ -3,6 +3,8 @@
 tensorflow.org/tutorials/customization/custom_training_walkthrough
 """
 
+from tqdm import tqdm
+
 import logging
 import tensorflow as tf
 
@@ -31,7 +33,7 @@ class Trainer(BaseTrainer):
         self.optimizer = exec(train_cfg.optimizer)
         try:
             self.optimizer = self.optimizer(lr=train_cfg.learning_rate)
-        except e:
+        except Exception as e:
             logging.warning(f"learning rate not set: {e}")
 
         # TODO: maybe adjust this (will have to use for a bit to see
@@ -41,9 +43,10 @@ class Trainer(BaseTrainer):
             name='train_acc'
         )
 
-    def loss(self):
-        """TODO: docs"""
-        raise NotImplementedError("Trainer missing method: loss")
+    def loss(self, actual, prediction):
+        """TODO: docs | also, does this work for unlabelled data?"""
+        loss_object = tf.keras.losses.MeanSquaredError()
+        return loss_object(actual, prediction)
 
     def grad(self):
         """TODO: docs"""
@@ -54,7 +57,7 @@ class Trainer(BaseTrainer):
         """TODO: docs"""
         with tf.GradientTape() as tape:
             predictions = self.model(x)
-            loss = self.model.loss_object(y, predictions)
+            loss = self.loss(y, predictions)
         gradients = tape.gradient(loss, self.model.trainable_variables)
         self.optimizer.apply_gradients(
             zip(gradients, self.model.trainable_variables)
@@ -65,13 +68,13 @@ class Trainer(BaseTrainer):
         self.train_acc(y, predictions)
 
         # Report step-level log variables
-        return self.train_loss, self.train_acc
+        return self.train_loss.result(), self.train_acc.result()
 
     def train_epoch(self):
         """TODO: docs"""
         train_cfg = self.cfg['train']
 
-        lp = tqdm(range(self.))
+        lp = tqdm(range(train_cfg.n_batch))
 
         # Declare epoch-level log variables
         logvars = {
@@ -87,6 +90,9 @@ class Trainer(BaseTrainer):
             logvars['losses'].append(train_loss)
             logvars['accs'].append(train_acc)
 
+        logvars['losses'] = np.mean(logvars['losses'])
+        logvars['accs'] = np.mean(logvars['accs'])
+
         # Report epoch-level log variables
         return logvars
 
@@ -95,33 +101,6 @@ class Trainer(BaseTrainer):
         """TODO: docs"""
         train_cfg = self.cfg['train']
 
-        for epoch in train_cfg.n_epochs:
-            loss, acc = self.train_epoch()
+        for epoch in range(train_cfg.n_epochs):
+            logvars = self.train_epoch()
             # TODO: logging via logger
-
-
-
-        self.model.compile(
-            optimizer=self.optimizer(lr=train_cfg.learning_rate),
-            loss=dict(tf_op_layer_output=tf.keras.losses.MeanSquaredError())
-        )
-        self.model.fit(
-            self.data,
-            epochs=train_cfg.n_epochs,
-            callbacks=self.logger.callbacks
-        )
-        """TODO:
-        if config['do_plot'] and config['do_save']:
-            model.fit(data, epochs=config['epochs'])
-            # TODO: decide if save is method of model, logger, or just util
-        elif config['do_plot']:
-            model.fit(data, epochs=config['epochs'],
-                callbacks=[logger.plot])
-        elif do_save:
-            model.fit(data, epochs=config['epochs'],
-                callbacks=[logger.save,   # Update logger so this
-                           logger.plot])  # is less awk <-- TODO
-        else:
-            #nada
-        # Logger initialization filters callbacks based on config file
-        """

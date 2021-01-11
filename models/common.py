@@ -13,6 +13,12 @@ import tensorflow as tf
 # This value is currently just an alias
 BaseModel = tf.keras.layers.Layer
 
+class BaseModel(tf.keras.layers.Layer):
+    """TODO: docs"""
+    def __init__(self):
+        super(BaseModel, self).__init__()
+
+
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Regularization Layers                                                     │
 #┴───────────────────────────────────────────────────────────────────────────╯

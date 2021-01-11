@@ -1,5 +1,7 @@
 """TODO: Docs"""
 
+import tensorflow as tf
+
 class BaseTrainer(object):
     """TODO: docs"""
     def __init__(self, cfg, model, data, logger):
