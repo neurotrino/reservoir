@@ -78,6 +78,9 @@ Repository structure is an adaptation of the [Gemy Standard](https://github.com/
 python mains/sinusoid_example.py -c configs/sinusoid_example.hjson
 ```
 
+#### Other configs
+See utils/config.py > get_args() for all command line flags that may be passed.
+
 #### Rapid prototyping
 While you're adding and removing structural elements, working with the HJSON
 configuration could be more trouble than it's worth. It's advised you leave

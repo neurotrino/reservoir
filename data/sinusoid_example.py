@@ -38,6 +38,7 @@ def load_data(config):
     x = tf.random.uniform(shape=(uni.seq_len, uni.n_input))[None] * 0.5
     y = tf.sin(tf.linspace(0.0, 4 * np.pi, uni.seq_len))[None, :, None]
 
+    # repeat set of x,y over batches to form full dataset
     data = tf.data.Dataset.from_tensor_slices(
         (x, dict(tf_op_layer_output=y))
     ).repeat(count=train_cfg.batch_size).batch(train_cfg.n_batch)

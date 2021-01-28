@@ -46,10 +46,10 @@ class Trainer(BaseTrainer):
     def loss(self, x, y):
         """TODO: docs | also, does this work for unlabelled data?"""
         loss_object = tf.keras.losses.MeanSquaredError()
-        y_prime = self.model(x)
+        voltage, spikes, prediction = self.model(x)
         # Dev note: see training=training in guide if we need to have
         # diff training and inference behaviors
-        return loss_object(y_true=y, y_pred=y_prime)
+        return loss_object(y_true=y, y_pred=prediction)
 
     def grad(self, inputs, targets):
         """Gradient calculation(s)"""
