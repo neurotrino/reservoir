@@ -23,6 +23,8 @@ TRAINING
 import logging
 import tensorflow as tf
 
+sys.path.append('/home/macleanlab/tf2_migration/')
+
 # local -------
 from models.sinusoid_example import SinusoidSlayer
 from models.neurons.lif import LIF
