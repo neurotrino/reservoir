@@ -165,7 +165,7 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     train:
     {
-        optimizer: tf.optimizers.Adam
+        optimizer: tf.keras.optimizers.Adam
         loss_object: tf.keras.losses.MeanSquaredError
 
         batch_size: 5  // batch size
