@@ -55,7 +55,7 @@ class Trainer(BaseTrainer):
         """Gradient calculation(s)"""
         with tf.GradientTape() as tape:
             loss_val = self.loss(inputs, targets)
-        return loss_val, tape.gradient(loss_val, model.trainable_variables)
+        return loss_val, tape.gradient(loss_val, self.model.trainable_variables)
 
     @tf.function
     def train_step(self, x, y):
@@ -79,7 +79,7 @@ class Trainer(BaseTrainer):
         for _, (x, y) in zip(lp, self.data):
             loss_val, grads = self.grad(x, y)
             self.optimizer.apply_gradients(
-                zip(grads, model.trainable_variables)
+                zip(grads, self.model.trainable_variables)
             )
 
         """
