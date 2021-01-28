@@ -30,7 +30,7 @@ class Trainer(BaseTrainer):
         train_cfg = self.cfg['train']
 
         # Configure the optimizer
-        self.optimizer = exec(train_cfg.optimizer)
+        self.optimizer = tf.keras.optimizers.Adam()
         try:
             self.optimizer = self.optimizer(lr=train_cfg.learning_rate)
         except Exception as e:
