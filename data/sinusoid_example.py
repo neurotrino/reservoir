@@ -40,7 +40,7 @@ def load_data(config):
 
     # repeat set of x,y over batches to form full dataset
     data = tf.data.Dataset.from_tensor_slices(
-        (x, dict(tf_op_layer_output=y))
+        (x, y)
     ).repeat(count=train_cfg.batch_size).batch(train_cfg.n_batch)
     print()
     print()
