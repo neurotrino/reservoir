@@ -30,9 +30,9 @@ class Trainer(BaseTrainer):
         train_cfg = self.cfg['train']
 
         # Configure the optimizer
-        self.optimizer = tf.keras.optimizers.Adam()
+        #self.optimizer = tf.keras.optimizers.Adam()
         try:
-            self.optimizer = self.optimizer(lr=train_cfg.learning_rate)
+            self.optimizer = tf.keras.optimizers.Adam(lr=train_cfg.learning_rate)
         except Exception as e:
             logging.warning(f"learning rate not set: {e}")
 
