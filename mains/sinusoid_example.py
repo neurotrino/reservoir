@@ -24,13 +24,13 @@ import logging
 import tensorflow as tf
 
 # local -------
-from .models.sinusoid_example import SinusoidSlayer
-from .models.neurons.lif import LIF
-from .data import sinusoid_example as sinusoid
-from .trainers.sinusoid_example import Trainer
-from .loggers.logger import Logger
-from .loggers.callbacks.plots import Generic as PlotLogger
-from .loggers.callbacks.scalars import Generic as ValueLogger
+from models.sinusoid_example import SinusoidSlayer
+from models.neurons.lif import LIF
+from data import sinusoid_example as sinusoid
+from trainers.sinusoid_example import Trainer
+from loggers.logger import Logger
+from loggers.callbacks.plots import Generic as PlotLogger
+from loggers.callbacks.scalars import Generic as ValueLogger
 
 import utils.config
 import utils.dirs
