@@ -23,6 +23,8 @@ TRAINING
 import logging
 import tensorflow as tf
 
+import sys
+
 sys.path.append('/home/macleanlab/tf2_migration/')
 
 # local -------
