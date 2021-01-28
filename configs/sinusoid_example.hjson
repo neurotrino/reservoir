@@ -143,11 +143,11 @@
             // tag `uni` wherever models need access to universal parameters
             uni: null
 
-            units: 200   // number of units in the layer
+            units: 100   // number of units in the layer
 
             thr: -50.4   // threshold [mV]
             EL: -70.6    // [mV]
-            n_refrac: 1  // number of refractory
+            n_refrac: 1  // number of refractory ms
             tau: 20.0    //
 
             dampening_factor: 0.3
