@@ -34,17 +34,11 @@ class SinusoidSlayer(BaseModel):
         # TODO
         uni = self.uni
         cell = self.cell
-        # does this call model:cell: in hjson? currently there are conflicting definitions
-        # there for things like "units" versus "n_recurrent" in uni.
 
         # is there a mismatch happening here for input dimensions?
         # below it seems like input has 0th dimension of batch size
         # whereas right here it seems like the 0th dimension is time
-        # in addition, batch size should certainly be defined in / deferred to in hjson config
         inputs = tf.keras.layers.Input(shape=(uni.seq_len, uni.n_input))
-        # the way you've built the inputs in the shape(time x neurons) makes me wonder
-        # whether we have a standard way in which we shape all our tensors -
-        # are they in epoch x batch x neuron x time (if the variable has all those dimensions?)
 
         rnn = tf.keras.layers.RNN(cell, return_sequences=True)
 

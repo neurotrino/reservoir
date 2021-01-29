@@ -37,7 +37,7 @@
     save:
     {
         // Your experiment's name or identifier
-        exp_id: demo-experiment
+        exp_id: debug-demo-experiment
 
         // Directory storing all output from this experiment
         //
@@ -166,8 +166,8 @@
     train:
     {
 
-        batch_size: 5  // batch size
-        n_batch: 5     // number of batches
+        batch_size: 20  // batch size (number of trials in batch)
+        n_batch: 1    // number of batches in epoch
         n_epochs: 20   // number of epochs the model is fit over
 
         learning_rate: 0.1

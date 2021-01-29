@@ -69,7 +69,7 @@ def main():
             histogram_freq=1,
             write_graph=False
         ),
-        ValueLogger(cfg)#,
+        ValueLogger(cfg),
         #PlotLogger(cfg)
     ])
     logging.info("Logger instantiated.")
