@@ -23,7 +23,8 @@ class _LIFCore(BaseNeuron):
 
     def __init__(
         self,
-        uni: Any,
+        cfg: Any,
+        rewiring: bool,
         units: int,            # number of neurons in the model
         thr: float,            # thr
         EL: float,             #
@@ -34,13 +35,16 @@ class _LIFCore(BaseNeuron):
     ):
         super().__init__()
 
-        self.uni = uni
+        self.cfg = cfg
+
+        self.rewiring = rewiring
+
         self.units = units
         self.thr = thr
         self.EL = EL
         self.n_refrac = n_refrac
         self.tau = tau
-        self.dt = float(uni.dt)
+        self.dt = float(cfg['misc'].dt)
         self.dampening_factor = dampening_factor
 
         self._decay = tf.exp(-self.dt / tau)
@@ -62,6 +66,7 @@ class _LIFCore(BaseNeuron):
 
     def build(self, input_shape, connmat_generator):
         """TODO: docs"""
+
         # using uniform weight dist for inputs as opposed to
         #
         # ```
@@ -77,8 +82,6 @@ class _LIFCore(BaseNeuron):
         #     name='input_weights'
         # )
         # ```
-        uni = self.uni
-
         self.input_weights = self.add_weight(
             shape=(input_shape[-1], self.units),
             initializer=tf.keras.initializers.RandomUniform(
@@ -122,7 +125,7 @@ class _LIFCore(BaseNeuron):
         #)
 
         # Store neurons' signs
-        if uni.rewiring:
+        if self.rewiring:
             # Store using +1 for excitatory, -1 for inhibitory
             wmat = -1 * np.ones([self.units, self.units])
             wmat[0:self.n_excite,:] = -1 * wmat[0:self.n_excite,:]
@@ -140,7 +143,7 @@ class _LIFCore(BaseNeuron):
         """
         [old_v, old_r, old_z] = state[:3]
 
-        if self.uni.rewiring:
+        if self.rewiring:
             # Make sure all self-connections remain 0
             self.recurrent_weights.assign(tf.where(
                 self.disconnect_mask,
@@ -237,8 +240,11 @@ class LIF(_LIFCore):
 
     def build(self, input_shape):
         """Build from _LIFCore using the standard CMG"""
-        uni = self.uni
-        super().build(input_shape, CMG(self.units, self.p, uni.mu, uni.sigma))
+        misc_cfg = self.cfg['misc']
+        super().build(
+            input_shape,
+            CMG(self.units, self.p, misc_cfg.mu, misc_cfg.sigma)
+        )
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Excitatory/Inhibitory LIF Neuron                                          │
@@ -277,7 +283,7 @@ class ExInLIF(_LIFCore):
             ExInCMG(
                 self.n_excite, self.n_inhib,
                 self.p_ee, self.p_ei, self.p_ie, self.p_ii,
-                self.uni.mu, self.uni.sigma
+                self.cfg['misc'].mu, self.cfg['misc'].sigma
             )
         )
 
@@ -352,14 +358,14 @@ class ExInALIF(_LIFCore):
             self.p_ei,
             self.p_ie,
             self.p_ii,
-            self.uni.mu,
-            self.uni.sigma
+            self.cfg['misc'].mu,
+            self.cfg['misc'].sigma
         )
         initial_weights_mat = connmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
 
         # Store neurons' signs
-        if self.uni.rewiring:
+        if self.rewiring:
             # +1 for excitatory and -1 for inhibitory
             wmat = -1 * np.ones([self.units, self.units])
             wmat[0:self.n_excite,:] = -1 * wmat[0:self.n_excite,:]
@@ -374,7 +380,7 @@ class ExInALIF(_LIFCore):
         """TODO: docs"""
         [old_v, old_r, old_b, old_z] = state[:4]
 
-        if self.uni.rewiring:
+        if self.rewiring:
             # Make sure all self-connections remain 0
             self.recurrent_weights.assign(tf.where(
                 self.disconnect_mask, tf.zeros_like(self.recurrent_weights),

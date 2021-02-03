@@ -12,7 +12,7 @@ def create_dirs(save_cfg):
     dirs = [
         save_cfg.summary_dir,     # summary information about training
         save_cfg.checkpoint_dir,  # training checkpoints
-        save_cfg.log_dir          # TensorBoard logdirs
+        save_cfg.tb_logdir        # TensorBoard logdirs
     ]
     try:
         for _dir in dirs:

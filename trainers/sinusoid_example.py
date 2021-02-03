@@ -95,21 +95,28 @@ class Trainer(BaseTrainer):
         for batch_idx, (batch_x, batch_y) in enumerate(self.data.dataset):
             loss, acc = self.train_step(batch_x, batch_y, batch_idx, pb)
             if pb is not None:
-                pb.add(self.cfg['train'].batch_size)
+                pb.add(
+                    self.cfg['train'].batch_size,
+
+                    # [!] Register real-time epoch-level log variables
+                    values=[
+                        ('loss', loss)
+                    ]
+                )
 
             # [!] Update epoch-level log variables
-            #losses.append(loss)
+            losses.append(loss)
             #accs.append(acc)
 
         # [!] Post-training operations on epoch-level log variables
-        #epoch_loss = np.mean(losses)
+        epoch_loss = np.mean(losses)
         #epoch_acc = np.mean(accs)
 
         # [!] Register epoch-level log variables here
         self.logger.summarize(
             epoch_idx, # TODO? consider replacing w/ generic 'ID' field
             summary_items={
-                #("epoch_loss", epoch_loss),
+                ("epoch_loss", epoch_loss),
                 #("epoch_acc", epoch_acc)
             }
         )

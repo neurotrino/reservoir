@@ -123,7 +123,7 @@ def get_args():
 #┤ HJSON Parsing                                                             │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-def load_hjson_config(filepath):
+def load_hjson_config(filepath, custom_save_cfg=None):
     """Read configuration settings in from an HJSON file.
 
     Reads an HJSON file into various formats. Model configurations are
@@ -135,14 +135,17 @@ def load_hjson_config(filepath):
     settings. Look at the template HJSON file provided in the repository
     for further explanation and an example.
 
+    If you prefer manipulating the save configuration from a python
+    script, `custom_save_cfg` will overwrite the HJSON values.
+
     Args:
         filepath: string of relative filepath to HJSON config file
 
     Returns:
-        form, meta_cfg:
+        form, bundled_cfg:
           - form: function taking a model class (*not* an object) which
               instantiates that model
-          - meta_cfg: dictionary containing various non-model config
+          - bundled_cfg: dictionary containing various non-model config
               settings
               - 'save': save config
 
@@ -153,101 +156,42 @@ def load_hjson_config(filepath):
         config = hjson.load(config_file)
 
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Model Instantiator                                                    │
-    #┴───────────────────────────────────────────────────────────────────────╯
-
-    # Load universal parameters into the `uni` namespace
-    uni_cfg = config['uni']
-    uni = json.loads(
-        hjson.dumpsJSON(uni_cfg),
-        object_hook=lambda x: SimpleNamespace(**x)
-    )
-
-    def form(template):
-        """Instantiates a model according to a configured template."""
-
-        # Create a model from the provided template
-        try:
-            def cfg_to_class(template, actual):
-                """Create nested models from a JSON dictionary.
-
-                TODO: make docs pretty
-                - template is dict (see main)
-                - actual is also dict, but diff (I think)
-                """
-
-                # peel off class data
-                c = template['_class']
-                del template['_class']
-
-                logging.debug(f'Parsing HJSON for {c}...')
-
-                # reformat provided data into the specified class
-                if 'uni' in actual:
-                    # if the class is requesting access to the `uni`
-                    # attribute, provide the fully-instantiated `uni`
-                    # object, allowing it to be referenced in the
-                    # class' instantiation function.
-                    #
-                    # note, this does mean classes using `uni` need to
-                    # have it as one of their positional arguments, but
-                    # that's just how Python rolls (i.e. not my fault)
-                    del actual['uni']
-                    m = c(uni=uni, **actual)
-                else:
-                    # create class without `uni` attribute
-                    m = c(**actual)
-
-                # recurse
-                for k in template.keys():
-                    x = cfg_to_class(template[k], actual[k])
-                    setattr(m, k, x)
-                return m
-
-            model_cfg = json.loads(hjson.dumpsJSON(config['model']))
-            model = cfg_to_class(template, model_cfg)
-        except Exception as e:
-            logging.critical('Failed to instantiate model from HJSON.')
-            raise Exception(e, 'issue instantiating model from HJSON.')
-
-        logging.info(f'Instantiated {type(model)} from HJSON.')
-        return model
-
-    #┬───────────────────────────────────────────────────────────────────────╮
     #┤ File-Saving Configuration                                             │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    save_cfg = config['save']  # Data-saving config (dict)
-
-    def append_where_value_exists(so_far, fallback, some_or_none):
-        """Extend a filepath, either with some value or a fallback."""
-        if some_or_none is None:
-            return os.path.join(so_far, fallback)
-        else:
-            return os.path.join(so_far, some_or_none)
-
-    # Directory containing all experiments
-    dir_path = append_where_value_exists(
-        '', '../experiments', save_cfg['experiment_dir']
-    )
-
-    # Directory of this single experiment
-    if save_cfg['exp_id'] is None:
-        raise ValueError('cannot begin without an experiment ID')
+    # Check for script-based save settings
+    if custom_save_cfg is None:
+        save_cfg = config['save']
     else:
-        dir_path = os.path.join(dir_path, save_cfg['exp_id'])
+        save_cfg = custom_save_cfg
+        logging.warning("HJSON save settings overwritten by script.")
 
-    save_cfg['summary_dir'] = append_where_value_exists(
-        # Directory of summary data from this experiment
-        dir_path, 'summary/', save_cfg['summary_dir']
+    # Ensure all outputs are assigned a valid save directory
+    if None in [
+        save_cfg['host_dir'],  # directory for all related experiments
+        save_cfg['exp_dir'],
+        save_cfg['checkpoint_dir'],
+        save_cfg['summary_dir'],
+        save_cfg['tb_logdir']
+    ]:
+        raise ValueError('cannot begin with null save directories')
+
+    # Assemble directories where necessary
+    save_cfg['exp_dir'] = os.path.join(
+        # Directory for this experiment
+        save_cfg['host_dir'], save_cfg['exp_dir']
     )
-    save_cfg['checkpoint_dir'] = append_where_value_exists(
-        # Directory of checkpoint data from this experiment
-        dir_path, 'checkpoint/', save_cfg['checkpoint_dir']
+    save_cfg['checkpoint_dir'] = os.path.join(
+        # Directory for model checkpoints from this experiment
+        save_cfg['exp_dir'], save_cfg['checkpoint_dir']
     )
-    save_cfg['log_dir'] = append_where_value_exists(
-        # Directory of logdirs from this experiment
-        dir_path, 'logdir/', save_cfg['log_dir']
+    save_cfg['summary_dir'] = os.path.join(
+        # Directory for summary files from this experiment
+        save_cfg['exp_dir'], save_cfg['tb_logdir']
+    )
+    save_cfg['tb_logdir'] = os.path.join(
+        # Directory for TensorBoard logdirs from this experiment
+        save_cfg['exp_dir'], save_cfg['tb_logdir']
     )
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -269,19 +213,77 @@ def load_hjson_config(filepath):
     train_cfg = config['train']
 
     #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Miscellaneous Configuration                                           │
+    #┴───────────────────────────────────────────────────────────────────────╯
+
+    misc = config['misc']
+
+    #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Packaging                                                             │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    meta_cfg = {
-        'uni': uni,  # universal values (legacy)
-
-        'save': SimpleNamespace(**save_cfg),    # controls file-saving
+    bundled_cfg = {
+        'save': SimpleNamespace(**save_cfg),
 
         'data': SimpleNamespace(**data_cfg),
-        'log': SimpleNamespace(**log_cfg),       # controls logging
-        'train': SimpleNamespace(**train_cfg)
+        'log': SimpleNamespace(**log_cfg),
+        'train': SimpleNamespace(**train_cfg),
+
+        'misc': SimpleNamespace(**misc)
     }
-    return form, meta_cfg
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Model Instantiator                                                    │
+    #┴───────────────────────────────────────────────────────────────────────╯
+
+    def form(template):
+        """Instantiates a model according to a configured template."""
+
+        # Create a model from the provided template
+        try:
+            def cfg_to_class(template, actual):
+                """Create nested models from a JSON dictionary.
+
+                TODO: make docs pretty
+                - template is dict (see main)
+                - actual is also dict, but diff (I think)
+                """
+
+                # peel off class data
+                c = template['_class']
+                del template['_class']
+
+                logging.debug(f'Parsing HJSON for {c}...')
+
+                # reformat provided data into the specified class
+                if 'cfg' in actual:
+                    # if the class is requesting access to the
+                    # configuration data, provide it, allowing it to be
+                    # referenced in the class' instantiation function
+                    #
+                    # classes requestion the configuration data must
+                    # have it as one of their positional arguments
+                    del actual['cfg']
+                    m = c(cfg=bundled_cfg, **actual)
+                else:
+                    m = c(**actual)
+
+                # recurse
+                for k in template.keys():
+                    x = cfg_to_class(template[k], actual[k])
+                    setattr(m, k, x)
+                return m
+
+            model_cfg = json.loads(hjson.dumpsJSON(config['model']))
+            model = cfg_to_class(template, model_cfg)
+        except Exception as e:
+            logging.critical('Failed to instantiate model from HJSON.')
+            raise Exception(e, 'issue instantiating model from HJSON.')
+
+        logging.info(f'Instantiated {type(model)} from HJSON.')
+        return model
+
+    return form, bundled_cfg
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Startup Boilerplate                                                       │

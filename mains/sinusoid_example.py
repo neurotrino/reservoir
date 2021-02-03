@@ -20,6 +20,7 @@ from trainers.sinusoid_example import Trainer
 def main():
     # Use command line arguments to load data, create directories, etc.
     form, cfg = utils.config.boot()
+    logging.info("Experiment directory: " + cfg['save'].exp_dir)
 
     # Build model
     template =                                                               \
@@ -40,11 +41,11 @@ def main():
 
     # Instantiate logger
     logger = Logger(cfg, cb=[
-        tf.keras.callbacks.TensorBoard(
-            log_dir=cfg['save'].log_dir,
-            histogram_freq=1,
-            write_graph=False
-        ),
+        #tf.keras.callbacks.TensorBoard(
+        #    log_dir=cfg['save'].log_dir,
+        #    histogram_freq=1,
+        #    write_graph=False
+        #),
         ValueLogger(cfg)#,
         #PlotLogger(cfg)
     ])
@@ -59,6 +60,7 @@ def main():
     logging.info("Training complete.")
 
     # Postprocessing
+
 
 if __name__ == '__main__':
     main()
