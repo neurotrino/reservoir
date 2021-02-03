@@ -90,16 +90,7 @@
         seq_len: 1000
 
         //
-        n_input: 20
-
-        //
         n_recurrent: 100
-
-        //
-        target_rate: 0.02
-
-        //
-        rate_cost: 0.1
 
         //
         rewiring: false
@@ -121,18 +112,9 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     model:
     {
-        // tag `uni` wherever you need access to universal parameters
-        uni: null
+        target_rate: 0.02
 
-        // Name used for spikes in the tf.identity
-        //
-        // This is a bit of a pointless example, but is just here to point out
-        // this section is very flexible, and doesn't just have to include
-        // sub-networks. HJSON parsing can also handle classes, dictionaries,
-        // and so on, by the way.
-        //
-        // Note that quotes are completely optional for HJSON strings.
-        spike_identity: spikes
+        rate_cost: 0.1
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sub-Network & Layer Parameters                                    │
@@ -159,18 +141,17 @@
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Training Config                                                       │
+    #┤ Data Config                                                           │
     #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-    #┤ Epochs, batches, and such; TODO: better docs                          │
+    #┤                                                                       │
     #┴───────────────────────────────────────────────────────────────────────╯
-    train:
+    data:
     {
+        //
+        seq_len: 1000
 
-        batch_size: 20  // batch size (number of trials in batch)
-        n_batch: 1    // number of batches in epoch
-        n_epochs: 20   // number of epochs the model is fit over
-
-        learning_rate: 0.1
+        //
+        n_input: 10
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -180,7 +161,25 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     log:
     {
-        base_logger: true
-        plot_logger: true
+        /* ... */
+    }
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Training Config                                                       │
+    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+    #┤ Epochs, batches, and such; TODO: better docs                          │
+    #┴───────────────────────────────────────────────────────────────────────╯
+    train:
+    {
+        learning_rate: 0.1
+
+        // number of trials in batch
+        batch_size: 20
+
+        // number of batches in epoch
+        n_batch: 15
+
+        // number of epochs the model is fit over
+        n_epochs: 2
     }
 }

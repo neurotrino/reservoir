@@ -69,4 +69,3 @@ class Logger(object):
 
         for (label, value) in summary_items:
             tf.summary.scalar(label, value)
-        tf.summary.scalar()

@@ -251,10 +251,10 @@ def load_hjson_config(filepath):
     )
 
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Training Configuration                                                │
+    #┤ Data Configuration                                                    │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    train_cfg = config['train']
+    data_cfg = config['data']
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Logging Configuration                                                 │
@@ -263,14 +263,23 @@ def load_hjson_config(filepath):
     log_cfg = config['log']
 
     #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Training Configuration                                                │
+    #┴───────────────────────────────────────────────────────────────────────╯
+
+    train_cfg = config['train']
+
+    #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Packaging                                                             │
     #┴───────────────────────────────────────────────────────────────────────╯
 
     meta_cfg = {
-        'uni': uni,  # universal values
-        'train': SimpleNamespace(**train_cfg),
+        'uni': uni,  # universal values (legacy)
+
         'save': SimpleNamespace(**save_cfg),    # controls file-saving
-        'log': SimpleNamespace(**log_cfg)       # controls logging
+
+        'data': SimpleNamespace(**data_cfg),
+        'log': SimpleNamespace(**log_cfg),       # controls logging
+        'train': SimpleNamespace(**train_cfg)
     }
     return form, meta_cfg
 

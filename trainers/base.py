@@ -39,7 +39,7 @@ class BaseTrainer(object):
         raise NotImplementedError("Trainer missing method: grad")
 
     @tf.function
-    def train_step(self, x, y):
+    def train_step(self, x=None, y=None, pb=None):
         """TODO: docs"""
         raise NotImplementedError("Trainer missing method: train_step")
 

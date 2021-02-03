@@ -18,7 +18,6 @@ setup(
         'dataclasses_json',
         'hjson',
         'matplotlib',
-        'tensorflow',
-        'tqdm'
+        'tensorflow'
     ]
 )

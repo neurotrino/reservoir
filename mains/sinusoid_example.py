@@ -35,7 +35,7 @@ def main():
     logging.info("Model built.")
 
     # Load data
-    data = sinusoid.load_data(cfg)
+    data = sinusoid.DataGenerator(cfg)
     logging.info("Dataset loaded.")
 
     # Instantiate logger
@@ -45,8 +45,8 @@ def main():
             histogram_freq=1,
             write_graph=False
         ),
-        ValueLogger(cfg),
-        PlotLogger(cfg)
+        ValueLogger(cfg)#,
+        #PlotLogger(cfg)
     ])
     logging.info("Logger instantiated.")
 

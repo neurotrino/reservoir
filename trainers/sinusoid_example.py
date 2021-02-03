@@ -3,9 +3,10 @@
 tensorflow.org/tutorials/customization/custom_training_walkthrough
 """
 
-from tqdm import tqdm
+from tensorflow.keras.utils import Progbar
 
 import logging
+import numpy as np
 import tensorflow as tf
 
 # local
@@ -21,7 +22,7 @@ class Trainer(BaseTrainer):
         self,
         cfg,
         model,
-        data,
+        data,  # should be "belt-fed"
         logger
     ):
         """TODO: docs  | note how `optimizer` isn't in the parent"""
@@ -32,7 +33,9 @@ class Trainer(BaseTrainer):
         # Configure the optimizer
         #self.optimizer = tf.keras.optimizers.Adam()
         try:
-            self.optimizer = tf.keras.optimizers.Adam(lr=train_cfg.learning_rate)
+            self.optimizer = tf.keras.optimizers.Adam(
+                lr=train_cfg.learning_rate
+            )
         except Exception as e:
             logging.warning(f"learning rate not set: {e}")
 
@@ -44,7 +47,7 @@ class Trainer(BaseTrainer):
         )
 
     def loss(self, x, y):
-        """TODO: docs | also, does this work for unlabelled data?"""
+        """Calculate the loss on data x labeled y."""
         loss_object = tf.keras.losses.MeanSquaredError()
         voltage, spikes, prediction = self.model(x) # tripartite output
         # Dev note: see training=training in guide if we need to have
@@ -55,51 +58,66 @@ class Trainer(BaseTrainer):
         """Gradient calculation(s)"""
         with tf.GradientTape() as tape:
             loss_val = self.loss(inputs, targets)
-        return loss_val, tape.gradient(loss_val, self.model.trainable_variables)
+        grads = tape.gradient(loss_val, self.model.trainable_variables)
+        return loss_val, grads
 
-    @tf.function
-    def train_step(self, x, y):
-        # TODO (?) : do we need this for logging purposes or can we get
-        # away with batch-level?
-        pass
+    #@tf.function
+    def train_step(self, batch_x, batch_y, batch_idx=None, pb=None):
+        """Train on the next batch."""
+        #batch_x, batch_y = next(
+        #    self.data.next_batch(self.cfg['train'].batch_size)
+        #)
+        loss, grads = self.grad(batch_x, batch_y)
+        self.optimizer.apply_gradients(
+            zip(grads, self.model.trainable_variables)
+        )
+        acc = 0# TODO: calculate actual acc
 
-    def train_epoch(self):
-        """TODO: docs"""
+        return loss, acc
+
+    #@tf.function
+    def train_epoch(self, epoch_idx=None):
+        """Train over an epoch.
+
+        Also performs logging at the level of epoch metrics.
+        """
         train_cfg = self.cfg['train']
 
-        lp = tqdm(range(train_cfg.n_batch))
+        # [!] Declare epoch-level log variables
+        losses = []
+        accs = []
 
-        # Declare epoch-level log variables
-        logvars = {
-            "losses": [],
-            "accs": []
-        }
+        # Training takes place here
+        pb = Progbar(
+            self.cfg['train'].batch_size * self.cfg['train'].n_batch,
+            stateful_metrics=None
+        )
+        for batch_idx, (batch_x, batch_y) in enumerate(self.data.dataset):
+            loss, acc = self.train_step(batch_x, batch_y, batch_idx, pb)
+            if pb is not None:
+                pb.add(self.cfg['train'].batch_size)
 
-        # Iterate over batches
-        for _, (x, y) in zip(lp, self.data):
-            loss_val, grads = self.grad(x, y)
-            self.optimizer.apply_gradients(
-                zip(grads, self.model.trainable_variables)
-            )
+            # [!] Update epoch-level log variables
+            #losses.append(loss)
+            #accs.append(acc)
 
-        """
-            train_loss, train_acc = self.train_step(x, y)
-            # Update epoch-level log variables
-            logvars['losses'].append(train_loss)
-            logvars['accs'].append(train_acc)
+        # [!] Post-training operations on epoch-level log variables
+        #epoch_loss = np.mean(losses)
+        #epoch_acc = np.mean(accs)
 
-        logvars['losses'] = np.mean(logvars['losses'])
-        logvars['accs'] = np.mean(logvars['accs'])
+        # [!] Register epoch-level log variables here
+        self.logger.summarize(
+            epoch_idx, # TODO? consider replacing w/ generic 'ID' field
+            summary_items={
+                #("epoch_loss", epoch_loss),
+                #("epoch_acc", epoch_acc)
+            }
+        )
 
-        # Report epoch-level log variables
-        """
-        return logvars
-
-
+    #@tf.function
     def train(self):
         """TODO: docs"""
         train_cfg = self.cfg['train']
 
-        for epoch in range(train_cfg.n_epochs):
-            logvars = self.train_epoch()
-            # TODO: logging via logger
+        for epoch_idx in range(train_cfg.n_epochs):
+            self.train_epoch(epoch_idx)
