@@ -1,47 +1,23 @@
-"""TODO: module (example) docs
-
-CONFIGURING SESSIONS
-  Session variables are predominantly specified in two places: the
-  HJSON configuration file and the command line arguments.
-
-BUILDING A MODEL
-  Presently, a template specifying the class of nested objects is
-  necessary.
-
-LOADING DATA
-  Data generation itself will vary. See the sample code in `data` for
-  some examples.
-
-LOGGING
-  ...
-
-TRAINING
-  ...
-"""
-
-# external ----
 import logging
 import tensorflow as tf
+import utils.config
 
-import sys
-
-sys.path.append('/home/macleanlab/tf2_migration/')
-
-# local -------
-from models.sinusoid_example import SinusoidSlayer
+# Build model ----
 from models.neurons.lif import LIF
+from models.sinusoid_example import SinusoidSlayer
+
+# Load Data ------
 from data import sinusoid_example as sinusoid
-from trainers.sinusoid_example import Trainer
-from loggers.logger import Logger
+
+# Log ------------
 from loggers.callbacks.plots import LIF as PlotLogger
 from loggers.callbacks.scalars import Generic as ValueLogger
+from loggers.logger import Logger
 
-import utils.config
-import utils.dirs
+# Train ----------
+from trainers.sinusoid_example import Trainer
 
 def main():
-    """TODO: docs"""
-
     # Use command line arguments to load data, create directories, etc.
     form, cfg = utils.config.boot()
 
@@ -55,7 +31,7 @@ def main():
             "_class": LIF
         }
     }
-    model = form(template).build()
+    model = form(template).build(cfg)
     logging.info("Model built.")
 
     # Load data
@@ -82,6 +58,7 @@ def main():
     trainer.train()
     logging.info("Training complete.")
 
+    # Postprocessing
 
 if __name__ == '__main__':
     main()

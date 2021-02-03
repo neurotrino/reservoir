@@ -11,7 +11,7 @@ from models.neurons.lif import *
 from models.neurons.adex import *
 
 class SinusoidSlayer(BaseModel):
-    """TODO: class docs"""
+    """Model for the sinusoid-matching example."""
 
     def __init__(self,
         uni: Any,
@@ -29,7 +29,7 @@ class SinusoidSlayer(BaseModel):
         # Sub-networks and layers
         self.cell = cell
 
-    def build(self):
+    def build(self, cfg):
         """TODO: method docs"""
         # TODO
         uni = self.uni
@@ -38,12 +38,11 @@ class SinusoidSlayer(BaseModel):
         # is there a mismatch happening here for input dimensions?
         # below it seems like input has 0th dimension of batch size
         # whereas right here it seems like the 0th dimension is time
-        inputs = tf.keras.layers.Input(shape=(uni.seq_len, uni.n_input))
+        inputs = tf.keras.Input(shape=(uni.seq_len, uni.n_input))
 
         rnn = tf.keras.layers.RNN(cell, return_sequences=True)
 
-        batch_size = tf.shape(inputs)[0]
-        initial_state = cell.zero_state(batch_size)
+        initial_state = cell.zero_state(cfg['train'].batch_size)
         rnn_output = rnn(inputs, initial_state=initial_state)
         regularization_layer = SpikeRegularization(
             cell,

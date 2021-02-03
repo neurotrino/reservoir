@@ -204,7 +204,7 @@ class _LIFCore(BaseNeuron):
     #┤ Additional Methods                                                    │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def zero_state(self, batch_size, dtype=tf.float32):
+    def zero_state(self, batch_size, dtype=tf.dtypes.float32):
         """TODO: docs."""
         v0 = tf.zeros((batch_size, self.units), dtype) + self.EL
         r0 = tf.zeros((batch_size, self.units), tf.int32)

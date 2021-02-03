@@ -101,25 +101,6 @@ The source code contains extensive documentation, accessible via Python's
 ### External
 No documentation presently exists beyond this repository's contents.
 
-## Meet the Neurons
-
-### Leaky Integrate-and-Fire (LIF)
-
-_Description_
-
-### Adaptive LIF (ALIF)
-
-_Description_
-
-### Adaptive Exponential Integrate-and-Fire (AdEx)
-
-_Description_
-
-### Etc.
-
-_Description_
-
-
 ## Contributing
 
 ### Style Guidelines
