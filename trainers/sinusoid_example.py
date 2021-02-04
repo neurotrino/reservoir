@@ -53,6 +53,8 @@ class Trainer(BaseTrainer):
 
         buffer_dim = (train_cfg.n_batch, cfg['data'].seq_len)
 
+        # [?] Some room for improvement:
+        #
         # The way this is setup is that we have numpy arrays which fill
         # with values we want to log until some point we specify in the
         # training loop which dumps their contents to a file. I wasn't
@@ -60,9 +62,26 @@ class Trainer(BaseTrainer):
         # numpy arrays in memory, or saving to disk, so this seemed
         # like the logical decision. If there's a better/idiomatic way
         # of doing this, please let me know or just implement it.
-        self.voltage_buffer = np.empty(buffer_dim)
-        self.spikes_buffer = np.empty(buffer_dim)
-        self.prediction_buffer = np.empty(buffer_dim)
+        #
+        # Additionally, because python's append is in O(1) time and the
+        # converstion to np array is in O(n) time, we'lll have a linear
+        # time operation every time we reset the buffer. If there's a
+        # way to initialize the numpy arrays with both dimensions at
+        # once, that would be constant time. I feel like we should know
+        # all the dimensions based on our model, but I'm not sure, and
+        # wanted to move on to more pressing matters, but if this
+        # becomes a bottleneck we should be able to use values from
+        # cfg['data'] and cfg['train'] to initialize 2D numpy arrays.
+        #
+        # The buffer length would be number of batches times however
+        # many epochs we want to keep the data in them for, then the
+        # numpy dimensions would be ... something
+        self.voltage_buffer = list()
+        self.spikes_buffer = list()
+        self.prediction_buffer = list()
+
+        self.inputs_buffer = list()
+        self.true_y_buffer = list()
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Helper Functions (Logging)                                            │
@@ -82,7 +101,12 @@ class Trainer(BaseTrainer):
         # Dev note: see training=training in guide if we need to have
         # diff training and inference behaviors
 
+        self.voltage_buffer.append(voltage.numpy())  # [?] logging
+        self.spikes_buffer.append(spikes.numpy())  # [?] logging
+        self.prediction_buffer.append(prediction.numpy())  # [?] logging
 
+        self.inputs_buffer.append(x.numpy())  # [?] logging
+        self.true_y_buffer.append(y.numpy())  # [?] logging
 
         return loss_object(y_true=y, y_pred=prediction)
 
@@ -93,16 +117,17 @@ class Trainer(BaseTrainer):
         grads = tape.gradient(loss_val, self.model.trainable_variables)
         return loss_val, grads
 
+    # [?] Are we saying that each batch steps with dt?
     def train_step(self, batch_x, batch_y, batch_idx=None, pb=None):
         """Train on the next batch."""
         #batch_x, batch_y = next(
         #    self.data.next_batch(self.cfg['train'].batch_size)
         #)
-        loss, grads = self.grad(batch_x, batch_y)
+        loss, grads = self.grad(batch_x, batch_y)  # [?] logging
         self.optimizer.apply_gradients(
             zip(grads, self.model.trainable_variables)
         )
-        acc = 0# TODO: calculate actual acc
+        acc = 0# TODO: calculate actual acc  # [?] logging
 
         return loss, acc
 
@@ -149,6 +174,7 @@ class Trainer(BaseTrainer):
             }
         )
 
+    # [?] Should we be using @tf.function somewhere?
     def train(self):
         """TODO: docs"""
         n_epochs = self.cfg['train'].n_epochs
@@ -156,4 +182,3 @@ class Trainer(BaseTrainer):
         for epoch_idx in range(n_epochs):
             print(f"Epoch {epoch_idx + 1} / {n_epochs}:")
             self.train_epoch(epoch_idx)
-            # Should we be using @tf.function somewhere?

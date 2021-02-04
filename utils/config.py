@@ -343,7 +343,7 @@ def boot():
     # Create output directories
     utils.dirs.create_dirs(cfg['save'])
 
-    # Save a copy of this file, if the flags are set so
+    # Save a copy of this file, if the flags are set
     if cfg['save'].log_config:
         copyfile(args.config, cfg['save'].exp_dir + "\\config.hjson")
 
