@@ -67,31 +67,53 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     save:
     {
+        // TODO: move console logging here?
+
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Directories                                                       │
         #┴───────────────────────────────────────────────────────────────────╯
 
         // Directory containing runs from related experiments
-        host_dir: ..\experiments\
+        host_dir: ..\experiments
 
         // Directory containing this experiment's output
-        exp_dir: debug-demo-experiment\
+        exp_dir: debug-demo-experiment
 
         // Directory storing checkpoints intended to restore models for
         // training (`.ckpt` or `.h5` files, generally)
         //
         // Format: {host_dir}\{exp_dir}\{checkpoint_dir}
-        checkpoint_dir: checkpoints\
+        checkpoint_dir: checkpoints
 
         // Directory storing summary data from one or more training sessions
         //
         // Format: {host_dir}\{exp_dir}\{summary_dir}
-        summary_dir: summaries\
+        summary_dir: summaries
 
         // Directory storing logdirs (*only* for use with TensorBoard)
         //
         // Format: {host_dir}\{exp_dir}\{tb_logdir}
-        tb_logdir: logdirs\
+        tb_logdir: logdirs
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Flags                                                             │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        // When enabled, the exp_dir will have a number suffixed to avoid
+        // overwriting saved data
+        avoid_overwrite: false
+
+        // Experiment directories will be suffixed by a UNIX timestamp
+        timestamp: false
+
+        // Save a copy of this file to exp_dir, so there's a record of what
+        // parameters the experiment was run with (won't save any indication
+        // of what the .py files were like)
+        log_config: false
+
+        // Enable/disable any additional processing on the data performed
+        // after training
+        postprocess: true
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -146,9 +168,6 @@
     {
         // time step
         dt: 1.0
-
-        //
-        seq_len: 1000
 
         //
         n_recurrent: 100

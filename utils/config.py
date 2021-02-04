@@ -7,7 +7,10 @@ import inspect
 import json
 import logging
 import os
+import time
 
+from datetime import datetime
+from shutil import copyfile
 from types import SimpleNamespace
 
 # local -------
@@ -176,21 +179,47 @@ def load_hjson_config(filepath, custom_save_cfg=None):
     ]:
         raise ValueError('cannot begin with null save directories')
 
-    # Assemble directories where necessary
+    # Directory for this experiment
+    if save_cfg['timestamp']:
+        s = "%Y-%m-%d %H.%M.%S"
+        s = datetime.utcfromtimestamp(time.time()).strftime(s)
+        s = " [" + s + "]"
+        save_cfg['exp_dir'] += s
+
     save_cfg['exp_dir'] = os.path.join(
-        # Directory for this experiment
         save_cfg['host_dir'], save_cfg['exp_dir']
     )
+
+    if os.path.exists(save_cfg['exp_dir']):
+        if save_cfg['avoid_overwrite']:
+            original = save_cfg['exp_dir']
+            unique_id = 1
+
+            while os.path.exists(save_cfg['exp_dir']):
+                save_cfg['exp_dir'] = original + f"_{unique_id}"
+                unique_id += 1
+
+            logging.warning(
+                "Renamed output directory to avoid overwriting data."
+            )
+        else:
+            logging.warning(
+                f"Potentially overwriting data in {save_cfg['exp_dir']}"
+            )
+
+
+    # Directory for model checkpoints from this experiment
     save_cfg['checkpoint_dir'] = os.path.join(
-        # Directory for model checkpoints from this experiment
         save_cfg['exp_dir'], save_cfg['checkpoint_dir']
     )
+
+    # Directory for summary files from this experiment
     save_cfg['summary_dir'] = os.path.join(
-        # Directory for summary files from this experiment
         save_cfg['exp_dir'], save_cfg['summary_dir']
     )
+
+    # Directory for TensorBoard logdirs from this experiment
     save_cfg['tb_logdir'] = os.path.join(
-        # Directory for TensorBoard logdirs from this experiment
         save_cfg['exp_dir'], save_cfg['tb_logdir']
     )
 
@@ -313,5 +342,9 @@ def boot():
 
     # Create output directories
     utils.dirs.create_dirs(cfg['save'])
+
+    # Save a copy of this file, if the flags are set so
+    if cfg['save'].log_config:
+        copyfile(args.config, cfg['save'].exp_dir + "\\config.hjson")
 
     return form, cfg

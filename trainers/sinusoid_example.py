@@ -14,10 +14,8 @@ from trainers.base import BaseTrainer
 
 # Base class for custom trainers/training loops (inherited)
 class Trainer(BaseTrainer):
-    """Example of how to idiomatically build a Keras-based trainer.
+    """TODO: docs  | note how `optimizer` isn't in the parent"""
 
-    TODO: docs
-    """
     def __init__(
         self,
         cfg,
@@ -25,15 +23,16 @@ class Trainer(BaseTrainer):
         data,  # should be "belt-fed"
         logger
     ):
-        """TODO: docs  | note how `optimizer` isn't in the parent"""
-        super().__init__(model, cfg, data, logger)
+        super().__init__(cfg, model, data, logger)
 
-        train_cfg = self.cfg['train']
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Training Setup                                                    │
+        #┴───────────────────────────────────────────────────────────────────╯
 
-        # Configure the optimizer
-        #self.optimizer = tf.keras.optimizers.Adam()
+        train_cfg = cfg['train']
+
         try:
-            self.optimizer = tf.keras.optimizers.Adam(
+            self.optimizer = tf.keras.optimizers.Adam(  # mv from HJSON
                 lr=train_cfg.learning_rate
             )
         except Exception as e:
@@ -41,10 +40,40 @@ class Trainer(BaseTrainer):
 
         # TODO: maybe adjust this (will have to use for a bit to see
         # what's best)
+        #
+        # Didn't end up using, at least not yet
         self.train_loss = tf.keras.metrics.Mean(name='train_loss')
         self.train_acc: tf.keras.metrics.SparseCategoricalAccuracy(
             name='train_acc'
         )
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Logging Setup                                                     │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        buffer_dim = (train_cfg.n_batch, cfg['data'].seq_len)
+
+        # The way this is setup is that we have numpy arrays which fill
+        # with values we want to log until some point we specify in the
+        # training loop which dumps their contents to a file. I wasn't
+        # sure where the overhead would be the worst: keeping large
+        # numpy arrays in memory, or saving to disk, so this seemed
+        # like the logical decision. If there's a better/idiomatic way
+        # of doing this, please let me know or just implement it.
+        self.voltage_buffer = np.empty(buffer_dim)
+        self.spikes_buffer = np.empty(buffer_dim)
+        self.prediction_buffer = np.empty(buffer_dim)
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Helper Functions (Logging)                                            │
+    #┴───────────────────────────────────────────────────────────────────────╯
+
+    def some_name():
+        pass
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Training Loop                                                         │
+    #┴───────────────────────────────────────────────────────────────────────╯
 
     def loss(self, x, y):
         """Calculate the loss on data x labeled y."""
@@ -52,6 +81,9 @@ class Trainer(BaseTrainer):
         voltage, spikes, prediction = self.model(x) # tripartite output
         # Dev note: see training=training in guide if we need to have
         # diff training and inference behaviors
+
+
+
         return loss_object(y_true=y, y_pred=prediction)
 
     def grad(self, inputs, targets):
@@ -83,7 +115,6 @@ class Trainer(BaseTrainer):
 
         # [!] Declare epoch-level log variables
         losses = []
-        accs = []
 
         # Training takes place here
         pb = Progbar(
@@ -98,7 +129,7 @@ class Trainer(BaseTrainer):
 
                     # [!] Register real-time epoch-level log variables
                     values=[
-                        ('loss', loss)
+                        ('loss', loss),
                     ]
                 )
 
@@ -115,7 +146,6 @@ class Trainer(BaseTrainer):
             epoch_idx, # TODO? consider replacing w/ generic 'ID' field
             summary_items={
                 ("epoch_loss", epoch_loss),
-                #("epoch_acc", epoch_acc)
             }
         )
 
@@ -127,5 +157,3 @@ class Trainer(BaseTrainer):
             print(f"Epoch {epoch_idx + 1} / {n_epochs}:")
             self.train_epoch(epoch_idx)
             # Should we be using @tf.function somewhere?
-
-        # ==============================

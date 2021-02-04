@@ -40,7 +40,7 @@ def main():
     logging.info("Dataset loaded.")
 
     # Instantiate logger
-    logger = Logger(cfg)#, cb=[
+    logger = Logger(cfg)   #, cb=[
         #tf.keras.callbacks.TensorBoard(
         #    log_dir=cfg['save'].log_dir,
         #    histogram_freq=1,
@@ -52,7 +52,7 @@ def main():
     logging.info("Logger instantiated.")
 
     # Instantiate trainer
-    trainer = Trainer(model, cfg, data, logger)
+    trainer = Trainer(cfg, model, data, logger)
     logging.info("Trainer instantiated.")
 
     # Train model
@@ -61,7 +61,8 @@ def main():
     logging.info("Training complete.")
 
     # Postprocessing
-
+    if cfg['save'].postprocess:
+        pass
 
 if __name__ == '__main__':
     main()
