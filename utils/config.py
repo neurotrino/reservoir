@@ -187,7 +187,7 @@ def load_hjson_config(filepath, custom_save_cfg=None):
     )
     save_cfg['summary_dir'] = os.path.join(
         # Directory for summary files from this experiment
-        save_cfg['exp_dir'], save_cfg['tb_logdir']
+        save_cfg['exp_dir'], save_cfg['summary_dir']
     )
     save_cfg['tb_logdir'] = os.path.join(
         # Directory for TensorBoard logdirs from this experiment

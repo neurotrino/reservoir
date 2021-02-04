@@ -61,7 +61,6 @@ class Trainer(BaseTrainer):
         grads = tape.gradient(loss_val, self.model.trainable_variables)
         return loss_val, grads
 
-    #@tf.function
     def train_step(self, batch_x, batch_y, batch_idx=None, pb=None):
         """Train on the next batch."""
         #batch_x, batch_y = next(
@@ -75,7 +74,6 @@ class Trainer(BaseTrainer):
 
         return loss, acc
 
-    #@tf.function
     def train_epoch(self, epoch_idx=None):
         """Train over an epoch.
 
@@ -121,10 +119,13 @@ class Trainer(BaseTrainer):
             }
         )
 
-    #@tf.function
     def train(self):
         """TODO: docs"""
-        train_cfg = self.cfg['train']
+        n_epochs = self.cfg['train'].n_epochs
 
-        for epoch_idx in range(train_cfg.n_epochs):
+        for epoch_idx in range(n_epochs):
+            print(f"Epoch {epoch_idx + 1} / {n_epochs}:")
             self.train_epoch(epoch_idx)
+            # Should we be using @tf.function somewhere?
+
+        # ==============================

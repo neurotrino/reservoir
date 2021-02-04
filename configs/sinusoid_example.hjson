@@ -130,11 +130,11 @@
         // number of trials in batch
         batch_size: 20
 
-        // number of batches in epoch
+        // number of batches in an epoch
         n_batch: 15
 
         // number of epochs the model is fit over
-        n_epochs: 2
+        n_epochs: 1
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮

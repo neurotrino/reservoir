@@ -59,6 +59,8 @@ class Logger(object):
 
         Typically run with custom trainers.
 
+        Uses auto-increment unless there's
+
         args:
           index: TODO
           summary_items: tuple list containing the string identifier
@@ -67,5 +69,7 @@ class Logger(object):
         """
         _writer = self.train_writer if writer == "train" else self.test_writer
 
-        for (label, value) in summary_items:
-            tf.summary.scalar(label, value)
+        with _writer.as_default():
+            for (label, value) in summary_items:
+                tf.summary.scalar(label, value, step=index)
+                _writer.flush
