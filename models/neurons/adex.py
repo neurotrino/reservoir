@@ -398,7 +398,7 @@ class _EligAdexCore(BaseNeuron):
 
         # TODO This is where eligibility traces and stop gradients should be used: stop gradients from flowing along old_z
         # Gradient --> Computes the gradient of the loss with respect to the trainable variables using operations recorded in context of this tape, i.e. all of this
-        # Stop gradient --> If you insert this op in the graph it inputs are masked from the gradient generator. They are not taken into account for computing gradients.
+        # Stop gradient --> If you insert this op in the graph its inputs are masked from the gradient generator. They are not taken into account for computing gradients.
         # TODO I think, the adaptation should use old_z before stop_gradient-- Update adaptation term
         new_w = old_w - ((self._dt / self.tauw) * old_w) + (self.dt_a__tauw * (old_v - self.EL))
         new_w += self.b * old_z
@@ -469,7 +469,7 @@ class EligAdEx(_EligAdexCore):
 #┤ E-prop Excitatory/Inhibitory AdEx Neuron                                         │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class EligExInAdEx(_EligAdExCore):
+class EligExInAdEx(_EligAdexCore):
 
     def __init__(self, frac_e, *args, **kwargs):
         super().__init__(*args, **kwargs)
