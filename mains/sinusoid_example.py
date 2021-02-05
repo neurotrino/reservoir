@@ -1,45 +1,26 @@
-"""TODO: module (example) docs
-
-CONFIGURING SESSIONS
-  Session variables are predominantly specified in two places: the
-  HJSON configuration file and the command line arguments.
-
-BUILDING A MODEL
-  Presently, a template specifying the class of nested objects is
-  necessary.
-
-LOADING DATA
-  Data generation itself will vary. See the sample code in `data` for
-  some examples.
-
-LOGGING
-  ...
-
-TRAINING
-  ...
-"""
-
-# external ----
 import logging
 import tensorflow as tf
-
-# local -------
-from models.sinusoid_example import SinusoidSlayer
-from models.neurons.lif import LIF
-from data import sinusoid_example as sinusoid
-from trainers.sinusoid_example import Trainer
-from loggers.logger import Logger
-from loggers.callbacks.plots import Generic as PlotLogger
-from loggers.callbacks.scalars import Generic as ValueLogger
-
 import utils.config
-import utils.dirs
+
+# Build model ----
+from models.neurons.lif import LIF
+from models.sinusoid_example import SinusoidSlayer
+
+# Load Data ------
+from data import sinusoid_example as sinusoid
+
+# Log ------------
+from loggers.callbacks.plots import LIF as PlotLogger
+from loggers.callbacks.scalars import Generic as ValueLogger
+from loggers.logger import Logger
+
+# Train ----------
+from trainers.sinusoid_example import Trainer
 
 def main():
-    """TODO: docs"""
-
     # Use command line arguments to load data, create directories, etc.
     form, cfg = utils.config.boot()
+    logging.info("Experiment directory: " + cfg['save'].exp_dir)
 
     # Build model
     template =                                                               \
@@ -51,33 +32,37 @@ def main():
             "_class": LIF
         }
     }
-    model = form(template).build()
+    model = form(template).build(cfg)
     logging.info("Model built.")
 
     # Load data
-    data = sinusoid.load_data(cfg)
+    data = sinusoid.DataGenerator(cfg)
     logging.info("Dataset loaded.")
 
     # Instantiate logger
-    logger = Logger(cfg, cb=[
-        tf.keras.callbacks.TensorBoard(
-            log_dir=cfg['save'].log_dir,
-            histogram_freq=1,
-            write_graph=False
-        ),
-        ValueLogger(cfg)#,
+    logger = Logger(cfg)   #, cb=[
+        #tf.keras.callbacks.TensorBoard(
+        #    log_dir=cfg['save'].log_dir,
+        #    histogram_freq=1,
+        #    write_graph=False
+        #),
+        #ValueLogger(cfg),
         #PlotLogger(cfg)
-    ])
+    #])
     logging.info("Logger instantiated.")
 
     # Instantiate trainer
-    trainer = Trainer(model, cfg, data, logger)
+    trainer = Trainer(cfg, model, data, logger)
     logging.info("Trainer instantiated.")
 
     # Train model
+    logging.info("About to start training...")
     trainer.train()
     logging.info("Training complete.")
 
+    # Postprocessing
+    if cfg['save'].postprocess:
+        pass
 
 if __name__ == '__main__':
     main()

@@ -43,9 +43,9 @@ class Generic(tf.keras.callbacks.Callback):
         summary = {  # TODO: logs dict in HJSON?
             "loss": logs['loss'],
 
-            #"v": logs['outputs'][0].numpy()[0],
-            #"z": logs['outputs'][1].numpy()[0],
-            #"out": logs['outputs'][2].numpy()[0, :, 0],
+            "v": logs['outputs'][0].numpy()[0],
+            "z": logs['outputs'][1].numpy()[0],
+            "out": logs['outputs'][2].numpy()[0, :, 0],
 
             "ckpt_path": ckpt_fp
         }
@@ -93,5 +93,3 @@ class Generic(tf.keras.callbacks.Callback):
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ ...                                                                       │
 #┴───────────────────────────────────────────────────────────────────────────╯
-
-

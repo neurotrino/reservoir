@@ -1,5 +1,7 @@
 """TODO: Docs"""
 
+import tensorflow as tf
+
 class BaseTrainer(object):
     """TODO: docs"""
     def __init__(self, cfg, model, data, logger):
@@ -28,6 +30,23 @@ class BaseTrainer(object):
         self.cfg = cfg
         self.logger = logger
 
+    def loss(self):
+        """TODO: docs"""
+        raise NotImplementedError("Trainer missing method: loss")
+
+    def grad(self):
+        """TODO: docs"""
+        raise NotImplementedError("Trainer missing method: grad")
+
+    @tf.function
+    def train_step(self, x=None, y=None, pb=None):
+        """TODO: docs"""
+        raise NotImplementedError("Trainer missing method: train_step")
+
+    def train_epoch(self):
+        """TODO: docs"""
+        raise NotImplementedError("Trainer missing method: train_epoch")
+
     def train(self):
         """Train the model.
 
@@ -37,19 +56,3 @@ class BaseTrainer(object):
         `train_step` and `train_epoch` in your trainer).
         """
         raise NotImplementedError("Trainer requires this function")
-
-    def loss(self):
-        """TODO: docs"""
-        raise NotImplementedError("Trainer missing method: loss")
-
-    def grad(self):
-        """TODO: docs"""
-        raise NotImplementedError("Trainer missing method: grad")
-
-    def train_step(self):
-        """TODO: docs"""
-        raise NotImplementedError("Trainer missing method: train_step")
-
-    def train_epoch(self):
-        """TODO: docs"""
-        raise NotImplementedError("Trainer missing method: train_epoch")

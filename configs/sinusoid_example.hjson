@@ -12,127 +12,20 @@
  */
 {
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ File Saving                                                           │
-    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-    #┤ Configure what gets saved, where, and how. Please be mindful of other │
-    #┤ researchers and their data when adjusting these settings.             │
-    #┤                                                                       │
-    #┤ Files are always saved along a relative (to where the model was run)  │
-    #┤ filepath of the following format:                                     │
-    #┤                                                                       │
-    #┤     {experiment_dir}/{experiment}/{summary_dir}/                      │
-    #┤     {experiment_dir}/{experiment}/{checkpoint_dir}/                   │
-    #┤                                                                       │
-    #┤ Experiment summaries being saved in the former, model checkpoints in  │
-    #┤ the latter. The names of these directories can be customized in the   │
-    #┤ settings below. By default, files will be saved to the following:     │
-    #┤                                                                       │
-    #┤     ../experiments/{exp_id}/summaries/                                │
-    #┤     ../experiments/{exp_id}/checkpoints/                              │
-    #┤                                                                       │
-    #┤ To assist with data security, overwriting files and creating new      │
-    #┤ directories are disallowed by default. Again, please be considerate   │
-    #┤ toward your fellow scientists when enabling these features.           │
-    #┴───────────────────────────────────────────────────────────────────────╯
-    save:
-    {
-        // Your experiment's name or identifier
-        exp_id: demo-experiment
-
-        // Directory storing all output from this experiment
-        //
-        // If not `null`, experiments will be saved in a directory of this
-        // name instead of "../experiments/"
-        experiment_dir: null
-
-        // Directory storing checkpoints intended to restore models for
-        // training (`.ckpt` or `.h5` files, generally)
-        //
-        // If not `null`, checkpoints will be saved in a directory of this
-        // name instead of "{experiment_dir}/{experiment}/checkpoints/"
-        checkpoint_dir: null
-
-        // Directory storing summary data from one or more training sessions
-        //
-        // If not `null`, summaries will be saved in a directory of this name
-        // instead of "{experiment_dir}/{experiment}/summary/"
-        summary_dir: null
-
-        // Directory storing logdirs (*only* for use with TensorBoard)
-        //
-        // If not `null`, logdirs will be created in a directory of this name
-        // instead of "{experiment_dir}/{experiment}/logdir/""
-        log_dir: null
-    }
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Universal Parameters                                                  │
-    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-    #┤ Values which will remain constant between layers and/or components of │
-    #┤ your experiment should go here. Use standardized names where they     │
-    #┤ exist, and explain what everything else is with sufficient detail.    │
-    #┤                                                                       │
-    #┤ Nesting models in here is a very bad idea. Nested structures should   │
-    #┤ generally be fine (probably). Keep this as flat as possible though,   │
-    #┤ just to be safe.                                                      │
-    #┤                                                                       │
-    #┤ If you would rather have these parameters as independently-declared   │
-    #┤ attributes in your class(es) or have exceptions to the universality,  │
-    #┤ just ignore this namespace and declare your parameters in the model   │
-    #┤ namespace.                                                            │
-    #┴───────────────────────────────────────────────────────────────────────╯
-    uni:
-    {
-        // time step
-        dt: 1.0
-
-        //
-        seq_len: 1000
-
-        //
-        n_input: 20
-
-        //
-        n_recurrent: 100
-
-        //
-        target_rate: 0.02
-
-        //
-        rate_cost: 0.1
-
-        //
-        rewiring: false
-
-        // μ for normal distribution (exponentiated for lognormal weights)
-        mu: -0.64
-
-        // σ for normal distribution (exponentiated for lognormal weights)
-        sigma: 0.51
-    }
-
-    #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Model-Specific Parameters                                             │
     #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
     #┤ Model-specific parameters used to construct the network used in the   │
     #┤ experiment. These values should be a one-to-one analog with the       │
     #┤ target model's attributes (i.e. variable names and relative object    │
     #┤ structures need to align between the two).                            │
+    #┤                                                                       │
+    #┤ This is the only namespace not visible in `cfg`.                      │
     #┴───────────────────────────────────────────────────────────────────────╯
     model:
     {
-        // tag `uni` wherever you need access to universal parameters
-        uni: null
+        target_rate: 0.02
 
-        // Name used for spikes in the tf.identity
-        //
-        // This is a bit of a pointless example, but is just here to point out
-        // this section is very flexible, and doesn't just have to include
-        // sub-networks. HJSON parsing can also handle classes, dictionaries,
-        // and so on, by the way.
-        //
-        // Note that quotes are completely optional for HJSON strings.
-        spike_identity: spikes
+        rate_cost: 0.1
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sub-Network & Layer Parameters                                    │
@@ -140,14 +33,17 @@
         cell:
         // currently configured for an LIF neuron:
         {
-            // tag `uni` wherever models need access to universal parameters
-            uni: null
+            /* Flags */
+            cfg: null  // allows access to the cfg file (this is a bit hacky)
 
-            units: 200   // number of units in the layer
+            /* Values */
+            rewiring: false
+
+            units: 100   // number of units in the layer
 
             thr: -50.4   // threshold [mV]
             EL: -70.6    // [mV]
-            n_refrac: 1  // number of refractory
+            n_refrac: 1  // number of refractory ms
             tau: 20.0    //
 
             dampening_factor: 0.3
@@ -159,27 +55,130 @@
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Training Config                                                       │
+    #┤ File Saving                                                           │
     #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-    #┤ Epochs, batches, and such; TODO: better docs                          │
+    #┤ Configure what gets saved, where, and how. Please be mindful of other │
+    #┤ researchers and their data when adjusting these settings.             │
+    #┤                                                                       │
+    #┤ Filepaths are relative to where the script was invoked (not           │
+    #┤ necessarily) where the script is located. See the documentation below │
+    #┤ for how directories relate to each other and what each should         │
+    #┤ contain.                                                              │
     #┴───────────────────────────────────────────────────────────────────────╯
-    train:
+    save:
     {
-        batch_size: 5  // batch size
-        n_batch: 5     // number of batches
-        n_epochs: 20   // number of epochs the model is fit over
+        // TODO: move console logging here?
 
-        learning_rate: 0.1
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Directories                                                       │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        // Directory containing runs from related experiments
+        host_dir: ..\experiments
+
+        // Directory containing this experiment's output
+        exp_dir: debug-demo-experiment
+
+        // Directory storing checkpoints intended to restore models for
+        // training (`.ckpt` or `.h5` files, generally)
+        //
+        // Format: {host_dir}\{exp_dir}\{checkpoint_dir}
+        checkpoint_dir: checkpoints
+
+        // Directory storing summary data from one or more training sessions
+        //
+        // Format: {host_dir}\{exp_dir}\{summary_dir}
+        summary_dir: summaries
+
+        // Directory storing logdirs (*only* for use with TensorBoard)
+        //
+        // Format: {host_dir}\{exp_dir}\{tb_logdir}
+        tb_logdir: logdirs
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Flags                                                             │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        // When enabled, the exp_dir will have a number suffixed to avoid
+        // overwriting saved data
+        avoid_overwrite: false
+
+        // Experiment directories will be suffixed by a UNIX timestamp
+        timestamp: false
+
+        // Save a copy of this file to exp_dir, so there's a record of what
+        // parameters the experiment was run with (won't save any indication
+        // of what the .py files were like)
+        log_config: false
+
+        // Enable/disable any additional processing on the data performed
+        // after training
+        postprocess: true
+    }
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Data Config                                                           │
+    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+    #┤ Variables parameterizing the datasets used to train the model.        │
+    #┴───────────────────────────────────────────────────────────────────────╯
+    data:
+    {
+        //
+        seq_len: 1000
+
+        //
+        n_input: 10
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Logging Config                                                        │
     #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-    #┤                  TODO: better docs | also this is NOT for consol-log  │
+    #┤ Choose what to log during training and how.                           │
     #┴───────────────────────────────────────────────────────────────────────╯
     log:
     {
-        base_logger: true
-        plot_logger: true
+        /* ... */
+    }
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Training Config                                                       │
+    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+    #┤ Variables parameterizing training.                                    │
+    #┴───────────────────────────────────────────────────────────────────────╯
+    train:
+    {
+        learning_rate: 0.1
+
+        // number of trials in batch
+        batch_size: 20
+
+        // number of batches in an epoch
+        n_batch: 15
+
+        // number of epochs the model is fit over
+        n_epochs: 5
+    }
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Miscellaneous                                                         │
+    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+    #┤ Any other values useful to manipulate from this file.                 │
+    #┴───────────────────────────────────────────────────────────────────────╯
+    misc:
+    {
+        // time step
+        dt: 1.0
+
+        //
+        n_recurrent: 100
+
+        //
+        rewiring: false
+
+        // μ for normal distribution (exponentiated for lognormal weights)
+        mu: -0.64
+
+        // σ for normal distribution (exponentiated for lognormal weights)
+        sigma: 0.51
     }
 }

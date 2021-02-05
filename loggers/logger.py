@@ -15,6 +15,10 @@ import tensorflow as tf
 class Logger(object):
     """Logging interface used while training."""
 
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Core Operations                                                       │
+    #┴───────────────────────────────────────────────────────────────────────╯
+
     def __init__(self, cfg, cb=None):
         """Create a new logger."""
         save_cfg = cfg['save']
@@ -59,6 +63,8 @@ class Logger(object):
 
         Typically run with custom trainers.
 
+        Uses auto-increment unless there's
+
         args:
           index: TODO
           summary_items: tuple list containing the string identifier
@@ -67,6 +73,22 @@ class Logger(object):
         """
         _writer = self.train_writer if writer == "train" else self.test_writer
 
-        for (label, value) in summary_items:
-            tf.summary.scalar(label, value)
-        tf.summary.scalar()
+        with _writer.as_default():
+            for (label, value) in summary_items:
+                tf.summary.scalar(label, value, step=index)
+                _writer.flush
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Associated Utilities                                                  │
+    #┴───────────────────────────────────────────────────────────────────────╯
+
+    def save_numpy_array(data, filepath, method="memmap"):
+        """Save a numpy array to disk."""
+        if method == "memmap":
+            raise NotImplementedError("memmap is currently unsupported")
+        elif method == "hdf5":
+            raise NotImplementedError("HDF5 is currently unsupported")
+        elif method == "pickle":
+            raise NotImplementedError("pickling is currently unsupported")
+        else:
+            raise ValueError(f"unrecognized save option: {method}")

@@ -1,3 +1,5 @@
+"""Connectivity matrices."""
+
 # version: Python 3.7
 __author__ = 'Tarek, Isabel'
 
@@ -26,12 +28,13 @@ class ConnectivityMatrixGenerator(object):
         self.mu = mu
         self.sigma = sigma
 
-        # Calculate total number of connections per neuron (remove neuron from target if included (ee and ii))
+        # Calculate total number of connections per neuron (remove
+        # neuron from target if included (ee and ii))
         self.k = int(round(p * (self.n_neurons - 1)))
 
     def run_generator(self):
         try:
-            # Generate connectivity matrix and check that it's successful
+            # Generate connectivity matrix and check it's successful
             if not self.generate_conn_mat():
                 raise Exception('Failed to generate connectivity matrix.')
             logging.info("Generated connectivity matrix.")
@@ -42,7 +45,8 @@ class ConnectivityMatrixGenerator(object):
             logging.info("Weighted connectivity matrix.")
 
             return self.weight_mat/10 # hard-coded decrease weights by /10;
-            # later on we will need to change the mu and sigma to reflect current rather than conductance anyway
+            # later on we will need to change the mu and sigma to
+            # reflect current rather than conductance anyway
 
         except Exception as e:
             logging.exception(e)
@@ -72,7 +76,9 @@ class ConnectivityMatrixGenerator(object):
             for i in range(0, self.n_neurons):
                 for j in range(0, self.n_neurons):
                     if self.conn_mat[i][j] == 1:
-                        self.weight_mat[i][j] = (numpy.random.lognormal(self.mu, self.sigma))
+                        self.weight_mat[i][j] = (
+                            numpy.random.lognormal(self.mu, self.sigma)
+                        )
 
             return True
 
@@ -103,7 +109,8 @@ class ExInConnectivityMatrixGenerator(object):
         # Initialize weight matrix
         self.weight_mat = numpy.zeros((self.n_neurons, self.n_neurons))
 
-        # Calculate total number of connections per neuron (remove neuron from target if included (ee and ii))
+        # Calculate total number of connections per neuron (remove
+        # neuron from target if included (ee and ii))
         self.k_ii = int(round(p_ii * (self.n_inhib - 1)))
         self.k_ei = int(round(p_ei * self.n_inhib))
         self.k_ie = int(round(p_ie * self.n_excite))
@@ -113,7 +120,7 @@ class ExInConnectivityMatrixGenerator(object):
 
         try:
 
-            # Generate connectivity matrix and check that it's successful
+            # Generate connectivity matrix and check it's successful
             if not self.generate_conn_mat():
                 raise Exception('Failed to generate connectivity matrix.')
             logging.info("Generated E/I connectivity matrix.")
