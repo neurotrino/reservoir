@@ -19,13 +19,14 @@ documentation._
 All loggers inherit from `BaseLogger` in `\loggers\base.py`.
 
 ### Standard Methods
-`.add_callback()` appends a `tf.keras.callbacks.Callback` object to a list of
-internally maintained by the logger. The logger should pass these (or an
-appropriate subset) to `fit()` whenever it's called to train a model.
+- `.add_callback()` appends a `tf.keras.callbacks.Callback` object to a list
+  of callbacks internally maintained by the logger. The logger should pass
+  these (or an appropriate subset) to `fit()` whenever `fit()` is called
+  during training
 
-`.summarize()` is called inside training loops to log scalar values, usually
-into an event file located in a summaries directory specified by an HJSON
-configuration file, and often postprocessed into more generic data formats.
+- `.summarize()` is called inside training loops to log scalar values, usually
+  into an event file located in a summaries directory specified by an HJSON
+  configuration file, and often postprocessed into more generic data formats.
 
 ## Logging by Value Type
 
