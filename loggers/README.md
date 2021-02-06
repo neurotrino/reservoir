@@ -11,7 +11,7 @@ distinct from our loggers: when you're interested in the state or products of
 the model, use one of our loggers; when you're interested in the state of the
 code, use Python's. Semantic meaning for these logging levels can be found
 [here](https://stackoverflow.com/questions/2031163) and
-[here](https://ibm.com/support/knowledgecenter/en/SSEP7J_10.2.2/com.ibm.swg.ba.cognos.ug_rtm_wb.10.2.2.doc/c_n30e74).
+[here](https://www.ibm.com/support/knowledgecenter/en/SSEP7J_10.2.2/com.ibm.swg.ba.cognos.ug_rtm_wb.10.2.2.doc/c_n30e74.html).
 See_ `get_args()` _and_ `start_logger()` _in_ `\utils\config.py` _for further
 documentation._
 
