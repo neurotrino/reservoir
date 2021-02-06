@@ -198,7 +198,9 @@ def load_hjson_config(filepath, custom_save_cfg=None):
         else:
             # Alert the user that we'll be writing into this directory
             if save_cfg['hard_overwrite']:
+                # Remove the preexisting directory
                 logging.warning(f"purging old data in {save_cfg['exp_dir']}")
+                shutil.rmtree(save_cfg['exp_dir'])
             else:
                 logging.warning(
                     f"potentially overwriting data in {save_cfg['exp_dir']}"

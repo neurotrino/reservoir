@@ -126,7 +126,7 @@
         // overwriting saved data
         avoid_overwrite: false
 
-        // If avoid_overwrite is set to false, and you're overwriting a
+        // If avoid_overwrite is set to false, and exp_dir overwrites a
         // directory, this will purge the contents of the old directory. This
         // is to avoid mixing data from different experiments, but be careful.
         hard_overwrite: true
