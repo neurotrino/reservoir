@@ -27,11 +27,11 @@ class SinusoidSlayer(BaseModel):
         self.cell = cell
 
     def build(self, cfg):
-        """TODO: method docs"""
-        # TODO
         cell = self.cell
 
-        inputs = tf.keras.Input(shape=(cfg['data'].seq_len, cfg['data'].n_input))
+        inputs = tf.keras.Input(
+            shape=(cfg['data'].seq_len, cfg['data'].n_input)
+        )
 
         rnn = tf.keras.layers.RNN(cell, return_sequences=True)
 
