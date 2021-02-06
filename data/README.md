@@ -11,11 +11,12 @@ All datasets should be wrapped in a class inheriting from `BaseDataGenerator`
 in `data\base.py`.
 
 ### Standard Methods
-`.get()` should return a complete dataset. If `.get()` is not implemented,
-`.next()` must be.
 
-`.next()` should return the next desired segment of the dataset (e.g. a
-batch). If `.next()` is not implemented, `.get()` must be.
+- `.get()` returns a complete dataset. If `.get()` is not implemented, `.next()`
+  must be.
+
+- `.next()` returns the next desired segment of a dataset (e.g. a batch). If
+  `.next()` is not implemented, `.get()` must be.
 
 
 ## Standard Functions
