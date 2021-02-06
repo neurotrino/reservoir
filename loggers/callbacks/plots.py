@@ -51,14 +51,17 @@ class LIF(tf.keras.callbacks.Callback):
         z = output[1].numpy()[0]
         out = output[2].numpy()[0, :, 0]
         # abs_max = np.abs(v).max()
+
         # plot transpose of voltage matrix as colormap
         print()
         print(self.model)
         print()
+
         # self.axes[1].pcolormesh(v.T, cmap='seismic', vmin=-abs_max, vmax=abs_max)
         im = self.axes[1].pcolormesh(v.T, cmap='seismic', vmin=EL-15, vmax=thr+15)
         cb2 = self.fig.colorbar(im, ax = self.axes[1])
         self.axes[1].set_ylabel('voltage')
+
         # plot transpose of spike matrix
         im = self.axes[2].pcolormesh(z.T, cmap='Greys', vmin=0, vmax=1)
         cb3 = self.fig.colorbar(im, ax = self.axes[2])

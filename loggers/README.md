@@ -18,9 +18,15 @@ Scalar values should always be logged using the `summarize()` method.
 
 ## Logging by Paradigm
 
-### Logging with Callbacks
+### Logging with Keras Callbacks
+It's possible to use [Keras' callbacks](https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/Callback)
+for logging, much like we did in our TensorFlow 1.0 framework (with the added
+step of attaching them to a logger). Keras callbacks are easy to setup, but
+their granularity is pretty course, so their usage is limited. See
+`loggers\callbacks\` for further documentation.
 
 ### Logging with Methods
+
 
 ### Logging within the Training Loop
 
