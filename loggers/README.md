@@ -4,9 +4,9 @@ it's often helpful to think of our training loop as doing nothing more than
 populating our loggers, which store, record, and write any values we're
 interested in.
 
-_Note: there are also references to Python's_
+_**Note.** There are also references to Python's_
 [`logging`](docs.python.org/3/library/logging) _module scattered throughout
-the code. Usage of this module is also encouraged, but serves a function
+the code. Use of this module is also encouraged, but serves a function
 distinct from our loggers: when you're interested in the state or products of
 the model, use one of our loggers; when you're interested in the state of the
 code, use Python's_ `logging` _module. Semantic meanings of these logging
