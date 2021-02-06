@@ -138,7 +138,7 @@
     log:
     {
         // Stop to create plots every n epochs
-        plot_every: 6
+        plot_every: 32
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -157,7 +157,7 @@
         n_batch: 15
 
         // number of epochs the model is fit over
-        n_epochs: 24
+        n_epochs: 128
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮

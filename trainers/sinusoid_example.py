@@ -146,7 +146,7 @@ class Trainer(BaseTrainer):
             self.cfg['train'].batch_size * self.cfg['train'].n_batch,
             stateful_metrics=None
         )
-        for batch_idx, (batch_x, batch_y) in enumerate(self.data.dataset):
+        for batch_idx, (batch_x, batch_y) in enumerate(self.data.get()):
             loss, acc = self.train_step(batch_x, batch_y, batch_idx, pb)
             if pb is not None:
                 pb.add(

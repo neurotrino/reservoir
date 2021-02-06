@@ -11,7 +11,7 @@ import numpy as np
 import tensorflow as tf
 
 #┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Generators                                                                │
+#┤ Data Serving                                                              │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
 class DataGenerator(BaseDataGenerator):
@@ -31,6 +31,20 @@ class DataGenerator(BaseDataGenerator):
             count=cfg['train'].batch_size * cfg['train'].n_batch
         ).batch(cfg['train'].batch_size)
 
+    def get(self):
+        return self.dataset
+
+    def next(self, batch_size):
+        raise NotImplementedError(
+            "Data generator has no custom iterator:"
+            + " iterate over the dataset attribute directly"
+        )
+        yield batch_x, batch_y
+
+
+def load_data(cfg):
+    """Wrapper returning just the dataset."""
+    return DataGenerator(cfg).dataset
 
 
 #┬───────────────────────────────────────────────────────────────────────────╮
@@ -39,16 +53,9 @@ class DataGenerator(BaseDataGenerator):
 
 # N/A
 
+
 #┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Private Functions                                                         │
+#┤ Postprocessing                                                            │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
 # N/A
-
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Public Functions                                                          │
-#┴───────────────────────────────────────────────────────────────────────────╯
-
-def load_data(cfg):
-    """Wrapper returning just the dataset."""
-    return DataGenerator(cfg).dataset
