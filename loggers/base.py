@@ -87,18 +87,3 @@ class BaseLogger:
             for (label, value) in summary_items:
                 tf.summary.scalar(label, value, step=index)
                 _writer.flush
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Other Methods                                                         │
-    #┴───────────────────────────────────────────────────────────────────────╯
-
-    def save_numpy_array(data, filepath, method="memmap"):
-        """Save a numpy array to disk."""
-        if method == "memmap":
-            raise NotImplementedError("memmap is currently unsupported")
-        elif method == "hdf5":
-            raise NotImplementedError("HDF5 is currently unsupported")
-        elif method == "pickle":
-            raise NotImplementedError("pickling is currently unsupported")
-        else:
-            raise ValueError(f"unrecognized save option: {method}")
