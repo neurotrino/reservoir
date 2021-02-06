@@ -85,21 +85,17 @@ class Trainer(BaseTrainer):
         losses = []
 
         # Training takes place here
-        pb = Progbar(
-            self.cfg['train'].n_batch,
-            stateful_metrics=None
-        )
+        pb = Progbar(self.cfg['train'].n_batch, stateful_metrics=None)
+
         for batch_idx, (batch_x, batch_y) in enumerate(self.data.get()):
             loss, acc = self.train_step(batch_x, batch_y, batch_idx, pb)
-            if pb is not None:
-                pb.add(
-                    1,
-
+            pb.add(
+                1,
+                values=[
                     # [*] Register real-time epoch-level log variables
-                    values=[
-                        ('loss', loss),
-                    ]
-                )
+                    ('loss', loss),
+                ]
+            )
 
             # [*] Update epoch-level log variables
             losses.append(loss)

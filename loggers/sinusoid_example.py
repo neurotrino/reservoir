@@ -53,7 +53,13 @@ class Logger(BaseLogger):
         self.inputs = list()
         self.true_ys = list()
 
-    def plot_sinusoid(self, epoch_idx=None, filename=None, show=False, save=True):
+    def plot_sinusoid(
+        self,
+        epoch_idx=None,  # Epoch to plot the data of (epoch_idx >= 1)
+        filename=None,   # Name of the saved plot (not the full path)
+        show=False,      # When true, pause execution and show the plot
+        save=True        # When false, the plot won't be saved
+    ):
 
         # If no epoch is specified, plot the most recent
         if epoch_idx is None:
