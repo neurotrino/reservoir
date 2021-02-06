@@ -11,7 +11,7 @@ from data import sinusoid
 
 # Log ------------
 from loggers.callbacks.plots import LIF as PlotCB
-from loggers.base import BaseLogger as Logger
+from loggers.sinusoid_example import Logger as Logger
 
 # Train ----------
 from trainers.sinusoid_example import Trainer

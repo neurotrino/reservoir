@@ -21,7 +21,7 @@ class BaseLogger:
 
     def __init__(self, cfg, cb=None):
         """Create a new logger."""
-        save_cfg = cfg['save']
+        self.cfg = cfg
 
         # Initialize summary writers
         #
@@ -35,10 +35,10 @@ class BaseLogger:
         # may or may not add additional summary writers (they generally
         # shouldn't need to).
         self.train_writer = tf.summary.create_file_writer(
-            os.path.join(save_cfg.summary_dir, "train")
+            os.path.join(cfg['save'].summary_dir, "train")
         )
         self.test_writer = tf.summary.create_file_writer(
-            os.path.join(save_cfg.summary_dir, "test")
+            os.path.join(cfg['save'].summary_dir, "test")
         )
 
         # List of logging callbacks active during the session
