@@ -5,7 +5,7 @@ populating our loggers, which store, record, and write any values we're
 interested in.
 
 _Note: there are also references to
-[Python's `logging` module](docs.python.org/3/library/logging) scattered
+[Python's _`logging`_ module](docs.python.org/3/library/logging) scattered
 throughout the code. Usage of this module is also encouraged, but serves a
 function distinct from our loggers: when you're interested in the state or
 products of the model, use one of our loggers; when you're interested in the
