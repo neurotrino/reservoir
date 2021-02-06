@@ -97,7 +97,7 @@ def get_args():
         '--log-level-console',
         metavar='LC',
         default='INFO',
-        help='Console logging level (DEBUG, INFO, WARN, CRITICAL, OFF)'
+        help='Console logging level (DEBUG, INFO, WARN, ERROR, CRITICAL, OFF)'
     )
 
     # File-logging level
@@ -106,7 +106,7 @@ def get_args():
         '--log-level-file',
         metavar='F',
         default='OFF',
-        help='File logging level (DEBUG, INFO, WARN, CRITICAL, OFF)'
+        help='File logging level (DEBUG, INFO, WARN, ERROR, CRITICAL, OFF)'
     )
 
     # File-loggging output
