@@ -189,7 +189,7 @@ class Trainer(BaseTrainer):
             last_pred = self.prediction_buffer.pop()
             last_true = self.true_y_buffer.pop()
 
-            if (epoch_idx + 1) % 3 == 0:
+            if (epoch_idx + 1) % self.cfg['log'].plot_every == 0:
                 plt.plot(last_true[0, :, :])
                 plt.plot(last_pred[0, :, :])
                 plt.show()  # [?] save plots w/out showing? faster?
