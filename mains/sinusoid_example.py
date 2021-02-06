@@ -16,10 +16,13 @@ from loggers.base import BaseLogger as Logger
 # Train ----------
 from trainers.sinusoid_example import Trainer
 
+# Postprocess ----
+import utils.dataproc as dataproc
+
 def main():
     # Use command line arguments to load data, create directories, etc.
     form, cfg = utils.config.boot()
-    logging.info("Experiment directory: " + cfg['save'].exp_dir)
+    logging.info("experiment directory: " + cfg['save'].exp_dir)
 
     # Build model
     template =                                                               \
@@ -32,28 +35,27 @@ def main():
         }
     }
     model = form(template).build(cfg)
-    logging.info("Model built.")
+    logging.info("model built")
 
     # Load data
     data = sinusoid.DataGenerator(cfg)
-    logging.info("Dataset loaded.")
+    logging.info("dataset loaded")
 
     # Instantiate logger
-    logger = Logger(cfg, cb=[PlotCB])
-    logging.info("Logger instantiated.")
+    logger = Logger(cfg)
+    logging.info("logger instantiated")
 
     # Instantiate trainer
     trainer = Trainer(cfg, model, data, logger)
-    logging.info("Trainer instantiated.")
+    logging.info("trainer instantiated")
 
     # Train model
-    logging.info("About to start training...")
     trainer.train()
-    logging.info("Training complete.")
+    logging.info("training complete")
 
-    # Postprocessing
+    # Perform postprocessing
     if cfg['save'].postprocess:
-        pass
+        dataproc.process(cfg, trainer)
 
 if __name__ == '__main__':
     main()

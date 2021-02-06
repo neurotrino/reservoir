@@ -36,13 +36,13 @@ class ConnectivityMatrixGenerator(object):
         try:
             # Generate connectivity matrix and check it's successful
             if not self.generate_conn_mat():
-                raise Exception('Failed to generate connectivity matrix.')
-            logging.info("Generated connectivity matrix.")
+                raise Exception('failed to generate connectivity matrix')
+            logging.info("connectivity matrix generated")
 
             # Generate weight matrix and check that it's successful
             if not self.make_weighted():
-                raise Exception('Failed to weight connectivity matrix.')
-            logging.info("Weighted connectivity matrix.")
+                raise Exception('failed to weight connectivity matrix')
+            logging.info("connectivity matrix weighted")
 
             return self.weight_mat/10 # hard-coded decrease weights by /10;
             # later on we will need to change the mu and sigma to
@@ -122,13 +122,13 @@ class ExInConnectivityMatrixGenerator(object):
 
             # Generate connectivity matrix and check it's successful
             if not self.generate_conn_mat():
-                raise Exception('Failed to generate connectivity matrix.')
-            logging.info("Generated E/I connectivity matrix.")
+                raise Exception('failed to generate connectivity matrix')
+            logging.info("generated E/I connectivity matrix")
 
             # Generate weight matrix and check that it's successful
             if not self.make_weighted():
-                raise Exception('Failed to weight connectivity matrix.')
-            logging.info("Weighted connectivity matrix.")
+                raise Exception('failed to weight connectivity matrix')
+            logging.info("weighted connectivity matrix")
 
             return self.weight_mat/10 # again doing the hard-coded divide by 10 to make weights in the range that seems most trainable
 

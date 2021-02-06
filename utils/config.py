@@ -10,11 +10,8 @@ import os
 import time
 
 from datetime import datetime
-from shutil import copyfile
+import shutil
 from types import SimpleNamespace
-
-# local -------
-import utils.dirs
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Python (Not TensorFlow) Logger                                            │
@@ -168,17 +165,11 @@ def load_hjson_config(filepath, custom_save_cfg=None):
         save_cfg = config['save']
     else:
         save_cfg = custom_save_cfg
-        logging.warning("HJSON save settings overwritten by script.")
+        logging.warning("HJSON save settings overwritten by script")
 
-    # Ensure all outputs are assigned a valid save directory
-    if None in [
-        save_cfg['host_dir'],
-        save_cfg['exp_dir'],
-        save_cfg['checkpoint_dir'],
-        save_cfg['summary_dir'],
-        save_cfg['tb_logdir']
-    ]:
-        raise ValueError('cannot begin with null save directories')
+    # Check for null base directory
+    if save_cfg['exp_dir'] is None:
+        raise ValueError('cannot begin with null experiment directory')
 
     # Directory for this experiment
     if save_cfg['timestamp']:
@@ -187,12 +178,13 @@ def load_hjson_config(filepath, custom_save_cfg=None):
         s = " [" + s + "]"
         save_cfg['exp_dir'] += s
 
-    save_cfg['exp_dir'] = os.path.join(
-        save_cfg['host_dir'], save_cfg['exp_dir']
-    )
-
+    # Check if the experiment directory already exits
     if os.path.exists(save_cfg['exp_dir']):
+        logging.info(f"{save_cfg['exp_dir']} already exists")
+
+        # Check if we're okay writing into this directory
         if save_cfg['avoid_overwrite']:
+            # Append a number at the end of the filepath so it's unique
             original = save_cfg['exp_dir']
             unique_id = 1
 
@@ -201,28 +193,38 @@ def load_hjson_config(filepath, custom_save_cfg=None):
                 unique_id += 1
 
             logging.warning(
-                "Renamed output directory to avoid overwriting data."
+                "renamed output directory to avoid overwriting data"
             )
         else:
-            logging.warning(
-                f"Potentially overwriting data in {save_cfg['exp_dir']}"
-            )
+            # Alert the user that we'll be writing into this directory
+            if save_cfg['hard_overwrite']:
+                logging.warning(f"purging old data in {save_cfg['exp_dir']}")
+            else:
+                logging.warning(
+                    f"potentially overwriting data in {save_cfg['exp_dir']}"
+                )
 
+    # Instantiate subdirectories
+    for subdir in save_cfg['subdirs']:
+        sd_path = save_cfg['subdirs'][subdir]
 
-    # Directory for model checkpoints from this experiment
-    save_cfg['checkpoint_dir'] = os.path.join(
-        save_cfg['exp_dir'], save_cfg['checkpoint_dir']
-    )
+        # Ignore null filepaths
+        if sd_path is None:
+            # Alert the user we found a null filepath
+            logging.warning(f"{subdir} is null")
+            continue;
 
-    # Directory for summary files from this experiment
-    save_cfg['summary_dir'] = os.path.join(
-        save_cfg['exp_dir'], save_cfg['summary_dir']
-    )
-
-    # Directory for TensorBoard logdirs from this experiment
-    save_cfg['tb_logdir'] = os.path.join(
-        save_cfg['exp_dir'], save_cfg['tb_logdir']
-    )
+        # Create directories
+        save_cfg[subdir] = os.path.join(
+            save_cfg['exp_dir'],
+            save_cfg['subdirs'][subdir]
+        )
+        try:
+            if not os.path.exists(save_cfg[subdir]):
+                os.makedirs(save_cfg[subdir])
+        except Exception as err:
+            print("Error creating directories: {0}".format(err))
+            raise Exception(err)
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Data Configuration                                                    │
@@ -278,7 +280,7 @@ def load_hjson_config(filepath, custom_save_cfg=None):
                 c = template['_class']
                 del template['_class']
 
-                logging.debug(f'Parsing HJSON for {c}...')
+                logging.debug(f'parsing HJSON for {c}')
 
                 # reformat provided data into the specified class
                 if 'cfg' in actual:
@@ -302,10 +304,10 @@ def load_hjson_config(filepath, custom_save_cfg=None):
             model_cfg = json.loads(hjson.dumpsJSON(config['model']))
             model = cfg_to_class(template, model_cfg)
         except Exception as e:
-            logging.critical('Failed to instantiate model from HJSON.')
-            raise Exception(e, 'issue instantiating model from HJSON.')
+            logging.critical('failed to instantiate model from HJSON')
+            raise Exception(e, 'issue instantiating model from HJSON')
 
-        logging.info(f'Instantiated {type(model)} from HJSON.')
+        logging.info(f'instantiated {type(model)} from HJSON')
         return model
 
     return form, bundled_cfg
@@ -336,11 +338,8 @@ def boot():
     except Exception as e:
         raise Exception(e, "issue parsing HJSON")
 
-    # Create output directories
-    utils.dirs.create_dirs(cfg['save'])
-
     # Save a copy of this file, if the flags are set
     if cfg['save'].log_config:
-        copyfile(args.config, cfg['save'].exp_dir + "\\config.hjson")
+        shutil.copyfile(args.config, cfg['save'].exp_dir + "\\config.hjson")
 
     return form, cfg

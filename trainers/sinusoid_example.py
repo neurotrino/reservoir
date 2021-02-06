@@ -6,6 +6,7 @@ tensorflow.org/tutorials/customization/custom_training_walkthrough
 from tensorflow.keras.utils import Progbar
 
 import logging
+import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 
@@ -139,7 +140,7 @@ class Trainer(BaseTrainer):
         """
         train_cfg = self.cfg['train']
 
-        # [!] Declare epoch-level log variables
+        # [*] Declare epoch-level log variables
         losses = []
 
         # Training takes place here
@@ -153,21 +154,21 @@ class Trainer(BaseTrainer):
                 pb.add(
                     self.cfg['train'].batch_size,
 
-                    # [!] Register real-time epoch-level log variables
+                    # [*] Register real-time epoch-level log variables
                     values=[
                         ('loss', loss),
                     ]
                 )
 
-            # [!] Update epoch-level log variables
+            # [*] Update epoch-level log variables
             losses.append(loss)
             #accs.append(acc)
 
-        # [!] Post-training operations on epoch-level log variables
+        # [*] Post-training operations on epoch-level log variables
         epoch_loss = np.mean(losses)
         #epoch_acc = np.mean(accs)
 
-        # [!] Register epoch-level log variables here
+        # [*] Register epoch-level log variables here
         self.logger.summarize(
             epoch_idx, # TODO? consider replacing w/ generic 'ID' field
             summary_items={
@@ -175,11 +176,30 @@ class Trainer(BaseTrainer):
             }
         )
 
+        return epoch_loss
+
     # [?] Should we be using @tf.function somewhere?
+    # [!] Annoying how plt logging shows up
     def train(self):
         """TODO: docs"""
         n_epochs = self.cfg['train'].n_epochs
 
         for epoch_idx in range(n_epochs):
             print(f"Epoch {epoch_idx + 1} / {n_epochs}:")
-            self.train_epoch(epoch_idx)
+            loss = self.train_epoch(epoch_idx)
+
+            # plot every n epochs
+            if loss < 0.13 or (epoch_idx + 1) % self.cfg['log'].plot_every == 0:
+                last_pred = self.prediction_buffer[-1]
+                last_true = self.true_y_buffer[-1]
+
+                # [?] save plots w/out showing? faster?
+                plt.plot(last_true[0, :, :])
+                plt.plot(last_pred[0, :, :])
+                plt.draw()
+                import os
+                save_path = os.path.join(
+                    self.cfg['save'].exp_dir, "plots"
+                )
+
+                plt.savefig(f"{save_path}\\{epoch_idx}_{loss}.png")

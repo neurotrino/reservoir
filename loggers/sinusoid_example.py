@@ -34,3 +34,10 @@ class Logger(BaseLogger):
             raise NotImplementedError("pickling is currently unsupported")
         else:
             raise ValueError(f"unrecognized save option: {method}")
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Pseudo Callbacks                                                      │
+    #┴───────────────────────────────────────────────────────────────────────╯
+
+    def on_epoch_end(self, epoch_idx, model):
+        pass

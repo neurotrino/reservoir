@@ -17,9 +17,16 @@
     #┤ Model-specific parameters used to construct the network used in the   │
     #┤ experiment. These values should be a one-to-one analog with the       │
     #┤ target model's attributes (i.e. variable names and relative object    │
-    #┤ structures need to align between the two).                            │
+    #┤ structures need to align between the two). It's fine to omit          │
+    #┤ parameters with default values.                                       │
     #┤                                                                       │
-    #┤ This is the only namespace not visible in `cfg`.                      │
+    #┤ This is the only namespace not visible in `cfg`. If you need to       │
+    #┤ access data in `cfg` during model initialization, or would like to    │
+    #┤ have `cfg` be an attribute in a model for any other reason, you need  │
+    #┤ to indicate so in this script by adding `cfg: null` (nested in the    │
+    #┤ structure needing access). `cfg` is a hard-coded keyword.             │
+    #┤                                                                       │
+    #┤ `model` is the only namespace not visible in `cfg`.                   │
     #┴───────────────────────────────────────────────────────────────────────╯
     model:
     {
@@ -33,10 +40,16 @@
         cell:
         // currently configured for an LIF neuron:
         {
-            /* Flags */
-            cfg: null  // allows access to the cfg file (this is a bit hacky)
+            #┬───────────────────────────────────────────────────────────────╮
+            #┤ Flags                                                         │
+            #┴───────────────────────────────────────────────────────────────╯
 
-            /* Values */
+            cfg: null
+
+            #┬───────────────────────────────────────────────────────────────╮
+            #┤ Values                                                        │
+            #┴───────────────────────────────────────────────────────────────╯
+
             rewiring: false
 
             units: 100   // number of units in the layer
@@ -49,8 +62,6 @@
             dampening_factor: 0.3
 
             p: 0.2  // connectivity probability when using LIF or Adex model
-
-            // it's fine to omit class' parameters which have default values
         }
     }
 
@@ -67,53 +78,77 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     save:
     {
-        // TODO: move console logging here?
-
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Directories                                                       │
         #┴───────────────────────────────────────────────────────────────────╯
 
-        // Directory containing runs from related experiments
-        host_dir: ..\experiments
-
-        // Directory containing this experiment's output
-        exp_dir: debug-demo-experiment
-
-        // Directory storing checkpoints intended to restore models for
-        // training (`.ckpt` or `.h5` files, generally)
+        // Directory containing this experiment's output. Prefixes all other
+        // directory paths.
         //
-        // Format: {host_dir}\{exp_dir}\{checkpoint_dir}
-        checkpoint_dir: checkpoints
+        // Full path: {exp_dir}
+        exp_dir: ..\experiments\debug-demo-experiment
 
-        // Directory storing summary data from one or more training sessions
-        //
-        // Format: {host_dir}\{exp_dir}\{summary_dir}
-        summary_dir: summaries
+        subdirs:
+        {
+            #┬───────────────────────────────────────────────────────────────╮
+            #┤ Standard                                                      │
+            #┴───────────────────────────────────────────────────────────────╯
 
-        // Directory storing logdirs (*only* for use with TensorBoard)
-        //
-        // Format: {host_dir}\{exp_dir}\{tb_logdir}
-        tb_logdir: logdirs
+            // Directory storing checkpoints intended to restore models for
+            // training (`.ckpt` or `.h5` files, generally) or holding weights
+            //
+            // Full path: {exp_dir}\{checkpoint_dir}
+            checkpoint_dir: checkpoints
+
+            // Directory storing summary data from one or more training sessions
+            //
+            // Full path: {exp_dir}\{summary_dir}
+            summary_dir: summaries
+
+            // Directory storing logdirs (*only* for use with TensorBoard)
+            //
+            // Full path: {exp_dir}\{tb_logdir}
+            tb_logdir: logdirs
+
+            #┬───────────────────────────────────────────────────────────────╮
+            #┤ Supplementary                                                 │
+            #┴───────────────────────────────────────────────────────────────╯
+
+            // Used to store plots
+            plot_dir: plots
+        }
 
         #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Flags                                                             │
+        #┤ Flags (Mandatory)                                                 │
         #┴───────────────────────────────────────────────────────────────────╯
 
         // When enabled, the exp_dir will have a number suffixed to avoid
         // overwriting saved data
         avoid_overwrite: false
 
+        // If avoid_overwrite is set to false, and you're overwriting a
+        // directory, this will purge the contents of the old directory. This
+        // is to avoid mixing data from different experiments, but be careful.
+        hard_overwrite: true
+
         // Experiment directories will be suffixed by a UNIX timestamp
         timestamp: false
 
         // Save a copy of this file to exp_dir, so there's a record of what
         // parameters the experiment was run with (won't save any indication
-        // of what the .py files were like)
+        // of what the `.py` files were like)
         log_config: false
 
         // Enable/disable any additional processing on the data performed
         // after training
         postprocess: true
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Flags (Supplemental)                                              │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        /* if there are any flags for saving particular to your experiment,
+         * include them here */
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -138,7 +173,7 @@
     log:
     {
         // Stop to create plots every n epochs
-        plot_every: 32
+        plot_every: 1
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -157,7 +192,7 @@
         n_batch: 15
 
         // number of epochs the model is fit over
-        n_epochs: 128
+        n_epochs: 256
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮

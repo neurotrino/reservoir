@@ -43,7 +43,7 @@ class LIF(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
 
         # plot every n epochs
-        if (epoch + 1) % self.model.cfg['log'].plot_every == 0 or logs['loss'] < 0.45:
+        if (epoch + 1) % self.model.cfg['log'].plot_every == 0:
             last_pred = self.model.prediction_buffer[-1]
             last_true = self.model.true_y_buffer[-1]
 
