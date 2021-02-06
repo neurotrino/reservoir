@@ -1,8 +1,8 @@
 # Logging
-Insight to our network(s) is the primary object of the framework. To that end,
-it's often helpful to think of our training loop as doing nothing more than
-populating our loggers, which store, record, and write any values we're
-interested in.
+Then ultimate aim of this project is to gain insight into these networks. To
+that end, it's often helpful to think of our training loop as doing nothing
+more than populating our loggers, which store, record, and write any values
+we're interested in.
 
 _**Note:** there are also references to Python's_
 [`logging`](docs.python.org/3/library/logging) _module scattered throughout
@@ -18,8 +18,16 @@ documentation._
 ## The Base Class
 All loggers inherit from `BaseLogger` in `\loggers\base.py`.
 
+### Standard Methods
+`.add_callback()` appends a `tf.keras.callbacks.Callback` object to a list of
+internally maintained by the logger. The logger should pass these (or an
+appropriate subset) to `fit()` whenever it's called to train a model.
 
-## Logging by Value
+`.summarize()` is called inside training loops to log scalar values, usually
+into an event file located in a summaries directory specified by an HJSON
+configuration file, and often postprocessed into more generic data formats.
+
+## Logging by Value Type
 
 ### Scalars
 Scalar values should always be logged using the `.summarize()` method.

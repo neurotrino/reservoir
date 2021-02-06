@@ -1,23 +1,24 @@
 # Datasets
 
+_**Note:** "generator" is being used here more loosely than in Python. Python
+generators are a subset of these generators, which are more like "procurers."
+There is no need for (nor restriction against) these generators dynamically
+producing data. TensorFlow 2.0 doesn't use_ `yield` _very frequently._
+
 ## The Base Class
 
 All datasets should be wrapped in a class inheriting from `BaseDataGenerator`
 in `data\base.py`.
 
-`.get()` and `.next()` are the standard methods for the class. At least one
-must be implemented in any given data generator. The former should return a
-complete dataset, the latter should return the next desired segment of the
-dataset (e.g. a batch).
+### Standard Methods
+`.get()` should return a complete dataset. If `.get()` is not implemented,
+`.next()` must be.
 
-_Note: "generator" is being used here more loosely than in Python. Python
-generators are a subset of these generators, which are more like "procurers."
-There is no need for (nor restriction against) these generators dynamically
-producing data. TensorFlow 2.0 doesn't use `yield` very frequently._
+`.next()` should return the next desired segment of the dataset (e.g. a
+batch). If `.next()` is not implemented, `.get()` must be.
 
 
 ## Standard Functions
-
 Every data script should contain a `load_data()` function which returns a
 "plug and play" dataset, for testing and experimenting convenience.
 
