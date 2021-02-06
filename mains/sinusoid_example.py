@@ -55,7 +55,8 @@ def main():
 
     # Perform postprocessing
     if cfg['save'].postprocess:
-        dataproc.process(cfg, trainer)
+        #dataproc.process(cfg, trainer)
+        pass
 
 if __name__ == '__main__':
     main()
