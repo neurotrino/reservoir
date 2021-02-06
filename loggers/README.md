@@ -2,14 +2,13 @@
 
 ## The Base Class
 
-All loggers inherit from `BaseLogger` in `loggers\base.py`.
+All loggers inherit from `BaseLogger` in `\loggers\base.py`.
 
 
 ## Logging by Value
 
 ### Scalars
-
-Scalar values should always be logged using the `summarize()` method.
+Scalar values should always be logged using the `.summarize()` method.
 
 ### Tensors
 
@@ -19,11 +18,11 @@ Scalar values should always be logged using the `summarize()` method.
 ## Logging by Paradigm
 
 ### Logging with Keras Callbacks
-It's possible to use [Keras' callbacks](https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/Callback)
+It's possible to use [Keras callbacks](https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/Callback)
 for logging, much like we did in our TensorFlow 1.0 framework (with the added
-step of attaching them to a logger). Keras callbacks are easy to setup, but
-their granularity is pretty course, so their usage is limited. See
-`loggers\callbacks\` for further documentation.
+step of attaching them to a logger). These are easy to setup, but their
+granularity is pretty course, limiting their usage. See `\loggers\callbacks\`
+for further documentation.
 
 ### Logging with Methods
 
@@ -38,7 +37,3 @@ method.
 ## Concluding a Logging Session
 
 Loggers will clean themselves up.
-
-
-
-## See Also
