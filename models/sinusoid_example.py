@@ -31,9 +31,6 @@ class SinusoidSlayer(BaseModel):
         # TODO
         cell = self.cell
 
-        # is there a mismatch happening here for input dimensions?
-        # below it seems like input has 0th dimension of batch size
-        # whereas right here it seems like the 0th dimension is time
         inputs = tf.keras.Input(shape=(cfg['data'].seq_len, cfg['data'].n_input))
 
         rnn = tf.keras.layers.RNN(cell, return_sequences=True)

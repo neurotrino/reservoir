@@ -48,7 +48,7 @@
 
             dampening_factor: 0.3
 
-            p: 0.2  // connectivity probability when using LIF or Adex model
+            p: 0.4  // connectivity probability when using LIF or Adex model
 
             // it's fine to omit class' parameters which have default values
         }
@@ -127,7 +127,7 @@
         seq_len: 1000
 
         //
-        n_input: 10
+        n_input: 20
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -150,13 +150,13 @@
         learning_rate: 0.1
 
         // number of trials in batch
-        batch_size: 20
+        batch_size: 5
 
         // number of batches in an epoch
-        n_batch: 15
+        n_batch: 20
 
         // number of epochs the model is fit over
-        n_epochs: 5
+        n_epochs: 12
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -167,7 +167,7 @@
     misc:
     {
         // time step
-        dt: 1.0
+        dt: 0.2
 
         //
         n_recurrent: 100

@@ -182,3 +182,14 @@ class Trainer(BaseTrainer):
         for epoch_idx in range(n_epochs):
             print(f"Epoch {epoch_idx + 1} / {n_epochs}:")
             self.train_epoch(epoch_idx)
+
+            # plot a thingy [!] temporary and screws with data
+            import matplotlib.pyplot as plt
+
+            last_pred = self.prediction_buffer.pop()
+            last_true = self.true_y_buffer.pop()
+
+            if (epoch_idx + 1) % 3 == 0:
+                plt.plot(last_true[0, :, :])
+                plt.plot(last_pred[0, :, :])
+                plt.show()  # [?] save plots w/out showing? faster?
