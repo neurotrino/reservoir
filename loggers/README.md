@@ -12,7 +12,7 @@ the model, use one of our loggers; when you're interested in the state of the
 code, use Python's_ `logging` _module. Semantic meanings of these logging
 levels can be found [here](stackoverflow.com/questions/2031163) and
 [here](ibm.com/support/knowledgecenter/en/SSEP7J_10.2.2/com.ibm.swg.ba.cognos.ug_rtm_wb.10.2.2.doc/c_n30e74).
-See `get_args()` and `start_logger()` in `\utils\config.py` for further
+See_ `get_args()` _and_ `start_logger()` _in_ `\utils\config.py` _for further
 documentation._
 
 ## The Base Class
