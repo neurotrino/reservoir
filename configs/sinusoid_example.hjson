@@ -75,6 +75,8 @@
     #┤ necessarily) where the script is located. See the documentation below │
     #┤ for how directories relate to each other and what each should         │
     #┤ contain.                                                              │
+    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+    #┤******************* THESE SETTINGS CAN DELETE FILES *******************│
     #┴───────────────────────────────────────────────────────────────────────╯
     save:
     {
