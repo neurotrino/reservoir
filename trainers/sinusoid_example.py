@@ -132,5 +132,5 @@ class Trainer(BaseTrainer):
             if loss < 0.1 or (epoch_idx + 1) % self.cfg['log'].plot_every == 0:
                 self.logger.plot_sinusoid(
                     epoch_idx=epoch_idx,
-                    filename=f"{epoch_idx}_{loss}.png"
+                    filename=f"{epoch_idx + 1}_{loss}.png"
                 )
