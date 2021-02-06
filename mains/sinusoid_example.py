@@ -7,7 +7,7 @@ from models.neurons.lif import LIF
 from models.sinusoid_example import SinusoidSlayer
 
 # Load Data ------
-from data import sinusoid_example as sinusoid
+from data import sinusoid
 
 # Log ------------
 from loggers.callbacks.plots import LIF as PlotLogger

@@ -15,6 +15,12 @@ import tensorflow as tf
 #┴───────────────────────────────────────────────────────────────────────────╯
 
 class DataGenerator(BaseDataGenerator):
+    """
+
+    [*] Naming convention of DataGenerator in each data script, because
+    when invoked, it should be invoked as `sinusoid.DataGenerator`,
+    which is self-documenting
+    """
     def __init__(self, cfg):
         super().__init__(cfg)
 
@@ -33,13 +39,6 @@ class DataGenerator(BaseDataGenerator):
 
     def get(self):
         return self.dataset
-
-    def next(self, batch_size):
-        raise NotImplementedError(
-            "Data generator has no custom iterator:"
-            + " iterate over the dataset attribute directly"
-        )
-        yield batch_x, batch_y
 
 
 def load_data(cfg):

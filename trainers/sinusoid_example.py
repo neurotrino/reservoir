@@ -120,9 +120,10 @@ class Trainer(BaseTrainer):
     # [?] Are we saying that each batch steps with dt?
     def train_step(self, batch_x, batch_y, batch_idx=None, pb=None):
         """Train on the next batch."""
-        #batch_x, batch_y = next(
-        #    self.data.next_batch(self.cfg['train'].batch_size)
-        #)
+
+        # [*] If we were using `.next()` instead of `.get()` with our
+        # data generator, this is where we'd invoke the method
+
         loss, grads = self.grad(batch_x, batch_y)  # [?] logging
         self.optimizer.apply_gradients(
             zip(grads, self.model.trainable_variables)
@@ -185,6 +186,7 @@ class Trainer(BaseTrainer):
 
             # plot a thingy [!] temporary and screws with data
             import matplotlib.pyplot as plt
+            logging.getLogger("plt").setLevel(logging.WARNING)
 
             last_pred = self.prediction_buffer.pop()
             last_true = self.true_y_buffer.pop()

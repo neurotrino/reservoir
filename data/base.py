@@ -17,7 +17,7 @@ class BaseDataGenerator:
         return None
 
     def next(self):
-        """Yield the next portion of the dataset."""
+        """Return the next portion of the dataset."""
         raise NotImplementedError(
             f"{self._child_name} has no custom iterator: "
             + f" use {self._child_name}.get() to directly access your data"
