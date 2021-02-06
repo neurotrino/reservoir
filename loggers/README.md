@@ -4,13 +4,13 @@ it's often helpful to think of our training loop as doing nothing more than
 populating our loggers, which store, record, and write any values we're
 interested in.
 
-_**Note.** There are also references to Python's_
+_**Note:** there are also references to Python's_
 [`logging`](docs.python.org/3/library/logging) _module scattered throughout
 the code. Use of this module is also encouraged, but serves a function
 distinct from our loggers: when you're interested in the state or products of
 the model, use one of our loggers; when you're interested in the state of the
-code, use Python's_ `logging` _module. Semantic meanings of these logging
-levels can be found [here](stackoverflow.com/questions/2031163) and
+code, use Python's. Semantic meaning for these logging levels can be found
+[here](https://stackoverflow.com/questions/2031163) and
 [here](ibm.com/support/knowledgecenter/en/SSEP7J_10.2.2/com.ibm.swg.ba.cognos.ug_rtm_wb.10.2.2.doc/c_n30e74).
 See_ `get_args()` _and_ `start_logger()` _in_ `\utils\config.py` _for further
 documentation._
