@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 import models.neurons.adex as adex
 import models.neurons.lif as lif
 
-# TMP
-EL = -70.6
-thr=-50.4
-# TMP
+import matplotlib.pyplot as plt
+
+import logging
+logging.getLogger("matplotlib.pyplot").setLevel(logging.WARNING)
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ ...                                                                       │
@@ -41,6 +41,18 @@ class LIF(tf.keras.callbacks.Callback):
         self.axes = axes
 
     def on_epoch_end(self, epoch, logs=None):
+
+        # plot every n epochs
+        if (epoch + 1) % self.model.cfg['log'].plot_every == 0 or logs['loss'] < 0.45:
+            last_pred = self.model.prediction_buffer[-1]
+            last_true = self.model.true_y_buffer[-1]
+
+            # [?] save plots w/out showing? faster?
+            plt.plot(last_true[0, :, :])
+            plt.plot(last_pred[0, :, :])
+            plt.show()
+
+        """
         output = self.model(self.test_example[0])
         #weights = self.model.layers[0].get_weights()[0]
         [ax.clear() for ax in self.axes]
@@ -81,3 +93,4 @@ class LIF(tf.keras.callbacks.Callback):
         cb1.remove()
         cb2.remove()
         cb3.remove()
+        """

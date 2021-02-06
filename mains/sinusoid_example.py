@@ -10,8 +10,7 @@ from models.sinusoid_example import SinusoidSlayer
 from data import sinusoid
 
 # Log ------------
-from loggers.callbacks.plots import LIF as PlotLogger
-from loggers.callbacks.scalars import Generic as ValueLogger
+from loggers.callbacks.plots import LIF as PlotCB
 from loggers.base import BaseLogger as Logger
 
 # Train ----------
@@ -40,7 +39,7 @@ def main():
     logging.info("Dataset loaded.")
 
     # Instantiate logger
-    logger = Logger(cfg)
+    logger = Logger(cfg, cb=[PlotCB])
     logging.info("Logger instantiated.")
 
     # Instantiate trainer
