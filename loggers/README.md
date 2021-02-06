@@ -21,7 +21,7 @@ Scalar values should always be logged using the `.summarize()` method.
 It's possible to use [Keras callbacks](https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/Callback)
 for logging, much like we did in our TensorFlow 1.0 framework (with the added
 step of attaching them to a logger). These are easy to setup, but their
-granularity is pretty course, limiting their usage. See `\loggers\callbacks\`
+granularity is pretty coarse, limiting their usage. See `\loggers\callbacks\`
 for further documentation.
 
 ### Logging with Methods
