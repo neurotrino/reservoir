@@ -198,8 +198,8 @@ class Trainer(BaseTrainer):
                 plt.plot(last_pred[0, :, :])
                 plt.draw()
                 import os
-                save_path = os.path.join(
-                    self.cfg['save'].exp_dir, "plots"
-                )
 
-                plt.savefig(f"{save_path}\\{epoch_idx}_{loss}.png")
+                plt.savefig(os.path.join(
+                    self.cfg['save'].plot_dir,
+                    f"{epoch_idx}_{loss}.png")
+                )
