@@ -172,7 +172,7 @@ def load_hjson_config(filepath, custom_save_cfg=None):
 
     # Ensure all outputs are assigned a valid save directory
     if None in [
-        save_cfg['host_dir'],  # directory for all related experiments
+        save_cfg['host_dir'],
         save_cfg['exp_dir'],
         save_cfg['checkpoint_dir'],
         save_cfg['summary_dir'],
@@ -272,12 +272,7 @@ def load_hjson_config(filepath, custom_save_cfg=None):
         # Create a model from the provided template
         try:
             def cfg_to_class(template, actual):
-                """Create nested models from a JSON dictionary.
-
-                TODO: make docs pretty
-                - template is dict (see main)
-                - actual is also dict, but diff (I think)
-                """
+                """Create nested models from a JSON dictionary."""
 
                 # peel off class data
                 c = template['_class']
