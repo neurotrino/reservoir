@@ -76,10 +76,14 @@ class BaseLogger:
         Uses auto-increment unless there's
 
         args:
-          index: TODO
+          index: x-axis value for the scalar, typically an epoch index
+            or a step index. Note that to properly plot in TensorBoard,
+            step indices must maintain position between epochs (e.g.
+            the last step index on epoch 1 being 5 means the first step
+            index on epoch 2 should be 6, assume a step size of 1)
           summary_items: tuple list containing the string identifier
             and scalar value of the item being summarized
-          writer: either "train" or "test", selects which writer to use
+          writer: either "train" or "test"; selects which writer to use
         """
         _writer = self.train_writer if writer == "train" else self.test_writer
 
