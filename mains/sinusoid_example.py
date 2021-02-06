@@ -12,7 +12,7 @@ from data import sinusoid_example as sinusoid
 # Log ------------
 from loggers.callbacks.plots import LIF as PlotLogger
 from loggers.callbacks.scalars import Generic as ValueLogger
-from loggers.logger import Logger
+from loggers.base import BaseLogger as Logger
 
 # Train ----------
 from trainers.sinusoid_example import Trainer
@@ -40,15 +40,7 @@ def main():
     logging.info("Dataset loaded.")
 
     # Instantiate logger
-    logger = Logger(cfg)   #, cb=[
-        #tf.keras.callbacks.TensorBoard(
-        #    log_dir=cfg['save'].log_dir,
-        #    histogram_freq=1,
-        #    write_graph=False
-        #),
-        #ValueLogger(cfg),
-        #PlotLogger(cfg)
-    #])
+    logger = Logger(cfg)
     logging.info("Logger instantiated.")
 
     # Instantiate trainer

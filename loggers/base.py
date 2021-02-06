@@ -12,7 +12,7 @@ Resources:
 import os
 import tensorflow as tf
 
-class Logger(object):
+class BaseLogger:
     """Logging interface used while training."""
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -24,6 +24,16 @@ class Logger(object):
         save_cfg = cfg['save']
 
         # Initialize summary writers
+        #
+        # TensorFlow summary writers write summary data (scalar values)
+        # to TensorBoard event files (`.v2` files). These can be looked
+        # at in TensorBoard directly, or processed into another format
+        # using scripts in `utils\postproc.py`.
+        #
+        # Two summary writers are contained in the base logger: one for
+        # use during training, the other during testing. Other loggers
+        # may or may not add additional summary writers (they generally
+        # shouldn't need to).
         self.train_writer = tf.summary.create_file_writer(
             os.path.join(save_cfg.summary_dir, "train")
         )
@@ -79,7 +89,7 @@ class Logger(object):
                 _writer.flush
 
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Associated Utilities                                                  │
+    #┤ Other Methods                                                         │
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def save_numpy_array(data, filepath, method="memmap"):
