@@ -165,9 +165,8 @@ class _AdExCore(BaseNeuron):
         i_t = i_in + i_rec  # + self.bias_currents[None]
 
         # Update voltage
-        exp_terms = tf.clip_by_value(tf.exp((old_v - self.thr)/self.deltaT), -1e6, 30 / self.dt_gL__C)  # These min and max values were taken from tf1
-        # Removed stop gradient because this is for eprop; included it in _EligAdExCore
-        new_v = old_v - (self.dt_gL__C * (old_v - self.EL)) + (self.dt_gL__C * self.deltaT * exp_terms) + ((i_t - old_w) * self._dt / self.C)
+        # Note: put inside new_v because wasn't sure about stopping gradient: exp_terms = tf.clip_by_value(tf.exp((old_v - self.thr)/self.deltaT), -1e6, 30 / self.dt_gL__C)  # These min and max values were taken from tf1
+        new_v = old_v - (self.dt_gL__C * (old_v - self.EL)) + (self.dt_gL__C * self.deltaT * tf.clip_by_value(tf.exp((old_v - self.thr)/self.deltaT), -1e6, 30 / self.dt_gL__C)) + ((i_t - old_w) * self._dt / self.C)
         new_v = tf.where(old_z > .5, tf.ones_like(new_v) * self.V_reset, new_v)
 
         # Update adaptation term
@@ -396,10 +395,10 @@ class _EligAdexCore(BaseNeuron):
             # If the sign of a weight changed or the weight is no longer 0, make the weight 0
             self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
 
-        # TODO This is where eligibility traces and stop gradients should be used: stop gradients from flowing along old_z
+        # This is where eligibility traces and stop gradients should be used: stop gradients from flowing along old_z
         # Gradient --> Computes the gradient of the loss with respect to the trainable variables using operations recorded in context of this tape, i.e. all of this
         # Stop gradient --> If you insert this op in the graph its inputs are masked from the gradient generator. They are not taken into account for computing gradients.
-        # TODO I think, the adaptation should use old_z before stop_gradient-- Update adaptation term
+        # I think, the adaptation should use old_z before stop_gradient-- Update adaptation term
         new_w = old_w - ((self._dt / self.tauw) * old_w) + (self.dt_a__tauw * (old_v - self.EL))
         new_w += self.b * old_z
         old_z = tf.stop_gradient(old_z)
@@ -410,12 +409,10 @@ class _EligAdexCore(BaseNeuron):
         # There is no reset current because we are setting new_V to V_reset if old_z > 0.5
         i_t = i_in + i_rec  # + self.bias_currents[None]
 
-        # Update voltage
-        exp_terms = tf.clip_by_value(tf.exp((old_v - self.thr)/self.deltaT), -1e6, 30 / self.dt_gL__C)  # These min and max values were taken from tf1
-        # Need to use stop_gradient when using e-prop with autodiff but still need to understand where
-        # exp_terms = tf.stop_gradient(exp_terms)
-        # TODO should we use old_w or new_w here????? Because if we use old_w, then new_w won't be used here since self.thr doesn't change
-        new_v = old_v - (self.dt_gL__C * (old_v - self.EL)) + (self.dt_gL__C * self.deltaT * exp_terms) + ((i_t - old_w) * self._dt / self.C)
+        # Update voltage;
+        # Note: Moved this to inside new_v because wasn't sure about stopping gradient at it: exp_terms = tf.clip_by_value(tf.exp((old_v - self.thr)/self.deltaT), -1e6, 30 / self.dt_gL__C)  # These min and max values were taken from tf1
+        ##### TODO should we use old_w or new_w here????? Because if we use old_w, then new_w won't be used here since self.thr doesn't change
+        new_v = old_v - (self.dt_gL__C * (old_v - self.EL)) + (self.dt_gL__C * self.deltaT * tf.clip_by_value(tf.exp((old_v - self.thr)/self.deltaT), -1e6, 30 / self.dt_gL__C)) + ((i_t - old_w) * self._dt / self.C)
         new_v = tf.where(old_z > .5, tf.ones_like(new_v) * self.V_reset, new_v)
 
         # Determine if the neuron is spiking
