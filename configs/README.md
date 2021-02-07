@@ -10,7 +10,7 @@ like subdirectories un-nesting themselves (e.g. `cfg['save'].checkpoint_dir`).
 The format and parser (see `\utils\config.py`) are moderately flexible, but
 the following overall structure needs to be maintained:
 
-```HJSON
+```JSON
 {
     /* only the following six namespaces will be acknowledged */
 
