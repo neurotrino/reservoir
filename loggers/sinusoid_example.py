@@ -225,3 +225,6 @@ class Logger(BaseLogger):
         cb1.remove()
         cb2.remove()
         cb3.remove()
+
+        plt.clf()
+        plt.close()
