@@ -10,8 +10,8 @@ from setuptools import setup, find_packages
 
 # Setup
 setup(
-    name='maclean-snn',
-    description='First SNN infrastructure from the MacLean group',
+    name='msnn',
+    description='An SNN infrastructure from the MacLean group',
     version='2.0',
     packages=find_packages(),
     install_requires=[

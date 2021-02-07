@@ -11,10 +11,16 @@ import numpy as np
 import tensorflow as tf
 
 #┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Generators                                                                │
+#┤ Data Serving                                                              │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
 class DataGenerator(BaseDataGenerator):
+    """
+
+    [*] Naming convention of DataGenerator in each data script, because
+    when invoked, it should be invoked as `sinusoid.DataGenerator`,
+    which is self-documenting
+    """
     def __init__(self, cfg):
         super().__init__(cfg)
 
@@ -31,6 +37,13 @@ class DataGenerator(BaseDataGenerator):
             count=cfg['train'].batch_size * cfg['train'].n_batch
         ).batch(cfg['train'].batch_size)
 
+    def get(self):
+        return self.dataset
+
+
+def load_data(cfg):
+    """Wrapper returning just the dataset."""
+    return DataGenerator(cfg).dataset
 
 
 #┬───────────────────────────────────────────────────────────────────────────╮
@@ -39,16 +52,9 @@ class DataGenerator(BaseDataGenerator):
 
 # N/A
 
+
 #┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Private Functions                                                         │
+#┤ Postprocessing                                                            │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
 # N/A
-
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Public Functions                                                          │
-#┴───────────────────────────────────────────────────────────────────────────╯
-
-def load_data(cfg):
-    """Wrapper returning just the dataset."""
-    return DataGenerator(cfg).dataset

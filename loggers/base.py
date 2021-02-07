@@ -9,26 +9,34 @@ Resources:
   - "Complete TensorBoard Guide" : youtube.com/watch?v=k7KfYXXrOj0
 """
 
+import logging
+
 import os
 import tensorflow as tf
 
-class Logger(object):
+class BaseLogger:
     """Logging interface used while training."""
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Core Operations                                                       │
-    #┴───────────────────────────────────────────────────────────────────────╯
 
     def __init__(self, cfg, cb=None):
         """Create a new logger."""
-        save_cfg = cfg['save']
+        self.cfg = cfg
 
         # Initialize summary writers
+        #
+        # TensorFlow summary writers write summary data (scalar values)
+        # to TensorBoard event files (`.v2` files). These can be looked
+        # at in TensorBoard directly, or processed into another format
+        # using scripts in `utils\postproc.py`.
+        #
+        # Two summary writers are contained in the base logger: one for
+        # use during training, the other during testing. Other loggers
+        # may or may not add additional summary writers (they generally
+        # shouldn't need to).
         self.train_writer = tf.summary.create_file_writer(
-            os.path.join(save_cfg.summary_dir, "train")
+            os.path.join(cfg['save'].summary_dir, "train")
         )
         self.test_writer = tf.summary.create_file_writer(
-            os.path.join(save_cfg.summary_dir, "test")
+            os.path.join(cfg['save'].summary_dir, "test")
         )
 
         # List of logging callbacks active during the session
@@ -66,29 +74,42 @@ class Logger(object):
         Uses auto-increment unless there's
 
         args:
-          index: TODO
+          index: x-axis value for the scalar, typically an epoch index
+            or a step index. Note that to properly plot in TensorBoard,
+            step indices must maintain position between epochs (e.g.
+            the last step index on epoch 1 being 5 means the first step
+            index on epoch 2 should be 6, assume a step size of 1)
           summary_items: tuple list containing the string identifier
             and scalar value of the item being summarized
-          writer: either "train" or "test", selects which writer to use
+          writer: either "train" or "test"; selects which writer to use
         """
         _writer = self.train_writer if writer == "train" else self.test_writer
 
         with _writer.as_default():
             for (label, value) in summary_items:
-                tf.summary.scalar(label, value, step=index)
+                try:
+                    tf.summary.scalar(label, value, step=index)
+                except:
+                    continue
                 _writer.flush
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Associated Utilities                                                  │
-    #┴───────────────────────────────────────────────────────────────────────╯
 
-    def save_numpy_array(data, filepath, method="memmap"):
-        """Save a numpy array to disk."""
-        if method == "memmap":
-            raise NotImplementedError("memmap is currently unsupported")
-        elif method == "hdf5":
-            raise NotImplementedError("HDF5 is currently unsupported")
-        elif method == "pickle":
-            raise NotImplementedError("pickling is currently unsupported")
-        else:
-            raise ValueError(f"unrecognized save option: {method}")
+    # [?] considering adding a `register` method that does both
+    # summarize and updates logger state
+    #
+    # Also considering:
+    #
+    #    ```
+    #    if not self.cfg['log'].tb_compat:
+    #        return
+    #    ```
+    #
+    # Where `tb_compat` is a bool specified in the HJSON config. This
+    # might save filespace
+
+    def post(self):
+        """Operations you want to do with/on the data post-training.
+        """
+        logging.warning(
+            self.__class__.__name__ + ".post() called but not implemented"
+        )

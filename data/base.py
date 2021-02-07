@@ -5,9 +5,21 @@ class BaseDataGenerator:
         self.cfg = cfg
         self.dataset = None
 
-    def next_batch(self, batch_size):
+        self._child_name = self.__class__.__name__
+
+    def get(self):
+        """Return the dataset."""
         raise NotImplementedError(
-            "Data generator has no custom iterator:"
-            + " iterate over the dataset attribute directly"
+            f"{self._child_name} does not support direct access:"
+            + f"use {self._child_name}.next() to iterate over your data"
         )
-        yield batch_x, batch_y
+
+        return None
+
+    def next(self):
+        """Return the next portion of the dataset."""
+        raise NotImplementedError(
+            f"{self._child_name} has no custom iterator: "
+            + f" use {self._child_name}.get() to directly access your data"
+        )
+        yield None

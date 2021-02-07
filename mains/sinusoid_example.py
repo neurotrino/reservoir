@@ -7,12 +7,11 @@ from models.neurons.lif import LIF
 from models.sinusoid_example import SinusoidSlayer
 
 # Load Data ------
-from data import sinusoid_example as sinusoid
+from data import sinusoid
 
 # Log ------------
-from loggers.callbacks.plots import LIF as PlotLogger
-from loggers.callbacks.scalars import Generic as ValueLogger
-from loggers.logger import Logger
+from loggers.callbacks.plots import LIF as PlotCB
+from loggers.sinusoid_example import Logger as Logger
 
 # Train ----------
 from trainers.sinusoid_example import Trainer
@@ -20,7 +19,7 @@ from trainers.sinusoid_example import Trainer
 def main():
     # Use command line arguments to load data, create directories, etc.
     form, cfg = utils.config.boot()
-    logging.info("Experiment directory: " + cfg['save'].exp_dir)
+    logging.info("experiment directory: " + cfg['save'].exp_dir)
 
     # Build model
     template =                                                               \
@@ -33,36 +32,28 @@ def main():
         }
     }
     model = form(template).build(cfg)
-    logging.info("Model built.")
+    logging.info("model built")
 
     # Load data
     data = sinusoid.DataGenerator(cfg)
-    logging.info("Dataset loaded.")
+    logging.info("dataset loaded")
 
     # Instantiate logger
-    logger = Logger(cfg)   #, cb=[
-        #tf.keras.callbacks.TensorBoard(
-        #    log_dir=cfg['save'].log_dir,
-        #    histogram_freq=1,
-        #    write_graph=False
-        #),
-        #ValueLogger(cfg),
-        #PlotLogger(cfg)
-    #])
-    logging.info("Logger instantiated.")
+    logger = Logger(cfg)
+    logging.info("logger instantiated")
 
     # Instantiate trainer
     trainer = Trainer(cfg, model, data, logger)
-    logging.info("Trainer instantiated.")
+    logging.info("trainer instantiated")
 
     # Train model
-    logging.info("About to start training...")
     trainer.train()
-    logging.info("Training complete.")
+    logging.info("training complete")
 
-    # Postprocessing
+    # Perform postprocessing
     if cfg['save'].postprocess:
-        pass
+        logger.post()
+
 
 if __name__ == '__main__':
     main()
