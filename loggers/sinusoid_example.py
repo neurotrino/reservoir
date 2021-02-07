@@ -152,6 +152,7 @@ class Logger(BaseLogger):
 
         plt.clf()
 
+
     def plot_spikes(self, filename):
         plt.ion()
         fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
@@ -163,10 +164,12 @@ class Logger(BaseLogger):
         plt.savefig(os.path.join(self.cfg['save'].plot_dir, filename))
         plt.clf()
 
+
     def plot_voltages(self, filename):
         plt.plot(self.voltages[-1][0, :, :])
         plt.savefig(os.path.join(self.cfg['save'].plot_dir, filename))
         plt.clf()
+
 
     def plot_everything(self, filename):
         # [?] should loggers have their model as an attribute?
@@ -213,7 +216,7 @@ class Logger(BaseLogger):
         #self.axes[4].set_ylabel('count')
         #self.axes[4].set_xlabel('recurrent weights')
 
-        [ax.yaxis.set_label_coords(-.05, .5) for ax in axes]
+        [ax.yaxis.set_label_coords(-0.05, 0.5) for ax in axes]
 
         plt.draw()
 
