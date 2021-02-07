@@ -10,12 +10,11 @@ from models.eprop_sinusoid_ex import SinusoidSlayer  # Not sure if I needed a ne
 from data import sinusoid_example as sinusoid
 
 # Log ------------
-from loggers.callbacks.plots import LIF as PlotLogger  # Didn't create one for Adex b/c same output
-from loggers.callbacks.scalars import Generic as ValueLogger
-from loggers.logger import Logger
+from loggers.callbacks.plots import LIF as PlotCB  # Didn't create one for Adex b/c same output
+from loggers.sinusoid_example import Logger as Logger
 
 # Train ----------
-from trainers.eprop_sinusoid_ex import Trainer
+from trainers.sinusoid_example import Trainer  # Don't need a new one for Eprop
 
 def main():
     # Use command line arguments to load data, create directories, etc.
@@ -40,15 +39,7 @@ def main():
     logging.info("Dataset loaded.")
 
     # Instantiate logger
-    logger = Logger(cfg)   #, cb=[
-        #tf.keras.callbacks.TensorBoard(
-        #    log_dir=cfg['save'].log_dir,
-        #    histogram_freq=1,
-        #    write_graph=False
-        #),
-        #ValueLogger(cfg),
-        #PlotLogger(cfg)
-    #])
+    logger = Logger(cfg)
     logging.info("Logger instantiated.")
 
     # Instantiate trainer
