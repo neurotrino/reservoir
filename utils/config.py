@@ -1,17 +1,19 @@
 """Load, process, and format session-relevant configuration settings."""
 
 # external ----
+from collections import OrderedDict
+from datetime import datetime
+from types import SimpleNamespace
+
 import argparse
 import hjson
 import inspect
 import json
 import logging
 import os
+import shutil
 import time
 
-from datetime import datetime
-import shutil
-from types import SimpleNamespace
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Python (Not TensorFlow) Logger                                            │
@@ -157,6 +159,20 @@ def load_hjson_config(filepath, custom_save_cfg=None):
         config = hjson.load(config_file)
 
     #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Model Configuration                                                   │
+    #┴───────────────────────────────────────────────────────────────────────╯
+
+    # [!] Right now this is only applied to some fields (model)
+    def recursively_make_namespace(src_dict):
+        new_dict = {}
+        for key in src_dict.keys():
+            if type(src_dict[key]) == OrderedDict:
+                new_dict[key] = recursively_make_namespace(src_dict[key])
+            else:
+                new_dict[key] = src_dict[key]
+        return SimpleNamespace(**new_dict)
+
+    #┬───────────────────────────────────────────────────────────────────────╮
     #┤ File-Saving Configuration                                             │
     #┴───────────────────────────────────────────────────────────────────────╯
 
@@ -250,20 +266,22 @@ def load_hjson_config(filepath, custom_save_cfg=None):
     #┤ Miscellaneous Configuration                                           │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    misc = config['misc']
+    misc_cfg = config['misc']
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Packaging                                                             │
     #┴───────────────────────────────────────────────────────────────────────╯
 
     bundled_cfg = {
+        'model': recursively_make_namespace(config['model']),
+
         'save': SimpleNamespace(**save_cfg),
 
         'data': SimpleNamespace(**data_cfg),
         'log': SimpleNamespace(**log_cfg),
         'train': SimpleNamespace(**train_cfg),
 
-        'misc': SimpleNamespace(**misc)
+        'misc': recursively_make_namespace(misc_cfg)
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
