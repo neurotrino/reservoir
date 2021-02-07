@@ -72,6 +72,10 @@ class Trainer(BaseTrainer):
         )
         acc = 0# TODO: calculate actual acc  # [?] logging
 
+        # [*] Update step-level log variables
+        self.logger.step_gradients.append(grads)
+        self.logger.step_losses.append(loss)
+
         return loss, acc
 
     def train_epoch(self, epoch_idx=None):
@@ -105,13 +109,15 @@ class Trainer(BaseTrainer):
         epoch_loss = np.mean(losses)
         #epoch_acc = np.mean(accs)
 
-        # [*] Register epoch-level log variables here
+        # [*] Summarize epoch-level log variables here
         self.logger.summarize(
-            epoch_idx, # TODO? consider replacing w/ generic 'ID' field
+            epoch_idx,
             summary_items={
                 ("epoch_loss", epoch_loss),
             }
         )
+
+        # [*] Register epoch-level log variables here
 
         return epoch_loss
 
@@ -130,7 +136,10 @@ class Trainer(BaseTrainer):
 
             # plot every n epochs, or when the loss gets nice and low
             if loss < 0.1 or (epoch_idx + 1) % self.cfg['log'].plot_every == 0:
-                self.logger.plot_sinusoid(
-                    epoch_idx=epoch_idx,
-                    filename=f"{epoch_idx + 1}_{loss}.png"
-                )
+                filename = f"{epoch_idx + 1}_{loss}"
+                self.logger.plot_everything(filename + ".png")
+                """
+                self.logger.plot_sinusoid(epoch_idx, filename + "_output.png")
+                self.logger.plot_spikes(filename + "_spikes.png")
+                self.logger.plot_voltages(filename + "_voltages.png")
+                """

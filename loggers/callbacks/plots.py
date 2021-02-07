@@ -69,24 +69,36 @@ class LIF(tf.keras.callbacks.Callback):
         print(self.model)
         print()
 
+# function...
         # self.axes[1].pcolormesh(v.T, cmap='seismic', vmin=-abs_max, vmax=abs_max)
         im = self.axes[1].pcolormesh(v.T, cmap='seismic', vmin=EL-15, vmax=thr+15)
         cb2 = self.fig.colorbar(im, ax = self.axes[1])
+
+# aesthetic...
         self.axes[1].set_ylabel('voltage')
 
+# function...
         # plot transpose of spike matrix
         im = self.axes[2].pcolormesh(z.T, cmap='Greys', vmin=0, vmax=1)
         cb3 = self.fig.colorbar(im, ax = self.axes[2])
+
+# aesthetic...
         self.axes[2].set_ylabel('spike')
         self.axes[3].plot(self.test_example[1]['tf_op_layer_output'][0, :, 0], 'k--', lw=2, alpha=.7, label='target')
         self.axes[3].plot(out, 'b', lw=2, alpha=.7, label='prediction')
         self.axes[3].set_ylabel('output')
         self.axes[3].legend(frameon=False)
+
+# function...
         # plot weight distribution after this epoch
         #self.axes[4].hist(weights)
+
+# aesthetic...
         #self.axes[4].set_ylabel('count')
         #self.axes[4].set_xlabel('recurrent weights')
         [ax.yaxis.set_label_coords(-.05, .5) for ax in self.axes]
+
+# overhead...
         plt.draw()
         plt.savefig(os.path.expanduser('test_epoch_{}.png'.format(epoch)), dpi=300)
         #plt.savefig(os.path.expanduser(os.path.join(root_path, 'tf2_testing/LIF/p{}/test_epoch_{}.png'.format(int(p*100), epoch))), dpi=300)

@@ -9,15 +9,13 @@ Resources:
   - "Complete TensorBoard Guide" : youtube.com/watch?v=k7KfYXXrOj0
 """
 
+import logging
+
 import os
 import tensorflow as tf
 
 class BaseLogger:
     """Logging interface used while training."""
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Core Operations                                                       │
-    #┴───────────────────────────────────────────────────────────────────────╯
 
     def __init__(self, cfg, cb=None):
         """Create a new logger."""
@@ -89,5 +87,29 @@ class BaseLogger:
 
         with _writer.as_default():
             for (label, value) in summary_items:
-                tf.summary.scalar(label, value, step=index)
+                try:
+                    tf.summary.scalar(label, value, step=index)
+                except:
+                    continue
                 _writer.flush
+
+
+    # [?] considering adding a `register` method that does both
+    # summarize and updates logger state
+    #
+    # Also considering:
+    #
+    #    ```
+    #    if not self.cfg['log'].tb_compat:
+    #        return
+    #    ```
+    #
+    # Where `tb_compat` is a bool specified in the HJSON config. This
+    # might save filespace
+
+    def post(self):
+        """Operations you want to do with/on the data post-training.
+        """
+        logging.warning(
+            self.__class__.__name__ + ".post() called but not implemented"
+        )
