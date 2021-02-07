@@ -16,9 +16,6 @@ from loggers.sinusoid_example import Logger as Logger
 # Train ----------
 from trainers.sinusoid_example import Trainer
 
-# Postprocess ----
-import utils.dataproc as dataproc
-
 def main():
     # Use command line arguments to load data, create directories, etc.
     form, cfg = utils.config.boot()
@@ -55,8 +52,8 @@ def main():
 
     # Perform postprocessing
     if cfg['save'].postprocess:
-        #dataproc.process(cfg, trainer)
-        pass
+        logger.post()
+
 
 if __name__ == '__main__':
     main()
