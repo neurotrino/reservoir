@@ -1,5 +1,7 @@
 """TODO: module docs"""
 
+from typing import Any, Dict, Union
+
 import tensorflow as tf
 import tensorflow.keras.initializers as kinits
 
@@ -24,24 +26,21 @@ class _AdExCore(BaseNeuron):
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def __init__(self,
-        uni,
-        units,
-        n_in,
-        thr,
-        n_refrac,
-        dampening_factor,
-        tauw,
-        a,
-        b,
-        gL,
-        EL,
-        C,
-        deltaT,
-        V_reset,
-        p,
-        mu,
-        sigma,
-        rewiring
+        cfg: Any,
+        rewiring: bool,
+        units: int,
+        thr: float,
+        EL: float,
+        n_refrac: int,
+        dampening_factor: Any,
+        p: Union[float, Dict[str, float]],
+        tauw: float,
+        a: float,
+        b: float,
+        gL: float,
+        C: float,
+        deltaT: float,
+        V_reset: float,
     ):
         if tauw is None:
             raise ValueError("Time constant for adaptive bias must be set.")
@@ -49,11 +48,11 @@ class _AdExCore(BaseNeuron):
             raise ValueError("a parameter for adaptive bias must be set.")
 
         super().__init__()
-        self.uni = uni
-        self._dt = float(uni.dt)
+        
+        self.cfg = cfg
+        self._dt = float(cfg['misc'].dt)
 
         self.units = units
-        self.n_in = n_in
         self.thr = thr
         self.n_refrac = n_refrac
         self.dampening_factor = dampening_factor
@@ -66,8 +65,6 @@ class _AdExCore(BaseNeuron):
         self.deltaT = deltaT
         self.V_reset = V_reset
         self.p = p
-        self.mu = mu
-        self.sigma = sigma
         self.dt_gL__C = self._dt * self.gL / self.C
         self.dt_a__tauw = self._dt * self.a / self.tauw
 
@@ -212,9 +209,10 @@ class _AdExCore(BaseNeuron):
 
 class AdEx(_AdExCore):
     def build(self, input_shape):
+        misc_cfg = self.cfg['misc']
         super().build(
             input_shape,
-            CMG(self.units, self.p, self.mu, self.sigma),
+            CMG(self.units, self.p, misc_cfg.mu, misc_cfg.sigma),
             initializers={
                 'input_weights': kinits.RandomUniform(minval=0.0, maxval=0.4)
             }
@@ -244,11 +242,10 @@ class ExInAdEx(_AdExCore):
             connmat_generator=ExInCMG(
                 self.n_excite, self.n_inhib,
                 self.p_ee, self.p_ei, self.p_ie, self.p_ii,
-                self.mu, self.sigma
+                self.cfg['misc'].mu, self.cfg['misc'].sigma
             ),
             initializers={
-                # TODO?: minval/maxval might be good HJSON config items
-                'input_weights': kinits.RandomUniform(minval=0.0, maxval=1.0)
+                'input_weights': kinits.RandomUniform(minval=0.0, maxval=0.4)
             }
         )
 
@@ -261,24 +258,21 @@ class _EligAdexCore(BaseNeuron):
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def __init__(self,
-        uni,
-        units,
-        n_in,
-        thr,
-        n_refrac,
-        dampening_factor,
-        tauw,
-        a,
-        b,
-        gL,
-        EL,
-        C,
-        deltaT,
-        V_reset,
-        p,
-        mu,
-        sigma,
-        rewiring
+        cfg: Any,
+        rewiring: bool,
+        units: int,
+        thr: float,
+        EL: float,
+        n_refrac: int,
+        dampening_factor: Any,
+        p: Union[float, Dict[str, float]],
+        tauw: float,
+        a: float,
+        b: float,
+        gL: float,
+        C: float,
+        deltaT: float,
+        V_reset: float,
     ):
         if tauw is None:
             raise ValueError("Time constant for adaptive bias must be set.")
@@ -286,11 +280,10 @@ class _EligAdexCore(BaseNeuron):
             raise ValueError("a parameter for adaptive bias must be set.")
 
         super().__init__()
-        self.uni = uni
-        self._dt = float(uni.dt)
+        self.cfg = cfg
+        self._dt = float(cfg['misc'].dt)
 
         self.units = units
-        self.n_in = n_in
         self.thr = thr
         self.n_refrac = n_refrac
         self.dampening_factor = dampening_factor
@@ -303,8 +296,6 @@ class _EligAdexCore(BaseNeuron):
         self.deltaT = deltaT
         self.V_reset = V_reset
         self.p = p
-        self.mu = mu
-        self.sigma = sigma
         self.dt_gL__C = self._dt * self.gL / self.C
         self.dt_a__tauw = self._dt * self.a / self.tauw
 
@@ -411,7 +402,6 @@ class _EligAdexCore(BaseNeuron):
 
         # Update voltage;
         # Note: Moved this to inside new_v because wasn't sure about stopping gradient at it: exp_terms = tf.clip_by_value(tf.exp((old_v - self.thr)/self.deltaT), -1e6, 30 / self.dt_gL__C)  # These min and max values were taken from tf1
-        ##### TODO should we use old_w or new_w here????? Because if we use old_w, then new_w won't be used here since self.thr doesn't change
         new_v = old_v - (self.dt_gL__C * (old_v - self.EL)) + (self.dt_gL__C * self.deltaT * tf.clip_by_value(tf.exp((old_v - self.thr)/self.deltaT), -1e6, 30 / self.dt_gL__C)) + ((i_t - old_w) * self._dt / self.C)
         new_v = tf.where(old_z > .5, tf.ones_like(new_v) * self.V_reset, new_v)
 
@@ -455,7 +445,7 @@ class EligAdEx(_EligAdexCore):
     def build(self, input_shape):
         super().build(
             input_shape,
-            CMG(self.units, self.p, self.mu, self.sigma),
+            CMG(self.units, self.p, self.cfg['misc'].mu, self.cfg['misc'].sigma),
             initializers={
                 'input_weights': kinits.RandomUniform(minval=0.0, maxval=0.4)
             }
@@ -485,10 +475,10 @@ class EligExInAdEx(_EligAdexCore):
             connmat_generator=ExInCMG(
                 self.n_excite, self.n_inhib,
                 self.p_ee, self.p_ei, self.p_ie, self.p_ii,
-                self.mu, self.sigma
+                self.cfg['misc'].mu, self.cfg['misc'].sigma
             ),
             initializers={
                 # TODO?: minval/maxval might be good HJSON config items
-                'input_weights': kinits.RandomUniform(minval=0.0, maxval=1.0)
+                'input_weights': kinits.RandomUniform(minval=0.0, maxval=0.4)
             }
         )
