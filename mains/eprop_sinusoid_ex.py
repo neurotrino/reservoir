@@ -3,7 +3,7 @@ import tensorflow as tf
 import utils.config
 
 # Build model ----
-from models.neurons.adex import EligExInAdEx
+from models.neurons.adex import EligAdEx
 from models.eprop_sinusoid_ex import SinusoidSlayer  # Not sure if I needed a new one
 
 # Load Data ------
@@ -28,7 +28,7 @@ def main():
 
         "cell":
         {
-            "_class": EligExInAdEx
+            "_class": EligAdEx
         }
     }
     model = form(template).build(cfg)

@@ -129,8 +129,14 @@
             #┤ Supplementary                                                 │
             #┴───────────────────────────────────────────────────────────────╯
 
+            // Stores pickled numpy arrays
+            np_arrays: np_arrs
+
             // Used to store plots
             plot_dir: plots
+            
+            // Big everything jumbo place of stuff (the important stuff)
+            pickle_dir: main_output
 
             /* you can add more directories you want to create/use here */
         }
@@ -141,12 +147,12 @@
 
         // When enabled, the exp_dir will have a number suffixed to avoid
         // overwriting saved data
-        avoid_overwrite: false
+        avoid_overwrite: true
 
         // If avoid_overwrite is set to false, and exp_dir overwrites a
         // directory, this will purge the contents of the old directory. This
         // is to avoid mixing data from different experiments, but be careful.
-        hard_overwrite: true
+        hard_overwrite: false
 
         // Experiment directories will be suffixed by a UNIX timestamp
         timestamp: false
@@ -189,8 +195,8 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     log:
     {
-        // Stop to create plots every n epochs
-        plot_every: 1
+        // Unload every n epochs
+        post_every: 1
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
