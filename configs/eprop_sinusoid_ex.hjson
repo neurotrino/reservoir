@@ -1,0 +1,237 @@
+/* HJSON configuration file for use with MacLean-1 SNN experiments
+ * ---------------------------------------------------------------------------
+ * This file is configured for a model trained to match a lightly-noised
+ * sinusoid pattern. Its primary purpose is to serve as an example and/or
+ * template for how the repository structure works.
+ *
+ * Some small notes about encoding Python variables in HJSON:
+ * - HJSON booleans are lowercase (`true` & `false`, not `True` & `False`)
+ * - Use `null` in HJSON where you want `None` in Python
+ *
+ * The HJSON syntax is fully defined here: https://hjson.github.io/
+ */
+{
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Model-Specific Parameters                                             │
+    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+    #┤ Model-specific parameters used to construct the network used in the   │
+    #┤ experiment. These values should be a one-to-one analog with the       │
+    #┤ target model's attributes (i.e. variable names and relative object    │
+    #┤ structures need to align between the two). It's fine to omit          │
+    #┤ parameters with default values.                                       │
+    #┤                                                                       │
+    #┤ This is the only namespace not visible in `cfg`. If you need to       │
+    #┤ access data in `cfg` during model initialization, or would like to    │
+    #┤ have `cfg` be an attribute in a model for any other reason, you need  │
+    #┤ to indicate so in this script by adding `cfg: null` (nested in the    │
+    #┤ structure needing access). `cfg` is a hard-coded keyword.             │
+    #┴───────────────────────────────────────────────────────────────────────╯
+    model:
+    {
+        target_rate: 0.02
+
+        rate_cost: 0.1
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Sub-Network & Layer Parameters                                    │
+        #┴───────────────────────────────────────────────────────────────────╯
+        cell:
+        // currently configured for an Adex neuron:
+        {
+            #┬───────────────────────────────────────────────────────────────╮
+            #┤ Flags                                                         │
+            #┴───────────────────────────────────────────────────────────────╯
+
+            cfg: null
+
+            #┬───────────────────────────────────────────────────────────────╮
+            #┤ Values                                                        │
+            #┴───────────────────────────────────────────────────────────────╯
+
+            rewiring: false
+
+            units: 100   // number of units in the layer
+
+            thr: -40.4   // threshold [mV]
+            EL: -70.6    // [mV]
+            n_refrac: 2  // number of refractory ms
+
+            dampening_factor: 0.3
+
+            p: 0.2  // connectivity probability when using LIF or Adex model
+
+            ## Units requirements:
+            # mV * [dt_a__tauw] = mV * ms * nS/ms = mV * nS = pA = [b]
+            tauw: 144 // [mSecond]
+            a: 4 // [nSiemens]
+            b: 80.5  / [pAmpere]
+            
+            ## Units requirements
+            # [gL/C]=1/mSecond --> dt_gL__C is unitless
+            # pA * [dt/C] = pA * ms/pF = mV 
+            gL: 30 // [nSiemens]
+            C: 281 // [pFarad]
+            
+            deltaT: 2 // [mV]
+            V_reset: -70.6  // [mV]
+        }
+    }
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ File Saving                                                           │
+    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+    #┤ Configure what gets saved, where, and how. Please be mindful of other │
+    #┤ researchers and their data when adjusting these settings.             │
+    #┤                                                                       │
+    #┤ Filepaths are relative to where the script was invoked (not           │
+    #┤ necessarily) where the script is located. See the documentation below │
+    #┤ for how directories relate to each other and what each should         │
+    #┤ contain.                                                              │
+    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+    #┤******************* THESE SETTINGS CAN DELETE FILES *******************│
+    #┴───────────────────────────────────────────────────────────────────────╯
+    save:
+    {
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Directories                                                       │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        // Directory containing this experiment's output. Prefixes all other
+        // directory paths.
+        //
+        // Full path: {exp_dir}
+        exp_dir: ..\experiments\debug-demo-experiment
+
+        // Collection of directories which will be placed inside exp_dir
+        subdirs:
+        {
+            #┬───────────────────────────────────────────────────────────────╮
+            #┤ Standard                                                      │
+            #┴───────────────────────────────────────────────────────────────╯
+
+            // Directory storing checkpoints intended to restore models for
+            // training (`.ckpt` or `.h5` files, generally) or holding weights
+            //
+            // Full path: {exp_dir}\{checkpoint_dir}
+            checkpoint_dir: checkpoints
+
+            // Directory storing summary data from one or more training sessions
+            //
+            // Full path: {exp_dir}\{summary_dir}
+            summary_dir: summaries
+
+            // Directory storing logdirs (*only* for use with TensorBoard)
+            //
+            // Full path: {exp_dir}\{tb_logdir}
+            tb_logdir: logdirs
+
+            #┬───────────────────────────────────────────────────────────────╮
+            #┤ Supplementary                                                 │
+            #┴───────────────────────────────────────────────────────────────╯
+
+            // Used to store plots
+            plot_dir: plots
+
+            /* you can add more directories you want to create/use here */
+        }
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Flags (Mandatory)                                                 │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        // When enabled, the exp_dir will have a number suffixed to avoid
+        // overwriting saved data
+        avoid_overwrite: false
+
+        // If avoid_overwrite is set to false, and exp_dir overwrites a
+        // directory, this will purge the contents of the old directory. This
+        // is to avoid mixing data from different experiments, but be careful.
+        hard_overwrite: true
+
+        // Experiment directories will be suffixed by a UNIX timestamp
+        timestamp: false
+
+        // Save a copy of this file to exp_dir, so there's a record of what
+        // parameters the experiment was run with (won't save any indication
+        // of what the `.py` files were like)
+        log_config: false
+
+        // Enable/disable any additional processing on the data performed
+        // after training
+        postprocess: true
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Flags (Supplemental)                                              │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        /* if there are any flags for saving particular to your experiment,
+         * include them here */
+    }
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Data Config                                                           │
+    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+    #┤ Variables parameterizing the datasets used to train the model.        │
+    #┴───────────────────────────────────────────────────────────────────────╯
+    data:
+    {
+        //
+        seq_len: 1000
+
+        //
+        n_input: 20
+    }
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Logging Config                                                        │
+    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+    #┤ Choose what to log during training and how.                           │
+    #┴───────────────────────────────────────────────────────────────────────╯
+    log:
+    {
+        // Stop to create plots every n epochs
+        plot_every: 1
+    }
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Training Config                                                       │
+    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+    #┤ Variables parameterizing training.                                    │
+    #┴───────────────────────────────────────────────────────────────────────╯
+    train:
+    {
+        learning_rate: 0.1
+
+        // number of trials in batch
+        batch_size: 20
+
+        // number of batches in an epoch
+        n_batch: 15
+
+        // number of epochs the model is fit over
+        n_epochs: 256
+    }
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Miscellaneous                                                         │
+    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+    #┤ Any other values useful to manipulate from this file.                 │
+    #┴───────────────────────────────────────────────────────────────────────╯
+    misc:
+    {
+        // time step
+        dt: 1
+
+        //
+        n_recurrent: 100
+
+        //
+        rewiring: false
+
+        // μ for normal distribution (exponentiated for lognormal weights)
+        mu: -0.64
+
+        // σ for normal distribution (exponentiated for lognormal weights)
+        sigma: 0.51
+    }
+}
