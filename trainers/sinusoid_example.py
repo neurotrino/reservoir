@@ -135,7 +135,7 @@ class Trainer(BaseTrainer):
             loss = self.train_epoch(epoch_idx)
 
             # plot every n epochs, or when the loss gets nice and low
-            if loss < 0.1 or (epoch_idx + 1) % self.cfg['log'].plot_every == 0:
+            if loss < 0.1 or (epoch_idx + 1) % self.cfg['log'].post_every == 0:
                 filename = f"{epoch_idx + 1}_{loss}"
                 self.logger.plot_everything(filename + ".png")
                 """
@@ -143,7 +143,4 @@ class Trainer(BaseTrainer):
                 self.logger.plot_spikes(filename + "_spikes.png")
                 self.logger.plot_voltages(filename + "_voltages.png")
                 """
-
-            # Save stuffies
-            if epoch_idx == self.cfg['save'].post_every:
                 self.logger.post()

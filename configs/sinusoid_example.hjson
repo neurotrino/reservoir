@@ -188,7 +188,7 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     log:
     {
-        // Unload every n epochs
+        // Post every n epochs
         post_every: 1
     }
 
