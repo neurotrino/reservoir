@@ -14,11 +14,17 @@ import heapq
 # note as of October 27th, 2020:
 # A few remarks on logging:
 # Unclear yet whether saving with history works.
-# CSV logger saves all the outputs that are displayed to the screen for epoch training.
+# CSV logger saves all the outputs that are displayed to the screen for
+# epoch training.
 # hdf5 for standard saving of weights.
-# python3 pickle for the epochwise test example voltages and spikes and outputs (which is not ideal long-term)
-# This means there are THREE methods we must use simultaneously to save what we want: pickling spikes and voltages post-hoc, csv-ing losses etc, and save_weights as hdf5
-# SUPER not ideal. going to run with this now and I'm crunched for time to generate data, but will be eager to find a better solution or at least a better-organized one.
+# python3 pickle for the epochwise test example voltages and spikes and
+# outputs (which is not ideal long-term)
+# This means there are THREE methods we must use simultaneously to save
+# what we want: pickling spikes and voltages post-hoc, csv-ing losses
+# etc, and save_weights as hdf5
+# SUPER not ideal. going to run with this now and I'm crunched for time
+# to generate data, but will be eager to find a better solution or at
+# least a better-organized one.
 
 # eventually create loop
 # for f in fullconn_w:
@@ -86,7 +92,9 @@ def LIF_EI_begin_end_compare(epoch):
     axes[1].set_title('epoch ending weights')
     fig.subplots_adjust(hspace=.5)
     plt.show()
-    out_fname = "tf2_testing/LIF_EI/compare_epoch_" + str(epoch) + "_weights.png"
+    out_fname = "tf2_testing/LIF_EI/compare_epoch_"
+              + str(epoch)
+              + "_weights.png"
     plt.savefig(out_fname)
 
 def plot_rewiring_over_time(end_epoch):
@@ -107,7 +115,9 @@ def plot_rewiring_over_time(end_epoch):
     conn = []
 
     # goodness, for now loss is handwritten
-    loss = [0.5269,0.4914,0.4849,0.4924,0.4758,0.4645,0.4351,0.4145,0.3664,0.3753,0.3454,0.3763,0.3802,0.3478,0.3393,0.3356,0.3011,0.2846,0.2883,0.2765]
+    loss = [0.5269,0.4914,0.4849,0.4924,0.4758,0.4645,0.4351,0.4145,
+    0.3664,0.3753,0.3454,0.3763,0.3802,0.3478,0.3393,0.3356,0.3011,
+    0.2846,0.2883,0.2765]
 
     for idx in range(len(filelist)):
         fname = data_path + "begin_epoch_" + str(idx) + ".hdf5"

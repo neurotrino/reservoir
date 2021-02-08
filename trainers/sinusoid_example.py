@@ -143,3 +143,7 @@ class Trainer(BaseTrainer):
                 self.logger.plot_spikes(filename + "_spikes.png")
                 self.logger.plot_voltages(filename + "_voltages.png")
                 """
+
+            # Save stuffies
+            if epoch_idx == self.cfg['save'].post_every:
+                self.logger.post()
