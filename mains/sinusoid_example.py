@@ -3,14 +3,13 @@ import tensorflow as tf
 import utils.config
 
 # Build model ----
-from models.neurons.lif import LIF
+from models.neurons.lif import ExInLIF
 from models.sinusoid_example import SinusoidSlayer
 
 # Load Data ------
 from data import sinusoid
 
 # Log ------------
-from loggers.callbacks.plots import LIF as PlotCB
 from loggers.sinusoid_example import Logger as Logger
 
 # Train ----------
@@ -28,7 +27,7 @@ def main():
 
         "cell":
         {
-            "_class": LIF
+            "_class": ExInLIF
         }
     }
     model = form(template).build(cfg)

@@ -59,7 +59,14 @@
 
             dampening_factor: 0.3
 
-            p: 0.2  // connectivity probability when using LIF or Adex model
+            frac_e: 0.8
+
+            p: {
+                "ee": 0.160
+                "ei": 0.244
+                "ie": 0.318
+                "ii": 0.343
+            }
         }
     }
 
