@@ -45,8 +45,8 @@ class Trainer(BaseTrainer):
         self.logger.logvars['mvars'].append({
             # Output variables
             "voltages": voltage.numpy(),
-            "spikes": voltage.numpy(),
-            "pred_ys": voltage.numpy(),
+            "spikes": spikes.numpy(),
+            "pred_ys": prediction.numpy(),
 
             # Input/reference variables
             "inputs": x.numpy(),

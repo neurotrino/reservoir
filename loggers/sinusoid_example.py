@@ -98,10 +98,11 @@ class Logger(BaseLogger):
 
         # Create plots
         for i in range(cfg['log'].post_every):
+            # Plot data from the end of each epoch
             self.plot_everything(
                 f"{lo_epoch + i}.png",
                 self.logvars['mvars'],
-                index=i
+                index=(i + 1) * self.cfg['train'].n_batch - 1
             )
 
         # Free up RAM
@@ -166,8 +167,8 @@ class Logger(BaseLogger):
         cb3 = fig.colorbar(im, ax=axes[2])
         axes[2].set_ylabel('spike')
 
-        axes[3].plot(true_y, 'k--', lw=2, alpha=.7, label='target')
-        axes[3].plot(pred_y, 'b', lw=2, alpha=.7, label='prediction')
+        axes[3].plot(true_y, 'k--', lw=2, alpha=0.7, label='target')
+        axes[3].plot(pred_y, 'b', lw=2, alpha=0.7, label='prediction')
         axes[3].set_ylabel('output')
         axes[3].legend(frameon=False)
 
