@@ -39,12 +39,12 @@ class Trainer(BaseTrainer):
         voltage, spikes, prediction = self.model(x) # tripartite output
 
         # [*] Update logger
-        self.logger.voltages.append(voltage.numpy())
-        self.logger.spikes.append(spikes.numpy())
-        self.logger.pred_ys.append(prediction.numpy())
+        self.logger.logvars['voltages'].append(voltage.numpy())
+        self.logger.logvars['spikes'].append(spikes.numpy())
+        self.logger.logvars['pred_ys'].append(prediction.numpy())
 
-        self.logger.inputs.append(x.numpy())
-        self.logger.true_ys.append(y.numpy())
+        self.logger.logvars['inputs'].append(x.numpy())
+        self.logger.logvars['true_ys'].append(y.numpy())
 
         # training=training is needed only if there are layers with
         # different behavior during training versus inference
@@ -73,8 +73,8 @@ class Trainer(BaseTrainer):
         acc = 0  # acc doesn't make sense here  # [?] logging
 
         # [*] Update step-level log variables
-        self.logger.step_gradients.append(grads)
-        self.logger.step_losses.append(float(loss))
+        self.logger.logvars['step_gradients'].append(grads)
+        self.logger.logvars['step_losses'].append(float(loss))
 
         # [*] We can log the weights &c of specific layers at each step
         for layer in self.model.layers:
@@ -84,10 +84,10 @@ class Trainer(BaseTrainer):
             # See layer attributes here:
             # tensorflow.org/api_docs/python/tf/keras/layers/Layer
             if layer.name == "spike_regularization":
-                self.logger.sr_out.append(layer.output)
-                self.logger.sr_in.append(layer.input)
-                self.logger.sr_wgt.append(layer.weights)
-                self.logger.sr_losses.append(layer.losses)
+                self.logger.logvars['sr_out'].append(layer.output)
+                self.logger.logvars['sr_in'].append(layer.input)
+                self.logger.logvars['sr_wgt'].append(layer.weights)
+                self.logger.logvars['sr_losses'].append(layer.losses)
         return loss, acc  # [*] Log these if you want step loss logged
 
     def train_epoch(self, epoch_idx=None):

@@ -27,46 +27,48 @@ class Logger(BaseLogger):
     def __init__(self, cfg, cb=None):
         super().__init__(cfg, cb)
 
-        # Lists updated at the end of every step
-        self.step_gradients = list()
-        self.step_losses = list()
-        self.sr_out = list()
-        self.sr_in = list()
-        self.sr_wgt = list()
-        self.sr_losses = list()
+        self.logvars = {
+            # Lists updated at the end of every step
+            "step_gradients": list(),
+            "step_losses": list(),
+            "sr_out": list(),
+            "sr_in": list(),
+            "sr_wgt": list(),
+            "sr_losses": list(),
 
-        self.voltages = list()
-        self.spikes = list()
-        self.pred_ys = list()
-        self.inputs = list()
-        self.true_ys = list()
+            "voltages": list(),
+            "spikes": list(),
+            "pred_ys": list(),
+            "inputs": list(),
+            "true_ys": list(),
 
-        # Lists updated at the end of every epoch
-        #
-        # [?] Some room for improvement:
-        #
-        # The way this is setup is that we have numpy arrays which fill
-        # with values we want to log until some point we specify in the
-        # training loop which dumps their contents to a file. I wasn't
-        # sure where the overhead would be the worst: keeping large
-        # numpy arrays in memory, or saving to disk, so this seemed
-        # like the logical decision. If there's a better/idiomatic way
-        # of doing this, please let me know or just implement it.
-        #
-        # Additionally, because python's append is in O(1) time and the
-        # conversion to np array is in O(n) time, we'lll have a linear
-        # time operation every time we reset the buffer. If there's a
-        # way to initialize the numpy arrays with both dimensions at
-        # once, that would be constant time. I feel like we should know
-        # all the dimensions based on our model, but I'm not sure, and
-        # wanted to move on to more pressing matters, but if this
-        # becomes a bottleneck we should be able to use values from
-        # cfg['data'] and cfg['train'] to initialize 2D numpy arrays.
-        #
-        # The buffer length would be number of batches times however
-        # many epochs we want to keep the data in them for, then the
-        # numpy dimensions would be ... something
-        self.epoch_losses = list()
+            # Lists updated at the end of every epoch
+            #
+            # [?] Some room for improvement:
+            #
+            # The way this is setup is that we have numpy arrays which fill
+            # with values we want to log until some point we specify in the
+            # training loop which dumps their contents to a file. I wasn't
+            # sure where the overhead would be the worst: keeping large
+            # numpy arrays in memory, or saving to disk, so this seemed
+            # like the logical decision. If there's a better/idiomatic way
+            # of doing this, please let me know or just implement it.
+            #
+            # Additionally, because python's append is in O(1) time and the
+            # conversion to np array is in O(n) time, we'lll have a linear
+            # time operation every time we reset the buffer. If there's a
+            # way to initialize the numpy arrays with both dimensions at
+            # once, that would be constant time. I feel like we should know
+            # all the dimensions based on our model, but I'm not sure, and
+            # wanted to move on to more pressing matters, but if this
+            # becomes a bottleneck we should be able to use values from
+            # cfg['data'] and cfg['train'] to initialize 2D numpy arrays.
+            #
+            # The buffer length would be number of batches times however
+            # many epochs we want to keep the data in them for, then the
+            # numpy dimensions would be ... something
+            "epoch_losses": list(),
+        }
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Standard Methods                                                      │
@@ -86,40 +88,20 @@ class Logger(BaseLogger):
             f"{lo_epoch}-{hi_epoch}.pickle"
         )
 
+        for k in self.logvars.keys():
+            try:
+                print(f"{k} --> {type(self.logvars[k][0])}")
+            except:
+                print(f"{k} --> ???")
+
         # Save the data to disk (pickle, npy, hdf5, etc.)
-        #
-        # For now these have to be attributes, not one dictionary which
-        # is itself an attribute (because of an issue with thread
-        # locking and pickling). This unfortunately means you need to
-        # manually add the items to this list.
         with open(fp, "wb") as file:
-            pickle.dump(
-                {
-                    "step_gradients": self.step_gradients,
-                    "step_losses": self.step_losses,
-                    "sr_out": self.sr_out,
-                    "sr_in": self.sr_in,
-                    "sr_wgt": self.sr_wgt,
-                    "sr_losses": self.sr_losses,
-
-                    "voltages": self.voltages,
-                    "spikes": self.spikes,
-                    "pred_ys": self.pred_ys,
-                    "inputs": self.inputs,
-                    "true_ys": self.true_ys,
-
-                    "epoch_losses": self.epoch_losses,
-                },
-                file
-            )
+            pickle.dump(self.logvars, file)
 
         # Free up RAM
-        for k in pickle_values.keys():
-            if type(pickle_values[k]) == list:
-                try:
-                    exec(f"self.{k}")
-                except:
-                    logging.warning(f"pickle/class key mismatch: {k}")
+        for k in self.logvars.keys():
+            if type(self.logvars[k]) == list:
+                self.logvars[k] = []
 
         # Report how long the saving operation(s) took
         logging.info(
@@ -170,13 +152,13 @@ class Logger(BaseLogger):
         # [?] should loggers have their model as an attribute?
 
         # Input
-        x = self.inputs[-1][0]  # shape = (seqlen, n_inputs)
+        x = self.logvars['inputs'][-1][0]  # shape = (seqlen, n_inputs)
 
         # Outputs
-        pred_y = self.pred_ys[-1][0]
-        true_y = self.true_ys[-1][0]
-        voltage = self.voltages[-1][0]
-        spikes = self.spikes[-1][0]
+        pred_y = self.logvars['pred_ys'][-1][0]
+        true_y = self.logvars['true_ys'][-1][0]
+        voltage = self.logvars['voltages'][-1][0]
+        spikes = self.logvars['spikes'][-1][0]
 
         # Plot
         fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
