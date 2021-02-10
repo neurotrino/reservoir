@@ -29,7 +29,7 @@ All loggers inherit from `BaseLogger` in `\loggers\base.py`.
   configuration file), available for immediate analysis in TensorBoard or for
   later postprocessing into a more generic file format.
 
-- `.post()` performs any operations you'd like on the data post-training.
+- `.post()` writes everything to disk.
 
 ## Logging by Value Type
 

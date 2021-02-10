@@ -108,7 +108,8 @@
             // Full path: {exp_dir}\{checkpoint_dir}
             checkpoint_dir: checkpoints
 
-            // Directory storing summary data from one or more training sessions
+            // Directory storing summary data from one or more training
+            // sessions
             //
             // Full path: {exp_dir}\{summary_dir}
             summary_dir: summaries
@@ -188,7 +189,7 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     log:
     {
-        // Post every n epochs
+        // Save logging values to disk every n epochs
         post_every: 1
     }
 

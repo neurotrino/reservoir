@@ -45,6 +45,7 @@ class BaseLogger:
             self.add_callback(cb)
 
 
+
     def add_callback(self, cb):
         """Add a callback or list of callbacks to the logger.
 

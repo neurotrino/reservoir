@@ -27,15 +27,6 @@ the following overall structure needs to be maintained:
         /* this namespace must be defined */
         subdirs:
         {
-            /* this value must be defined */
-            checkpoint_dir: some_string
-
-            /* this value must be defined */
-            summary_dir: some_string
-
-            /* this value must be defined */
-            tb_logdir: some_string
-
             /* add additional subdirectories you want created here; use misc
              * for any directories you won't be saving data into */
         }

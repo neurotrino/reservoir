@@ -70,13 +70,25 @@ class Trainer(BaseTrainer):
         self.optimizer.apply_gradients(
             zip(grads, self.model.trainable_variables)
         )
-        acc = 0# TODO: calculate actual acc  # [?] logging
+        acc = 0  # acc doesn't make sense here  # [?] logging
 
         # [*] Update step-level log variables
         self.logger.step_gradients.append(grads)
-        self.logger.step_losses.append(loss)
+        self.logger.step_losses.append(float(loss))
 
-        return loss, acc
+        # [*] We can log the weights &c of specific layers at each step
+        for layer in self.model.layers:
+            # Layers of note in this example are input_1, rnn,
+            # spike_regularization, and dense
+            #
+            # See layer attributes here:
+            # tensorflow.org/api_docs/python/tf/keras/layers/Layer
+            if layer.name == "spike_regularization":
+                self.logger.sr_out.append(layer.output)
+                self.logger.sr_in.append(layer.input)
+                self.logger.sr_wgt.append(layer.weights)
+                self.logger.sr_losses.append(layer.losses)
+        return loss, acc  # [*] Log these if you want step loss logged
 
     def train_epoch(self, epoch_idx=None):
         """Train over an epoch.
@@ -127,20 +139,43 @@ class Trainer(BaseTrainer):
         """TODO: docs"""
         n_epochs = self.cfg['train'].n_epochs
 
+        # Create checkpoint manager
+        ckpt = tf.train.Checkpoint(
+            step=tf.Variable(1),
+            optimizer=self.optimizer,
+            net=self.model
+        )
+        cpm = tf.train.CheckpointManager(
+            ckpt,
+            self.cfg['save'].checkpoint_dir,
+            max_to_keep=None
+        )
+
+        # Train the model
         for epoch_idx in range(n_epochs):
+            """[*] Other stuff you can log
+            print("W = {}, B = {}".format(*self.model.trainable_variables))
+            for k in self.model.trainable_variables:
+                print("trainable_variables:")
+                print(k)
+            """
+
             print(
                 f"\nEpoch {epoch_idx + 1} / {n_epochs}"
                 + f" (batch size = {self.cfg['train'].batch_size}):"
             )
             loss = self.train_epoch(epoch_idx)
 
-            # plot every n epochs, or when the loss gets nice and low
-            if loss < 0.1 or (epoch_idx + 1) % self.cfg['log'].post_every == 0:
+            if (epoch_idx + 1) % self.cfg['log'].post_every == 0:
+                # Create checkpoints
+                # [?] Can also put in the step loop
+                # [?] Originally used a CheckpointManager in the logger
+                self.model.save_weights(os.path.join(
+                    self.cfg['save'].checkpoint_dir,
+                    f"checkpoint_e{epoch_idx + 1}"
+                ))
+
+                # Other logging
                 filename = f"{epoch_idx + 1}_{loss}"
                 self.logger.plot_everything(filename + ".png")
-                """
-                self.logger.plot_sinusoid(epoch_idx, filename + "_output.png")
-                self.logger.plot_spikes(filename + "_spikes.png")
-                self.logger.plot_voltages(filename + "_voltages.png")
-                """
-                self.logger.post()
+                self.logger.post(epoch_idx + 1)

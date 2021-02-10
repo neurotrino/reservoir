@@ -3,19 +3,23 @@
 The `Logger` class is fairly minimal, serving only to interface between
 a `Trainer` and TensorFlow's logging mechanisms. Formatting of data to
 be logged is left up to the `Trainer` and `CallBacks` in
-`logging.callbacks`.
+`loggers.callbacks`.
 
 Resources:
   - "Complete TensorBoard Guide" : youtube.com/watch?v=k7KfYXXrOj0
 """
 
-from loggers.base import BaseLogger
-
-import matplotlib.pyplot as plt
-import os
-import tensorflow as tf
-
+# external ----
 import logging
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import pickle
+import tensorflow as tf
+import time
+
+# local -------
+from loggers.base import BaseLogger
 
 class Logger(BaseLogger):
     """Logging interface used while training."""
@@ -26,6 +30,16 @@ class Logger(BaseLogger):
         # Lists updated at the end of every step
         self.step_gradients = list()
         self.step_losses = list()
+        self.sr_out = list()
+        self.sr_in = list()
+        self.sr_wgt = list()
+        self.sr_losses = list()
+
+        self.voltages = list()
+        self.spikes = list()
+        self.pred_ys = list()
+        self.inputs = list()
+        self.true_ys = list()
 
         # Lists updated at the end of every epoch
         #
@@ -52,35 +66,69 @@ class Logger(BaseLogger):
         # The buffer length would be number of batches times however
         # many epochs we want to keep the data in them for, then the
         # numpy dimensions would be ... something
-        self.voltages = list()
-        self.spikes = list()
-        self.pred_ys = list()
-
-        self.inputs = list()
-        self.true_ys = list()
-
         self.epoch_losses = list()
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Standard Methods                                                      │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def post(self, req="full"):
-        """Operations you want to do with/on the data post-training.
+    def post(self, epoch_idx):
+        """Save stuff to disk."""
+        t0 = time.time()
 
-        request can either be a list of spefici items or "full" to run
-        all operations  TODO
-        """
-        pass
+        cfg = self.cfg
+
+        lo_epoch = epoch_idx - cfg['log'].post_every + 1
+        hi_epoch = epoch_idx
+
+        fp = os.path.join(
+            cfg['save'].pickle_dir,
+            f"{lo_epoch}-{hi_epoch}.pickle"
+        )
+
+        # Save the data to disk (pickle, npy, hdf5, etc.)
+        #
+        # For now these have to be attributes, not one dictionary which
+        # is itself an attribute (because of an issue with thread
+        # locking and pickling). This unfortunately means you need to
+        # manually add the items to this list.
+        with open(fp, "wb") as file:
+            pickle.dump(
+                {
+                    "step_gradients": self.step_gradients,
+                    "step_losses": self.step_losses,
+                    "sr_out": self.sr_out,
+                    "sr_in": self.sr_in,
+                    "sr_wgt": self.sr_wgt,
+                    "sr_losses": self.sr_losses,
+
+                    "voltages": self.voltages,
+                    "spikes": self.spikes,
+                    "pred_ys": self.pred_ys,
+                    "inputs": self.inputs,
+                    "true_ys": self.true_ys,
+
+                    "epoch_losses": self.epoch_losses,
+                },
+                file
+            )
+
+        # Free up RAM
+        for k in pickle_values.keys():
+            if type(pickle_values[k]) == list:
+                try:
+                    exec(f"self.{k}")
+                except:
+                    logging.warning(f"pickle/class key mismatch: {k}")
+
+        # Report how long the saving operation(s) took
+        logging.info(
+            f"posted data for epochs {lo_epoch}-{hi_epoch}"
+            + f" ({time.time() - t0:.2f} seconds)"
+        )
 
         # Convert checkpoints to numpy arrays of weights
         #...
-
-        # We already have voltages in a numpy array
-        # We already have spikes in a numpy array
-        # We already have outputs (predictions) in a numpy array
-        # We already have inputs in a numpy array
-        # We already have the correcy values in a numpy array
 
         # If there are any values from the cfg we want to save in the
         # pickle, we can do that here
@@ -117,59 +165,6 @@ class Logger(BaseLogger):
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Other Methods                                                         │
     #┴───────────────────────────────────────────────────────────────────────╯
-
-    def plot_sinusoid(
-        self,
-        epoch_idx=None,  # Epoch to plot the data of (epoch_idx >= 1)
-        filename=None,   # Name of the saved plot (not the full path)
-        show=False,      # When true, pause execution and show the plot
-        save=True        # When false, the plot won't be saved
-    ):
-
-        # If no epoch is specified, plot the most recent
-        if epoch_idx is None:
-            epoch_idx = len(self.true_ys)
-
-        # If no filename is specified, save as "sine_{epoch_idx}.png"
-        if filename is None:
-            filename = f"sinusoid_{epoch_idx}.png"
-
-        # Create the plot
-        true_y = self.true_ys[epoch_idx - 1]
-        pred_y = self.pred_ys[epoch_idx - 1]
-
-        plt.plot(true_y[0, :, :])
-        plt.plot(pred_y[0, :, :])
-        plt.draw()
-
-        # Show the plot immediately, if requested (halts execution)
-        if show:
-            plt.show()
-
-        # Save the plot, unless requested not to
-        if save:
-            plt.savefig(os.path.join(self.cfg['save'].plot_dir, filename))
-
-        plt.clf()
-
-
-    def plot_spikes(self, filename):
-        plt.ion()
-        fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
-
-#        plt.plot(self.spikes[-1][0, :, :])
-        im = axes[2].pcolormesh(self.spikes[-1][0, :, :].T, cmap='Greys', vmin=0, vmax=1)
-        cb2 = fig.colorbar(im, ax=axes[1])
-        plt.draw()
-        plt.savefig(os.path.join(self.cfg['save'].plot_dir, filename))
-        plt.clf()
-
-
-    def plot_voltages(self, filename):
-        plt.plot(self.voltages[-1][0, :, :])
-        plt.savefig(os.path.join(self.cfg['save'].plot_dir, filename))
-        plt.clf()
-
 
     def plot_everything(self, filename):
         # [?] should loggers have their model as an attribute?
