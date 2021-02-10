@@ -123,9 +123,6 @@
             #┤ Supplementary                                                 │
             #┴───────────────────────────────────────────────────────────────╯
 
-            // Stores pickled numpy arrays
-            np_arrays: np_arrs
-
             // Used to store plots
             plot_dir: plots
 

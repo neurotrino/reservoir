@@ -57,7 +57,38 @@ class Trainer(BaseTrainer):
         """Gradient calculation(s)"""
         with tf.GradientTape() as tape:
             loss_val = self.loss(inputs, targets)
+
+        # Calculate the gradient of the loss with respect to each
+        # layer's trainable variables. In this example, calculates the
+        # gradients for (in order):
+        # > `rnn/ex_in_lif/input_weights:0`
+        # > `rnn/ex_in_lif/recurrent_weights:0`
+        # > `dense/kernel:0`
+        # > `dense/bias:0`
         grads = tape.gradient(loss_val, self.model.trainable_variables)
+
+        # [*] Log anything coming out of the gradient calculation(s)
+        #
+        # These values are in different lists, but indexed the same,
+        # i.e. `grad_data['names'][i]` will produce the name of the
+        # layer with shape `grad_data['shapes'][i]`, and likewise for
+        # values and gradients.
+        grad_data = {
+            # Names of the layers the gradient of the loss is being
+            # calculated with respect to
+            "names": [x.name for x in self.model.trainable_variables],
+
+            # Shapes of the variable and gradient tensors (should be
+            # equal)
+            "shapes": [x.shape for x in self.model.trainable_variables],
+
+            # Values of the trainable variable tensors
+            "vals": [x.numpy() for x in self.model.trainable_variables],
+
+            # Values of the gradient tensors
+            "grads": [x.numpy() for x in grads]
+        }
+        self.logger.logvars['step_gradients'].append(grad_data)
         return loss_val, grads
 
     # [?] Are we saying that each batch steps with dt?
@@ -74,7 +105,6 @@ class Trainer(BaseTrainer):
         acc = 0  # acc doesn't make sense here  # [?] logging
 
         # [*] Update step-level log variables
-        self.logger.logvars['step_gradients'].append(grads)
         self.logger.logvars['step_losses'].append(float(loss))
 
         # [*] We can log the weights &c of specific layers at each step

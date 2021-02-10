@@ -31,8 +31,6 @@ class Logger(BaseLogger):
             # Lists updated at the end of every step
             "step_gradients": list(),
             "step_losses": list(),
-            "sr_out": list(),
-            "sr_in": list(),
             "sr_wgt": list(),
             "sr_losses": list(),
 
