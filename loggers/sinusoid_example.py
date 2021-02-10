@@ -28,17 +28,22 @@ class Logger(BaseLogger):
         super().__init__(cfg, cb)
 
         self.logvars = {
-            # Lists updated at the end of every step
-            "step_gradients": list(),
-            "step_losses": list(),
+            # I/O data (step-wise)
+            #
+            # See `Trainer.loss()` method.
+            "mvars": list(),
+
+            # Additional step-wise datapoints.
+            #
+            # See `Trainer.step()` and `Trainer.grad()` methods.
+            #
+            # List of dictionaries, one entry per step since the last
+            # call to `.post()`.
+            "svars": list(),
+
+            # Spike regularization data (step-wise; proof of concept).
             "sr_wgt": list(),
             "sr_losses": list(),
-
-            "voltages": list(),
-            "spikes": list(),
-            "pred_ys": list(),
-            "inputs": list(),
-            "true_ys": list(),
 
             # Lists updated at the end of every epoch
             #
@@ -65,21 +70,22 @@ class Logger(BaseLogger):
             # The buffer length would be number of batches times however
             # many epochs we want to keep the data in them for, then the
             # numpy dimensions would be ... something
-            "epoch_losses": list(),
+            "evars": list(),
         }
+
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Standard Methods                                                      │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def post(self, epoch_idx):
+    def post(self, epoch_num):
         """Save stuff to disk."""
         t0 = time.time()
 
         cfg = self.cfg
 
-        lo_epoch = epoch_idx - cfg['log'].post_every + 1
-        hi_epoch = epoch_idx
+        lo_epoch = epoch_num - cfg['log'].post_every + 1
+        hi_epoch = epoch_num
 
         fp = os.path.join(
             cfg['save'].pickle_dir,
@@ -89,6 +95,14 @@ class Logger(BaseLogger):
         # Save the data to disk (pickle, npy, hdf5, etc.)
         with open(fp, "wb") as file:
             pickle.dump(self.logvars, file)
+
+        # Create plots
+        for i in range(cfg['log'].post_every):
+            self.plot_everything(
+                f"{lo_epoch + i}.png",
+                self.logvars['mvars'],
+                index=i
+            )
 
         # Free up RAM
         for k in self.logvars.keys():
@@ -101,6 +115,7 @@ class Logger(BaseLogger):
             + f" ({time.time() - t0:.2f} seconds)"
         )
 
+
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Pseudo Callbacks                                                      │
     #┴───────────────────────────────────────────────────────────────────────╯
@@ -111,21 +126,22 @@ class Logger(BaseLogger):
         # legible to bundle them togther in a method like this.
         pass
 
+
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Other Methods                                                         │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def plot_everything(self, filename):
+    def plot_everything(self, filename, src, index=-1):
         # [?] should loggers have their model as an attribute?
 
         # Input
-        x = self.logvars['inputs'][-1][0]  # shape = (seqlen, n_inputs)
+        x = src[index]['inputs'][0]  # shape = (seqlen, n_inputs)
 
         # Outputs
-        pred_y = self.logvars['pred_ys'][-1][0]
-        true_y = self.logvars['true_ys'][-1][0]
-        voltage = self.logvars['voltages'][-1][0]
-        spikes = self.logvars['spikes'][-1][0]
+        pred_y = src[index]['pred_ys'][0]
+        true_y = src[index]['true_ys'][0]
+        voltage = src[index]['voltages'][0]
+        spikes = src[index]['spikes'][0]
 
         # Plot
         fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
