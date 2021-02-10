@@ -1,9 +1,9 @@
 # Scripts
-These are the point of entry into the code. They follow a very standard format, with the main source of variation being
-in the `template` variable, which is necessary to specify the classes of subclasses in the model. This must align with
-the HJSON configuration for the model.
+These are the points of entry into your code. The format is highly standardized, with the main source of variation
+being in the `template` variable, which is necessary to specify the classes of subclasses in the model. This must align
+with the HJSON configuration for the model.
 
-Brief descriptions of each component are described below. See the associated subdirectories for further documentation.
+Brief descriptions of each component are provided below. See the associated subdirectories for further documentation.
 
 ## Setup
 First, `form` and `cfg` are generated. `form` is a function which must be used to instantiate the model, based on the
