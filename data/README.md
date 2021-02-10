@@ -28,9 +28,9 @@ Every data script should contain a `load_data()` function which returns a
 How data should be processed varies with the data itself, but there are three
 broad approaches best supported by this framework:
 
-    1. Data generators can define their own iterators
-    2. Data can be statefully accessed from the generator
-    3. Data can be created all at once using `load_data()`
+1. Data generators can define their own iterators
+2. Data can be statefully accessed from the generator
+3. Data can be created all at once using `load_data()`
 
 See the documentation for trainers for more on interating through data during
 training.

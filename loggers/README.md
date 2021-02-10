@@ -1,5 +1,5 @@
 # Logging
-Then ultimate aim of this project is to gain insight into these networks. To
+The ultimate aim of this project is to gain insight into these networks. To
 that end, it's often helpful to think of our training loop as doing nothing
 more than populating our loggers, which store, record, and write any values
 we're interested in.

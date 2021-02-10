@@ -68,3 +68,6 @@ the following overall structure needs to be maintained:
 }
 
 ```
+
+Additionally, if you want a model or submodel to have access to the `cfg` variable (which is a transcription of the
+HJSON file into a six-keyed dictionary of `SimpleNamespace`s), you must add `cfg: null` in its parameters.
