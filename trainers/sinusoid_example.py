@@ -95,32 +95,48 @@ class Trainer(BaseTrainer):
         )
         acc = 0  # acc doesn't make sense with this dataset
 
-        # [*] We can log the weights &c of specific layers at each step
-        # like so:
+        # [*] Stepwise logging for *all* layers; might have redundancy
+        # [*] Can also grab layer weights here
+        # [*] Use `if layer.name == "..."` to log with specific layers
         #
-        # [?] way to get layers by name?
+        # You can also perform this operation with the `layer.input`
+        # attribute.
+        #
+        # Doing this for every layer at every step is really expensive,
+        # because TensorFlow doesn't actually want you to collapse
+        # tensor states like this (but does not currently provide a
+        # cost-effective API to access these values any another way)
+        #
+        # If you can, it's better to design your model so the values
+        # you want to see here are just included in the output, like
+        # voltage is in this template model, for example.
+        #
+        # If you limit the number of batches you perform this operation
+        # on, make sure you include enough info in your logger and
+        # output files to associate the values with the right epoch and
+        # step.
+        lvars = list()
         for layer in self.model.layers:
-            # Layers of note in this example are input_1, rnn,
-            # spike_regularization, and dense
-            #
-            # See layer attributes here:
-            # tensorflow.org/api_docs/python/tf/keras/layers/Layer
-            if layer.name == "spike_regularization":
-                self.logger.logvars['sr_wgt'].append(layer.weights)
-                self.logger.logvars['sr_losses'].append(layer.losses)
+            if layer.name == "rnn":
+                logging.debug(f"step-logging for {layer.name} layer")
 
-        # [*] This is how you calculate layer outputs (hacky)
-        for layer in self.model.layers:
-            kf = K.function([self.model.input], [layer.output])
-            self.logger.logvars['iovars'].append((layer.name, kf([batch_x])))
+                # [*] This is how you calculate layer outputs (hacky)
+                kf = K.function([self.model.input], [layer.output])
+                lvars.append({
+                    "name": layer.name,
+                    "weights": [x.numpy() for x in layer.weights],
+                    "outputs": kf([batch_x]),
+                    "losses": layer.losses,
+                })
+        self.logger.logvars['lvars'].append(lvars)
 
-        # [*] Log any step-wise variables
+        # [*] Log any step-wise variables for trainable variables
         #
         # These values are in different lists, but indexed the same,
         # i.e. `grad_data['names'][i]` will produce the name of the
         # layer with shape `grad_data['shapes'][i]`, and likewise for
         # values and gradients.
-        self.logger.logvars['svars'].append({
+        self.logger.logvars['tvars'].append({
             # Names of the layers the gradient of the loss is being
             # calculated with respect to.
             #

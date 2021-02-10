@@ -151,7 +151,7 @@
         // Save a copy of this file to exp_dir, so there's a record of what
         // parameters the experiment was run with (won't save any indication
         // of what the `.py` files were like)
-        log_config: false
+        log_config: true
 
         // Enable/disable any additional processing on the data performed
         // after training
@@ -188,6 +188,12 @@
     {
         // Save logging values to disk every n epochs
         post_every: 5
+
+        // Neuron used ([!] would like to automate this):
+        neuron: LIF
+
+        // Training used ([!] would like to automate this):
+        training_method: backprop
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮

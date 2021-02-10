@@ -31,9 +31,10 @@ class Logger(BaseLogger):
         self.logvars = {
             # Outputs at every layer
             #
-            # List of (string, np.array) tuples, containing the layer
-            # name and its output.
-            "iovars": list(),
+            # List of lists of dictionaries. Each list of dictionaries
+            # corresponds to a training step. The outmost list has as
+            # many entries as steps since the last call to `.post()`.
+            "lvars": list(),
 
             # Main model data (step-wise)
             #
@@ -43,17 +44,13 @@ class Logger(BaseLogger):
             # See `Trainer.loss()` method.
             "mvars": list(),
 
-            # Additional step-wise datapoints.
+            # Step-wise values associated with trainable variables.
             #
             # See `Trainer.step()` and `Trainer.grad()` methods.
             #
             # List of dictionaries, one entry per step since the last
             # call to `.post()`.
-            "svars": list(),
-
-            # Spike regularization data (step-wise; proof of concept).
-            "sr_wgt": list(),
-            "sr_losses": list(),
+            "tvars": list(),
 
             # Lists updated at the end of every epoch
             #
@@ -104,7 +101,21 @@ class Logger(BaseLogger):
 
         # Save the data to disk (pickle, npy, hdf5, etc.)
         with open(fp, "wb") as file:
-            pickle.dump(self.logvars, file)
+            pickle.dump(
+                {
+                    # The logvars themselves
+                    "logvars": self.logvars,
+
+                    # Values which help orient oneself within the data
+                    "lo_epoch": lo_epoch,
+                    "n_batch": self.cfg['train'].n_batch,
+
+                    # Other metadata
+                    "neuron": self.cfg['log'].neuron,
+                    "training_method": self.cfg['log'].training_method,
+                },
+                file
+            )
 
         # Create plots
         for i in range(cfg['log'].post_every):
