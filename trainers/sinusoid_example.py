@@ -4,6 +4,7 @@ tensorflow.org/tutorials/customization/custom_training_walkthrough
 """
 
 from tensorflow.keras.utils import Progbar
+import tensorflow.keras.backend as K
 
 import logging
 import numpy as np
@@ -108,6 +109,11 @@ class Trainer(BaseTrainer):
                 self.logger.logvars['sr_wgt'].append(layer.weights)
                 self.logger.logvars['sr_losses'].append(layer.losses)
 
+        # [*] This is how you calculate layer outputs (hacky)
+        for layer in self.model.layers:
+            kf = K.function([self.model.input], [layer.output])
+            self.logger.logvars['iovars'].append((layer.name, kf([batch_x])))
+
         # [*] Log any step-wise variables
         #
         # These values are in different lists, but indexed the same,
@@ -125,7 +131,7 @@ class Trainer(BaseTrainer):
             # equal)
             #
             # List of integer tuples, one per watched layer.
-            "shapes": [x.shape for x in self.model.trainable_variables],
+            "shapes": [tuple(x.shape) for x in self.model.trainable_variables],
 
             # Layer weights *before* the gradients were applied.
             #
@@ -139,12 +145,12 @@ class Trainer(BaseTrainer):
                 x.numpy() for x in self.model.trainable_variables
             ],
 
-            # Values of the gradient tensors.
+            # Calculated gradients.
             #
             # List of numpy arrays (np.float32), one per watched layer.
             "grads": [x.numpy() for x in grads],
 
-            # Calculated loss
+            # Calculated loss.
             #
             # A single float.
             "loss": float(loss)

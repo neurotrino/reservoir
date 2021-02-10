@@ -11,6 +11,7 @@ Resources:
 
 # external ----
 import logging
+import math
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -28,7 +29,16 @@ class Logger(BaseLogger):
         super().__init__(cfg, cb)
 
         self.logvars = {
-            # I/O data (step-wise)
+            # Outputs at every layer
+            #
+            # List of (string, np.array) tuples, containing the layer
+            # name and its output.
+            "iovars": list(),
+
+            # Main model data (step-wise)
+            #
+            # Includes things like predictions, true_ys, inputs,
+            # voltage, and so on
             #
             # See `Trainer.loss()` method.
             "mvars": list(),
@@ -102,6 +112,8 @@ class Logger(BaseLogger):
             self.plot_everything(
                 f"{lo_epoch + i}.png",
                 self.logvars['mvars'],
+
+                # Translate epoch index to batch index
                 index=(i + 1) * self.cfg['train'].n_batch - 1
             )
 
@@ -129,7 +141,7 @@ class Logger(BaseLogger):
 
 
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Other Methods                                                         │
+    #┤ Other Logging Methods                                                 │
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def plot_everything(self, filename, src, index=-1):
