@@ -20,4 +20,4 @@ Data generation is expected to be varied, but should always provide either an it
 
 ## Logging & Training
 Logging and training are intertwined. It's often best to think of training as populating your logger. Training itself
-should only require a call to a single `.train()` method.
+should only require a call to the `.train()` method.
