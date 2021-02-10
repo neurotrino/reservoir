@@ -49,10 +49,6 @@ def main():
     trainer.train()
     logging.info("training complete")
 
-    # Perform postprocessing
-    if cfg['save'].postprocess:
-        logger.post()
-
 
 if __name__ == '__main__':
     main()

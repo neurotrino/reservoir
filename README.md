@@ -11,8 +11,9 @@ An infrastructure for the creation and study of spiking neural networks.
 6. [License](#license)
 
 ## Installation
-These scripts must be run as source, [ideally](tensorflow.org/install/pip#2.-create-a-virtual-environment-recommended)
-in a Python virtual environment.
+These scripts must be run as source,
+[ideally](https://www.tensorflow.org/install/pip#2.-create-a-virtual-environment-recommended) in a Python virtual
+environment.
 
 To get setup, clone the repository and follow the instructions below:
 
@@ -73,8 +74,13 @@ Repository structure is an adaptation of the [Gemy Standard](https://github.com/
    └── *.py                 - Miscellaneous utility functions go here
 ```
 
-#### Example to run the code:
+See these subdirectories for further documentation.
+
+### Quick Start
+
 ```bash
+# once you've built your model, pass filepaths to your main script
+# and HJSON configuration file:
 python mains/sinusoid_example.py -c configs/sinusoid_example.hjson
 ```
 
@@ -95,54 +101,23 @@ you're in this phase.
 ## Documentation
 
 ### Inline
-The source code contains extensive documentation, accessible via Python's
-`help` function.
+The source code contains extensive documentation, accessible via Python's `help` function.
 
 ### External
-No documentation presently exists beyond this repository's contents.
+Beyond this, `README` files explaining elements of the infrastructure are included in most of the subdirectories.
+
 
 ## Contributing
 
 ### Style Guidelines
+When in doubt, refer first to the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html), then
+to [PEP 8](https://www.python.org/dev/peps/pep-0008/) and [PEP 257](https://www.python.org/dev/peps/pep-0257).
 
-This codebase (extremely) loosely adheres first to the
-[Google Python Style Guide](https://google.github.io/styleguide/pyguide.html),
-**then** to [PEP 8](https://www.python.org/dev/peps/pep-0008/) and
-[PEP 257](https://www.python.org/dev/peps/pep-0257). Legibility is always the
-most important, however.
-
-Hard tabs are a sin.
-
-Section headers and subheaders are encouraged.
 
 
 ## Credits
-
-### Lab Members ([MacLean Lab](https://www.macleanlab.com/))
-_The codebase in its current form is built and maintained by the MacLean lab._
-
-Principle Investigator:
-- Jason MacLean
-
-Graduate Researchers:
-- Yuqing Zhu
-
-Undergraduate Researchers:
-- Tarek Jabri
-- Chadbourne Smith
-- Mufeng Tang
-
-### Maass Group, PI [W. Maass](https://igi-web.tugraz.at/people/maass/)
-_TODO: explanation of credit_
-
-**TODO**: looking for Maass' lab homepage
-
-### Scientific articles
-_The codebase wouldn't exist without prior contributions from the field, both
-technical and theoretical._
-
-- _TODO: add content_
-
+- MacLean Lab (maintainers)
+- Maass Group (collaborators)
 
 ## License
 This software and associated documentation files are open source, licensed
