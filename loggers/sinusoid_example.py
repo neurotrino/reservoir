@@ -88,12 +88,6 @@ class Logger(BaseLogger):
             f"{lo_epoch}-{hi_epoch}.pickle"
         )
 
-        for k in self.logvars.keys():
-            try:
-                print(f"{k} --> {type(self.logvars[k][0])}")
-            except:
-                print(f"{k} --> ???")
-
         # Save the data to disk (pickle, npy, hdf5, etc.)
         with open(fp, "wb") as file:
             pickle.dump(self.logvars, file)
@@ -108,31 +102,6 @@ class Logger(BaseLogger):
             f"posted data for epochs {lo_epoch}-{hi_epoch}"
             + f" ({time.time() - t0:.2f} seconds)"
         )
-
-        # Convert checkpoints to numpy arrays of weights
-        #...
-
-        # If there are any values from the cfg we want to save in the
-        # pickle, we can do that here
-        #...
-
-        # We can get *some* gradients, not sure if these are all the
-        # gradients we want (talk to YQ)
-        #...
-
-        # This example does most of its plotting as the training loop
-        # advances, but we could put more plot creation here if we
-        # wanted to
-        #...
-
-        # Should we also be tracking loss in our logger? Yeah, but it's
-        # also in the event file(s). Need to talk to YQ about task loss
-        # versus spike regularization loss
-        #...
-
-        # Adaptation?
-        #...
-
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Pseudo Callbacks                                                      │

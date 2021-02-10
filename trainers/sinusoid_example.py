@@ -9,6 +9,7 @@ import logging
 import numpy as np
 import os
 import tensorflow as tf
+import tensorflow.keras.backend as K
 
 # local
 from trainers.base import BaseTrainer
@@ -84,8 +85,6 @@ class Trainer(BaseTrainer):
             # See layer attributes here:
             # tensorflow.org/api_docs/python/tf/keras/layers/Layer
             if layer.name == "spike_regularization":
-                self.logger.logvars['sr_out'].append(layer.output)
-                self.logger.logvars['sr_in'].append(layer.input)
                 self.logger.logvars['sr_wgt'].append(layer.weights)
                 self.logger.logvars['sr_losses'].append(layer.losses)
         return loss, acc  # [*] Log these if you want step loss logged
@@ -177,5 +176,6 @@ class Trainer(BaseTrainer):
 
                 # Other logging
                 filename = f"{epoch_idx + 1}_{loss}"
+                # [?] could do plotting in post as well
                 self.logger.plot_everything(filename + ".png")
                 self.logger.post(epoch_idx + 1)
