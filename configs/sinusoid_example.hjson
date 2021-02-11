@@ -175,7 +175,7 @@
         //
         seq_len: 1000
 
-        //
+        // number of input units
         n_input: 20
     }
 
