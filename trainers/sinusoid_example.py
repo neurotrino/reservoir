@@ -40,6 +40,15 @@ class Trainer(BaseTrainer):
     def loss(self, x, y):
         """Calculate the loss on data x labeled y."""
         loss_object = tf.keras.losses.MeanSquaredError()
+
+        # [*] If you want per-trial logging values when using batches,
+        # you'll have to iterate over the x and y values, instead of
+        # just calling model with them once. Another option is to
+        # implement `.call()` in you model such that, when performing
+        # these operations, it returns a list of values, which would be
+        # trial values, plus the end values; or `.call()` could take a
+        # logger as an optional argument.
+
         voltage, spikes, prediction = self.model(x) # tripartite output
 
         # [*] Update logger
@@ -147,7 +156,9 @@ class Trainer(BaseTrainer):
             # equal)
             #
             # List of integer tuples, one per watched layer.
-            "shapes": [tuple(x.shape) for x in self.model.trainable_variables],
+            "shapes": [
+                tuple(x.shape) for x in self.model.trainable_variables
+            ],
 
             # Layer weights *before* the gradients were applied.
             #
@@ -193,7 +204,9 @@ class Trainer(BaseTrainer):
             pb.add(
                 1,
                 values=[
-                    # [*] Register real-time epoch-level log variables
+                    # [*] Register real-time epoch-level log variables.
+                    # These are what show up to the right of the
+                    # progress bar during training.
                     ('loss', loss),
                 ]
             )
