@@ -360,6 +360,6 @@ def boot():
 
     # Save a copy of this file, if the flags are set
     if cfg['save'].log_config:
-        shutil.copyfile(args.config, cfg['save'].exp_dir + "\\config.hjson")
+        shutil.copyfile(args.config, cfg['save'].exp_dir + "/config.hjson")
 
     return form, cfg
