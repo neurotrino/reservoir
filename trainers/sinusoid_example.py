@@ -130,6 +130,7 @@ class Trainer(BaseTrainer):
                 logging.debug(f"step-logging for {layer.name} layer")
 
                 # [*] This is how you calculate layer outputs (hacky)
+                # The `kf` steps are the expensive parts.
                 kf = K.function([self.model.input], [layer.output])
                 lvars.append({
                     "name": layer.name,
