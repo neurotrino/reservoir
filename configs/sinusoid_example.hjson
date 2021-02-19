@@ -20,11 +20,10 @@
     #┤ structures need to align between the two). It's fine to omit          │
     #┤ parameters with default values.                                       │
     #┤                                                                       │
-    #┤ This is the only namespace not visible in `cfg`. If you need to       │
-    #┤ access data in `cfg` during model initialization, or would like to    │
-    #┤ have `cfg` be an attribute in a model for any other reason, you need  │
-    #┤ to indicate so in this script by adding `cfg: null` (nested in the    │
-    #┤ structure needing access). `cfg` is a hard-coded keyword.             │
+    #┤ If you need to access data in `cfg` during model initialization, or   │
+    #┤ would like to have `cfg` be an attribute in a model for any other     │
+    #┤ reason, you need to indicate so in this script by adding `cfg: null`  │
+    #┤ (nested in the structure needing access).                             │
     #┴───────────────────────────────────────────────────────────────────────╯
     model:
     {
