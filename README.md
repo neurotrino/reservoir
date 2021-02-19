@@ -1,5 +1,4 @@
-# MacLean-1 SNN
-
+# MacLean Lab SNN Infrastructure
 An infrastructure for the creation and study of spiking neural networks.
 
 ## Contents
