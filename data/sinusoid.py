@@ -1,4 +1,5 @@
-"""Sinusoidal data with noise.
+"""
+Sinusoidal data with noise.
 
 20 repetitions of truly the exact same input sinusoid. Should
 create a set with random small displacements along the x and y

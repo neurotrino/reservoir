@@ -92,7 +92,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/debug-demo-experiment
+        exp_dir: ../experiments/ccd_demo
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
@@ -172,10 +172,10 @@
     data:
     {
         //
-        seq_len: 1000
+        seq_len: 4080
 
         // number of input units
-        n_input: 20
+        n_input: 16
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -205,13 +205,13 @@
         learning_rate: 0.1
 
         // number of trials in batch
-        batch_size: 20
+        batch_size: 10
 
         // number of batches in an epoch
-        n_batch: 15
+        n_batch: 10
 
         // number of epochs the model is fit over
-        n_epochs: 10
+        n_epochs: 5
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
