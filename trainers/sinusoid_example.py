@@ -131,11 +131,11 @@ class Trainer(BaseTrainer):
 
                 # [*] This is how you calculate layer outputs (hacky)
                 # The `kf` steps are the expensive parts.
-                kf = K.function([self.model.input], [layer.output])
+                #kf = K.function([self.model.input], [layer.output])
                 lvars.append({
                     "name": layer.name,
                     "weights": [x.numpy() for x in layer.weights],
-                    "outputs": kf([batch_x]),
+                    #"outputs": kf([batch_x]),
                     "losses": layer.losses,
                 })
         self.logger.logvars['lvars'].append(lvars)
