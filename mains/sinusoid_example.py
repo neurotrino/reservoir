@@ -1,8 +1,6 @@
 import logging
 import tensorflow as tf
 import utils.config
-import os
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
 # Build model ----
 from models.neurons.lif import ExInLIF
