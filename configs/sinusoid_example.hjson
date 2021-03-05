@@ -225,7 +225,7 @@
         dt: 1
 
         //
-        n_recurrent: 100
+        n_recurrent: 10000
 
         //
         rewiring: false
