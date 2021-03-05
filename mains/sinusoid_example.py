@@ -2,6 +2,8 @@ import logging
 import tensorflow as tf
 import utils.config
 
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
+
 # Build model ----
 from models.neurons.lif import ExInLIF
 from models.sinusoid_example import SinusoidSlayer
