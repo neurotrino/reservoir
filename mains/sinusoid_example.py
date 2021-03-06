@@ -1,3 +1,5 @@
+from os.path import abspath
+
 import logging
 import tensorflow as tf
 import utils.config
@@ -18,7 +20,7 @@ from trainers.sinusoid_example import Trainer
 def main():
     # Use command line arguments to load data, create directories, etc.
     form, cfg = utils.config.boot()
-    logging.info("experiment directory: " + cfg['save'].exp_dir)
+    logging.info("experiment directory: " + abspath(cfg['save'].exp_dir))
 
     # Build model
     template =                                                               \

@@ -28,110 +28,89 @@ class Logger(BaseLogger):
     def __init__(self, cfg, cb=None):
         super().__init__(cfg, cb)
 
-        self.logvars = {
-            # Outputs at every layer
-            #
-            # List of lists of dictionaries. Each list of dictionaries
-            # corresponds to a training step. The outmost list has as
-            # many entries as steps since the last call to `.post()`.
-            "lvars": list(),
-
-            # Main model data (step-wise)
-            #
-            # Includes things like predictions, true_ys, inputs,
-            # voltage, and so on
-            #
-            # See `Trainer.loss()` method.
-            "mvars": list(),
-
-            # Step-wise values associated with trainable variables.
-            #
-            # See `Trainer.step()` and `Trainer.grad()` methods.
-            #
-            # List of dictionaries, one entry per step since the last
-            # call to `.post()`.
-            "tvars": list(),
-
-            # Lists updated at the end of every epoch
-            #
-            # [?] Some room for improvement:
-            #
-            # The way this is setup is that we have numpy arrays which fill
-            # with values we want to log until some point we specify in the
-            # training loop which dumps their contents to a file. I wasn't
-            # sure where the overhead would be the worst: keeping large
-            # numpy arrays in memory, or saving to disk, so this seemed
-            # like the logical decision. If there's a better/idiomatic way
-            # of doing this, please let me know or just implement it.
-            #
-            # Additionally, because python's append is in O(1) time and the
-            # conversion to np array is in O(n) time, we'lll have a linear
-            # time operation every time we reset the buffer. If there's a
-            # way to initialize the numpy arrays with both dimensions at
-            # once, that would be constant time. I feel like we should know
-            # all the dimensions based on our model, but I'm not sure, and
-            # wanted to move on to more pressing matters, but if this
-            # becomes a bottleneck we should be able to use values from
-            # cfg['data'] and cfg['train'] to initialize 2D numpy arrays.
-            #
-            # The buffer length would be number of batches times however
-            # many epochs we want to keep the data in them for, then the
-            # numpy dimensions would be ... something
-            "evars": list(),
-        }
-
-
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Standard Methods                                                      │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def post(self, epoch_num):
+    def log(self, data_label, data, meta={}):
+        """Main logging interface.
+
+        All data must be reduceable to a numpy array. If you have data
+        you want nested, you'll have to name it in a way that that info
+        can be recovered.
+
+        Any metadata you want about the main data will be included in
+        `meta.pickle`. This should be about the nature of the variable,
+        not the individually logged values, as it will only be added
+        the first time the data is observed. Examples of good metadata
+        include whether the data is stepwise or epochwise, a text
+        description, etc. `stride` is the expected keyword as either
+        'step' or 'epoch' or 'static' (never changes)
+        """
+
+        # Primary data
+        if data_label not in self.logvars:
+            self.logvars[data_label] = [data]
+        else:
+            self.logvars[data_label].append(data)
+
+        # Metadata
+        if data_label not in self.meta:
+            meta['dtype'] = type(data)
+            self.meta[data_label] = meta
+
+            if 'stride' not in meta:
+                logging.warning('stride unspecified for ' + data_label)
+
+    def post(self,):
         """Save stuff to disk."""
+
         t0 = time.time()
 
         cfg = self.cfg
 
-        lo_epoch = epoch_num - cfg['log'].post_every + 1
-        hi_epoch = epoch_num
+        lo_epoch = 1 if self.last_post[0] is None else self.last_post[0] + 1
+        hi_epoch = self.cur_epoch
 
         fp = os.path.join(
-            cfg['save'].pickle_dir,
-            f"{lo_epoch}-{hi_epoch}.pickle"
+            cfg['save'].main_output_dir,
+            f"{lo_epoch}-{hi_epoch}.npz"
         )
 
-        # Save the data to disk (pickle, npy, hdf5, etc.)
-        with open(fp, "wb") as file:
-            pickle.dump(
-                {
-                    # The logvars themselves
-                    "logvars": self.logvars,
+        # compute steps and epochs
+        epochs = []
+        steps = []
 
-                    # Values which help orient oneself within the data
-                    "lo_epoch": lo_epoch,
-                    "n_batch": self.cfg['train'].n_batch,
+        # Save the data to disk
+        for k in self.logvars.keys():
+            self.logvars[k] = numpy(self.logvars[k])
 
-                    # Other metadata
-                    "neuron": self.cfg['log'].neuron,
-                    "training_method": self.cfg['log'].training_method,
-                },
-                file
-            )
+        # space benchmark @ 1.8GB; 17s  REDUCED SCALE
+        #with open(fp, 'wb') as file:
+        #    pickle.dump(self.logvars, file)
+
+        # 100% as much space; 11s  REDUCED SCALE
+        #np.savez(fp, **self.logvars)
+
+        # 47% as much space; 442 seconds  AT SCALE
+        #
+        np.savez_compressed(fp, **self.logvars)
 
         # Create plots
         for i in range(cfg['log'].post_every):
             # Plot data from the end of each epoch
             self.plot_everything(
                 f"{lo_epoch + i}.png",
-                self.logvars['mvars'],
 
                 # Translate epoch index to batch index
                 index=(i + 1) * self.cfg['train'].n_batch - 1
             )
 
         # Free up RAM
-        for k in self.logvars.keys():
-            if type(self.logvars[k]) == list:
-                self.logvars[k] = []
+        self.logvars = {}
+
+        # Bookkeeping
+        self.last_post = (self.cur_epoch, self.cur_step)
 
         # Report how long the saving operation(s) took
         logging.info(
@@ -140,32 +119,105 @@ class Logger(BaseLogger):
         )
 
 
+
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Pseudo Callbacks                                                      │
+    #┤ (Pseudo) Callbacks                                                    │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def on_epoch_end(self, epoch_idx, model):
-        # If there are a series of logging operations you want to do at
-        # a certain junction in your training loop, it might be more
-        # legible to bundle them togther in a method like this.
-        pass
+    def on_train_begin(self):
+        """Save some static data about the training."""
+
+        # [*] right now I'm just pickling the whole config file
+        fp = os.path.join(
+            self.cfg['save'].main_output_dir,
+            "config.pickle"
+        )
+        with open(fp, 'wb') as file:
+            pickle.dump(self.cfg, file)
+
+
+    def on_train_end(self):
+        # Post any unposted data
+        if self.last_post[1] != self.cur_epoch:
+            self.post()
+
+        # Save accrued metadata
+        fp = os.path.join(
+            self.cfg['save'].main_output_dir,
+            "meta.pickle"
+        )
+        with open(fp, 'wb') as file:
+            pickle.dump(self.meta, file)
+
+
+    def on_step_end(self):
+        """
+        Any logic to be performed in the logger whenever a step
+        completes in the training.
+
+        Returns a list of actions to be performed in the trainer (only
+        for use when you can't do things on the logger side alone, such
+        as saving model weights, where `.save_weights()` must be called
+        from the trainer, at least for now).
+        """
+        action_list = []
+
+        self.cur_step += 1
+
+        # Maintain, for convenience, a list of epoch and step numbers
+        # to align stepwise data to in the npz file
+        self.log('step', self.cur_step, meta={'stride': 'step'})
+        self.log('sw_epoch', self.cur_epoch, meta={'stride': 'step'})
+
+        # TODO: add a convenient step/epoch array into the npz file to
+        # align with all the datapoints
+
+        return action_list
+
+
+    def on_epoch_end(self):
+        """
+        Any logic to be performed in the logger whenever an epoch
+        completes in the training.
+
+        Returns a list of actions to be performed in the trainer (only
+        for use when you can't do things on the logger side alone, such
+        as saving model weights, where `.save_weights()` must be called
+        from the trainer, at least for now).
+        """
+        action_list = []
+
+        self.cur_epoch += 1
+        self.cur_step = 0
+
+        # Maintain, for convenience, a list of epoch numbers to align
+        # epochwise data to in the npz file
+        self.log('ew_epoch', self.cur_epoch, meta={'stride': 'epoch'})
+
+        if self.cur_epoch % self.cfg['log'].post_every == 0:
+            self.post()
+
+            # [?] Originally used a CheckpointManager in the logger
+            action_list.append('save_weights')
+
+        return action_list
 
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Other Logging Methods                                                 │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def plot_everything(self, filename, src, index=-1):
+    def plot_everything(self, filename, index=-1):
         # [?] should loggers have their model as an attribute?
 
         # Input
-        x = src[index]['inputs'][0]  # shape = (seqlen, n_inputs)
+        x = self.logvars['inputs'][index][0]  # shape = (seqlen, n_inputs)
 
         # Outputs
-        pred_y = src[index]['pred_ys'][0]
-        true_y = src[index]['true_ys'][0]
-        voltage = src[index]['voltages'][0]
-        spikes = src[index]['spikes'][0]
+        pred_y = self.logvars['pred_y'][index][0]
+        true_y = self.logvars['true_y'][index][0]
+        voltage = self.logvars['voltage'][index][0]
+        spikes = self.logvars['spikes'][index][0]
 
         # Plot
         fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
@@ -212,3 +264,17 @@ class Logger(BaseLogger):
 
         plt.clf()
         plt.close()
+
+
+#┬───────────────────────────────────────────────────────────────────────────╮
+#┤ Utility Functions                                                         │
+#┴───────────────────────────────────────────────────────────────────────────╯
+
+def numpy(xs):
+    """Convert n-length list of pxq np arrays to pxqxn np array."""
+    try:
+        arr = np.concatenate(xs, axis=0)
+        arr = arr.reshape(xs[0].shape + (len(xs),))
+    except:
+        arr = np.array(xs)
+    return arr
