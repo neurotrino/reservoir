@@ -126,8 +126,7 @@
             plot_dir: plots
 
             // Big everything jumbo place of stuff (the important stuff)
-            main_output_dir: main_output
-
+            main_output_dir: npz-data
             /* you can add more directories you want to create/use here */
         }
 
