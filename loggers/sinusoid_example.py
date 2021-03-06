@@ -85,15 +85,6 @@ class Logger(BaseLogger):
         for k in self.logvars.keys():
             self.logvars[k] = numpy(self.logvars[k])
 
-        # space benchmark @ 1.8GB; 17s  REDUCED SCALE
-        #with open(fp, 'wb') as file:
-        #    pickle.dump(self.logvars, file)
-
-        # 100% as much space; 11s  REDUCED SCALE
-        #np.savez(fp, **self.logvars)
-
-        # 47% as much space; 442 seconds  AT SCALE
-        #
         np.savez_compressed(fp, **self.logvars)
 
         # Create plots
