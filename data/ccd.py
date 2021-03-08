@@ -24,7 +24,10 @@ class DataGenerator(BaseDataGenerator):
         seq_len = cfg['data'].seq_len  # no. inputs
         n_input = cfg['data'].n_input  # dim of input
 
+        # in total: 600 trials
+        # spikes: (600x4080, 16)
         spikes = scipy.sparse.load_npz('/home/macleanlab/mufeng/NaturalMotionCNN/CNN_outputs/spike_train.npz')
+        # cohs: (60, 40800)
         coherences = scipy.sparse.load_npz('/home/macleanlab/mufeng/NaturalMotionCNN/CNN_outputs/coherences.npz')
         x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
         y = np.array(coherences.todense().reshape((-1, seq_len)))[:,:,None]

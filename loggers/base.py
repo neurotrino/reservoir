@@ -21,6 +21,19 @@ class BaseLogger:
         """Create a new logger."""
         self.cfg = cfg
 
+        # Step/epoch counters
+        self.cur_epoch = 0
+        self.cur_step = 0
+
+        # (epoch, step) of last post. `(None, None)` if yet to post.
+        self.last_post = (None, None)
+
+        #
+        self.logvars = {}
+
+        # metadata of logvars
+        self.meta = dict()
+
         # Initialize summary writers
         #
         # TensorFlow summary writers write summary data (scalar values)
@@ -44,6 +57,25 @@ class BaseLogger:
         if cb is not None:
             self.add_callback(cb)
 
+
+    def log(self, data_label, data, meta):
+        pass
+
+
+    def on_step_end(self, increment=1):
+        """
+        Any logic to be performed in the logger whenever a step
+        completes in the training.
+        """
+        self.cur_step += increment
+
+
+    def on_epoch_end(self, increment=1):
+        """
+        Any logic to be performed in the logger whenever an epoch
+        completes in the training.
+        """
+        self.cur_epoch += increment
 
 
     def add_callback(self, cb):

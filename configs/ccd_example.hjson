@@ -126,7 +126,7 @@
             plot_dir: plots
 
             // Big everything jumbo place of stuff (the important stuff)
-            pickle_dir: main_output
+            main_output_dir: npz-data
 
             /* you can add more directories you want to create/use here */
         }
@@ -193,6 +193,11 @@
 
         // Training used ([!] would like to automate this):
         training_method: backprop
+
+        // Filter for a subset of the logging procedures in the training loop
+        layer_whitelist: [
+            rnn
+        ]
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -205,13 +210,13 @@
         learning_rate: 0.1
 
         // number of trials in batch
-        batch_size: 10
+        batch_size: 60
 
         // number of batches in an epoch
         n_batch: 10
 
         // number of epochs the model is fit over
-        n_epochs: 5
+        n_epochs: 100
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮

@@ -31,6 +31,44 @@ All loggers inherit from `BaseLogger` in `\loggers\base.py`.
 
 - `.post()` writes everything to disk.
 
+## Output
+There's a `npz` file with all the data in `logvars` per `.post()`. Access like so:
+
+```python
+import numpy as np
+
+data=np.load('1-5.npz')
+
+# check what np arrays are in the npz
+for k in data.files:
+    print(k)
+```
+
+Some `np.arrays` of particular note in the `npz` files:
+- `step` and `sw_epoch` have step and epoch values such that for any stepwise
+  numpy array `a` in the npz file, `a[i]`'s data corresponds to step `step[i]`
+  of epoch `epoch[i]`
+- `ew_epoch` is the same as `sw_epoch` but for epochwise numpy arrays
+
+Additionally, there's a `meta.pickle` and `config.pickle` file included beside
+these with metadata about the variables in the `npz` files and the HJSON
+configuration file, respectively. Access like so:
+
+```python
+import pickle
+
+with open("meta.pickle", "rb") as file:
+    meta = pickle.load(file)
+with open("config.pickle", "rb") as file:
+    cfg = pickle.load(file)
+
+# check what's in the files
+for k in meta.keys():
+    print(k)
+for k in cfg.keys():
+    print(k)
+```
+
 ## Simple Logging
 Loggers are meant to store any and all variables you're interested in logging. These should be passed to the logger by
 the training loop, and will be flushed to disk everytime the logger's `.post()` method is invoked. This can be done in
