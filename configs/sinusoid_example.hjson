@@ -185,7 +185,7 @@
     log:
     {
         // Save logging values to disk every n epochs
-        post_every: 1
+        post_every: 4
 
         // Neuron used ([!] would like to automate this):
         neuron: LIF
