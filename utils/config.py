@@ -196,7 +196,7 @@ def load_hjson_config(filepath, custom_save_cfg=None):
 
     # Check if the experiment directory already exits
     if os.path.exists(save_cfg['exp_dir']):
-        logging.info(f"{save_cfg['exp_dir']} already exists")
+        logging.info(f"{os.path.abspath(save_cfg['exp_dir'])} already exists")
 
         # Check if we're okay writing into this directory
         if save_cfg['avoid_overwrite']:
