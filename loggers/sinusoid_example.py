@@ -47,7 +47,6 @@ class Logger(BaseLogger):
         description, etc. `stride` is the expected keyword as either
         'step' or 'epoch' or 'static' (never changes)
         """
-        pass
 
         # Primary data
         if data_label not in self.logvars:
