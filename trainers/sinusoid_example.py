@@ -35,6 +35,7 @@ class Trainer(BaseTrainer):
     #┤ Training Loop (step level)                                            │
     #┴───────────────────────────────────────────────────────────────────────╯
 
+    @tf.function
     def loss(self, x, y):
         """Calculate the loss on data x labeled y."""
         loss_object = tf.keras.losses.MeanSquaredError()
@@ -48,8 +49,83 @@ class Trainer(BaseTrainer):
         # logger as an optional argument.
 
         voltage, spikes, prediction = self.model(x) # tripartite output
+        loss_object = loss_object(y_true=y, y_pred=prediction)
 
         # [*] Update logger
+
+        # training=training is needed only if there are layers with
+        # different behavior during training versus inference
+        # (e.g. Dropout).
+
+        return voltage, spikes, prediction, loss_object
+
+    @tf.function
+    def grad(self, inputs, targets):
+        """Gradient calculation(s)"""
+        with tf.GradientTape() as tape:
+            voltage, spikes, prediction, loss_val = self.loss(inputs, targets)
+
+        # Calculate the gradient of the loss with respect to each
+        # layer's trainable variables. In this example, calculates the
+        # gradients for (in order):
+        # > `rnn/ex_in_lif/input_weights:0`
+        # > `rnn/ex_in_lif/recurrent_weights:0`
+        # > `dense/kernel:0`
+        # > `dense/bias:0`
+        grads = tape.gradient(loss_val, self.model.trainable_variables)
+        return voltage, spikes, prediction, loss_val, grads
+
+
+    def train_step(self, batch_x, batch_y, batch_idx=None, pb=None):
+        """Train on the next batch."""
+
+        # [?] Are we saying that each batch steps with dt?
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Stepwise Logging (pre-step)                                       │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        # Input/reference variables
+        self.logger.log(
+            data_label='inputs',
+            data=batch_x.numpy(),
+            meta={
+                'stride': 'step',
+
+                'description':
+                    'inputs (batches x seq_len x n_input)'
+            }
+        )
+        self.logger.log(
+            data_label='true_y',
+            data=batch_y.numpy(),
+            meta={
+                'stride': 'step',
+
+                'description':
+                    'correct values (batches x seq_len x 1)'
+            }
+        )
+
+        preweights = [x.numpy() for x in self.model.trainable_variables]
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Stepwise Training                                                 │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        # [*] If we were using `.next()` instead of `.get()` with our
+        # data generator, this is where we'd invoke that method
+
+        # Calculate the gradients and update model weights
+        voltage, spikes, prediction, loss, grads = self.grad(batch_x, batch_y)
+        self.optimizer.apply_gradients(
+            zip(grads, self.model.trainable_variables)
+        )
+        acc = 0  # doesn't make sense with this task, but acc goes here
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Stepwise Logging (post-step)                                      │
+        #┴───────────────────────────────────────────────────────────────────╯
 
         # Output variables
         self.logger.log(
@@ -82,80 +158,6 @@ class Trainer(BaseTrainer):
                     'predictions (batches x seq_len x 1)'
             }
         )
-
-        # Input/reference variables
-        self.logger.log(
-            data_label='inputs',
-            data=x.numpy(),
-            meta={
-                'stride': 'step',
-
-                'description':
-                    'inputs (batches x seq_len x n_input)'
-            }
-        )
-        self.logger.log(
-            data_label='true_y',
-            data=y.numpy(),
-            meta={
-                'stride': 'step',
-
-                'description':
-                    'correct values (batches x seq_len x 1)'
-            }
-        )
-
-        # training=training is needed only if there are layers with
-        # different behavior during training versus inference
-        # (e.g. Dropout).
-
-        return loss_object(y_true=y, y_pred=prediction)
-
-
-    def grad(self, inputs, targets):
-        """Gradient calculation(s)"""
-        with tf.GradientTape() as tape:
-            loss_val = self.loss(inputs, targets)
-
-        # Calculate the gradient of the loss with respect to each
-        # layer's trainable variables. In this example, calculates the
-        # gradients for (in order):
-        # > `rnn/ex_in_lif/input_weights:0`
-        # > `rnn/ex_in_lif/recurrent_weights:0`
-        # > `dense/kernel:0`
-        # > `dense/bias:0`
-        grads = tape.gradient(loss_val, self.model.trainable_variables)
-        return loss_val, grads
-
-
-    def train_step(self, batch_x, batch_y, batch_idx=None, pb=None):
-        """Train on the next batch."""
-
-        # [?] Are we saying that each batch steps with dt?
-
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Stepwise Logging (pre-step)                                       │
-        #┴───────────────────────────────────────────────────────────────────╯
-
-        preweights = [x.numpy() for x in self.model.trainable_variables]
-
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Stepwise Training                                                 │
-        #┴───────────────────────────────────────────────────────────────────╯
-
-        # [*] If we were using `.next()` instead of `.get()` with our
-        # data generator, this is where we'd invoke that method
-
-        # Calculate the gradients and update model weights
-        loss, grads = self.grad(batch_x, batch_y)
-        self.optimizer.apply_gradients(
-            zip(grads, self.model.trainable_variables)
-        )
-        acc = 0  # doesn't make sense with this task, but acc goes here
-
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Stepwise Logging (post-step)                                      │
-        #┴───────────────────────────────────────────────────────────────────╯
 
         # [*] Log any step-wise variables for trainable variables
         #
