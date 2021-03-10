@@ -199,6 +199,9 @@
         // small subset of batches (no more than 10) and that these batches be
         // away from the start of the step, as early batches have an
         // initialization overhead which skews the profiler results.
+        //
+        // DEV NOTE: This is a little jank right now; only enable when
+        // actively profiling your code.
         run_profiler: true
 
         // If enabled, the profiler will run on each epoch in the list below

@@ -158,6 +158,7 @@ class Trainer(BaseTrainer):
         #┤ Stepwise Logging (post-step)                                      │
         #┴───────────────────────────────────────────────────────────────────╯
 
+        """
         # [*] Log any step-wise variables for trainable variables
         #
         # These values are in different lists, but indexed the same,
@@ -311,6 +312,7 @@ class Trainer(BaseTrainer):
                     'calculated step loss'
             }
         )
+        """
         self.logger.on_step_end()
 
         return loss, acc
@@ -352,14 +354,10 @@ class Trainer(BaseTrainer):
             #old way (doesn't work with profiler)
             #for batch_idx, (batch_x, batch_y) in enumerate(self.data.get()):
 
-            if profile_epoch:
-                # Profile the next step
-                with profiler.Trace('train', step_num=step_idx, _r=1):
-                    # [!] implement range (i.e. just 1-10 batches)
-                    (batch_x, batch_y) = self.data.next()
-                    loss, acc = self.train_step(batch_x, batch_y, step_idx, pb)
-            else:
-                # Perform the next step without profiling
+            # NOTE: trace events only created when profiler is enabled
+            # (i.e. this isn't costly if the profiler is off)
+            with profiler.Trace('train', step_num=step_idx, _r=1):
+                # [!] implement range (i.e. just 1-10 batches)
                 (batch_x, batch_y) = self.data.next()
                 loss, acc = self.train_step(batch_x, batch_y, step_idx, pb)
 
