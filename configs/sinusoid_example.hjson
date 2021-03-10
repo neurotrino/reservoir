@@ -202,7 +202,7 @@
         //
         // DEV NOTE: This is a little jank right now; only enable when
         // actively profiling your code.
-        run_profiler: false
+        run_profiler: true
 
         // If enabled, the profiler will run on each epoch in the list below
         profiler_epochs: [
