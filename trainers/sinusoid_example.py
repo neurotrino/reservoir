@@ -158,7 +158,6 @@ class Trainer(BaseTrainer):
         #┤ Stepwise Logging (post-step)                                      │
         #┴───────────────────────────────────────────────────────────────────╯
 
-        """
         # [*] Log any step-wise variables for trainable variables
         #
         # These values are in different lists, but indexed the same,
@@ -312,7 +311,6 @@ class Trainer(BaseTrainer):
                     'calculated step loss'
             }
         )
-        """
         self.logger.on_step_end()
 
         return loss, acc
