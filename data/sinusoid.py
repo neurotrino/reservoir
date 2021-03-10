@@ -37,8 +37,22 @@ class DataGenerator(BaseDataGenerator):
             count=cfg['train'].batch_size * cfg['train'].n_batch
         ).batch(cfg['train'].batch_size)
 
+        # Iterator
+        self.iterator = None
+
+
     def get(self):
         return self.dataset
+
+
+    def next(self):
+        if self.iterator is None:
+            self.iterator = iter(self.dataset)
+        try:
+            return self.iterator.get_next()
+        except tf.errors.OutOfRangeError:
+            self.iterator = None
+            return self.next()
 
 
 def load_data(cfg):

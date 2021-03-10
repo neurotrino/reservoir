@@ -98,7 +98,7 @@
         subdirs:
         {
             #┬───────────────────────────────────────────────────────────────╮
-            #┤ Standard                                                      │
+            #┤ TensorFlow Directories                                        │
             #┴───────────────────────────────────────────────────────────────╯
 
             // Directory storing checkpoints intended to restore models for
@@ -107,19 +107,19 @@
             // Full path: {exp_dir}\{checkpoint_dir}
             checkpoint_dir: checkpoints
 
+            #┬───────────────────────────────────────────────────────────────╮
+            #┤ TensorBoard Directories                                       │
+            #┴───────────────────────────────────────────────────────────────╯
+
             // Directory storing summary data from one or more training
             // sessions
-            //
-            // Full path: {exp_dir}\{summary_dir}
-            summary_dir: summaries
+            summary_dir: tensorboard/summaries
 
             // Directory storing logdirs (*only* for use with TensorBoard)
-            //
-            // Full path: {exp_dir}\{tb_logdir}
-            tb_logdir: logdirs
+            profile_dir: tensorboard/profile
 
             #┬───────────────────────────────────────────────────────────────╮
-            #┤ Supplementary                                                 │
+            #┤ Other Directories                                             │
             #┴───────────────────────────────────────────────────────────────╯
 
             // Used to store plots
@@ -127,7 +127,6 @@
 
             // Big everything jumbo place of stuff (the important stuff)
             main_output_dir: npz-data
-            /* you can add more directories you want to create/use here */
         }
 
         #┬───────────────────────────────────────────────────────────────────╮
@@ -192,6 +191,20 @@
 
         // Training used ([!] would like to automate this):
         training_method: backprop
+
+        // Toggle the TensorBoard profiler to identify bottlenecks in the
+        // training loop. This has significant post-training overhead.
+        //
+        // Additionally, it's recommended that you only run the profiler for a
+        // small subset of batches (no more than 10) and that these batches be
+        // away from the start of the step, as early batches have an
+        // initialization overhead which skews the profiler results.
+        run_profiler: true
+
+        // If enabled, the profiler will run on each epoch in the list below
+        profiler_epochs: [
+            8
+        ]
 
         // Filter for a subset of the logging procedures in the training loop
         layer_whitelist: [

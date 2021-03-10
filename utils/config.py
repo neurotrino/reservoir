@@ -212,14 +212,16 @@ def load_hjson_config(filepath, custom_save_cfg=None):
                 "renamed output directory to avoid overwriting data"
             )
         else:
+            fullpath = os.path.abspath(save_cfg['exp_dir'])
+
             # Alert the user that we'll be writing into this directory
             if save_cfg['hard_overwrite']:
                 # Remove the preexisting directory
-                logging.warning(f"purging old data in {save_cfg['exp_dir']}")
+                logging.warning(f"purging old data in {fullpath}")
                 shutil.rmtree(save_cfg['exp_dir'])
             else:
                 logging.warning(
-                    f"potentially overwriting data in {save_cfg['exp_dir']}"
+                    f"potentially overwriting data in {fullpath}"
                 )
 
     # Instantiate subdirectories

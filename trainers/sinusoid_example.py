@@ -4,12 +4,13 @@ tensorflow.org/tutorials/customization/custom_training_walkthrough
 """
 
 from tensorflow.keras.utils import Progbar
-3
+
 import logging
 import numpy as np
 import os
 import tensorflow as tf
 import tensorflow.keras.backend as K
+import tensorflow.profiler.experimental as profiler
 
 # local
 from trainers.base import BaseTrainer
@@ -337,11 +338,26 @@ class Trainer(BaseTrainer):
         #┤ Epochwise Training                                                │
         #┴───────────────────────────────────────────────────────────────────╯
 
-        # Training takes place here
-        pb = Progbar(self.cfg['train'].n_batch, stateful_metrics=None)
+        dataset = self.data.get()
+        pb = Progbar(train_cfg.n_batch, stateful_metrics=None)
 
-        for batch_idx, (batch_x, batch_y) in enumerate(self.data.get()):
-            loss, acc = self.train_step(batch_x, batch_y, batch_idx, pb)
+        # Iterate over training steps
+        for step_idx in range(train_cfg.n_batch):
+
+            #old way (doesn't work with profiler)
+            #for batch_idx, (batch_x, batch_y) in enumerate(self.data.get()):
+
+            if self.cfg['log'].run_profiler:
+                # Profile the next step
+                with profiler.Trace('train', step_num=step_idx, _r=1):  # [!] implement range
+                    (batch_x, batch_y) = self.data.next()
+                    loss, acc = self.train_step(batch_x, batch_y, step_idx, pb)
+            else:
+                # Perform the next step without profiling
+                (batch_x, batch_y) = self.data.next()
+                loss, acc = self.train_step(batch_x, batch_y, step_idx, pb)
+
+            # Update progress bar
             pb.add(
                 1,
                 values=[
@@ -418,6 +434,11 @@ class Trainer(BaseTrainer):
                 print(k)
             """
 
+            # Start profiler
+            if self.cfg['log'].run_profiler:
+                # [!] implement range
+                profiler.start(self.cfg['save'].profile_dir)
+
             print(
                 f"\nEpoch {epoch_idx + 1} / {n_epochs}"
                 + f" (batch size = {self.cfg['train'].batch_size}):"
@@ -438,6 +459,13 @@ class Trainer(BaseTrainer):
                     self.cfg['save'].checkpoint_dir,
                     f"checkpoint_e{epoch_idx + 1}"
                 ))
+
+
+
+            # Stop profiler
+            if self.cfg['log'].run_profiler and epoch_idx == 3:
+                # [!] implement range
+                profiler.stop()
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Logging (post-training)                                           │

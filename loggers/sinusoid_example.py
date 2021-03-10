@@ -62,7 +62,7 @@ class Logger(BaseLogger):
             if 'stride' not in meta:
                 logging.warning('stride unspecified for ' + data_label)
 
-    def post(self,):
+    def post(self):
         """Save stuff to disk."""
 
         t0 = time.time()
@@ -87,9 +87,8 @@ class Logger(BaseLogger):
 
         np.savez_compressed(fp, **self.logvars)
 
-        # Create plots
+        # Plot data from the end of each epoch
         for i in range(cfg['log'].post_every):
-            # Plot data from the end of each epoch
             self.plot_everything(f"{lo_epoch + i}.png", i)
 
         # Free up RAM
