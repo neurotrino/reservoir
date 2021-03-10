@@ -15,7 +15,6 @@ import tensorflow.profiler.experimental as profiler
 # local
 from trainers.base import BaseTrainer
 
-
 class Trainer(BaseTrainer):
     """TODO: docs  | note how `optimizer` isn't in the parent"""
 
