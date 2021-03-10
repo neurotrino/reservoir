@@ -185,7 +185,7 @@
     log:
     {
         // Save logging values to disk every n epochs
-        post_every: 5
+        post_every: 4
 
         // Neuron used ([!] would like to automate this):
         neuron: LIF
@@ -209,7 +209,7 @@
         learning_rate: 0.1
 
         // number of trials in batch
-        batch_size: 128
+        batch_size: 8
 
         // number of batches in an epoch
         n_batch: 16

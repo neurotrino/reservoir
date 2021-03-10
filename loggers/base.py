@@ -57,47 +57,9 @@ class BaseLogger:
         if cb is not None:
             self.add_callback(cb)
 
-
-    def log(self, data_label, data, meta):
-        pass
-
-
-    def on_step_end(self, increment=1):
-        """
-        Any logic to be performed in the logger whenever a step
-        completes in the training.
-        """
-        self.cur_step += increment
-
-
-    def on_epoch_end(self, increment=1):
-        """
-        Any logic to be performed in the logger whenever an epoch
-        completes in the training.
-        """
-        self.cur_epoch += increment
-
-
-    def add_callback(self, cb):
-        """Add a callback or list of callbacks to the logger.
-
-        Callbacks run at certain points of TensorFlow execution, and
-        are one of the two primary logging mechanisms (the other being
-        usage of `tf.summary` in a custom training loop).
-
-        Typically run with Keras-templated trainers or to create plots.
-
-        args:
-          cb: `CallBack` or list of `CallBack`s
-        """
-        if isinstance(cb, list):
-            # Add a list of callbacks
-            for x in cb:
-                self.callbacks.append(cb)
-        else:
-            # Add a single callback
-            self.callbacks.append(cb)
-
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ TensorBoard Logging                                                   │
+    #┴───────────────────────────────────────────────────────────────────────╯
 
     def summarize(self, index, summary_items=[], writer="train"):
         """Log scalar values.
@@ -127,6 +89,13 @@ class BaseLogger:
                 _writer.flush
 
 
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Direct Logging                                                        │
+    #┴───────────────────────────────────────────────────────────────────────╯
+
+    def log(self, data_label, data, meta):
+        pass
+
     # [?] considering adding a `register` method that does both
     # summarize and updates logger state
     #
@@ -146,3 +115,74 @@ class BaseLogger:
         logging.warning(
             self.__class__.__name__ + ".post() called but not implemented"
         )
+
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Callbacks and Pseudo-Callbacks                                        │
+    #┴───────────────────────────────────────────────────────────────────────╯
+
+    def add_callback(self, cb):
+        """Add a keras callback or list of keras callbacks to logger.
+
+        Callbacks run at certain points of TensorFlow execution, and
+        are one of the two primary logging mechanisms (the other being
+        usage of `tf.summary` in a custom training loop).
+
+        Typically run with Keras-templated trainers or to create plots.
+
+        args:
+          cb: `CallBack` or list of `CallBack`s
+        """
+        if isinstance(cb, list):
+            # Add a list of callbacks
+            for x in cb:
+                self.callbacks.append(cb)
+        else:
+            # Add a single callback
+            self.callbacks.append(cb)
+
+
+    def on_train_begin(self):
+        pass
+
+
+    def on_train_end(self):
+        pass
+
+
+    def on_epoch_begin(self):
+        pass
+
+
+    def on_epoch_end(self, inc=1):
+        """
+        Any logic to be performed in the logger whenever an epoch
+        completes in the training.
+        """
+        self.cur_epoch += inc
+
+
+    def on_step_begin(self):
+        """
+        """
+        pass
+
+
+    def on_step_end(self, inc=1):
+        """
+        Any logic to be performed in the logger whenever a step
+        completes in the training.
+        """
+        self.cur_step += inc
+
+
+    def on_batch_begin(self):
+        """
+        """
+        pass
+
+
+    def on_batch_end(self):
+        """
+        """
+        pass

@@ -394,7 +394,7 @@ class Trainer(BaseTrainer):
 
         self.logger.on_train_begin();
 
-        # Create checkpoint manager
+        # Create checkpoint manager  # [?] move to logger?
         ckpt = tf.train.Checkpoint(
             step=tf.Variable(1),
             optimizer=self.optimizer,

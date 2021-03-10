@@ -90,12 +90,7 @@ class Logger(BaseLogger):
         # Create plots
         for i in range(cfg['log'].post_every):
             # Plot data from the end of each epoch
-            self.plot_everything(
-                f"{lo_epoch + i}.png",
-
-                # Translate epoch index to batch index
-                index=(i + 1) * self.cfg['train'].n_batch - 1
-            )
+            self.plot_everything(f"{lo_epoch + i}.png", i)
 
         # Free up RAM
         self.logvars = {}
@@ -201,14 +196,18 @@ class Logger(BaseLogger):
     def plot_everything(self, filename, index=-1):
         # [?] should loggers have their model as an attribute?
 
+        # [?] right now this plots the last batch per epoch
+        last_batch_idx = self.cfg['train'].n_batch - 1
+
         # Input
-        x = self.logvars['inputs'][index][0]  # shape = (seqlen, n_inputs)
+        # shape = (seqlen, n_inputs)
+        x = self.logvars['inputs'][index][:, :, last_batch_idx]
 
         # Outputs
-        pred_y = self.logvars['pred_y'][index][0]
-        true_y = self.logvars['true_y'][index][0]
-        voltage = self.logvars['voltage'][index][0]
-        spikes = self.logvars['spikes'][index][0]
+        pred_y = self.logvars['pred_y'][index][:, :, last_batch_idx]
+        true_y = self.logvars['true_y'][index][:, :, last_batch_idx]
+        voltage = self.logvars['voltage'][index][:, :, last_batch_idx]
+        spikes = self.logvars['spikes'][index][:, :, last_batch_idx]
 
         # Plot
         fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
