@@ -22,6 +22,8 @@ Parameters used to generate or describe your datasets.
 Parameters used to configure TensorFlow logging and your logger objects (should not be used to configure Python's
 `logging` module).
 
+**Profiling.** Uses TensorBoard's profiler. Output is dumped into `profile_dir`. Configure with `run_profiler` and `profiler_epochs`.
+
 ### Train
 Parameters configuring how the model is trained.
 
