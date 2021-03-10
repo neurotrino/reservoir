@@ -62,6 +62,7 @@ class Logger(BaseLogger):
             if 'stride' not in meta:
                 logging.warning('stride unspecified for ' + data_label)
 
+
     def post(self):
         """Save stuff to disk."""
 
@@ -123,7 +124,7 @@ class Logger(BaseLogger):
 
     def on_train_end(self):
         # Post any unposted data
-        if self.last_post[1] != self.cur_epoch:
+        if self.logvars != {}:
             self.post()
 
         # Save accrued metadata

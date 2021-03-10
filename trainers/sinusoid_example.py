@@ -51,13 +51,16 @@ class Trainer(BaseTrainer):
         voltage, spikes, prediction = self.model(x) # tripartite output
         loss_object = loss_object(y_true=y, y_pred=prediction)
 
-        # [*] Update logger
+        # [*] Because this is a tf.function, we can't collapse tensors
+        # to numpy arrays for logging, so we need to return the tensors
+        # then call `.numpy()` in `.train_step()`.
 
         # training=training is needed only if there are layers with
         # different behavior during training versus inference
         # (e.g. Dropout).
 
         return voltage, spikes, prediction, loss_object
+
 
     @tf.function
     def grad(self, inputs, targets):
