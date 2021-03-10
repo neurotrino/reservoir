@@ -327,6 +327,11 @@ class Trainer(BaseTrainer):
         """
         train_cfg = self.cfg['train']
 
+        profile_epoch = (  # [!] duplicate code
+            (epoch_idx + 1) in self.cfg['log'].profiler_epochs
+            and self.cfg['log'].run_profiler
+        )
+
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Epochwise Logging (pre-epoch)                                     │
         #┴───────────────────────────────────────────────────────────────────╯
@@ -347,9 +352,10 @@ class Trainer(BaseTrainer):
             #old way (doesn't work with profiler)
             #for batch_idx, (batch_x, batch_y) in enumerate(self.data.get()):
 
-            if self.cfg['log'].run_profiler:
+            if profile_epoch:
                 # Profile the next step
-                with profiler.Trace('train', step_num=step_idx, _r=1):  # [!] implement range
+                with profiler.Trace('train', step_num=step_idx, _r=1):
+                    # [!] implement range (i.e. just 1-10 batches)
                     (batch_x, batch_y) = self.data.next()
                     loss, acc = self.train_step(batch_x, batch_y, step_idx, pb)
             else:
@@ -434,10 +440,18 @@ class Trainer(BaseTrainer):
                 print(k)
             """
 
+            profile_epoch = (
+                self.cfg['log'].run_profiler
+                and (epoch_idx + 1) in self.cfg['log'].profiler_epochs
+            )
+
             # Start profiler
-            if self.cfg['log'].run_profiler:
+            if profile_epoch:
                 # [!] implement range
-                profiler.start(self.cfg['save'].profile_dir)
+                try:
+                    profiler.start(self.cfg['save'].profile_dir)
+                except Exception as e:
+                    logging.warning(f"issue starting profiler: {e}")
 
             print(
                 f"\nEpoch {epoch_idx + 1} / {n_epochs}"
@@ -463,9 +477,12 @@ class Trainer(BaseTrainer):
 
 
             # Stop profiler
-            if self.cfg['log'].run_profiler and epoch_idx == 3:
+            if profile_epoch:
+                try:
+                    profiler.stop()
+                except Exception as e:
+                    logging.warning(f"issue stopping profiler: {e}")
                 # [!] implement range
-                profiler.stop()
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Logging (post-training)                                           │

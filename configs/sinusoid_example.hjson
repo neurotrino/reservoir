@@ -203,7 +203,7 @@
 
         // If enabled, the profiler will run on each epoch in the list below
         profiler_epochs: [
-            8
+            4
         ]
 
         // Filter for a subset of the logging procedures in the training loop
