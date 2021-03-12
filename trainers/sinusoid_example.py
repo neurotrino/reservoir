@@ -85,7 +85,7 @@ class Trainer(BaseTrainer):
         # [?] Are we saying that each batch steps with dt?
 
         #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Stepwise Logging (pre-step)                                       │
+        #┤ Pre-Step Logging                                                  │
         #┴───────────────────────────────────────────────────────────────────╯
 
         # Input/reference variables
@@ -94,9 +94,10 @@ class Trainer(BaseTrainer):
             data=batch_x.numpy(),
             meta={
                 'stride': 'step',
+                'shape_key': ('batch_size', 'seq_len', 'n_input'),
 
                 'description':
-                    'inputs (batch_size x seq_len x n_input)'
+                    'inputs'
             }
         )
         self.logger.log(
@@ -104,30 +105,23 @@ class Trainer(BaseTrainer):
             data=batch_y.numpy(),
             meta={
                 'stride': 'step',
+                'shape_key': ('batch_size', 'seq_len', '1'),
 
                 'description':
-                    'correct values (batch_size x seq_len x 1)'
+                    'correct values'
             }
         )
 
         preweights = [x.numpy() for x in self.model.trainable_variables]
 
         #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Stepwise Training                                                 │
+        #┤ Gradient Calculation                                              │
         #┴───────────────────────────────────────────────────────────────────╯
 
-        # [*] If we were using `.next()` instead of `.get()` with our
-        # data generator, this is where we'd invoke that method
-
-        # Calculate the gradients and update model weights
         voltage, spikes, prediction, loss, grads = self.grad(batch_x, batch_y)
-        self.optimizer.apply_gradients(
-            zip(grads, self.model.trainable_variables)
-        )
-        acc = 0  # doesn't make sense with this task, but acc goes here
 
         #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Stepwise Logging (post-step)                                      │
+        #┤ Mid-Step Logging                                                  │
         #┴───────────────────────────────────────────────────────────────────╯
 
         # Output variables
@@ -136,9 +130,10 @@ class Trainer(BaseTrainer):
             data=voltage.numpy(),
             meta={
                 'stride': 'step',
+                'shape_key': ('batch_size', 'seq_len', 'n_recurrent'),
 
                 'description':
-                    'voltages (batches x seq_len x num_neurons)'
+                    'voltages'
             }
         )
         self.logger.log(
@@ -146,9 +141,10 @@ class Trainer(BaseTrainer):
             data=spikes.numpy(),
             meta={
                 'stride': 'step',
+                'shape_key': ('batch_size', 'seq_len', 'n_recurrent'),
 
                 'description':
-                    'spikes (batches x seq_len x num_neurons)'
+                    'spikes'
             }
         )
         self.logger.log(
@@ -156,11 +152,24 @@ class Trainer(BaseTrainer):
             data=prediction.numpy(),
             meta={
                 'stride': 'step',
+                'shape_key': ('batch_size', 'seq_len', '1'),
 
                 'description':
-                    'predictions (batches x seq_len x 1)'
+                    'predictions'
             }
         )
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Gradient Application                                              │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        self.optimizer.apply_gradients(
+            zip(grads, self.model.trainable_variables)
+        )
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Post-Step Logging                                                 │
+        #┴───────────────────────────────────────────────────────────────────╯
 
         # [*] Log any step-wise variables for trainable variables
         #
@@ -317,7 +326,7 @@ class Trainer(BaseTrainer):
         )
         self.logger.on_step_end()
 
-        return loss, acc
+        return loss  # in classification tasks, also return accuracy
 
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -357,7 +366,7 @@ class Trainer(BaseTrainer):
             with profiler.Trace('train', step_num=step_idx, _r=1):
                 # [!] implement range (i.e. just 1-10 batches)
                 (batch_x, batch_y) = self.data.next()
-                loss, acc = self.train_step(batch_x, batch_y, step_idx)
+                loss = self.train_step(batch_x, batch_y, step_idx)
 
             # Update progress bar
             pb.add(
@@ -372,7 +381,6 @@ class Trainer(BaseTrainer):
 
             # [*] Update epoch-level log variables
             losses.append(loss)
-            #accs.append(acc)
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Epochwise Logging (post-epoch)                                    │

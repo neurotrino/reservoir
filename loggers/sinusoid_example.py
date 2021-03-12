@@ -91,19 +91,16 @@ class Logger(BaseLogger):
             f"{lo_epoch}-{hi_epoch}.npz"
         )
 
-        # compute steps and epochs
-        epochs = []
-        steps = []
+        # Plot data from the end of each epoch
+        for epoch_idx in range(cfg['log'].post_every):
+            step_idx = epoch_idx * cfg['train'].n_batch
+            self.plot_everything(f"{lo_epoch + epoch_idx}.png", step_idx)
 
         # Save the data to disk
         for k in self.logvars.keys():
             self.logvars[k] = numpy(self.logvars[k])
 
         np.savez_compressed(fp, **self.logvars)
-
-        # Plot data from the end of each epoch
-        for i in range(cfg['log'].post_every):
-            self.plot_everything(f"{lo_epoch + i}.png", i)
 
         # Free up RAM
         self.logvars = {}
@@ -205,23 +202,21 @@ class Logger(BaseLogger):
     #┤ Other Logging Methods                                                 │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def plot_everything(self, filename, index=-1):
+    def plot_everything(self, filename, idx=-1):
         logging_level = logging
 
         # [?] should loggers have their model as an attribute?
 
-        # [?] right now this plots the last batch per epoch
-        last_batch_idx = self.cfg['train'].n_batch - 1
+        last_trial_idx = self.cfg['train'].batch_size - 1
 
         # Input
-        # shape = (seqlen, n_inputs)
-        x = self.logvars['inputs'][index][:, :, last_batch_idx]
+        x = self.logvars['inputs'][idx][last_trial_idx]
 
         # Outputs
-        pred_y = self.logvars['pred_y'][index][:, :, last_batch_idx]
-        true_y = self.logvars['true_y'][index][:, :, last_batch_idx]
-        voltage = self.logvars['voltage'][index][:, :, last_batch_idx]
-        spikes = self.logvars['spikes'][index][:, :, last_batch_idx]
+        pred_y = self.logvars['pred_y'][idx][last_trial_idx]
+        true_y = self.logvars['true_y'][idx][last_trial_idx]
+        voltage = self.logvars['voltage'][idx][last_trial_idx]
+        spikes = self.logvars['spikes'][idx][last_trial_idx]
 
         # Initialize plot
         fig, axes = plt.subplots(5, figsize=(6, 8), sharex=True)
@@ -255,7 +250,7 @@ class Logger(BaseLogger):
         axes[3].legend(frameon=False)
 
         # plot weight distribution after this epoch
-        axes[4].hist(self.logvars['tv0.postweights'][index][:, -1])
+        axes[4].hist(self.logvars['tv0.postweights'][idx][:, -1])
         axes[4].set_ylabel('count')
         axes[4].set_xlabel('recurrent weights')
 
