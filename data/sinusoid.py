@@ -36,7 +36,7 @@ class DataGenerator(BaseDataGenerator):
         self.dataset = tf.data.Dataset.from_tensor_slices(
             (x, y)
         ).repeat(
-            count=cfg['train'].batch_size
+            count=cfg['train'].batch_size * cfg['train'].n_batch
         ).batch(
             cfg['train'].batch_size
         )
