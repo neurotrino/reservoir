@@ -79,7 +79,7 @@ class Trainer(BaseTrainer):
         return voltage, spikes, prediction, loss_val, grads
 
 
-    def train_step(self, batch_x, batch_y, batch_idx=None, pb=None):
+    def train_step(self, batch_x, batch_y, batch_idx=None):
         """Train on the next batch."""
 
         # [?] Are we saying that each batch steps with dt?
@@ -96,7 +96,7 @@ class Trainer(BaseTrainer):
                 'stride': 'step',
 
                 'description':
-                    'inputs (batches x seq_len x n_input)'
+                    'inputs (batch_size x seq_len x n_input)'
             }
         )
         self.logger.log(
@@ -106,7 +106,7 @@ class Trainer(BaseTrainer):
                 'stride': 'step',
 
                 'description':
-                    'correct values (batches x seq_len x 1)'
+                    'correct values (batch_size x seq_len x 1)'
             }
         )
 
@@ -352,16 +352,12 @@ class Trainer(BaseTrainer):
 
         # Iterate over training steps
         for step_idx in range(train_cfg.n_batch):
-
-            #old way (doesn't work with profiler)
-            #for batch_idx, (batch_x, batch_y) in enumerate(self.data.get()):
-
             # NOTE: trace events only created when profiler is enabled
             # (i.e. this isn't costly if the profiler is off)
             with profiler.Trace('train', step_num=step_idx, _r=1):
                 # [!] implement range (i.e. just 1-10 batches)
                 (batch_x, batch_y) = self.data.next()
-                loss, acc = self.train_step(batch_x, batch_y, step_idx, pb)
+                loss, acc = self.train_step(batch_x, batch_y, step_idx)
 
             # Update progress bar
             pb.add(

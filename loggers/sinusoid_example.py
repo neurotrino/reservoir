@@ -223,15 +223,17 @@ class Logger(BaseLogger):
         voltage = self.logvars['voltage'][index][:, :, last_batch_idx]
         spikes = self.logvars['spikes'][index][:, :, last_batch_idx]
 
-        # Plot
+        # Initialize plot
         fig, axes = plt.subplots(5, figsize=(6, 8), sharex=True)
 
         [ax.clear() for ax in axes]
 
+        # Plot input
         im = axes[0].pcolormesh(x.T, cmap='cividis')
         cb1 = fig.colorbar(im, ax=axes[0])
         axes[0].set_ylabel('input')
 
+        # Plot voltage
         im = axes[1].pcolormesh(
             voltage.T,
             cmap='seismic',
@@ -246,6 +248,7 @@ class Logger(BaseLogger):
         cb3 = fig.colorbar(im, ax=axes[2])
         axes[2].set_ylabel('spike')
 
+        # Plot prediction-vs-actual
         axes[3].plot(true_y, 'k--', lw=2, alpha=0.7, label='target')
         axes[3].plot(pred_y, 'b', lw=2, alpha=0.7, label='prediction')
         axes[3].set_ylabel('output')

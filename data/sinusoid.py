@@ -24,18 +24,22 @@ class DataGenerator(BaseDataGenerator):
     def __init__(self, cfg):
         super().__init__(cfg)
 
-        # Generate initial dataset
-        seq_len = cfg['data'].seq_len  # no. inputs
-        n_input = cfg['data'].n_input  # dim of input
+        # Generate a sinusoid pattern
+        seq_len = cfg['data'].seq_len
+        n_input = cfg['data'].n_input
 
         x = tf.random.uniform(shape=(seq_len, n_input))[None] * 0.5
         y = tf.sin(tf.linspace(0.0, 4 * np.pi, seq_len))[None, :, None]
 
+        # Repeat the sinusoid pattern enough times for a single epoch,
+        # formatted as batches
         self.dataset = tf.data.Dataset.from_tensor_slices(
             (x, y)
         ).repeat(
-            count=cfg['train'].batch_size * cfg['train'].n_batch
-        ).batch(cfg['train'].batch_size)
+            count=cfg['train'].batch_size
+        ).batch(
+            cfg['train'].batch_size
+        )
 
         # Iterator
         self.iterator = None
