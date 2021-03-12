@@ -231,7 +231,6 @@ class Logger(BaseLogger):
         im = axes[0].pcolormesh(x.T, cmap='cividis')
         cb1 = fig.colorbar(im, ax=axes[0])
         axes[0].set_ylabel('input')
-        axes[0].set_xlim([0, 1000])  # TODO: tmp values
 
         im = axes[1].pcolormesh(
             voltage.T,
@@ -241,25 +240,21 @@ class Logger(BaseLogger):
         )
         cb2 = fig.colorbar(im, ax=axes[1])
         axes[1].set_ylabel('voltage')
-        axes[1].set_xlim([0, 1000])  # TODO: tmp values
 
         # plot transpose of spike matrix
         im = axes[2].pcolormesh(spikes.T, cmap='Greys', vmin=0, vmax=1)
         cb3 = fig.colorbar(im, ax=axes[2])
         axes[2].set_ylabel('spike')
-        axes[2].set_xlim([0, 1000])  # TODO: tmp values
 
         axes[3].plot(true_y, 'k--', lw=2, alpha=0.7, label='target')
         axes[3].plot(pred_y, 'b', lw=2, alpha=0.7, label='prediction')
         axes[3].set_ylabel('output')
         axes[3].legend(frameon=False)
-        axes[3].set_xlim([0, 100])  # TODO: tmp values
 
         # plot weight distribution after this epoch
         axes[4].hist(self.logvars['tv0.postweights'][index][:, -1])
         axes[4].set_ylabel('count')
         axes[4].set_xlabel('recurrent weights')
-        axes[4].set_xlim([0, 10])  # TODO: tmp values
 
         [ax.yaxis.set_label_coords(-0.05, 0.5) for ax in axes]
 
