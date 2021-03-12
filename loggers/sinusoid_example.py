@@ -256,10 +256,11 @@ class Logger(BaseLogger):
 
         [ax.yaxis.set_label_coords(-0.05, 0.5) for ax in axes]
 
+        # Export
         plt.draw()
-
         plt.savefig(os.path.join(self.cfg['save'].plot_dir, filename))
 
+        # Teardown
         cb1.remove()
         cb2.remove()
         cb3.remove()

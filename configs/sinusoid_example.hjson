@@ -192,16 +192,7 @@
         // Training used ([!] would like to automate this):
         training_method: backprop
 
-        // Toggle the TensorBoard profiler to identify bottlenecks in the
-        // training loop. This has significant post-training overhead.
-        //
-        // Additionally, it's recommended that you only run the profiler for a
-        // small subset of batches (no more than 10) and that these batches be
-        // away from the start of the step, as early batches have an
-        // initialization overhead which skews the profiler results.
-        //
-        // DEV NOTE: This is a little jank right now; only enable when
-        // actively profiling your code.
+        // Toggle the TensorBoard profiler
         run_profiler: false
 
         // If enabled, the profiler will run on each epoch in the list below
@@ -225,13 +216,13 @@
         learning_rate: 0.1
 
         // number of trials in batch
-        batch_size: 8
+        batch_size: 16
 
         // number of batches in an epoch
-        n_batch: 16
+        n_batch: 32
 
         // number of epochs the model is fit over
-        n_epochs: 32
+        n_epochs: 64
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
