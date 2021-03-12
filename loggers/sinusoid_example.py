@@ -159,7 +159,7 @@ class Logger(BaseLogger):
         as saving model weights, where `.save_weights()` must be called
         from the trainer, at least for now).
         """
-        action_list = []
+        action_list = {}
 
         # Bookkeeping
         self.cur_step += 1
@@ -182,7 +182,7 @@ class Logger(BaseLogger):
         as saving model weights, where `.save_weights()` must be called
         from the trainer, at least for now).
         """
-        action_list = []
+        action_list = {}
 
         # Bookkeeping
         self.cur_epoch += 1
@@ -196,7 +196,7 @@ class Logger(BaseLogger):
             self.post()
 
             # [?] Originally used a CheckpointManager in the logger
-            action_list.append('save_weights')
+            action_list['save_weights'] = True
 
         return action_list
 

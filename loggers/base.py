@@ -151,20 +151,22 @@ class BaseLogger:
     def on_train_begin(self):
         """Logging logic/operations performed at the start of training.
 
-        Returns an "action list" of command strings indicating
-        operations for the trainer to perform (e.g. saving weights).
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
         """
-        action_list = []
+        action_list = {}
         return action_list
 
 
     def on_train_end(self):
         """Logging logic/operations performed at the end of training.
 
-        Returns an "action list" of command strings indicating
-        operations for the trainer to perform (e.g. saving weights).
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
         """
-        action_list = []
+        action_list = {}
         return action_list
 
 
@@ -172,12 +174,13 @@ class BaseLogger:
         """Logging logic/operations performed at the start of each
         epoch.
 
-        Returns an "action list" of command strings indicating
-        operations for the trainer to perform (e.g. saving weights).
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
         """
-        action_list = []
+        action_list = {}
 
-        self.cur_epoch += 1
+        self.cur_epoch += 1  # bookkeeping
 
         return action_list
 
@@ -185,10 +188,11 @@ class BaseLogger:
     def on_epoch_end(self):
         """Logging logic/operations performed at the end of each epoch.
 
-        Returns an "action list" of command strings indicating
-        operations for the trainer to perform (e.g. saving weights).
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
         """
-        action_list = []
+        action_list = {}
         return action_list
 
 
@@ -196,12 +200,13 @@ class BaseLogger:
         """Logging logic/operations performed at the start of each
         step.
 
-        Returns an "action list" of command strings indicating
-        operations for the trainer to perform (e.g. saving weights).
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
         """
-        action_list = []
+        action_list = {}
 
-        self.cur_step += 1
+        self.cur_step += 1  # bookkeeping
 
         return action_list
 
@@ -209,10 +214,11 @@ class BaseLogger:
     def on_step_end(self):
         """Logging logic/operations performed at the end of each step.
 
-        Returns an "action list" of command strings indicating
-        operations for the trainer to perform (e.g. saving weights).
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
         """
-        action_list = []
+        action_list = {}
         return action_list
 
 
@@ -220,10 +226,11 @@ class BaseLogger:
         """Logging logic/operations performed at the start of each
         batch processing step.
 
-        Returns an "action list" of command strings indicating
-        operations for the trainer to perform (e.g. saving weights).
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
         """
-        action_list = []
+        action_list = {}
         return action_list
 
 
@@ -231,8 +238,9 @@ class BaseLogger:
         """Logging logic/operations performed at the end of each batch
         processing step.
 
-        Returns an "action list" of command strings indicating
-        operations for the trainer to perform (e.g. saving weights).
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
         """
-        action_list = []
+        action_list = {}
         return action_list
