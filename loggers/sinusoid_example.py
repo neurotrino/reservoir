@@ -206,6 +206,8 @@ class Logger(BaseLogger):
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def plot_everything(self, filename, index=-1):
+        logging_level = logging
+
         # [?] should loggers have their model as an attribute?
 
         # [?] right now this plots the last batch per epoch
@@ -222,7 +224,7 @@ class Logger(BaseLogger):
         spikes = self.logvars['spikes'][index][:, :, last_batch_idx]
 
         # Plot
-        fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
+        fig, axes = plt.subplots(5, figsize=(6, 8), sharex=True)
 
         [ax.clear() for ax in axes]
 
@@ -250,9 +252,9 @@ class Logger(BaseLogger):
         axes[3].legend(frameon=False)
 
         # plot weight distribution after this epoch
-        #self.axes[4].hist(weights)
-        #self.axes[4].set_ylabel('count')
-        #self.axes[4].set_xlabel('recurrent weights')
+        axes[4].hist(self.logvars['tv0.postweights'][index][:, -1])
+        axes[4].set_ylabel('count')
+        axes[4].set_xlabel('recurrent weights')
 
         [ax.yaxis.set_label_coords(-0.05, 0.5) for ax in axes]
 

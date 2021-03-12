@@ -213,7 +213,7 @@ class Trainer(BaseTrainer):
 
             # Weights after applying gradients
             self.logger.log(
-                data_label=tvar.name + '.postweights',
+                data_label=f"tv{i}.postweights",
                 data=tvar.numpy(),
                 meta={
                     'stride': 'step',
@@ -386,7 +386,16 @@ class Trainer(BaseTrainer):
         epoch_loss = np.mean(losses)
 
         # [*] Log any epoch-wise variables.
-        self.logger.log('epoch_loss', epoch_loss)
+        self.logger.log(
+            data_label='epoch_loss',
+            data=epoch_loss,
+            meta={
+                'stride': 'epoch',
+
+                'description':
+                    'mean step loss within an epoch'
+            }
+        )
 
         # [*] Summarize epoch-level log variables here
         # [?] Register epoch-level log variables here
