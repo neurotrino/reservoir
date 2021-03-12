@@ -247,7 +247,7 @@ class Logger(BaseLogger):
         im = axes[2].pcolormesh(spikes.T, cmap='Greys', vmin=0, vmax=1)
         cb3 = fig.colorbar(im, ax=axes[2])
         axes[2].set_ylabel('spike')
-        axes[2].set_xlim([])
+        axes[2].set_xlim([0, 1000])  # TODO: tmp values
 
         axes[3].plot(true_y, 'k--', lw=2, alpha=0.7, label='target')
         axes[3].plot(pred_y, 'b', lw=2, alpha=0.7, label='prediction')
