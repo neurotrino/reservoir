@@ -250,7 +250,8 @@ class Logger(BaseLogger):
         axes[3].legend(frameon=False)
 
         # plot weight distribution after this epoch
-        axes[4].hist(self.logvars['tv0.postweights'][idx][:, -1])
+        # (n_input x n_recurrent) [?] do we need to flatten?
+        axes[4].hist(self.logvars['tv0.postweights'][idx])
         axes[4].set_ylabel('count')
         axes[4].set_xlabel('recurrent weights')
 
