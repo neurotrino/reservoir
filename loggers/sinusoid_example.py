@@ -65,7 +65,19 @@ class Logger(BaseLogger):
 
 
     def post(self):
-        """Save stuff to disk."""
+        """Flush logvars to disk and generate plots.
+
+        Buffered logvars are saved to the output directory specified by
+        the HJSON configuration file, named `n-m.npz`, where n is the
+        lowest-numbered epoch associated with buffered logvars and m
+        the highest.
+
+        Additionally, for each epoch j, a plot `j.png` showing voltage,
+        spiking, and prediction-versus-truth data is created in an
+        adjacent directory.
+
+        The logvars buffer is emptied after this operation.
+        """
 
         t0 = time.time()
 
@@ -149,15 +161,13 @@ class Logger(BaseLogger):
         """
         action_list = []
 
+        # Bookkeeping
         self.cur_step += 1
 
         # Maintain, for convenience, a list of epoch and step numbers
         # to align stepwise data to in the npz file
         self.log('step', self.cur_step, meta={'stride': 'step'})
         self.log('sw_epoch', self.cur_epoch, meta={'stride': 'step'})
-
-        # TODO: add a convenient step/epoch array into the npz file to
-        # align with all the datapoints
 
         return action_list
 
@@ -174,6 +184,7 @@ class Logger(BaseLogger):
         """
         action_list = []
 
+        # Bookkeeping
         self.cur_epoch += 1
         self.cur_step = 0
 

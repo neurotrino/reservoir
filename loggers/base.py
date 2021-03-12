@@ -1,16 +1,6 @@
-"""Logger class(es) for monitoring network training and testing.
-
-The `Logger` class is fairly minimal, serving only to interface between
-a `Trainer` and TensorFlow's logging mechanisms. Formatting of data to
-be logged is left up to the `Trainer` and `CallBacks` in
-`logging.callbacks`.
-
-Resources:
-  - "Complete TensorBoard Guide" : youtube.com/watch?v=k7KfYXXrOj0
-"""
+"""Logger class(es) for monitoring network training and testing."""
 
 import logging
-
 import os
 import tensorflow as tf
 
@@ -96,7 +86,10 @@ class BaseLogger:
         additional processing.
         """
         class_name = self.__class__.__name__
-        logging.warning(f"{class_name}.post() called but not implemented")
+        logging.warning(
+            f"{class_name}.post() called but not implemented: flushing buffer"
+        )
+        self.logvars = {}  # flush buffer to avoid running out of RAM
 
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -157,51 +150,89 @@ class BaseLogger:
 
     def on_train_begin(self):
         """Logging logic/operations performed at the start of training.
+
+        Returns an "action list" of command strings indicating
+        operations for the trainer to perform (e.g. saving weights).
         """
-        pass
+        action_list = []
+        return action_list
 
 
     def on_train_end(self):
         """Logging logic/operations performed at the end of training.
+
+        Returns an "action list" of command strings indicating
+        operations for the trainer to perform (e.g. saving weights).
         """
-        pass
+        action_list = []
+        return action_list
 
 
     def on_epoch_begin(self):
         """Logging logic/operations performed at the start of each
         epoch.
+
+        Returns an "action list" of command strings indicating
+        operations for the trainer to perform (e.g. saving weights).
         """
-        pass
+        action_list = []
+
+        self.cur_epoch += 1
+
+        return action_list
 
 
     def on_epoch_end(self):
         """Logging logic/operations performed at the end of each epoch.
+
+        Returns an "action list" of command strings indicating
+        operations for the trainer to perform (e.g. saving weights).
         """
-        pass
+        action_list = []
+        return action_list
 
 
     def on_step_begin(self):
         """Logging logic/operations performed at the start of each
         step.
+
+        Returns an "action list" of command strings indicating
+        operations for the trainer to perform (e.g. saving weights).
         """
-        pass
+        action_list = []
+
+        self.cur_step += 1
+
+        return action_list
 
 
     def on_step_end(self):
         """Logging logic/operations performed at the end of each step.
+
+        Returns an "action list" of command strings indicating
+        operations for the trainer to perform (e.g. saving weights).
         """
-        pass
+        action_list = []
+        return action_list
 
 
     def on_batch_begin(self):
         """Logging logic/operations performed at the start of each
         batch processing step.
+
+        Returns an "action list" of command strings indicating
+        operations for the trainer to perform (e.g. saving weights).
         """
-        pass
+        action_list = []
+        return action_list
 
 
     def on_batch_end(self):
         """Logging logic/operations performed at the end of each batch
         processing step.
+
+        Returns an "action list" of command strings indicating
+        operations for the trainer to perform (e.g. saving weights).
         """
-        pass
+        action_list = []
+        return action_list
