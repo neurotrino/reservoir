@@ -1,6 +1,7 @@
 from os.path import abspath
 
 import logging
+import os
 import tensorflow as tf
 import utils.config
 

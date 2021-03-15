@@ -1,4 +1,6 @@
-/* HJSON configuration file for use with MacLean-1 SNN experiments
+/* HJSON configuration file for use with MacLean Lab SNN experiments
+ *
+ * The HJSON syntax is fully defined here: https://hjson.github.io/
  * ---------------------------------------------------------------------------
  * This file is configured for a model trained to match a lightly-noised
  * sinusoid pattern. Its primary purpose is to serve as an example and/or
@@ -7,8 +9,6 @@
  * Some small notes about encoding Python variables in HJSON:
  * - HJSON booleans are lowercase (`true` & `false`, not `True` & `False`)
  * - Use `null` in HJSON where you want `None` in Python
- *
- * The HJSON syntax is fully defined here: https://hjson.github.io/
  */
 {
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -98,7 +98,7 @@
         subdirs:
         {
             #┬───────────────────────────────────────────────────────────────╮
-            #┤ Standard                                                      │
+            #┤ TensorFlow Directories                                        │
             #┴───────────────────────────────────────────────────────────────╯
 
             // Directory storing checkpoints intended to restore models for
@@ -107,19 +107,19 @@
             // Full path: {exp_dir}\{checkpoint_dir}
             checkpoint_dir: checkpoints
 
+            #┬───────────────────────────────────────────────────────────────╮
+            #┤ TensorBoard Directories                                       │
+            #┴───────────────────────────────────────────────────────────────╯
+
             // Directory storing summary data from one or more training
             // sessions
-            //
-            // Full path: {exp_dir}\{summary_dir}
-            summary_dir: summaries
+            summary_dir: tensorboard/summaries
 
             // Directory storing logdirs (*only* for use with TensorBoard)
-            //
-            // Full path: {exp_dir}\{tb_logdir}
-            tb_logdir: logdirs
+            profile_dir: tensorboard/profile
 
             #┬───────────────────────────────────────────────────────────────╮
-            #┤ Supplementary                                                 │
+            #┤ Other Directories                                             │
             #┴───────────────────────────────────────────────────────────────╯
 
             // Used to store plots
@@ -127,7 +127,6 @@
 
             // Big everything jumbo place of stuff (the important stuff)
             main_output_dir: npz-data
-            /* you can add more directories you want to create/use here */
         }
 
         #┬───────────────────────────────────────────────────────────────────╮
@@ -174,7 +173,7 @@
         seq_len: 1000
 
         // number of input units
-        n_input: 20
+        n_input: 10
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -193,6 +192,14 @@
         // Training used ([!] would like to automate this):
         training_method: backprop
 
+        // Toggle the TensorBoard profiler
+        run_profiler: false
+
+        // If enabled, the profiler will run on each epoch in the list below
+        profiler_epochs: [
+            4
+        ]
+
         // Filter for a subset of the logging procedures in the training loop
         layer_whitelist: [
             rnn
@@ -209,13 +216,13 @@
         learning_rate: 0.1
 
         // number of trials in batch
-        batch_size: 8
+        batch_size: 16
 
         // number of batches in an epoch
-        n_batch: 16
+        n_batch: 32
 
         // number of epochs the model is fit over
-        n_epochs: 32
+        n_epochs: 64
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮

@@ -4,16 +4,16 @@ tensorflow.org/tutorials/customization/custom_training_walkthrough
 """
 
 from tensorflow.keras.utils import Progbar
-3
+
 import logging
 import numpy as np
 import os
 import tensorflow as tf
 import tensorflow.keras.backend as K
+import tensorflow.profiler.experimental as profiler
 
 # local
 from trainers.base import BaseTrainer
-
 
 class Trainer(BaseTrainer):
     """TODO: docs  | note how `optimizer` isn't in the parent"""
@@ -35,6 +35,7 @@ class Trainer(BaseTrainer):
     #┤ Training Loop (step level)                                            │
     #┴───────────────────────────────────────────────────────────────────────╯
 
+    @tf.function
     def loss(self, x, y):
         """Calculate the loss on data x labeled y."""
         loss_object = tf.keras.losses.MeanSquaredError()
@@ -48,74 +49,24 @@ class Trainer(BaseTrainer):
         # logger as an optional argument.
 
         voltage, spikes, prediction = self.model(x) # tripartite output
+        loss_object = loss_object(y_true=y, y_pred=prediction)
 
-        # [*] Update logger
-
-        # Output variables
-        self.logger.log(
-            data_label='voltage',
-            data=voltage.numpy(),
-            meta={
-                'stride': 'step',
-
-                'description':
-                    'voltages (batches x seq_len x num_neurons)'
-            }
-        )
-        self.logger.log(
-            data_label='spikes',
-            data=spikes.numpy(),
-            meta={
-                'stride': 'step',
-
-                'description':
-                    'spikes (batches x seq_len x num_neurons)'
-            }
-        )
-        self.logger.log(
-            data_label='pred_y',
-            data=prediction.numpy(),
-            meta={
-                'stride': 'step',
-
-                'description':
-                    'predictions (batches x seq_len x 1)'
-            }
-        )
-
-        # Input/reference variables
-        self.logger.log(
-            data_label='inputs',
-            data=x.numpy(),
-            meta={
-                'stride': 'step',
-
-                'description':
-                    'inputs (batches x seq_len x n_input)'
-            }
-        )
-        self.logger.log(
-            data_label='true_y',
-            data=y.numpy(),
-            meta={
-                'stride': 'step',
-
-                'description':
-                    'correct values (batches x seq_len x 1)'
-            }
-        )
+        # [*] Because this is a tf.function, we can't collapse tensors
+        # to numpy arrays for logging, so we need to return the tensors
+        # then call `.numpy()` in `.train_step()`.
 
         # training=training is needed only if there are layers with
         # different behavior during training versus inference
         # (e.g. Dropout).
 
-        return loss_object(y_true=y, y_pred=prediction)
+        return voltage, spikes, prediction, loss_object
 
 
+    @tf.function
     def grad(self, inputs, targets):
         """Gradient calculation(s)"""
         with tf.GradientTape() as tape:
-            loss_val = self.loss(inputs, targets)
+            voltage, spikes, prediction, loss_val = self.loss(inputs, targets)
 
         # Calculate the gradient of the loss with respect to each
         # layer's trainable variables. In this example, calculates the
@@ -125,36 +76,99 @@ class Trainer(BaseTrainer):
         # > `dense/kernel:0`
         # > `dense/bias:0`
         grads = tape.gradient(loss_val, self.model.trainable_variables)
-        return loss_val, grads
+        return voltage, spikes, prediction, loss_val, grads
 
 
-    def train_step(self, batch_x, batch_y, batch_idx=None, pb=None):
+    def train_step(self, batch_x, batch_y, batch_idx=None):
         """Train on the next batch."""
 
         # [?] Are we saying that each batch steps with dt?
 
         #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Stepwise Logging (pre-step)                                       │
+        #┤ Pre-Step Logging                                                  │
         #┴───────────────────────────────────────────────────────────────────╯
+
+        # Input/reference variables
+        self.logger.log(
+            data_label='inputs',
+            data=batch_x.numpy(),
+            meta={
+                'stride': 'step',
+                'shape_key': ('batch_size', 'seq_len', 'n_input'),
+
+                'description':
+                    'inputs'
+            }
+        )
+        self.logger.log(
+            data_label='true_y',
+            data=batch_y.numpy(),
+            meta={
+                'stride': 'step',
+                'shape_key': ('batch_size', 'seq_len', '1'),
+
+                'description':
+                    'correct values'
+            }
+        )
 
         preweights = [x.numpy() for x in self.model.trainable_variables]
 
         #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Stepwise Training                                                 │
+        #┤ Gradient Calculation                                              │
         #┴───────────────────────────────────────────────────────────────────╯
 
-        # [*] If we were using `.next()` instead of `.get()` with our
-        # data generator, this is where we'd invoke that method
+        voltage, spikes, prediction, loss, grads = self.grad(batch_x, batch_y)
 
-        # Calculate the gradients and update model weights
-        loss, grads = self.grad(batch_x, batch_y)
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Mid-Step Logging                                                  │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        # Output variables
+        self.logger.log(
+            data_label='voltage',
+            data=voltage.numpy(),
+            meta={
+                'stride': 'step',
+                'shape_key': ('batch_size', 'seq_len', 'n_recurrent'),
+
+                'description':
+                    'voltages'
+            }
+        )
+        self.logger.log(
+            data_label='spikes',
+            data=spikes.numpy(),
+            meta={
+                'stride': 'step',
+                'shape_key': ('batch_size', 'seq_len', 'n_recurrent'),
+
+                'description':
+                    'spikes'
+            }
+        )
+        self.logger.log(
+            data_label='pred_y',
+            data=prediction.numpy(),
+            meta={
+                'stride': 'step',
+                'shape_key': ('batch_size', 'seq_len', '1'),
+
+                'description':
+                    'predictions'
+            }
+        )
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Gradient Application                                              │
+        #┴───────────────────────────────────────────────────────────────────╯
+
         self.optimizer.apply_gradients(
             zip(grads, self.model.trainable_variables)
         )
-        acc = 0  # doesn't make sense with this task, but acc goes here
 
         #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Stepwise Logging (post-step)                                      │
+        #┤ Post-Step Logging                                                 │
         #┴───────────────────────────────────────────────────────────────────╯
 
         # [*] Log any step-wise variables for trainable variables
@@ -208,7 +222,7 @@ class Trainer(BaseTrainer):
 
             # Weights after applying gradients
             self.logger.log(
-                data_label=tvar.name + '.postweights',
+                data_label=f"tv{i}.postweights",
                 data=tvar.numpy(),
                 meta={
                     'stride': 'step',
@@ -312,7 +326,7 @@ class Trainer(BaseTrainer):
         )
         self.logger.on_step_end()
 
-        return loss, acc
+        return loss  # in classification tasks, also return accuracy
 
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -326,6 +340,11 @@ class Trainer(BaseTrainer):
         """
         train_cfg = self.cfg['train']
 
+        profile_epoch = (  # [!] duplicate code
+            (epoch_idx + 1) in self.cfg['log'].profiler_epochs
+            and self.cfg['log'].run_profiler
+        )
+
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Epochwise Logging (pre-epoch)                                     │
         #┴───────────────────────────────────────────────────────────────────╯
@@ -337,11 +356,19 @@ class Trainer(BaseTrainer):
         #┤ Epochwise Training                                                │
         #┴───────────────────────────────────────────────────────────────────╯
 
-        # Training takes place here
-        pb = Progbar(self.cfg['train'].n_batch, stateful_metrics=None)
+        dataset = self.data.get()
+        pb = Progbar(train_cfg.n_batch, stateful_metrics=None)
 
-        for batch_idx, (batch_x, batch_y) in enumerate(self.data.get()):
-            loss, acc = self.train_step(batch_x, batch_y, batch_idx, pb)
+        # Iterate over training steps
+        for step_idx in range(train_cfg.n_batch):
+            # NOTE: trace events only created when profiler is enabled
+            # (i.e. this isn't costly if the profiler is off)
+            with profiler.Trace('train', step_num=step_idx, _r=1):
+                # [!] implement range (i.e. just 1-10 batches)
+                (batch_x, batch_y) = self.data.next()
+                loss = self.train_step(batch_x, batch_y, step_idx)
+
+            # Update progress bar
             pb.add(
                 1,
                 values=[
@@ -354,7 +381,6 @@ class Trainer(BaseTrainer):
 
             # [*] Update epoch-level log variables
             losses.append(loss)
-            #accs.append(acc)
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Epochwise Logging (post-epoch)                                    │
@@ -364,7 +390,16 @@ class Trainer(BaseTrainer):
         epoch_loss = np.mean(losses)
 
         # [*] Log any epoch-wise variables.
-        self.logger.log('epoch_loss', epoch_loss)
+        self.logger.log(
+            data_label='epoch_loss',
+            data=epoch_loss,
+            meta={
+                'stride': 'epoch',
+
+                'description':
+                    'mean step loss within an epoch'
+            }
+        )
 
         # [*] Summarize epoch-level log variables here
         # [?] Register epoch-level log variables here
@@ -418,6 +453,19 @@ class Trainer(BaseTrainer):
                 print(k)
             """
 
+            profile_epoch = (
+                self.cfg['log'].run_profiler
+                and (epoch_idx + 1) in self.cfg['log'].profiler_epochs
+            )
+
+            # Start profiler
+            if profile_epoch:
+                # [!] implement range
+                try:
+                    profiler.start(self.cfg['save'].profile_dir)
+                except Exception as e:
+                    logging.warning(f"issue starting profiler: {e}")
+
             print(
                 f"\nEpoch {epoch_idx + 1} / {n_epochs}"
                 + f" (batch size = {self.cfg['train'].batch_size}):"
@@ -438,6 +486,16 @@ class Trainer(BaseTrainer):
                     self.cfg['save'].checkpoint_dir,
                     f"checkpoint_e{epoch_idx + 1}"
                 ))
+
+
+
+            # Stop profiler
+            if profile_epoch:
+                try:
+                    profiler.stop()
+                except Exception as e:
+                    logging.warning(f"issue stopping profiler: {e}")
+                # [!] implement range
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Logging (post-training)                                           │

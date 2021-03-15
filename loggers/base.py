@@ -1,16 +1,6 @@
-"""Logger class(es) for monitoring network training and testing.
-
-The `Logger` class is fairly minimal, serving only to interface between
-a `Trainer` and TensorFlow's logging mechanisms. Formatting of data to
-be logged is left up to the `Trainer` and `CallBacks` in
-`logging.callbacks`.
-
-Resources:
-  - "Complete TensorBoard Guide" : youtube.com/watch?v=k7KfYXXrOj0
-"""
+"""Logger class(es) for monitoring network training and testing."""
 
 import logging
-
 import os
 import tensorflow as tf
 
@@ -21,25 +11,45 @@ class BaseLogger:
         """Create a new logger."""
         self.cfg = cfg
 
-        # Step/epoch counters
-        self.cur_epoch = 0
-        self.cur_step = 0
+
+        # Bookkeeping -------------------------------------------------
+
+        self.cur_epoch = 0  # current epoch in training
+        self.cur_step = 0   # current step in current epoch
 
         # (epoch, step) of last post. `(None, None)` if yet to post.
         self.last_post = (None, None)
 
+
+        # Logging buffer(s) -------------------------------------------
+
+        # Buffered data for each logvar.
         #
+        # Over the course of training, variables of interest (logvars)
+        # should have their values stored here at regular intervals
+        # (usually per-step or per-epoch), to be flushed to disk with
+        # each call to `.post()`.
         self.logvars = {}
 
-        # metadata of logvars
+        # Metadata for each logvar.
+        #
+        # Contains values such as 'stride' (static, step, epoch, etc.),
+        # 'description', and so on. Also serves as a catalog for
+        # observed logvars. Each logvar should have exactly one entry
+        # in `meta` by the end of training, at which point something
+        # like `meta.pickle` should be saved to disk alongside the
+        # posted data.
         self.meta = dict()
 
-        # Initialize summary writers
+
+        # TensorFlow/TensorBoard --------------------------------------
+
+        # Summary writers.
         #
         # TensorFlow summary writers write summary data (scalar values)
         # to TensorBoard event files (`.v2` files). These can be looked
         # at in TensorBoard directly, or processed into another format
-        # using scripts in `utils\postproc.py`.
+        # via scripts not currently included in this infrastructure.
         #
         # Two summary writers are contained in the base logger: one for
         # use during training, the other during testing. Other loggers
@@ -52,10 +62,35 @@ class BaseLogger:
             os.path.join(cfg['save'].summary_dir, "test")
         )
 
-        # List of logging callbacks active during the session
+        # Keras callbacks.
+        #
+        # List of logging callbacks active during the session. See the
+        # `.add_callback()` documentation for more information.
         self.callbacks = []
         if cb is not None:
             self.add_callback(cb)
+
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Core Operations                                                       │
+    #┴───────────────────────────────────────────────────────────────────────╯
+
+    def log(self, data_label, data, meta):
+        """Add data to the logging buffer."""
+        class_name = self.__class__.__name__
+        logging.warning(f"{class_name}.log() called but not implemented")
+
+
+    def post(self):
+        """Flush data from the logging buffer to disk, possibly with
+        additional processing.
+        """
+        class_name = self.__class__.__name__
+        logging.warning(
+            f"{class_name}.post() called but not implemented: flushing buffer"
+        )
+        self.logvars = {}  # flush buffer to avoid running out of RAM
+
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ TensorBoard Logging                                                   │
@@ -90,45 +125,16 @@ class BaseLogger:
 
 
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Direct Logging                                                        │
-    #┴───────────────────────────────────────────────────────────────────────╯
-
-    def log(self, data_label, data, meta):
-        pass
-
-    # [?] considering adding a `register` method that does both
-    # summarize and updates logger state
-    #
-    # Also considering:
-    #
-    #    ```
-    #    if not self.cfg['log'].tb_compat:
-    #        return
-    #    ```
-    #
-    # Where `tb_compat` is a bool specified in the HJSON config. This
-    # might save filespace
-
-    def post(self):
-        """Operations you want to do with/on the data post-training.
-        """
-        logging.warning(
-            self.__class__.__name__ + ".post() called but not implemented"
-        )
-
-
-    #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Callbacks and Pseudo-Callbacks                                        │
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def add_callback(self, cb):
         """Add a keras callback or list of keras callbacks to logger.
 
-        Callbacks run at certain points of TensorFlow execution, and
-        are one of the two primary logging mechanisms (the other being
-        usage of `tf.summary` in a custom training loop).
-
-        Typically run with Keras-templated trainers or to create plots.
+        Keras callbacks are designed for use with `.fit()`, running at
+        specific points of execution during training. It's not advised
+        these be used for logging in custom training loops. See
+        TensorFlow's callback documentation for more information.
 
         args:
           cb: `CallBack` or list of `CallBack`s
@@ -143,46 +149,98 @@ class BaseLogger:
 
 
     def on_train_begin(self):
-        pass
+        """Logging logic/operations performed at the start of training.
+
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
+        """
+        action_list = {}
+        return action_list
 
 
     def on_train_end(self):
-        pass
+        """Logging logic/operations performed at the end of training.
+
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
+        """
+        action_list = {}
+        return action_list
 
 
     def on_epoch_begin(self):
-        pass
+        """Logging logic/operations performed at the start of each
+        epoch.
+
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
+        """
+        action_list = {}
+
+        self.cur_epoch += 1  # bookkeeping
+
+        return action_list
 
 
-    def on_epoch_end(self, inc=1):
+    def on_epoch_end(self):
+        """Logging logic/operations performed at the end of each epoch.
+
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
         """
-        Any logic to be performed in the logger whenever an epoch
-        completes in the training.
-        """
-        self.cur_epoch += inc
+        action_list = {}
+        return action_list
 
 
     def on_step_begin(self):
+        """Logging logic/operations performed at the start of each
+        step.
+
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
         """
-        """
-        pass
+        action_list = {}
+
+        self.cur_step += 1  # bookkeeping
+
+        return action_list
 
 
-    def on_step_end(self, inc=1):
+    def on_step_end(self):
+        """Logging logic/operations performed at the end of each step.
+
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
         """
-        Any logic to be performed in the logger whenever a step
-        completes in the training.
-        """
-        self.cur_step += inc
+        action_list = {}
+        return action_list
 
 
     def on_batch_begin(self):
+        """Logging logic/operations performed at the start of each
+        batch processing step.
+
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
         """
-        """
-        pass
+        action_list = {}
+        return action_list
 
 
     def on_batch_end(self):
+        """Logging logic/operations performed at the end of each batch
+        processing step.
+
+        Returns an "action list" of command strings and values
+        indicating operations for the trainer to perform (e.g. saving
+        weights).
         """
-        """
-        pass
+        action_list = {}
+        return action_list

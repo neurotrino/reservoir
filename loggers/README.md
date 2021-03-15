@@ -69,6 +69,10 @@ for k in cfg.keys():
     print(k)
 ```
 
+## Pseudo-Callbacks
+Each returns an action list. Currently supported keywords:
+- `save_weights`: tells the trainer to save the model weights
+
 ## Simple Logging
 Loggers are meant to store any and all variables you're interested in logging. These should be passed to the logger by
 the training loop, and will be flushed to disk everytime the logger's `.post()` method is invoked. This can be done in

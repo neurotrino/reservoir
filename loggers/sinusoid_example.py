@@ -28,6 +28,7 @@ class Logger(BaseLogger):
     def __init__(self, cfg, cb=None):
         super().__init__(cfg, cb)
 
+
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Standard Methods                                                      │
     #┴───────────────────────────────────────────────────────────────────────╯
@@ -62,8 +63,21 @@ class Logger(BaseLogger):
             if 'stride' not in meta:
                 logging.warning('stride unspecified for ' + data_label)
 
-    def post(self,):
-        """Save stuff to disk."""
+
+    def post(self):
+        """Flush logvars to disk and generate plots.
+
+        Buffered logvars are saved to the output directory specified by
+        the HJSON configuration file, named `n-m.npz`, where n is the
+        lowest-numbered epoch associated with buffered logvars and m
+        the highest.
+
+        Additionally, for each epoch j, a plot `j.png` showing voltage,
+        spiking, and prediction-versus-truth data is created in an
+        adjacent directory.
+
+        The logvars buffer is emptied after this operation.
+        """
 
         t0 = time.time()
 
@@ -77,20 +91,16 @@ class Logger(BaseLogger):
             f"{lo_epoch}-{hi_epoch}.npz"
         )
 
-        # compute steps and epochs
-        epochs = []
-        steps = []
+        # Plot data from the end of each epoch
+        for epoch_idx in range(cfg['log'].post_every):
+            step_idx = epoch_idx * cfg['train'].n_batch
+            self.plot_everything(f"{lo_epoch + epoch_idx}.png", step_idx)
 
         # Save the data to disk
         for k in self.logvars.keys():
             self.logvars[k] = numpy(self.logvars[k])
 
         np.savez_compressed(fp, **self.logvars)
-
-        # Create plots
-        for i in range(cfg['log'].post_every):
-            # Plot data from the end of each epoch
-            self.plot_everything(f"{lo_epoch + i}.png", i)
 
         # Free up RAM
         self.logvars = {}
@@ -124,7 +134,7 @@ class Logger(BaseLogger):
 
     def on_train_end(self):
         # Post any unposted data
-        if self.last_post[1] != self.cur_epoch:
+        if self.logvars != {}:
             self.post()
 
         # Save accrued metadata
@@ -146,17 +156,15 @@ class Logger(BaseLogger):
         as saving model weights, where `.save_weights()` must be called
         from the trainer, at least for now).
         """
-        action_list = []
+        action_list = {}
 
+        # Bookkeeping
         self.cur_step += 1
 
         # Maintain, for convenience, a list of epoch and step numbers
         # to align stepwise data to in the npz file
         self.log('step', self.cur_step, meta={'stride': 'step'})
         self.log('sw_epoch', self.cur_epoch, meta={'stride': 'step'})
-
-        # TODO: add a convenient step/epoch array into the npz file to
-        # align with all the datapoints
 
         return action_list
 
@@ -171,8 +179,9 @@ class Logger(BaseLogger):
         as saving model weights, where `.save_weights()` must be called
         from the trainer, at least for now).
         """
-        action_list = []
+        action_list = {}
 
+        # Bookkeeping
         self.cur_epoch += 1
         self.cur_step = 0
 
@@ -184,7 +193,7 @@ class Logger(BaseLogger):
             self.post()
 
             # [?] Originally used a CheckpointManager in the logger
-            action_list.append('save_weights')
+            action_list['save_weights'] = True
 
         return action_list
 
@@ -193,31 +202,33 @@ class Logger(BaseLogger):
     #┤ Other Logging Methods                                                 │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def plot_everything(self, filename, index=-1):
+    def plot_everything(self, filename, idx=-1):
+        logging_level = logging
+
         # [?] should loggers have their model as an attribute?
 
-        # [?] right now this plots the last batch per epoch
-        last_batch_idx = self.cfg['train'].n_batch - 1
+        last_trial_idx = self.cfg['train'].batch_size - 1
 
         # Input
-        # shape = (seqlen, n_inputs)
-        x = self.logvars['inputs'][index][:, :, last_batch_idx]
+        x = self.logvars['inputs'][idx][last_trial_idx]
 
         # Outputs
-        pred_y = self.logvars['pred_y'][index][:, :, last_batch_idx]
-        true_y = self.logvars['true_y'][index][:, :, last_batch_idx]
-        voltage = self.logvars['voltage'][index][:, :, last_batch_idx]
-        spikes = self.logvars['spikes'][index][:, :, last_batch_idx]
+        pred_y = self.logvars['pred_y'][idx][last_trial_idx]
+        true_y = self.logvars['true_y'][idx][last_trial_idx]
+        voltage = self.logvars['voltage'][idx][last_trial_idx]
+        spikes = self.logvars['spikes'][idx][last_trial_idx]
 
-        # Plot
-        fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
+        # Initialize plot
+        fig, axes = plt.subplots(5, figsize=(6, 8), sharex=True)
 
         [ax.clear() for ax in axes]
 
+        # Plot input
         im = axes[0].pcolormesh(x.T, cmap='cividis')
         cb1 = fig.colorbar(im, ax=axes[0])
         axes[0].set_ylabel('input')
 
+        # Plot voltage
         im = axes[1].pcolormesh(
             voltage.T,
             cmap='seismic',
@@ -232,22 +243,25 @@ class Logger(BaseLogger):
         cb3 = fig.colorbar(im, ax=axes[2])
         axes[2].set_ylabel('spike')
 
+        # Plot prediction-vs-actual
         axes[3].plot(true_y, 'k--', lw=2, alpha=0.7, label='target')
         axes[3].plot(pred_y, 'b', lw=2, alpha=0.7, label='prediction')
         axes[3].set_ylabel('output')
         axes[3].legend(frameon=False)
 
         # plot weight distribution after this epoch
-        #self.axes[4].hist(weights)
-        #self.axes[4].set_ylabel('count')
-        #self.axes[4].set_xlabel('recurrent weights')
+        # (n_input x n_recurrent) [?] do we need to flatten?
+        axes[4].hist(self.logvars['tv0.postweights'][idx])
+        axes[4].set_ylabel('count')
+        axes[4].set_xlabel('recurrent weights')
 
         [ax.yaxis.set_label_coords(-0.05, 0.5) for ax in axes]
 
+        # Export
         plt.draw()
-
         plt.savefig(os.path.join(self.cfg['save'].plot_dir, filename))
 
+        # Teardown
         cb1.remove()
         cb2.remove()
         cb3.remove()
