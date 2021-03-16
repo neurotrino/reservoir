@@ -37,6 +37,7 @@ pip install -e .         # add this repository to the virtual environment
 When you're done working with the codebase, `deactivate` closes the virtual environment.
 
 ## Usage
+Meant to be forked.
 
 ### Overview
 Repository structure is an adaptation of the [Gemy Standard](https://github.com/MrGemy95/Tensorflow-Project-Template):
@@ -119,5 +120,5 @@ to [PEP 8](https://www.python.org/dev/peps/pep-0008/) and [PEP 257](https://www.
 - Maass Group (collaborators)
 
 ## License
-This software and associated documentation files are open source, licensed
-under the [MIT License](https://opensource.org/licenses/MIT).
+This software and associated documentation have been made open source under
+the [MIT License](https://opensource.org/licenses/MIT).
