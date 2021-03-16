@@ -207,7 +207,8 @@ class Logger(BaseLogger):
 
         # [?] should loggers have their model as an attribute?
 
-        last_trial_idx = self.cfg['train'].batch_size - 1
+        # last_trial_idx = self.cfg['train'].batch_size - 1
+        last_trial_idx = 0
 
         # Input
         x = self.logvars['inputs'][idx][last_trial_idx]
