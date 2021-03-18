@@ -68,7 +68,7 @@
             }
 
             beta: 0.16
-            tau_adaptation: 100.
+            tau_adaptation: 100
 
         }
     }
