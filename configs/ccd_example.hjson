@@ -35,7 +35,7 @@
         #┤ Sub-Network & Layer Parameters                                    │
         #┴───────────────────────────────────────────────────────────────────╯
         cell:
-        // currently configured for an LIF neuron:
+        // currently configured for an ExInALIF neuron:
         {
             #┬───────────────────────────────────────────────────────────────╮
             #┤ Flags                                                         │
@@ -58,7 +58,7 @@
 
             dampening_factor: 0.3
 
-            frac_e: 0.8
+            frac_e: 0.8  // fraction of total units that are excitatory
 
             p: {
                 "ee": 0.160
@@ -66,6 +66,10 @@
                 "ie": 0.318
                 "ii": 0.343
             }
+
+            beta: 0.16
+            tau_adaptation: 100.
+
         }
     }
 
@@ -92,7 +96,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/ccd_demo
+        exp_dir: ../experiments/ccd_with_dot_trained_cnn_alif
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
@@ -189,7 +193,7 @@
         post_every: 10
 
         // Neuron used ([!] would like to automate this):
-        neuron: LIF
+        neuron: ExInALIF
 
         // Training used ([!] would like to automate this):
         training_method: backprop
