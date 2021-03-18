@@ -3,7 +3,7 @@ import tensorflow as tf
 import utils.config
 
 # Build model ----
-from models.neurons.lif import ExInLIF
+from models.neurons.lif import ExInALIF
 from models.sinusoid_example import SinusoidSlayer
 
 # Load Data ------
