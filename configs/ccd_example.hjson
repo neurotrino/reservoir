@@ -96,7 +96,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/ccd_with_dot_trained_cnn_alif
+        exp_dir: ../experiments/ccd_with_dot_trained_cnn_lif
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
@@ -193,7 +193,7 @@
         post_every: 10
 
         // Neuron used ([!] would like to automate this):
-        neuron: ExInALIF
+        neuron: ExInLIF
 
         // Training used ([!] would like to automate this):
         training_method: backprop

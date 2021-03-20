@@ -3,7 +3,7 @@ import tensorflow as tf
 import utils.config
 
 # Build model ----
-from models.neurons.lif import ExInALIF
+from models.neurons.lif import ExInLIF
 from models.sinusoid_example import SinusoidSlayer
 
 # Load Data ------
@@ -27,7 +27,7 @@ def main():
 
         "cell":
         {
-            "_class": ExInALIF
+            "_class": ExInLIF
         }
     }
     model = form(template).build(cfg)
