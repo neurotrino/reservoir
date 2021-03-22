@@ -144,8 +144,8 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
     nfiles = len(epoch_groups)
     for i in range(nfiles):
         fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[i] + '.npz'
-		data = np.load(fname)
-		for j in range(len(epoch_end)):
+        data = np.load(fname)
+        for j in range(len(epoch_end)):
 			w_rec = data['rnn.w1'][:,:,epoch_end[j]]
 			# calculate propensity for this epoch
 			propensities = w_motif_propensity(w_rec,sims,dist)
