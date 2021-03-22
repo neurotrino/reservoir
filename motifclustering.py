@@ -139,6 +139,7 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
 	cc = []
 	dens = []
 	input_dens = []
+    loss = []
 
 	epoch_end = [9,19,29,39,49,59,69,79,89,99]
 	epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100','101-110','111-120','121-130','131-140','141-150','151-160','161-170','171-180','181-190','191-200']
@@ -168,6 +169,9 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
 			input_dens.append((total_ct - zero_ct)/float(total_ct))
 			#epochwise_w_in.append(w_in)
 
+            # record loss
+            loss.append(data['epoch_loss'])
+
 	# create plot of beginning and ending weight distributions
 	start_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[0] + '.npz'
 	start_data = np.load(start_fname)
@@ -192,11 +196,19 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
 	ax[0].legend(prop={'size': 7})
 	ax[0].set_title("recurrent weight distribution")
 
+    """
 	# create plot of density over time
-	ax[1].plot(dens)
-	ax[1].set_title('proportion of total recurrent connectivity')
-	ax[1].set_xlabel("epoch")
-	ax[1].set_ylabel("density")
+	ax[2].plot(dens)
+	ax[2].set_title('proportion of total recurrent connectivity')
+	ax[2].set_xlabel("epoch")
+	ax[2].set_ylabel("density")
+    """
+
+    # create plot of loss over time
+    ax[1].plot(loss)
+    ax[1].set_title('total loss per epoch')
+    ax[1].set_xlabel('epoch')
+    ax[1].set_ylabel('MSE loss')
 
 	# process clustering and create plot of clustering over time
 	mean_props = []
