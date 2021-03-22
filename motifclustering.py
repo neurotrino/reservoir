@@ -166,7 +166,8 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
             input_dens.append((total_ct - zero_ct)/float(total_ct))
             #epochwise_w_in.append(w_in)
             # record loss
-            loss.append(data['epoch_loss'])
+
+        loss.append(data['epoch_loss'])
 
     # create plot of beginning and ending weight distributions
     start_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[0] + '.npz'
@@ -223,7 +224,7 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
     plt.savefig('../experiments/' + experiment + "/analysis/output_figure.png", dpi=300)
 
 
-    
+
 def motif_propensity_over_epochs(): # edge-normalized, controls for density in rewiring conditions
 	n_epochs = 30
 	sims = 10
