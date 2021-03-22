@@ -130,18 +130,18 @@ def test_local():
 
 
 def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz meeting
-	sims = 10
-	mu = -0.64
-	sigma = 0.51
-	dist = [mu, sigma]
+    sims = 10
+    mu = -0.64
+    sigma = 0.51
+    dist = [mu, sigma]
     props = []
     cc = []
     dens = []
     input_dens = []
     loss = []
     epoch_end = [9,19,29,39,49,59,69,79,89,99]
-	epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100','101-110','111-120','121-130','131-140','141-150','151-160','161-170','171-180','181-190','191-200']
-	nfiles = len(epoch_groups)
+    epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100','101-110','111-120','121-130','131-140','141-150','151-160','161-170','171-180','181-190','191-200']
+    nfiles = len(epoch_groups)
 	for i in range(nfiles):
 		fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[i] + '.npz'
 		data = np.load(fname)
@@ -168,7 +168,7 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
 
             # record loss
             loss.append(data['epoch_loss'])
-
+            
 	# create plot of beginning and ending weight distributions
 	start_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[0] + '.npz'
 	start_data = np.load(start_fname)
