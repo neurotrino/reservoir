@@ -146,38 +146,37 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
         fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[i] + '.npz'
         data = np.load(fname)
         for j in range(len(epoch_end)):
-			w_rec = data['rnn.w1'][:,:,epoch_end[j]]
-			# calculate propensity for this epoch
-			propensities = w_motif_propensity(w_rec,sims,dist)
-			props.append(propensities)
-			# calculate clustering coefficients for this epoch
-			coefs = motifs_cc(w_rec)
-			cc.append(coefs)
+            w_rec = data['rnn.w1'][:,:,epoch_end[j]]
+            # calculate propensity for this epoch
+            propensities = w_motif_propensity(w_rec,sims,dist)
+            props.append(propensities)
+            # calculate clustering coefficients for this epoch
+            coefs = motifs_cc(w_rec)
+            cc.append(coefs)
 
-			# record recurrent weight density
-			total_ct = np.size(w_rec)
-			zero_ct = w_rec[w_rec==0].shape[0]
-			dens.append((total_ct - zero_ct)/float(total_ct))
-			#epochwise_w_rec.append(w_rec)
-			w_in = data['rnn.w0'][:,:,epoch_end[j]]
-			# record input weight density
-			total_ct = np.size(w_in)
-			zero_ct = w_in[w_in==0].shape[0]
-			input_dens.append((total_ct - zero_ct)/float(total_ct))
-			#epochwise_w_in.append(w_in)
-
+            # record recurrent weight density
+            total_ct = np.size(w_rec)
+            zero_ct = w_rec[w_rec==0].shape[0]
+            dens.append((total_ct - zero_ct)/float(total_ct))
+            #epochwise_w_rec.append(w_rec)
+            w_in = data['rnn.w0'][:,:,epoch_end[j]]
+            # record input weight density
+            total_ct = np.size(w_in)
+            zero_ct = w_in[w_in==0].shape[0]
+            input_dens.append((total_ct - zero_ct)/float(total_ct))
+            #epochwise_w_in.append(w_in)
             # record loss
             loss.append(data['epoch_loss'])
 
-	# create plot of beginning and ending weight distributions
-	start_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[0] + '.npz'
-	start_data = np.load(start_fname)
-	start_w_rec = data['rnn.w1'][:,:,0]
-	start_w_in = data['rnn.w0'][:,:,0]
-	end_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[len(epoch_groups)-1] + '.npz'
-	end_data = np.load(end_fname)
-	end_w_rec = data['rnn.w1'][:,:,99]
-	end_w_in = data['rnn.w0'][:,:,99]
+    # create plot of beginning and ending weight distributions
+    start_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[0] + '.npz'
+    start_data = np.load(start_fname)
+    start_w_rec = data['rnn.w1'][:,:,0]
+    start_w_in = data['rnn.w0'][:,:,0]
+    end_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[len(epoch_groups)-1] + '.npz'
+    end_data = np.load(end_fname)
+    end_w_rec = data['rnn.w1'][:,:,99]
+    end_w_in = data['rnn.w0'][:,:,99]
 
 	fig, ax = plt.subplots(4, figsize=(6, 7))
 	fig.suptitle("ALIF SNN")
