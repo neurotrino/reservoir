@@ -185,10 +185,10 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
     ax[1].set_ylabel('MSE loss')
 
     ax[2].plot(dens)
-	ax[2].set_title('proportion of total recurrent connectivity')
-	ax[2].set_xlabel("epoch")
-	ax[2].set_ylabel("density")
-
+    ax[2].set_title('proportion of total recurrent connectivity')
+    ax[2].set_xlabel("epoch")
+    ax[2].set_ylabel("density")
+    
     # process clustering and create plot of clustering over time
     mean_props = []
     mean_cc = []
