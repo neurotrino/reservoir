@@ -145,7 +145,7 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
 	nfiles = len(epoch_groups)
 
 	for i in range(nfiles):
-		fname = '~/experiments/' + experiment + '/npz-data/' + epoch_groups[i] + '.npz'
+		fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[i] + '.npz'
 		data = np.load(fname)
 		for j in range(len(epoch_end)):
 			w_rec = data['rnn.w1'][:,:,epoch_end[j]]
@@ -169,12 +169,12 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
 			#epochwise_w_in.append(w_in)
 
 	# create plot of beginning and ending weight distributions
-	start_fname = 'ccd_data/alif/npz-data/' + epoch_groups[0] + '.npz'
-	start_data = np.load(fname)
+	start_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[0] + '.npz'
+	start_data = np.load(start_fname)
 	start_w_rec = data['rnn.w1'][:,:,0]
 	start_w_in = data['rnn.w0'][:,:,0]
-	end_fname = 'ccd_data/alif/npz-data/' + epoch_groups[len(epoch_groups)-1] + '.npz'
-	end_data = np.load(fname)
+	end_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[len(epoch_groups)-1] + '.npz'
+	end_data = np.load(end_fname)
 	end_w_rec = data['rnn.w1'][:,:,99]
 	end_w_in = data['rnn.w0'][:,:,99]
 
@@ -219,7 +219,7 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
 	# draw and save plot
 	fig.subplots_adjust(hspace=1)
 	plt.draw()
-	plt.savefig('~/experiments/' + experiment + "/analysis/output_figure.png", dpi=300)
+	plt.savefig('../experiments/' + experiment + "/analysis/output_figure.png", dpi=300)
 
 
 def motif_propensity_over_epochs(): # edge-normalized, controls for density in rewiring conditions
