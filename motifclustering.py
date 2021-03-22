@@ -3,7 +3,7 @@
 # then ultimately on inferred functional and recruitment graphs
 
 import sys
-sys.path.append("snn-infrastructure/")
+#sys.path.append("snn-infrastructure/")
 from motifclustering import *
 
 import numpy as np
@@ -140,7 +140,7 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
     input_dens = []
     loss = []
     epoch_end = [9,19,29,39,49,59,69,79,89,99]
-    epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100','101-110','111-120','121-130','131-140','141-150']#'151-160','161-170','171-180','181-190','191-200']
+    epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100','101-110','111-120','121-130','131-140','141-150','151-160','161-170','171-180','181-190','191-200']
     nfiles = len(epoch_groups)
     for i in range(nfiles):
         fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[i] + '.npz'
@@ -181,7 +181,7 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
     end_w_in = data['rnn.w0'][:,:,99]
 
     fig, ax = plt.subplots(4, figsize=(6, 7))
-    fig.suptitle("LIF SNN")
+    fig.suptitle("ALIF SNN")
 
     begin_w_dist = start_w_rec.flatten()
     end_w_dist = end_w_rec.flatten()
@@ -222,7 +222,7 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
     # draw and save plot
     fig.subplots_adjust(hspace=1)
     plt.draw()
-    plt.savefig('../experiments/' + experiment + "/analysis/output_figure_to_160.png", dpi=300)
+    plt.savefig('../experiments/' + experiment + "/analysis/output_figure.png", dpi=300)
 
 
 
