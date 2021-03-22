@@ -203,7 +203,7 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
     # process clustering and create plot of clustering over time
     mean_props = []
     mean_cc = []
-    for i in len(props):
+    for i in range(len(props)):
         mean_props.append(np.nanmean(props[i],axis=1))
         mean_cc.append(np.nanmean(cc[i],axis=1))
 
