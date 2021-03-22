@@ -63,7 +63,7 @@ def test_local():
 	end_data = np.load(fname)
 	end_w_rec = data['tv1.postweights'][:,:,99]
 
-	fig, ax = plt.subplots(4, figsize=(6, 7))
+	fig, ax = plt.subplots(4, figsize=(6, 8))
 	fig.suptitle("ALIF SNN")
 
 	begin_w_dist = start_w_rec.flatten()
@@ -188,7 +188,7 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
     ax[2].set_title('proportion of total recurrent connectivity')
     ax[2].set_xlabel("epoch")
     ax[2].set_ylabel("density")
-    
+
     # process clustering and create plot of clustering over time
     mean_props = []
     mean_cc = []
