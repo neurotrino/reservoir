@@ -165,9 +165,10 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
             zero_ct = w_in[w_in==0].shape[0]
             input_dens.append((total_ct - zero_ct)/float(total_ct))
             #epochwise_w_in.append(w_in)
-            # record loss
 
-        loss.append(data['epoch_loss'])
+        # record loss
+        for j in range(len(data['epoch_loss'])):
+            loss.append(data['epoch_loss'][j])
 
     # create plot of beginning and ending weight distributions
     start_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[0] + '.npz'
