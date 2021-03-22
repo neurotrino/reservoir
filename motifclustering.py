@@ -164,7 +164,7 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
     end_data = np.load(end_fname)
     end_w_rec = data['tv1.postweights'][99,:,:]
 
-    fig, ax = plt.subplots(5, figsize=(6, 7))
+    fig, ax = plt.subplots(5, figsize=(6, 8))
     fig.suptitle("ALIF SNN")
 
     begin_w_dist = start_w_rec.flatten()
