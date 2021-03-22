@@ -41,7 +41,7 @@ def test_local():
 		fname = 'ccd_data/alif/npz-data/' + epoch_groups[i] + '.npz'
 		data = np.load(fname)
 		for j in range(len(epoch_end)):
-			w_rec = data['rnn.w1'][:,:,epoch_end[j]]
+			w_rec = data['tv1.postweights'][:,:,epoch_end[j]]
 			# calculate propensity for this epoch
 			propensities = w_motif_propensity(w_rec,sims,dist)
 			props.append(propensities)
@@ -54,22 +54,14 @@ def test_local():
 			zero_ct = w_rec[w_rec==0].shape[0]
 			dens.append((total_ct - zero_ct)/float(total_ct))
 			#epochwise_w_rec.append(w_rec)
-			w_in = data['rnn.w0'][:,:,epoch_end[j]]
-			# record input weight density
-			total_ct = np.size(w_in)
-			zero_ct = w_in[w_in==0].shape[0]
-			input_dens.append((total_ct - zero_ct)/float(total_ct))
-			#epochwise_w_in.append(w_in)
 
 	# create plot of beginning and ending weight distributions
 	start_fname = 'ccd_data/alif/npz-data/' + epoch_groups[0] + '.npz'
 	start_data = np.load(fname)
-	start_w_rec = data['rnn.w1'][:,:,0]
-	start_w_in = data['rnn.w0'][:,:,0]
+	start_w_rec = data['tv1.postweights'][:,:,0]
 	end_fname = 'ccd_data/alif/npz-data/' + epoch_groups[len(epoch_groups)-1] + '.npz'
 	end_data = np.load(fname)
-	end_w_rec = data['rnn.w1'][:,:,99]
-	end_w_in = data['rnn.w0'][:,:,99]
+	end_w_rec = data['tv1.postweights'][:,:,99]
 
 	fig, ax = plt.subplots(4, figsize=(6, 7))
 	fig.suptitle("ALIF SNN")
@@ -146,7 +138,7 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
         fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[i] + '.npz'
         data = np.load(fname)
         for j in range(len(epoch_end)):
-            w_rec = data['rnn.w1'][:,:,epoch_end[j]]
+            w_rec = data['tv1.postweights'][:,:,epoch_end[j]]
             # calculate propensity for this epoch
             propensities = w_motif_propensity(w_rec,sims,dist)
             props.append(propensities)
@@ -159,12 +151,6 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
             zero_ct = w_rec[w_rec==0].shape[0]
             dens.append((total_ct - zero_ct)/float(total_ct))
             #epochwise_w_rec.append(w_rec)
-            w_in = data['rnn.w0'][:,:,epoch_end[j]]
-            # record input weight density
-            total_ct = np.size(w_in)
-            zero_ct = w_in[w_in==0].shape[0]
-            input_dens.append((total_ct - zero_ct)/float(total_ct))
-            #epochwise_w_in.append(w_in)
 
         # record loss
         for j in range(len(data['epoch_loss'])):
@@ -173,12 +159,10 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
     # create plot of beginning and ending weight distributions
     start_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[0] + '.npz'
     start_data = np.load(start_fname)
-    start_w_rec = data['rnn.w1'][:,:,0]
-    start_w_in = data['rnn.w0'][:,:,0]
+    start_w_rec = data['tv1.postweights'][:,:,0]
     end_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[len(epoch_groups)-1] + '.npz'
     end_data = np.load(end_fname)
-    end_w_rec = data['rnn.w1'][:,:,99]
-    end_w_in = data['rnn.w0'][:,:,99]
+    end_w_rec = data['tv1.postweights'][:,:,99]
 
     fig, ax = plt.subplots(4, figsize=(6, 7))
     fig.suptitle("ALIF SNN")
