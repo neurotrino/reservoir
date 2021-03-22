@@ -178,27 +178,19 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
     end_w_rec = data['rnn.w1'][:,:,99]
     end_w_in = data['rnn.w0'][:,:,99]
 
-	fig, ax = plt.subplots(4, figsize=(6, 7))
-	fig.suptitle("ALIF SNN")
+    fig, ax = plt.subplots(4, figsize=(6, 7))
+    fig.suptitle("ALIF SNN")
 
-	begin_w_dist = start_w_rec.flatten()
-	end_w_dist = end_w_rec.flatten()
-	sns.kdeplot(begin_w_dist, bw = 0.02, ax = ax[0], label='initial')
-	sns.kdeplot(end_w_dist, bw=0.02, ax = ax[0], label = 'end')
-	#ax[0].hist(start_w_rec.flatten(), bins=50, fc = '#1f77b4', label="initial")
-	#ax[0].hist(end_w_rec.flatten(), bins=50, fc = '#ff7f0e', label="end")
-	ax[0].set_xlabel("weights")
-	ax[0].set_ylabel("counts")
-	ax[0].legend(prop={'size': 7})
-	ax[0].set_title("recurrent weight distribution")
-
-    """
-	# create plot of density over time
-	ax[2].plot(dens)
-	ax[2].set_title('proportion of total recurrent connectivity')
-	ax[2].set_xlabel("epoch")
-	ax[2].set_ylabel("density")
-    """
+    begin_w_dist = start_w_rec.flatten()
+    end_w_dist = end_w_rec.flatten()
+    sns.kdeplot(begin_w_dist, bw = 0.02, ax = ax[0], label='initial')
+    sns.kdeplot(end_w_dist, bw=0.02, ax = ax[0], label = 'end')
+    #ax[0].hist(start_w_rec.flatten(), bins=50, fc = '#1f77b4', label="initial")
+    #ax[0].hist(end_w_rec.flatten(), bins=50, fc = '#ff7f0e', label="end")
+    ax[0].set_xlabel("weights")
+    ax[0].set_ylabel("counts")
+    ax[0].legend(prop={'size': 7})
+    ax[0].set_title("recurrent weight distribution")
 
     # create plot of loss over time
     ax[1].plot(loss)
@@ -206,30 +198,32 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
     ax[1].set_xlabel('epoch')
     ax[1].set_ylabel('MSE loss')
 
-	# process clustering and create plot of clustering over time
-	mean_props = []
-	mean_cc = []
-	for i in range(nfiles):
-		mean_props.append(np.nanmean(props[i],axis=1))
-		mean_cc.append(np.nanmean(cc[i],axis=1))
-	ax[2].plot(mean_cc)
-	ax[2].set_xlabel("epoch")
-	ax[2].set_ylabel("clustering coefficient")
-	ax[2].set_title("clustering coefficient")
-	ax[2].legend(['fanin','fanout','middleman'], prop={'size': 7})
+    # process clustering and create plot of clustering over time
+    mean_props = []
+    mean_cc = []
+    for i in range(nfiles):
+        mean_props.append(np.nanmean(props[i],axis=1))
+        mean_cc.append(np.nanmean(cc[i],axis=1))
 
-	ax[3].plot(mean_props)
-	ax[3].set_xlabel("epoch")
-	ax[3].set_ylabel("propensity")
-	ax[3].set_title("clustering propensity")
-	ax[3].legend(['fanin','fanout','middleman'], prop={'size': 7})
+    ax[2].plot(mean_cc)
+    ax[2].set_xlabel("epoch")
+    ax[2].set_ylabel("clustering coefficient")
+    ax[2].set_title("clustering coefficient")
+    ax[2].legend(['fanin','fanout','middleman'], prop={'size': 7})
 
-	# draw and save plot
-	fig.subplots_adjust(hspace=1)
-	plt.draw()
-	plt.savefig('../experiments/' + experiment + "/analysis/output_figure.png", dpi=300)
+    ax[3].plot(mean_props)
+    ax[3].set_xlabel("epoch")
+    ax[3].set_ylabel("propensity")
+    ax[3].set_title("clustering propensity")
+    ax[3].legend(['fanin','fanout','middleman'], prop={'size': 7})
+
+    # draw and save plot
+    fig.subplots_adjust(hspace=1)
+    plt.draw()
+    plt.savefig('../experiments/' + experiment + "/analysis/output_figure.png", dpi=300)
 
 
+    
 def motif_propensity_over_epochs(): # edge-normalized, controls for density in rewiring conditions
 	n_epochs = 30
 	sims = 10
