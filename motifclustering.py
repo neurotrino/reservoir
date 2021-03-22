@@ -164,7 +164,7 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
     end_data = np.load(end_fname)
     end_w_rec = data['tv1.postweights'][99,:,:]
 
-    fig, ax = plt.subplots(4, figsize=(6, 7))
+    fig, ax = plt.subplots(5, figsize=(6, 7))
     fig.suptitle("ALIF SNN")
 
     begin_w_dist = start_w_rec.flatten()
@@ -184,6 +184,11 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
     ax[1].set_xlabel('epoch')
     ax[1].set_ylabel('MSE loss')
 
+    ax[2].plot(dens)
+	ax[2].set_title('proportion of total recurrent connectivity')
+	ax[2].set_xlabel("epoch")
+	ax[2].set_ylabel("density")
+
     # process clustering and create plot of clustering over time
     mean_props = []
     mean_cc = []
@@ -191,17 +196,17 @@ def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz
         mean_props.append(np.nanmean(props[i],axis=1))
         mean_cc.append(np.nanmean(cc[i],axis=1))
 
-    ax[2].plot(mean_cc)
-    ax[2].set_xlabel("epoch")
-    ax[2].set_ylabel("clustering coefficient")
-    ax[2].set_title("clustering coefficient")
-    ax[2].legend(['fanin','fanout','middleman'], prop={'size': 7})
-
-    ax[3].plot(mean_props)
+    ax[3].plot(mean_cc)
     ax[3].set_xlabel("epoch")
-    ax[3].set_ylabel("propensity")
-    ax[3].set_title("clustering propensity")
+    ax[3].set_ylabel("clustering coefficient")
+    ax[3].set_title("clustering coefficient")
     ax[3].legend(['fanin','fanout','middleman'], prop={'size': 7})
+
+    ax[4].plot(mean_props)
+    ax[4].set_xlabel("epoch")
+    ax[4].set_ylabel("propensity")
+    ax[4].set_title("clustering propensity")
+    ax[4].legend(['fanin','fanout','middleman'], prop={'size': 7})
 
     # draw and save plot
     fig.subplots_adjust(hspace=1)
