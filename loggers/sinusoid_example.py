@@ -98,7 +98,7 @@ class Logger(BaseLogger):
 
         # Save the data to disk
         for k in self.logvars.keys():
-            self.logvars[k] = numpy(self.logvars[k])
+            self.logvars[k] = np.array(self.logvars[k])
 
         np.savez_compressed(fp, **self.logvars)
 
@@ -268,17 +268,3 @@ class Logger(BaseLogger):
 
         plt.clf()
         plt.close()
-
-
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Utility Functions                                                         │
-#┴───────────────────────────────────────────────────────────────────────────╯
-
-def numpy(xs):
-    """Convert n-length list of pxq np arrays to pxqxn np array."""
-    try:
-        arr = np.concatenate(xs, axis=0)
-        arr = arr.reshape(xs[0].shape + (len(xs),))
-    except:
-        arr = np.array(xs)
-    return arr
