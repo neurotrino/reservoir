@@ -42,6 +42,11 @@ data=np.load('1-5.npz')
 # check what np arrays are in the npz
 for k in data.files:
     print(k)
+    try:
+        print(k.shape)
+    except:
+        print('(no shape)')
+    print()
 ```
 
 Some `np.arrays` of particular note in the `npz` files:
