@@ -78,7 +78,7 @@ def fano_factor(self, spike):
     #Returned fano factor should have dims of trial
 
 
-    # leaving this unfinished for now as accessible attributes and dimensions are unclear 
+    # leaving this unfinished for now as accessible attributes and dimensions are unclear
 
 
     try:
@@ -118,6 +118,30 @@ def fano_factor(self, spike):
 """
 
 class SpikeRegularization(tf.keras.layers.Layer):
+    def __init__(self, cell, target_rate, rate_cost):
+        super().__init__()
+        self._rate_cost = rate_cost
+        self._target_rate = target_rate
+        self._cell = cell
+
+    def call(self, inputs, **kwargs):
+
+        spike = inputs[1]
+
+        # regularize for small durations of time for individual units
+
+        
+        unitwise_rates = tf.reduce_mean(spike, axis=(0, 1))
+        global_rate = tf.reduce_mean(rate)
+        self.add_metric(global_rate, name = 'rate', aggregation='mean')
+
+        reg_loss = tf.reduce_sum(tf.square(rate - self._target_rate)) * self._rate_cost
+        self.add_loss(reg_loss)
+        self.add_metric(reg_loss, name = 'rate_loss', aggregation = 'mean')
+
+        return inputs
+
+class GlobalSpikeRegularization(tf.keras.layers.Layer):
     """TODO: docs"""
     def __init__(self, cell, target_rate, rate_cost): # rate in spikes/ms for ease
         """TODO: docs"""
