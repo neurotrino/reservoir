@@ -4,6 +4,7 @@ from typing import Any
 
 import numpy as np
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Base (Inherited) Model                                                    │
@@ -46,25 +47,38 @@ class BranchingRegularization(tf.keras.layers.Layer):
         self.add_metric(reg_loss, name='branch_loss', aggregation='mean')
 
         return inputs
-
-class SynchronyRegularization(tf.keras.layers.Layer):
+"""
+class SynchronyRateRegularization(tf.keras.layers.Layer):
     # can be strung togther or later collapsed with other regularization layers
-    def __init__(self, cell, target_synch, synch_cost): # fano factor-like rapid synchrony measure
+    def __init__(self, cell, target_synch, synch_cost, target_rate, rate_cost): # fano factor-like rapid synchrony measure
         super().__init__()
         self._synch_cost = synch_cost
         self._target_synch = target_synch
+        self._rate_cost = rate_cost
+        self._target_rate = target_rate
         self._cell = cell
 
     def call(self, inputs, **kwargs):
         spike = inputs[1]
 
-        synchrony = fano_factor(self, spike)
-        global_synchrony = tf.reduce_mean(synchrony)
+        synchrony = fano_factor(self, spike) # for individual units across trial
+        global_synchrony = tf.reduce_mean(synchrony) # across all units and trial time
         self.add_metric(global_synchrony, name='synchrony', aggregation='mean')
 
-        reg_loss = tf.reduce_sum(tf.square(synchrony - self._target_synch)) * self._synch_cost
-        self.add_loss(reg_loss)
-        self.add_metric(reg_loss, name='synch_loss', aggregation='mean')
+        synch_reg_loss = tf.reduce_sum(tf.square(synchrony - self._target_synch)) * self._synch_cost
+        self.add_loss(synch_reg_loss)
+        self.add_metric(synch_reg_loss, name='synch_loss', aggregation='mean')
+
+        unitwise_rates = tf.reduce_mean(spike, axis=(0, 1))
+        global_rate = tf.reduce_mean(unitwise_rates)
+        self.add_metric(global_rate, name = 'rate', aggregation='mean')
+
+        rate_reg_loss = tf.reduce_sum(tf.square(unitwise_rates - self._target_rate)) * self._rate_cost
+        self.add_loss(rate_reg_loss)
+        self.add_metric(rate_reg_loss, name = 'rate_loss', aggregation = 'mean')
+
+        reg_loss = synch_reg_loss + rate_reg_loss
+        self.add_metric(reg_loss, name='total_reg_loss', aggregation='mean')
 
         return inputs
 
@@ -74,13 +88,9 @@ def fano_factor(self, spike):
     #Calculate value similar to the Fano factor to estimate synchrony quickly
     #During each bin, calculate the variance of the number of spikes per neuron divided by the mean of the number of spikes per neuron
     #The Fano factor during one interval is equal to the mean of the values calculated for each bin in it
-    #Spike should have dims of trial, neuron, time
+    #Spike should have dims of neuron, time
     #Returned fano factor should have dims of trial
-
-
-    # leaving this unfinished for now as accessible attributes and dimensions are unclear
-
-
+    """
     try:
         len_bins = 10
         n_fano = [0]*self.num_intervals
@@ -98,24 +108,31 @@ def fano_factor(self, spike):
                 fano_all[i] = var(spikes_per_neuron)/mean(spikes_per_neuron)
             n_fano[m] = mean(fano_all)
         return n_fano
-
+    """
 
     try:
-        len_bins = 10
-        n_fano = [0]*(self.seq_len/len_bins)
-        len_interval = self.seq_len/len_bins
-        n_bins = int(round(len_interval/len_bins))
-        fano_all = [0]*(self._cell.units)
-            for i in range(0, self._cell.units):
-                fano_all[i] = var(spike[i])/mean(spike[i])
-        n_fano = mean(fano_all)
+        len_bins = 10 #ms
+        n_bins = int(round(self.seq_len/len_bins))
+        fano_all = tf.zeros([n_bins])
+        #fano_all = [0]*n_bins
+        for i in range(0, n_bins)
+            #spikes_per_neuron = [0]*self._cell.units
+            spikes_per_neuron = tf.zeros([self._cell.units])
+            spike_slice = tf.gather[spike,range(i*len_bins,(i+1)*len_bins),axis=1]
+            for j in range(0, self._cell.units):
+                spikes_per_neuron[j] = tf.reduce_sum(tf.gather(spike_slice,[ii]),axis=0)
+            fano_bin = tf.math.divide_no_nan(tfp.stats.variance(spikes_per_neuron),tf.reduce_mean(spikes_per_neuron))
+            #fano_update = tf.scatter_nd(i,[n_bins])
+            #update_mask = tf.scatter_nd(tf.ones_like(i, dtype=tf.bool),[n_bins])
+            #fano_all = tf.where(update_mask,fano_update,fano_all)
+            fano_all = tf.tensor_scatter_nd_update(fano_all,[i],fano_bin)
+        n_fano = tf.reduce_mean(fano_all)
     return n_fano
 
     except Exception as e:
         print(e)
         return False
 
-"""
 
 class SpikeRegularization(tf.keras.layers.Layer):
     def __init__(self, cell, target_rate, rate_cost):
@@ -130,12 +147,11 @@ class SpikeRegularization(tf.keras.layers.Layer):
 
         # regularize for small durations of time for individual units
 
-        
         unitwise_rates = tf.reduce_mean(spike, axis=(0, 1))
-        global_rate = tf.reduce_mean(rate)
+        global_rate = tf.reduce_mean(unitwise_rates)
         self.add_metric(global_rate, name = 'rate', aggregation='mean')
 
-        reg_loss = tf.reduce_sum(tf.square(rate - self._target_rate)) * self._rate_cost
+        reg_loss = tf.reduce_sum(tf.square(unitwise_rates - self._target_rate)) * self._rate_cost
         self.add_loss(reg_loss)
         self.add_metric(reg_loss, name = 'rate_loss', aggregation = 'mean')
 

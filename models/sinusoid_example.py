@@ -4,9 +4,10 @@
 from typing import Any
 
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 # local
-from models.common import BaseModel, SpikeRegularization, exp_convolve
+from models.common import BaseModel, SpikeRegularization, SynchronyRateRegularization, exp_convolve
 from models.neurons.lif import *
 from models.neurons.adex import *
 
@@ -37,8 +38,10 @@ class SinusoidSlayer(BaseModel):
 
         initial_state = cell.zero_state(cfg['train'].batch_size)
         rnn_output = rnn(inputs, initial_state=initial_state)
-        regularization_layer = SpikeRegularization(
+        regularization_layer = SynchronyRateRegularization(
             cell,
+            self.target_synch,
+            self.synch_cost,
             self.target_rate,
             self.rate_cost
         )
