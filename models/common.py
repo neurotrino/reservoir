@@ -4,7 +4,7 @@ from typing import Any
 
 import numpy as np
 import tensorflow as tf
-import tensorflow_probability as tfp
+import tensorflow-probability as tfp
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Base (Inherited) Model                                                    │

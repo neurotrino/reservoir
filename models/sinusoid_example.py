@@ -4,7 +4,7 @@
 from typing import Any
 
 import tensorflow as tf
-import tensorflow_probability as tfp
+import tensorflow-probability as tfp
 
 # local
 from models.common import BaseModel, SpikeRegularization, SynchronyRateRegularization, exp_convolve
