@@ -202,25 +202,23 @@ def fano_factor(self, spike):
             n_fano[m] = mean(fano_all)
         return n_fano
     """
-
-    try:
-        len_bins = 10 #ms
-        n_bins = int(round(self.seq_len/len_bins))
-        fano_all = tf.zeros([n_bins])
-        #fano_all = [0]*n_bins
-        for i in range(0, n_bins):
-            #spikes_per_neuron = [0]*self._cell.units
-            spikes_per_neuron = tf.zeros([self._cell.units])
-            spike_slice = tf.gather(spike,range(i*len_bins,(i+1)*len_bins),axis=1)
-            for j in range(0, self._cell.units):
-                spikes_per_neuron[j] = tf.reduce_sum(tf.gather(spike_slice,[ii]),axis=0)
-            fano_bin = tf.math.divide_no_nan(tfp.stats.variance(spikes_per_neuron),tf.reduce_mean(spikes_per_neuron))
-            #fano_update = tf.scatter_nd(i,[n_bins])
-            #update_mask = tf.scatter_nd(tf.ones_like(i, dtype=tf.bool),[n_bins])
-            #fano_all = tf.where(update_mask,fano_update,fano_all)
-            fano_all = tf.tensor_scatter_nd_update(fano_all,[i],fano_bin)
-        n_fano = tf.reduce_mean(fano_all)
-        return n_fano
+    len_bins = 10 #ms
+    n_bins = int(round(self.seq_len/len_bins))
+    fano_all = tf.zeros([n_bins])
+    #fano_all = [0]*n_bins
+    for i in range(0, n_bins):
+        #spikes_per_neuron = [0]*self._cell.units
+        spikes_per_neuron = tf.zeros([self._cell.units])
+        spike_slice = tf.gather(spike,range(i*len_bins,(i+1)*len_bins),axis=1)
+        for j in range(0, self._cell.units):
+            spikes_per_neuron[j] = tf.reduce_sum(tf.gather(spike_slice,[ii]),axis=0)
+        fano_bin = tf.math.divide_no_nan(tfp.stats.variance(spikes_per_neuron),tf.reduce_mean(spikes_per_neuron))
+        #fano_update = tf.scatter_nd(i,[n_bins])
+        #update_mask = tf.scatter_nd(tf.ones_like(i, dtype=tf.bool),[n_bins])
+        #fano_all = tf.where(update_mask,fano_update,fano_all)
+        fano_all = tf.tensor_scatter_nd_update(fano_all,[i],fano_bin)
+    n_fano = tf.reduce_mean(fano_all)
+    return n_fano
 
 def exp_convolve(tensor, decay=0.8, reverse=False, initializer=None, axis=0):
     """TODO: docs"""
