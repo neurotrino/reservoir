@@ -17,12 +17,16 @@ class SinusoidSlayer(BaseModel):
     def __init__(self,
         target_rate,
         rate_cost,
+        target_synch,
+        synch_cost,
         cell: LIF
     ):
         super().__init__()
 
         self.target_rate = target_rate
         self.rate_cost = rate_cost
+        self.target_synch = target_synch
+        self.synch_cost = synch_cost
 
         # Sub-networks and layers
         self.cell = cell
