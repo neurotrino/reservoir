@@ -217,7 +217,7 @@ def fano_factor(self, seq_len, spike):
         #fano_update = tf.scatter_nd(i,[n_bins])
         #update_mask = tf.scatter_nd(tf.ones_like(i, dtype=tf.bool),[n_bins])
         #fano_all = tf.where(update_mask,fano_update,fano_all)
-        fano_all = tf.tensor_scatter_nd_update(fano_all,[i],fano_bin)
+        fano_all = tf.tensor_scatter_nd_update(fano_all,[[i]],fano_bin)
     n_fano = tf.reduce_mean(fano_all)
     return n_fano
 
