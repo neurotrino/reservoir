@@ -214,7 +214,7 @@ def fano_factor(self, seq_len, spike):
         #for j in range(0, self._cell.units):
             #spikes_per_neuron = tf.tensor_scatter_nd_update(spikes_per_neuron,[j],tf.reduce_sum(tf.gather(spike_slice,[j],axis=0)))
         fano_bin = tf.math.divide_no_nan(tfp.stats.variance(spikes_per_neuron,sample_axis=None),tf.reduce_mean(spikes_per_neuron))
-        fano_all = tf.tensor_scatter_nd_update(fano_all,[i],[fano_bin])
+        fano_all = tf.tensor_scatter_nd_update(fano_all,[[i]],[fano_bin])
     n_fano = tf.reduce_mean(fano_all)
     return n_fano
 
