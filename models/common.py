@@ -118,7 +118,7 @@ def fano_factor(self, spike):
         for i in range(0, n_bins):
             #spikes_per_neuron = [0]*self._cell.units
             spikes_per_neuron = tf.zeros([self._cell.units])
-            spike_slice = tf.gather[spike,range(i*len_bins,(i+1)*len_bins),axis=1]
+            spike_slice = tf.gather(spike,range(i*len_bins,(i+1)*len_bins),axis=1)
             for j in range(0, self._cell.units):
                 spikes_per_neuron[j] = tf.reduce_sum(tf.gather(spike_slice,[ii]),axis=0)
             fano_bin = tf.math.divide_no_nan(tfp.stats.variance(spikes_per_neuron),tf.reduce_mean(spikes_per_neuron))
