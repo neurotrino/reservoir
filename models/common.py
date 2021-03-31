@@ -59,7 +59,7 @@ class SynchronyRateRegularization(tf.keras.layers.Layer):
 
     def call(self, inputs, **kwargs):
         spike = inputs[1]
-        seq_len = tf.shape(spike)[1]
+        seq_len = tf.get_shape(spike).as_list()[1]
 
         synchrony = fano_factor(self, seq_len, spike) # for individual units across trial
         global_synchrony = tf.reduce_mean(synchrony) # across all units and trial time
