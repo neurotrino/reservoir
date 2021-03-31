@@ -83,53 +83,6 @@ class SynchronyRateRegularization(tf.keras.layers.Layer):
         return inputs
 
 
-def fano_factor(self, spike):
-
-    #Calculate value similar to the Fano factor to estimate synchrony quickly
-    #During each bin, calculate the variance of the number of spikes per neuron divided by the mean of the number of spikes per neuron
-    #The Fano factor during one interval is equal to the mean of the values calculated for each bin in it
-    #Spike should have dims of neuron, time
-    #Returned fano factor should have dims of trial
-    """
-    try:
-        len_bins = 10
-        n_fano = [0]*self.num_intervals
-        len_interval = self.last_spiked/self.num_intervals
-        n_bins = int(round(len_interval/len_bins))
-        for m in range(0, self.num_intervals):
-            fano_all = [0] * n_bins
-            print(len_interval*m)
-            for i in range(0, n_bins):
-                spikes_per_neuron = [0]*(self.n_neurons-self.n_inhib)
-                for j in range(0, self.n_neurons-self.n_inhib):
-                    for k in self.spike_trains[j]:
-                        if len_interval*m + len_bins*i <= k < len_interval*m + len_bins*(i+1):
-                            spikes_per_neuron[j] += 1
-                fano_all[i] = var(spikes_per_neuron)/mean(spikes_per_neuron)
-            n_fano[m] = mean(fano_all)
-        return n_fano
-    """
-
-    try:
-        len_bins = 10 #ms
-        n_bins = int(round(self.seq_len/len_bins))
-        fano_all = tf.zeros([n_bins])
-        #fano_all = [0]*n_bins
-        for i in range(0, n_bins):
-            #spikes_per_neuron = [0]*self._cell.units
-            spikes_per_neuron = tf.zeros([self._cell.units])
-            spike_slice = tf.gather(spike,range(i*len_bins,(i+1)*len_bins),axis=1)
-            for j in range(0, self._cell.units):
-                spikes_per_neuron[j] = tf.reduce_sum(tf.gather(spike_slice,[ii]),axis=0)
-            fano_bin = tf.math.divide_no_nan(tfp.stats.variance(spikes_per_neuron),tf.reduce_mean(spikes_per_neuron))
-            #fano_update = tf.scatter_nd(i,[n_bins])
-            #update_mask = tf.scatter_nd(tf.ones_like(i, dtype=tf.bool),[n_bins])
-            #fano_all = tf.where(update_mask,fano_update,fano_all)
-            fano_all = tf.tensor_scatter_nd_update(fano_all,[i],fano_bin)
-        n_fano = tf.reduce_mean(fano_all)
-        return n_fano
-
-
 class SpikeRegularization(tf.keras.layers.Layer):
     def __init__(self, cell, target_rate, rate_cost):
         super().__init__()
@@ -222,6 +175,52 @@ class SpikeVoltageRegularization(tf.keras.layers.Layer):
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ ...                                                                       │
 #┴───────────────────────────────────────────────────────────────────────────╯
+
+def fano_factor(self, spike):
+
+    #Calculate value similar to the Fano factor to estimate synchrony quickly
+    #During each bin, calculate the variance of the number of spikes per neuron divided by the mean of the number of spikes per neuron
+    #The Fano factor during one interval is equal to the mean of the values calculated for each bin in it
+    #Spike should have dims of neuron, time
+    #Returned fano factor should have dims of trial
+    """
+    try:
+        len_bins = 10
+        n_fano = [0]*self.num_intervals
+        len_interval = self.last_spiked/self.num_intervals
+        n_bins = int(round(len_interval/len_bins))
+        for m in range(0, self.num_intervals):
+            fano_all = [0] * n_bins
+            print(len_interval*m)
+            for i in range(0, n_bins):
+                spikes_per_neuron = [0]*(self.n_neurons-self.n_inhib)
+                for j in range(0, self.n_neurons-self.n_inhib):
+                    for k in self.spike_trains[j]:
+                        if len_interval*m + len_bins*i <= k < len_interval*m + len_bins*(i+1):
+                            spikes_per_neuron[j] += 1
+                fano_all[i] = var(spikes_per_neuron)/mean(spikes_per_neuron)
+            n_fano[m] = mean(fano_all)
+        return n_fano
+    """
+
+    try:
+        len_bins = 10 #ms
+        n_bins = int(round(self.seq_len/len_bins))
+        fano_all = tf.zeros([n_bins])
+        #fano_all = [0]*n_bins
+        for i in range(0, n_bins):
+            #spikes_per_neuron = [0]*self._cell.units
+            spikes_per_neuron = tf.zeros([self._cell.units])
+            spike_slice = tf.gather(spike,range(i*len_bins,(i+1)*len_bins),axis=1)
+            for j in range(0, self._cell.units):
+                spikes_per_neuron[j] = tf.reduce_sum(tf.gather(spike_slice,[ii]),axis=0)
+            fano_bin = tf.math.divide_no_nan(tfp.stats.variance(spikes_per_neuron),tf.reduce_mean(spikes_per_neuron))
+            #fano_update = tf.scatter_nd(i,[n_bins])
+            #update_mask = tf.scatter_nd(tf.ones_like(i, dtype=tf.bool),[n_bins])
+            #fano_all = tf.where(update_mask,fano_update,fano_all)
+            fano_all = tf.tensor_scatter_nd_update(fano_all,[i],fano_bin)
+        n_fano = tf.reduce_mean(fano_all)
+        return n_fano
 
 def exp_convolve(tensor, decay=0.8, reverse=False, initializer=None, axis=0):
     """TODO: docs"""
