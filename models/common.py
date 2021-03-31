@@ -127,7 +127,7 @@ def fano_factor(self, spike):
             #fano_all = tf.where(update_mask,fano_update,fano_all)
             fano_all = tf.tensor_scatter_nd_update(fano_all,[i],fano_bin)
         n_fano = tf.reduce_mean(fano_all)
-    return n_fano
+        return n_fano
 
     except Exception as e:
         print(e)
