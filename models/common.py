@@ -129,10 +129,6 @@ def fano_factor(self, spike):
         n_fano = tf.reduce_mean(fano_all)
         return n_fano
 
-    #except Exception as e:
-        #print(e)
-        #return False
-
 
 class SpikeRegularization(tf.keras.layers.Layer):
     def __init__(self, cell, target_rate, rate_cost):
