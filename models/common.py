@@ -49,7 +49,6 @@ class BranchingRegularization(tf.keras.layers.Layer):
         return inputs
 """
 class SynchronyRateRegularization(tf.keras.layers.Layer):
-    # can be strung togther or later collapsed with other regularization layers
     def __init__(self, cell, target_synch, synch_cost, target_rate, rate_cost): # fano factor-like rapid synchrony measure
         super().__init__()
         self._synch_cost = synch_cost
@@ -60,8 +59,9 @@ class SynchronyRateRegularization(tf.keras.layers.Layer):
 
     def call(self, inputs, **kwargs):
         spike = inputs[1]
+        seq_len = tf.shape(spike)[1]
 
-        synchrony = fano_factor(self, spike) # for individual units across trial
+        synchrony = fano_factor(self, seq_len, spike) # for individual units across trial
         global_synchrony = tf.reduce_mean(synchrony) # across all units and trial time
         self.add_metric(global_synchrony, name='synchrony', aggregation='mean')
 
@@ -176,7 +176,7 @@ class SpikeVoltageRegularization(tf.keras.layers.Layer):
 #┤ ...                                                                       │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-def fano_factor(self, spike):
+def fano_factor(self, seq_len, spike):
 
     #Calculate value similar to the Fano factor to estimate synchrony quickly
     #During each bin, calculate the variance of the number of spikes per neuron divided by the mean of the number of spikes per neuron
@@ -203,7 +203,7 @@ def fano_factor(self, spike):
         return n_fano
     """
     len_bins = 10 #ms
-    n_bins = int(round(self.seq_len/len_bins))
+    n_bins = int(round(seq_len/len_bins))
     fano_all = tf.zeros([n_bins])
     #fano_all = [0]*n_bins
     for i in range(0, n_bins):
