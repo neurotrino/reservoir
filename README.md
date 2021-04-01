@@ -1,14 +1,6 @@
 # MacLean Lab SNN Infrastructure
 An infrastructure for the creation and study of spiking neural networks.
 
-## Contents
-1. [Installation](#installation)
-2. [Usage](#usage)
-3. [Documentation](#documentation)
-4. [Contributing](#contributing)
-5. [Credits](#credits)
-6. [License](#license)
-
 ## Installation
 These scripts must be run as source,
 [ideally](https://www.tensorflow.org/install/pip#2.-create-a-virtual-environment-recommended) in a Python virtual
@@ -108,6 +100,31 @@ Beyond this, `README` files explaining elements of the infrastructure are includ
 
 
 ## Contributing
+
+### Common Modifications
+While the script is designed to ultimately provide a model you can control through manipulation of just one HJSON
+file, there are many changes you will often find yourself wanting to make in the Python scripts while building the
+initial model.
+
+#### Flags and Toggles
+If you want to toggle some behavior in data generation, logging, et cetera, you need to (1) add a flag to the HJSON
+script and (2) encapsulate the toggled behavior in an `if` guard. For example, say you want to toggle logging `.npz`
+files. Add something like the following to your HJSON script:
+
+```
+log:
+{
+    log_npz: true  # new flag, with the behavior enabled
+}
+```
+
+Then, in your logger, under `.post()`:
+
+```python
+if self.cfg['log'].log_npz:
+    # log npz files here
+```
+
 
 ### Style Guidelines
 When in doubt, refer first to the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html), then
