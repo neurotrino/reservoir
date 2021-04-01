@@ -91,12 +91,8 @@ you're in this phase.
 
 
 ## Documentation
-
-### Inline
-The source code contains extensive documentation, accessible via Python's `help` function.
-
-### External
-Beyond this, `README` files explaining elements of the infrastructure are included in most of the subdirectories.
+Documentation for this project is contained in this `README`, a `README` in each subdirectory, and extensive inline
+documentation throughout the `.py` scripts.
 
 
 ## Contributing
