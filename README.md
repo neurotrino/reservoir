@@ -18,14 +18,14 @@ conda activate tf2gpu
 pip install -e .
 ```
 
-#### On Mac/Linux (no conda)
+#### On Mac/Linux (no Conda)
 ```bash
 python -m venv venv         # create virtual environment
 source ./venv/bin/activate  # open virtual environment
 pip install -e .            # add this repository to the virtual environment
 ```
 
-#### On Windows (no conda)
+#### On Windows (no Conda)
 ```bash
 python -m venv venv      # create virtual environment
 ./venv/Scripts/activate  # open virtual environment
