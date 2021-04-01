@@ -1,12 +1,13 @@
 # MacLean Lab SNN Infrastructure
 An infrastructure for the creation and study of spiking neural networks.
 
+
 ## Installation
 These scripts must be run as source,
 [ideally](https://www.tensorflow.org/install/pip#2.-create-a-virtual-environment-recommended) in a Python virtual
 environment.
 
-To get setup, clone the repository and follow the instructions below:
+To get started, clone this repository and follow the instructions below.
 
 ### Creating a [Python virtual environment](docs.python.org/3/tutorial/venv)
 Enter the directory containing `setup.py` and run the following:
@@ -28,45 +29,30 @@ pip install -e .         # add this repository to the virtual environment
 ### Closing the virtual environment
 When you're done working with the codebase, `deactivate` closes the virtual environment.
 
+
 ## Usage
-Meant to be forked.
+The core principle of this infrastructure design is to create modular components useful to SNN construction and
+analysis, easily configurable (once initially constructed) via minimal changes in scripts and tweaking in HJSON files.
+To this end, it is recommended you fork the repository when designing new components, then reintroduce them once
+something crystallizes.
 
 ### Overview
-Repository structure is an adaptation of the [Gemy Standard](https://github.com/MrGemy95/Tensorflow-Project-Template):
+
+The overarching repository structure is designed around streamlining collective contribution and modularity, drawing
+heavily from [MrGemy95](https://github.com/MrGemy95/Tensorflow-Project-Template)'s machine learning project template:
 
 ```
- maclean-snn
-│
-├── configs
-│  └── *.hjson              - Model configs are set and stored in HJSON format
-│
-├── data
-│  └── *.py                 - Data generators and loaders
-│
-├── loggers
-│  ├── *.py                 - Logging API
-│  └── callbacks
-│     └── *.py              - Callback classes for logging and plotting
-│
-├── mains
-│  └── *.py                 - Each experiment template can have its own main
-│
-├── models
-│  ├── common.py            - Base model and other shared model components
-│  ├── *.py                 - Models used in experiments
-│  └── neurons
-│     ├── base.py           - Neuron model all other neurons inherit from
-│     ├── adex.py           - Contains all AdEx neuron variants
-│     └── lif.py            - Contains all LIF neuron variants
-│
-├── trainers
-│  └── *.py                 - Model trainers
-│
-└── utils
-   └── *.py                 - Miscellaneous utility functions go here
+maclean-snn
+├──configs   # Experiment configuration files
+├──data      # Data generators
+├──loggers   # Loggers
+├──mains     # Entry points
+├──models    # Model structures
+├──trainers  # Model trainers
+└──utils     # Miscellaneous utilities
 ```
 
-See these subdirectories for further documentation.
+Within each sudirectory is a `README` explaining said module's functionality and development paradigms.
 
 ### Quick Start
 
