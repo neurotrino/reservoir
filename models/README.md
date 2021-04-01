@@ -1,7 +1,5 @@
 # Models
 
-## Neurons
-
 ### LIF
 
 ### ALIF
