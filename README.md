@@ -12,14 +12,20 @@ To get started, clone this repository and follow the instructions below.
 ### Creating a [Python virtual environment](docs.python.org/3/tutorial/venv)
 Enter the directory containing `setup.py` and run the following:
 
-#### On Mac/Linux
+#### With a Conda Environment
+```bash
+conda activate tf2gpu
+pip install -e .
+```
+
+#### On Mac/Linux (no conda)
 ```bash
 python -m venv venv         # create virtual environment
 source ./venv/bin/activate  # open virtual environment
 pip install -e .            # add this repository to the virtual environment
 ```
 
-#### On Windows
+#### On Windows (no conda)
 ```bash
 python -m venv venv      # create virtual environment
 ./venv/Scripts/activate  # open virtual environment
@@ -37,7 +43,6 @@ To this end, it is recommended you fork the repository when designing new compon
 something crystallizes.
 
 ### Overview
-
 The overarching repository structure is designed around streamlining collective contribution and modularity, drawing
 heavily from [MrGemy95](https://github.com/MrGemy95/Tensorflow-Project-Template)'s machine learning project template:
 
@@ -55,21 +60,14 @@ maclean-snn
 Within each sudirectory is a `README` explaining said module's functionality and development paradigms.
 
 ### Quick Start
+If you just want to run a model, execute the following:
 
 ```bash
-# once you've built your model, pass filepaths to your main script
-# and HJSON configuration file:
-python mains/sinusoid_example.py -c configs/sinusoid_example.hjson
+python main.py -c config.hjson
 ```
 
-#### Other configs
-See utils/config.py > get_args() for all command line flags that may be passed.
-
-#### Rapid prototyping
-While you're adding and removing structural elements, working with the HJSON
-configuration could be more trouble than it's worth. It's advised you leave
-your HJSON a skeleton and use default values in the class definition while
-you're in this phase.
+where `main.py` is a script located in `mains\` and `config.hjson` is an experiment configuration file located in
+`configs\`. See the `README` in `utils\` for more documentation on commandline interactions.
 
 ### Troubleshooting
 - **Local modules aren't being recognized**
@@ -82,6 +80,12 @@ documentation throughout the `.py` scripts.
 
 
 ## Contributing
+
+### Note on Rapid prototyping
+While you're adding and removing structural elements, working with the HJSON
+configuration could be more trouble than it's worth. It's advised you leave
+your HJSON a skeleton and use default values in the class definition while
+you're in this phase.
 
 ### Common Modifications
 While the script is designed to ultimately provide a model you can control through manipulation of just one HJSON
@@ -107,17 +111,16 @@ if self.cfg['log'].log_npz:
     # log npz files here
 ```
 
-
 ### Style Guidelines
 When in doubt, refer first to the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html), then
 to [PEP 8](https://www.python.org/dev/peps/pep-0008/) and [PEP 257](https://www.python.org/dev/peps/pep-0257).
-
 
 
 ## Credits
 - MacLean Lab (maintainers)
 - Maass Group (collaborators)
 
+
 ## License
-This software and associated documentation have been made open source under
-the [MIT License](https://opensource.org/licenses/MIT).
+This software and associated documentation have been made open source under the
+[MIT License](https://opensource.org/licenses/MIT).
