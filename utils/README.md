@@ -34,7 +34,8 @@ Note how the primary namespace is a dictionary key while all values therein are 
 recursive, i.e. `self.cfg['save'].a.b` is a valid call, `self['save']['a'].b` is not). See `configs\README.md` for a
 more comprehensive breakdown of these namespaces.
 
-The only field which receives special processing during deserialization is the `model` namespace. In `cfg`, there is
-no noticeable difference. The difference lies in model instantiation. `boot()` in `config.py` returns a curried
-function `form`, needed to instantiate the actual model. This requires special processing of the `model` namespace,
-which in turn is why a template must be provided in the `main.py` script.
+The only field which receives special processing during deserialization is the `model` namespace. In `cfg`, this is
+the only category which can have objects more complex than a `SimpleNamespace`. The `model` namespace is also
+treated uniquely in regards to model instantiation. `boot()` in `config.py` returns a curried function `form`, needed
+to instantiate the actual model. This requires special processing of the `model` namespace, which in turn is why a
+template must be provided in the `main.py` script.

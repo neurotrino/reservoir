@@ -5,9 +5,7 @@ An infrastructure for the creation and study of spiking neural networks.
 ## Installation
 These scripts must be run as source,
 [ideally](https://www.tensorflow.org/install/pip#2.-create-a-virtual-environment-recommended) in a Python virtual
-environment.
-
-To get started, clone this repository and follow the instructions below.
+environment. To get started, clone this repository and follow the instructions below.
 
 ### Creating a [Python virtual environment](docs.python.org/3/tutorial/venv)
 Enter the directory containing `setup.py` and run the following:
@@ -33,7 +31,7 @@ pip install -e .         # add this repository to the virtual environment
 ```
 
 ### Closing the virtual environment
-When you're done working with the codebase, `deactivate` closes the virtual environment.
+When you're done running experiments, `deactivate` closes the virtual environment.
 
 
 ## Usage
