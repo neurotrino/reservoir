@@ -38,8 +38,8 @@ When you're done working with the codebase, `deactivate` closes the virtual envi
 
 ## Usage
 The core principle of this infrastructure design is to create modular components useful to SNN construction and
-analysis, easily configurable (once initially constructed) via minimal changes in scripts and tweaking in HJSON files.
-To this end, it is recommended you fork the repository when designing new components, then reintroduce them once
+analysis easily configurable (once initially constructed) via minimal changes in scripts and tweaking in HJSON files.
+To this end, it is recommended you fork the repository when designing new components, then reintroduce them after
 something crystallizes.
 
 ### Overview
@@ -57,7 +57,7 @@ maclean-snn
 └──utils     # Miscellaneous utilities
 ```
 
-Within each sudirectory is a `README` explaining said module's functionality and development paradigms.
+Within each sudirectory is a README explaining said module's functionality and development paradigms.
 
 ### Quick Start
 If you just want to run a model, execute the following:
@@ -66,8 +66,8 @@ If you just want to run a model, execute the following:
 python main.py -c config.hjson
 ```
 
-where `main.py` is a script located in `mains\` and `config.hjson` is an experiment configuration file located in
-`configs\`. See the `README` in `utils\` for more documentation on commandline interactions.
+where `main.py` is a script located in `\mains` and `config.hjson` is an experiment configuration file located in
+`\configs`. See the README in `\utils` for more documentation on commandline interactions.
 
 ### Troubleshooting
 - **Local modules aren't being recognized**
@@ -75,7 +75,7 @@ where `main.py` is a script located in `mains\` and `config.hjson` is an experim
 
 
 ## Documentation
-Documentation for this project is contained in this `README`, a `README` in each subdirectory, and extensive inline
+Documentation for this project is contained in this README, a README in each subdirectory, and extensive inline
 documentation throughout the `.py` scripts.
 
 
