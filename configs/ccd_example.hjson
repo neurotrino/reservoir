@@ -190,6 +190,9 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     log:
     {
+        // Save npz files or not
+        log_npz: false
+
         // Save logging values to disk every n epochs
         post_every: 10
 
