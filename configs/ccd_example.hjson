@@ -33,7 +33,7 @@
 
         target_synch: 2.0
 
-        synch_cost: 0.5
+        synch_cost: 1
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sub-Network & Layer Parameters                                    │
