@@ -31,9 +31,9 @@
 
         rate_cost: 0.1
 
-        target_synch: 1.1
+        target_synch: 2.0
 
-        synch_cost: 0.1
+        synch_cost: 0.5
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sub-Network & Layer Parameters                                    │
