@@ -29,7 +29,7 @@
     {
         target_rate: 0.02
 
-        rate_cost: 0.1
+        rate_cost: 0.9
 
         target_synch: 2.0
 
@@ -97,7 +97,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/synchrony_reg_lif
+        exp_dir: ../experiments/increase_rate_reg_lif
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
