@@ -31,10 +31,6 @@
 
         rate_cost: 1.0
 
-        target_synch: 2.0
-
-        synch_cost: 1
-
         voltage_cost: 0.1
 
         #┬───────────────────────────────────────────────────────────────────╮
@@ -258,5 +254,9 @@
 
         // σ for normal distribution (exponentiated for lognormal weights)
         sigma: 0.51
+
+        target_synch: 2.0
+
+        synch_cost: 1
     }
 }
