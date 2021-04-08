@@ -29,11 +29,13 @@
     {
         target_rate: 0.02
 
-        rate_cost: 0.9
+        rate_cost: 1.0
 
         target_synch: 2.0
 
         synch_cost: 1
+
+        voltage_cost: 0.1
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sub-Network & Layer Parameters                                    │
@@ -97,7 +99,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/increase_rate_reg_lif
+        exp_dir: ../experiments/voltage_cost_lif
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:

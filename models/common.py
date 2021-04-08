@@ -143,7 +143,7 @@ class GlobalSpikeRegularization(tf.keras.layers.Layer):
 
 class SpikeVoltageRegularization(tf.keras.layers.Layer):
     """TODO: docs"""
-    def __init__(self, cell, rate_cost=.1, voltage_cost=.01, target_rate=.02): # rate in spikes/ms for ease
+    def __init__(self, cell, target_rate, rate_cost, voltage_cost): # rate in spikes/ms for ease
         """TODO: docs"""
         self._rate_cost = rate_cost
         self._voltage_cost = voltage_cost
@@ -165,9 +165,13 @@ class SpikeVoltageRegularization(tf.keras.layers.Layer):
         self.add_loss(reg_loss)
         self.add_metric(reg_loss, name='rate_loss', aggregation='mean')
 
-        v_pos = tf.square(tf.clip_by_value(tf.nn.relu(voltage - upper_threshold), 0., 1.))
-        v_neg = tf.square(tf.clip_by_value(tf.nn.relu(-voltage - self._cell.threshold), 0., 1.))
-        voltage_loss = tf.reduce_mean(tf.reduce_sum(v_pos + v_neg, -1)) * self._voltage_cost
+        #v_pos = tf.square(tf.clip_by_value(tf.nn.relu(voltage - upper_threshold), 0., 1.))
+        #v_neg = tf.square(tf.clip_by_value(tf.nn.relu(-voltage - self._cell.threshold), 0., 1.))
+        #voltage_loss = tf.reduce_mean(tf.reduce_sum(v_pos + v_neg, -1)) * self._voltage_cost
+
+        # desire all voltages to tend towards rest
+        voltage_loss = tf.reduce_sum(tf.square(tf.math.abs(voltage) - tf.math.abs(self._cell.EL))) * self._voltage_cost
+
         self.add_loss(voltage_loss)
         self.add_metric(voltage_loss, name='voltage_loss', aggregation='mean')
         return inputs

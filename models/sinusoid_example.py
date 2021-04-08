@@ -7,7 +7,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 
 # local
-from models.common import BaseModel, SpikeRegularization, SynchronyRateRegularization, exp_convolve
+from models.common import BaseModel, SpikeRegularization, SpikeVoltageRegularization, SynchronyRateRegularization, exp_convolve
 from models.neurons.lif import *
 from models.neurons.adex import *
 
@@ -17,16 +17,16 @@ class SinusoidSlayer(BaseModel):
     def __init__(self,
         target_rate,
         rate_cost,
-        target_synch,
-        synch_cost,
+        voltage_cost,
         cell: LIF
     ):
         super().__init__()
 
         self.target_rate = target_rate
         self.rate_cost = rate_cost
-        self.target_synch = target_synch
-        self.synch_cost = synch_cost
+        self.voltage_cost = voltage_cost
+        #self.target_synch = target_synch
+        #self.synch_cost = synch_cost
 
         # Sub-networks and layers
         self.cell = cell
@@ -42,12 +42,11 @@ class SinusoidSlayer(BaseModel):
 
         initial_state = cell.zero_state(cfg['train'].batch_size)
         rnn_output = rnn(inputs, initial_state=initial_state)
-        regularization_layer = SynchronyRateRegularization(
+        regularization_layer = SpikeVoltageRegularization(
             cell,
-            self.target_synch,
-            self.synch_cost,
             self.target_rate,
-            self.rate_cost
+            self.rate_cost,
+            self.voltage_cost
         )
         voltages, spikes = regularization_layer(rnn_output)
         voltages = tf.identity(voltages, name='voltages')
