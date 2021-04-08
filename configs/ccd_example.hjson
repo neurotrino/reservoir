@@ -55,7 +55,7 @@
 
             rewiring: false
 
-            units: 400   // number of units in the layer
+            units: 200   // number of units in the layer
 
             thr: -50.4   // threshold [mV]
             EL: -70.6    // [mV]
@@ -99,7 +99,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/trio_loss_lif_400
+        exp_dir: ../experiments/trio_loss_lif_200
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
