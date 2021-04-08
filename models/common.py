@@ -59,6 +59,7 @@ class SynchronyRateVoltageRegularization(tf.keras.layers.Layer):
         self._cell = cell
 
     def call(self, inputs, **kwargs):
+        voltage = inputs[0]
         spike = inputs[1]
         seq_len = spike.get_shape().as_list()[1]
 
