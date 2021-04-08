@@ -18,6 +18,8 @@ class SinusoidSlayer(BaseModel):
         target_rate,
         rate_cost,
         voltage_cost,
+        target_synch,
+        synch_cost,
         cell: LIF
     ):
         super().__init__()
