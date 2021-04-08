@@ -155,7 +155,7 @@ class SpikeVoltageRegularization(tf.keras.layers.Layer):
         """TODO: docs"""
         voltage = inputs[0]
         spike = inputs[1]
-        upper_threshold = self._cell.threshold
+        upper_threshold = self._cell.thr
 
         rate = tf.reduce_mean(spike, axis=(0, 1))
         global_rate = tf.reduce_mean(rate)
