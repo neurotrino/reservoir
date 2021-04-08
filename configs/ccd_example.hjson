@@ -33,6 +33,10 @@
 
         voltage_cost: 0.1
 
+        target_synch: 2.0
+
+        synch_cost: 1
+
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sub-Network & Layer Parameters                                    │
         #┴───────────────────────────────────────────────────────────────────╯
@@ -51,7 +55,7 @@
 
             rewiring: false
 
-            units: 100   // number of units in the layer
+            units: 400   // number of units in the layer
 
             thr: -50.4   // threshold [mV]
             EL: -70.6    // [mV]
@@ -95,7 +99,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/voltage_cost_lif
+        exp_dir: ../experiments/trio_loss_lif_400
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
@@ -254,9 +258,5 @@
 
         // σ for normal distribution (exponentiated for lognormal weights)
         sigma: 0.51
-
-        target_synch: 2.0
-
-        synch_cost: 1
     }
 }

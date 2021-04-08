@@ -48,13 +48,14 @@ class BranchingRegularization(tf.keras.layers.Layer):
 
         return inputs
 """
-class SynchronyRateRegularization(tf.keras.layers.Layer):
-    def __init__(self, cell, target_synch, synch_cost, target_rate, rate_cost): # fano factor-like rapid synchrony measure
+class SynchronyRateVoltageRegularization(tf.keras.layers.Layer):
+    def __init__(self, cell, target_synch, synch_cost, target_rate, rate_cost, voltage_cost): # fano factor-like rapid synchrony measure
         super().__init__()
         self._synch_cost = synch_cost
         self._target_synch = target_synch
         self._rate_cost = rate_cost
         self._target_rate = target_rate
+        self._voltage_cost = voltage_cost
         self._cell = cell
 
     def call(self, inputs, **kwargs):
@@ -77,7 +78,11 @@ class SynchronyRateRegularization(tf.keras.layers.Layer):
         self.add_loss(rate_reg_loss)
         self.add_metric(rate_reg_loss, name = 'rate_loss', aggregation = 'mean')
 
-        reg_loss = synch_reg_loss + rate_reg_loss
+        voltage_loss = tf.reduce_sum(tf.square(tf.math.abs(voltage) - tf.math.abs(self._cell.EL))) * self._voltage_cost
+        self.add_loss(voltage_loss)
+        self.add_metric(voltage_loss, name='voltage_loss', aggregation='mean')
+
+        reg_loss = synch_reg_loss + rate_reg_loss + voltage_loss
         self.add_metric(reg_loss, name='total_reg_loss', aggregation='mean')
 
         return inputs
