@@ -19,9 +19,11 @@ class DataGenerator(BaseDataGenerator):
         seq_len = cfg['data'].seq_len  # no. inputs
         n_input = cfg['data'].n_input  # dim of input
 
-        spikes = load_npz('/home/macleanlab/mufeng/NaturalMotionCNN/CNN_outputs/spike_train.npz')
-        coherences = load_npz('/home/macleanlab/mufeng/NaturalMotionCNN/CNN_outputs/coherences.npz')
+        spikes = load_npz('/home/macleanlab/mufeng/NaturalMotionCNN/CNN_outputs/spike_train_ch_model4_abs.npz')
+        coherences = load_npz('/home/macleanlab/mufeng/NaturalMotionCNN/CNN_outputs/coherences_ch_model4_abs.npz')
 
+        # rates = np.random.randn(600, seq_len, n_input)
+        # x = (rates > 0).astype(float)
         x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
         y = np.array(coherences.todense().reshape((-1, seq_len)))[:,:,None]
 

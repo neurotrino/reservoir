@@ -96,11 +96,12 @@ class Logger(BaseLogger):
             step_idx = epoch_idx * cfg['train'].n_batch
             self.plot_everything(f"{lo_epoch + epoch_idx}.png", step_idx)
 
-        # Save the data to disk
-        for k in self.logvars.keys():
-            self.logvars[k] = numpy(self.logvars[k])
+        # If log_npz is true, save the data to disk
+        if self.cfg['log_npz']:
+            for k in self.logvars.keys():
+                self.logvars[k] = numpy(self.logvars[k])
 
-        np.savez_compressed(fp, **self.logvars)
+            np.savez_compressed(fp, **self.logvars)
 
         # Free up RAM
         self.logvars = {}

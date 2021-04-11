@@ -92,7 +92,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/ccd_demo
+        exp_dir: ../experiments/ccd_ExInLIF_naturalCNN
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
@@ -185,11 +185,14 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     log:
     {
+        // Save npz files or not
+        log_npz: false
+        
         // Save logging values to disk every n epochs
         post_every: 10
 
         // Neuron used ([!] would like to automate this):
-        neuron: LIF
+        neuron: ExInLIF
 
         // Training used ([!] would like to automate this):
         training_method: backprop
