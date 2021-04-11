@@ -31,12 +31,6 @@
 
         rate_cost: 1.0
 
-        voltage_cost: 0.1
-
-        target_synch: 2.0
-
-        synch_cost: 1
-
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sub-Network & Layer Parameters                                    │
         #┴───────────────────────────────────────────────────────────────────╯
@@ -55,7 +49,7 @@
 
             rewiring: false
 
-            units: 200   // number of units in the layer
+            units: 100   // number of units in the layer
 
             thr: -50.4   // threshold [mV]
             EL: -70.6    // [mV]
@@ -99,7 +93,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/trio_loss_lif_200
+        exp_dir: ../experiments/absinput_ratereg_lif
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
@@ -193,7 +187,7 @@
     log:
     {
         // Save npz files or not
-        log_npz: false
+        log_npz: true
 
         // Save logging values to disk every n epochs
         post_every: 10
@@ -258,5 +252,11 @@
 
         // σ for normal distribution (exponentiated for lognormal weights)
         sigma: 0.51
+
+        voltage_cost: 0.1
+
+        target_synch: 2.0
+
+        synch_cost: 1
     }
 }
