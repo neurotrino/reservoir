@@ -49,6 +49,13 @@ class Logger(BaseLogger):
         'step' or 'epoch' or 'static' (never changes)
         """
 
+        # Reduce float precision if specified in the HJSON
+        try:
+            if data.dtype == np.float64:
+                data = eval(f'data.astype(np.{self.cfg['log'].dtype})')
+        except:
+            logging.debug('unable to reduce {data_label} precision')
+
         # Primary data
         if data_label not in self.logvars:
             self.logvars[data_label] = [data]

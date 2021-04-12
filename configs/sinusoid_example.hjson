@@ -204,6 +204,14 @@
         layer_whitelist: [
             rnn
         ]
+
+        // Floating point precision of numpy arrays saved to disk (fewer bits
+        // consume less memory on disk)
+        //
+        // 64  -->  ~16 decimal precision
+        // 32  -->  ~7 decimal precision
+        // 16  -->  ~3 decimal precision
+        dtype: float64
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
