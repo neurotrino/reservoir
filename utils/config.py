@@ -86,10 +86,10 @@ def get_args():
 
     # Path to HJSON configuration file specifying session variables
     parser.add_argument(
-        '-c',            # short command-line flag
-        '--config',      # long flag; becomes attribute (`args.config`)
+        '-c',          # short command-line flag
+        '--config',    # long flag; becomes attribute (`args.config`)
         metavar='C',
-        default='None',  # value used when user provides none
+        default=None,  # value used when user provides none
         help='path to HJSON configuration file specifying session variables'
     )
 

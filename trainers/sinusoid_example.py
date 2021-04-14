@@ -94,8 +94,12 @@ class Trainer(BaseTrainer):
             data=batch_x.numpy(),
             meta={
                 'stride': 'step',
-                'shape_key': ('batch_size', 'seq_len', 'n_input'),
-
+                'shape_key': (
+                    'num_batches * post_every',
+                    'batch_size',
+                    'seq_len',
+                    'n_input'
+                ),
                 'description':
                     'inputs'
             }
@@ -105,8 +109,12 @@ class Trainer(BaseTrainer):
             data=batch_y.numpy(),
             meta={
                 'stride': 'step',
-                'shape_key': ('batch_size', 'seq_len', '1'),
-
+                'shape_key': (
+                    'num_batches * post_every',
+                    'batch_size',
+                    'seq_len',
+                    '1'
+                ),
                 'description':
                     'correct values'
             }
@@ -130,8 +138,12 @@ class Trainer(BaseTrainer):
             data=voltage.numpy(),
             meta={
                 'stride': 'step',
-                'shape_key': ('batch_size', 'seq_len', 'n_recurrent'),
-
+                'shape_key': (
+                    'num_batches * post_every',
+                    'batch_size',
+                    'seq_len',
+                    'n_recurrent'
+                ),
                 'description':
                     'voltages'
             }
@@ -141,8 +153,12 @@ class Trainer(BaseTrainer):
             data=spikes.numpy(),
             meta={
                 'stride': 'step',
-                'shape_key': ('batch_size', 'seq_len', 'n_recurrent'),
-
+                'shape_key':  (
+                    'num_batches * post_every',
+                    'batch_size',
+                    'seq_len',
+                    'n_recurrent'
+                ),
                 'description':
                     'spikes'
             }
@@ -152,8 +168,12 @@ class Trainer(BaseTrainer):
             data=prediction.numpy(),
             meta={
                 'stride': 'step',
-                'shape_key': ('batch_size', 'seq_len', '1'),
-
+                'shape_key': (
+                    'num_batches * post_every',
+                    'batch_size',
+                    'seq_len',
+                    '1'
+                ),
                 'description':
                     'predictions'
             }
@@ -188,7 +208,6 @@ class Trainer(BaseTrainer):
                 data=tvar.shape,
                 meta={
                     'stride': 'static',
-
                     'description':
                         'shape of layer ' + tvar.name
                 }
@@ -200,7 +219,6 @@ class Trainer(BaseTrainer):
                 data=grads[i].numpy(),
                 meta={
                     'stride': 'step',
-
                     'description':
                         'gradients calculated for ' + tvar.name
                 }
@@ -212,7 +230,6 @@ class Trainer(BaseTrainer):
                 data=preweights[i],
                 meta={
                     'stride': 'step',
-
                     'description':
                         'layer weights for '
                         + tvar.name
@@ -226,7 +243,6 @@ class Trainer(BaseTrainer):
                 data=tvar.numpy(),
                 meta={
                     'stride': 'step',
-
                     'description':
                         'layer weights for '
                         + tvar.name
