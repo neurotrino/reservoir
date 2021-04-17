@@ -15,8 +15,8 @@ class BaseLogger:
 
         # Bookkeeping -------------------------------------------------
 
-        self.cur_epoch = np.uint16(0)  # current epoch in training
-        self.cur_step = np.uint16(0)   # current step in current epoch
+        self.cur_epoch = 0  # current epoch in training
+        self.cur_step = 0   # current step in current epoch
 
         # (epoch, step) of last post. `(None, None)` if yet to post.
         self.last_post = (None, None)
