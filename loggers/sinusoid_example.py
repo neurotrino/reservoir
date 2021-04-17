@@ -219,7 +219,11 @@ class Logger(BaseLogger):
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def plot_everything(self, filename, idx=-1):
-        logging_level = logging
+        # Because matplotlib infringes on our logger, we quiet it here,
+        # then unquiet it when we actually need to use it
+        logger = logging.getLogger()
+        true_level = logger.level
+        logger.setLevel(max(true_level, logging.WARN))
 
         # [?] should loggers have their model as an attribute?
 
@@ -284,3 +288,7 @@ class Logger(BaseLogger):
 
         plt.clf()
         plt.close()
+
+        # Restore logger status
+        logger.setLevel(true_level)
+
