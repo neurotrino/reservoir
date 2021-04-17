@@ -112,12 +112,10 @@ class Logger(BaseLogger):
                         self.logvars[k] = self.logvars[k].astype(new_type)
 
                         logging.debug(
-                            f'{data_label} went from {old_type} to {new_type}'
+                            f'{k} went from {old_type} to {new_type}'
                         )
-                except Exception as e:
-                    print()
-                    print(e)
-                    print()
+                except:
+                    pass
 
             np.savez_compressed(fp, **self.logvars)
 
