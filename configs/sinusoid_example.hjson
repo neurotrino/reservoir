@@ -160,6 +160,7 @@
 
         /* if there are any flags for saving particular to your experiment,
          * include them here */
+        save_npz: true
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮

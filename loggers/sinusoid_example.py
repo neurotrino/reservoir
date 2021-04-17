@@ -97,26 +97,27 @@ class Logger(BaseLogger):
             self.plot_everything(f"{lo_epoch + epoch_idx}.png", step_idx)
 
         # Save the data to disk
-        for k in self.logvars.keys():
+        if self.cfg['save'].save_npz:
+            for k in self.logvars.keys():
 
-            # Convert to numpy array
-            self.logvars[k] = np.array(self.logvars[k])
+                # Convert to numpy array
+                self.logvars[k] = np.array(self.logvars[k])
 
-            # Reduce float precision if specified in the HJSON
-            try:
-                old_type = self.logvars[k].dtype
-                new_type = eval(f"np.{self.cfg['log'].dtype}")
+                # Reduce float precision if specified in the HJSON
+                try:
+                    old_type = self.logvars[k].dtype
+                    new_type = eval(f"np.{self.cfg['log'].dtype}")
 
-                if old_type != new_type:
-                    self.logvars[k] = self.logvars[k].astype(new_type)
+                    if old_type != new_type:
+                        self.logvars[k] = self.logvars[k].astype(new_type)
 
-                    logging.debug(
-                        f'changed {data_label} from {old_type} to {new_type}'
-                    )
-            except:
-                pass
+                        logging.debug(
+                            f'{data_label} went from {old_type} to {new_type}'
+                        )
+                except:
+                    pass
 
-        np.savez_compressed(fp, **self.logvars)
+            np.savez_compressed(fp, **self.logvars)
 
         # Free up RAM
         self.logvars = {}
@@ -291,4 +292,3 @@ class Logger(BaseLogger):
 
         # Restore logger status
         logger.setLevel(true_level)
-
