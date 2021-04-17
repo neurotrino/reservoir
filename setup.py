@@ -13,6 +13,18 @@ def installation_wrapper(setup):
     """Code to be run when the setup script is invoked (i.e. when we
     call `pip install -e .`).
     """
+    def write_envars(fp, envars):
+        """Write environmental variables to a .pth file."""
+
+        with open(os.path.join(fp, 'msnn-custom-envars.pth'), 'w+') as file:
+
+            pth_txt = "import os;"
+
+            for (k, v) in envars:
+                pth_txt += f"os.environ['MSNN_{k}']='{v}';"
+
+            file.write(pth_txt)
+
 
     # Detect environment
     try:
@@ -31,20 +43,22 @@ def installation_wrapper(setup):
     sha = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip()
     sha = sha.decode('utf-8')  # returned as bytes, so we decode
 
+    # Check if there's anything that might be modified in the code
+    # relative to the SHA saved
+    s = subprocess.check_output(
+        ["git", "status", "--porcelain"]
+    ).strip().decode('utf-8')
+
+    is_exact_sha = (s is None)
+
     # Extensible
-    evars = [  # (name, value)
+    envars = [  # (name, value)
         ('GITSHA', sha),
+        ('EXACTSHA', is_exact_sha)
     ]
 
     # Creat environment variables
-    with open(os.path.join(venv_path, 'msnn-custom-evars.pth'), 'w+') as file:
-
-        pth_txt = "import os;"
-
-        for (k, v) in evars:
-            pth_txt += f"os.environ['MSNN_{k}']='{v}';"
-
-        file.write(pth_txt)
+    write_envars(venv_path, envars)
 
     return setup
 
