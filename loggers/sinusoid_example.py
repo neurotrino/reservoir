@@ -49,15 +49,6 @@ class Logger(BaseLogger):
         'step' or 'epoch' or 'static' (never changes)
         """
 
-        # Reduce float precision if specified in the HJSON
-        print(f">> np.{self.cfg['log'].dtype}")
-        try:
-            if data.dtype == np.float64:
-                data = eval(f"data.astype(np.{self.cfg['log'].dtype})")
-                logging.debug('reduced {data_label} precision')
-        except:
-            pass
-
         # Primary data
         if data_label not in self.logvars:
             self.logvars[data_label] = [data]
@@ -107,7 +98,23 @@ class Logger(BaseLogger):
 
         # Save the data to disk
         for k in self.logvars.keys():
+
+            # Convert to numpy array
             self.logvars[k] = np.array(self.logvars[k])
+
+            # Reduce float precision if specified in the HJSON
+            try:
+                old_type = self.logvars[k].dtype
+                new_type = eval(f"np.{self.cfg['log'].dtype}")
+
+                if old_type != new_type:
+                    self.logvars[k] = self.logvars[k].astype(new_type)
+
+                    logging.debug(
+                        f'changed {data_label} from {old_type} to {new_type}'
+                    )
+            except:
+                pass
 
         np.savez_compressed(fp, **self.logvars)
 
