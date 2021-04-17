@@ -6,5 +6,5 @@ s = subprocess.check_output(
 
 print(f"-{s}-")
 
-if s.isspace():
+if len(s) == 0:
     print('None')
