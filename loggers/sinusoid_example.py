@@ -114,10 +114,10 @@ class Logger(BaseLogger):
                         logging.debug(
                             f'{k} went from {old_type} to {new_type}'
                         )
+                    else:
+                        logging.debug(f'{k} is still {old_type}')
                 except:
-                    logging.debug(
-                        f'{k} is still {old_type}'
-                    )
+                    logging.debug(f'{k} is still {old_type}')
 
             np.savez_compressed(fp, **self.logvars)
 
