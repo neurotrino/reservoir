@@ -96,42 +96,31 @@ class Logger(BaseLogger):
             step_idx = epoch_idx * cfg['train'].n_batch
             self.plot_everything(f"{lo_epoch + epoch_idx}.png", step_idx)
 
-        # Save the data to disk
+        # Save the data to disk (when toggled on)
         if self.cfg['save'].save_npz:
+
+            # Format the data as numpy arrays
             for k in self.logvars.keys():
 
                 # Convert to numpy array
                 self.logvars[k] = np.array(self.logvars[k])
 
                 # Adjust precision if specified in the HJSON
-                try:
-                    old_type = self.logvars[k].dtype
+                old_type = self.logvars[k].dtype
+                new_type = None
 
-                    # Update float precision
-                    if old_type in [np.float64, np.float32, np.float16]:
-                        new_type = eval(f"np.{self.cfg['log'].float_dtype}")
+                # Check for casting rules
+                if old_type in [np.float64, np.float32, np.float16]:
+                    new_type = eval(f"np.{self.cfg['log'].float_dtype}")
+                elif old_type == np.int64:
+                    new_type = eval(f"np.{self.cfg['log'].int_dtype}")
 
-                        self.logvars[k] = self.logvars[k].astype(new_type)
+                # Apply casting rules where they exist
+                if new_type is not None and new_type != old_type:
+                    self.logvars[k] = self.logvars[k].astype(new_type)
+                    logging.debug(f'cast {k} ({old_type}) to {new_type}')
 
-                        logging.debug(
-                            f'{k} went from {old_type} to {new_type}'
-                        )
-
-                    # Update integer precision
-                    elif old_type == np.int64:
-                        new_type = eval(f"np.{self.cfg['log'].int_dtype}")
-
-                        self.logvars[k] = self.logvars[k].astype(new_type)
-
-                        logging.debug(
-                            f'{k} went from {old_type} to {new_type}'
-                        )
-
-                    else:
-                        logging.debug(f'{k} is still {old_type}')
-                except:
-                    logging.debug(f'{k} is still {old_type}')
-
+            # Write numpy data to disk
             np.savez_compressed(fp, **self.logvars)
 
         # Free up RAM
