@@ -19,9 +19,6 @@ from loggers.sinusoid_example import Logger as Logger
 from trainers.sinusoid_example import Trainer
 
 def main():
-    print(os.environ['MSNN_GITSHA'])
-    exit()
-
     # Use command line arguments to load data, create directories, etc.
     form, cfg = utils.config.boot()
     logging.info("experiment directory: " + abspath(cfg['save'].exp_dir))

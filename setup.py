@@ -37,7 +37,7 @@ def installation_wrapper(setup):
     ]
 
     # Creat environment variables
-    with open(os.path.join(venv_path, 'mssn-custom-evars.pth'), 'w+') as file:
+    with open(os.path.join(venv_path, 'msnn-custom-evars.pth'), 'w+') as file:
 
         pth_txt = "import os;"
 
