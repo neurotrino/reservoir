@@ -103,7 +103,7 @@ class Logger(BaseLogger):
                 # Convert to numpy array
                 self.logvars[k] = np.array(self.logvars[k])
 
-                # Reduce precision if specified in the HJSON
+                # Adjust precision if specified in the HJSON
                 try:
                     old_type = self.logvars[k].dtype
 
