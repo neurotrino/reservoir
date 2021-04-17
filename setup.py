@@ -49,7 +49,7 @@ def installation_wrapper(setup):
         ["git", "status", "--porcelain"]
     ).strip().decode('utf-8')
 
-    is_exact_sha = (s is None)
+    is_exact_sha = (len(s) == 0)
 
     # Extensible
     envars = [  # (name, value)

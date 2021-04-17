@@ -8,26 +8,6 @@ These scripts must be run as source,
 environment. To get started, clone this repository and follow the instructions below.
 
 ### Creating a [Python virtual environment](docs.python.org/3/tutorial/venv)
-`setup.py` will create in the virtual environment `msnn-custom-envars.pth`,
-which in turn creates particular environmental variables any time that
-virtual environment is active. For a list of such variables, while in the
-virtual environment, run a Python script like
-
-```Python
-import os
-
-for k in os.environ:
-    if 'MSNN' in k:
-        print(f"{k} == {os.environ[k]}")
-```
-
-At any point in the code, you can call reference these values as
-`os.environ['MSNN_GITSHA']`, for example (this feature was originally added so
-we would always have a way of identifying which version the virtual
-environment was running).
-
-Look in `setup.py` to add more environmental variables.
-
 Enter the directory containing `setup.py` and run the following:
 
 #### With a Conda Environment
@@ -52,6 +32,33 @@ pip install -e .         # add this repository to the virtual environment
 
 ### Closing the virtual environment
 When you're done running experiments, `deactivate` closes the virtual environment.
+
+
+### Persistent Environmental Variables
+`setup.py` will create in the virtual environment `msnn-custom-envars.pth`,
+which in turn creates particular environmental variables any time that
+virtual environment is active. For a list of such variables, while in the
+virtual environment, run a Python script like
+
+```Python
+import os
+
+for k in os.environ:
+    if 'MSNN' in k:
+        print(f"{k} == {os.environ[k]}")
+```
+
+At any point in the code, you can call reference these values as
+`os.environ['MSNN_GITSHA']`, for example (this feature was originally added so
+we would always have a way of identifying which version the virtual
+environment was running). Note these must always be converted from strings.
+
+Currently implemented:
+- `MSNN_GITSHA`: SHA of the latest commit of the version the venv is using
+- `MSNN_EXACTSHA`: true if there was nothing to commit when the code was run
+
+Look in `setup.py` to add more environmental variables.
+
 
 ## Usage
 The core principle of this infrastructure design is to create modular components useful to SNN construction and
