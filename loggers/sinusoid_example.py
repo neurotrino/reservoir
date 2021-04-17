@@ -108,7 +108,7 @@ class Logger(BaseLogger):
                     old_type = self.logvars[k].dtype
                     new_type = eval(f"np.{self.cfg['log'].dtype}")
 
-                    if old_type == np.float64:
+                    if old_type in [np.float64, np.float32, np.float16]:
                         self.logvars[k] = self.logvars[k].astype(new_type)
 
                         logging.debug(
@@ -202,7 +202,7 @@ class Logger(BaseLogger):
 
         # Bookkeeping
         self.cur_epoch += 1
-        self.cur_step = 0
+        self.cur_step = np.unit16(0)
 
         # Maintain, for convenience, a list of epoch numbers to align
         # epochwise data to in the npz file
