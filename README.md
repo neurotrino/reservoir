@@ -33,7 +33,6 @@ pip install -e .         # add this repository to the virtual environment
 ### Closing the virtual environment
 When you're done running experiments, `deactivate` closes the virtual environment.
 
-
 ### Persistent Environmental Variables
 `setup.py` will create in the virtual environment `msnn-custom-envars.pth`,
 which in turn creates particular environmental variables any time that
