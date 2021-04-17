@@ -225,7 +225,7 @@
         learning_rate: 0.1
 
         // number of trials in batch
-        batch_size: 16
+        batch_size: 8
 
         // number of batches in an epoch
         n_batch: 32

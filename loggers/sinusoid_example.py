@@ -102,16 +102,11 @@ class Logger(BaseLogger):
 
                 # Convert to numpy array
                 self.logvars[k] = np.array(self.logvars[k])
-                print()
-                print()
-                print(eval(f"np.{self.cfg['log'].dtype}"))
-                print()
-                print()
 
                 # Reduce float precision if specified in the HJSON
                 try:
                     old_type = self.logvars[k].dtype
-                    new_type = eval(f"np.{self.cfg['log'].dtype}")
+                    new_type = eval(self.cfg['log'].dtype)
 
                     if old_type != new_type:
                         self.logvars[k] = self.logvars[k].astype(new_type)
