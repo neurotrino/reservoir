@@ -212,7 +212,7 @@
         // 64  -->  ~16 decimal precision
         // 32  -->  ~7 decimal precision
         // 16  -->  ~3 decimal precision
-        dtype: float16
+        float_dtype: float16
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮

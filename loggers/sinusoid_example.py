@@ -106,7 +106,7 @@ class Logger(BaseLogger):
                 # Reduce float precision if specified in the HJSON
                 try:
                     old_type = self.logvars[k].dtype
-                    new_type = eval(f"np.{self.cfg['log'].dtype}")
+                    new_type = eval(f"np.{self.cfg['log'].float_dtype}")
 
                     if old_type in [np.float64, np.float32, np.float16]:
                         self.logvars[k] = self.logvars[k].astype(new_type)
@@ -202,7 +202,7 @@ class Logger(BaseLogger):
 
         # Bookkeeping
         self.cur_epoch += 1
-        self.cur_step = np.unit16(0)
+        self.cur_step = np.uint16(0)
 
         # Maintain, for convenience, a list of epoch numbers to align
         # epochwise data to in the npz file
