@@ -102,6 +102,11 @@ class Logger(BaseLogger):
 
                 # Convert to numpy array
                 self.logvars[k] = np.array(self.logvars[k])
+                print()
+                print()
+                print(self.logvars[k].dtype)
+                print()
+                print()
 
                 # Reduce float precision if specified in the HJSON
                 try:
