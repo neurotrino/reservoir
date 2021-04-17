@@ -103,10 +103,11 @@ class Logger(BaseLogger):
                 # Convert to numpy array
                 self.logvars[k] = np.array(self.logvars[k])
 
-                # Reduce float precision if specified in the HJSON
+                # Reduce precision if specified in the HJSON
                 try:
                     old_type = self.logvars[k].dtype
 
+                    # Update float precision
                     if old_type in [np.float64, np.float32, np.float16]:
                         new_type = eval(f"np.{self.cfg['log'].float_dtype}")
 
@@ -115,6 +116,8 @@ class Logger(BaseLogger):
                         logging.debug(
                             f'{k} went from {old_type} to {new_type}'
                         )
+
+                    # Update integer precision
                     elif old_type == np.int64:
                         new_type = eval(f"np.{self.cfg['log'].int_dtype}")
 
@@ -123,6 +126,7 @@ class Logger(BaseLogger):
                         logging.debug(
                             f'{k} went from {old_type} to {new_type}'
                         )
+
                     else:
                         logging.debug(f'{k} is still {old_type}')
                 except:
