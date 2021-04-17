@@ -212,10 +212,10 @@
         // 64  -->  ~16 decimal precision
         // 32  -->  ~7 decimal precision
         // 16  -->  ~3 decimal precision
-        float_dtype: float64
+        float_dtype: float16
 
         // Integer size
-        int_dtype: int64
+        int_dtype: uint16
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
