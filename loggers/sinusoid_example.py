@@ -50,11 +50,12 @@ class Logger(BaseLogger):
         """
 
         # Reduce float precision if specified in the HJSON
-        if data.dtype == np.float64:
-            try:
+        try:
+            if data.dtype == np.float64:
                 data = eval(f"data.astype(np.{self.cfg['log'].dtype})")
-            except:
-                logging.debug(f'unable to reduce {data_label} precision')
+                logging.debug('reduced {data_label} precision')
+        except:
+            pass
 
         # Primary data
         if data_label not in self.logvars:
