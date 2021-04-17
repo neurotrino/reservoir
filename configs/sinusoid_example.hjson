@@ -212,7 +212,7 @@
         // 64  -->  ~16 decimal precision
         // 32  -->  ~7 decimal precision
         // 16  -->  ~3 decimal precision
-        dtype: float32
+        dtype: float16
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -225,10 +225,10 @@
         learning_rate: 0.1
 
         // number of trials in batch
-        batch_size: 8
+        batch_size: 16
 
         // number of batches in an epoch
-        n_batch: 32
+        n_batch: 8
 
         // number of epochs the model is fit over
         n_epochs: 32
