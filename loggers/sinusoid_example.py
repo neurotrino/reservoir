@@ -104,7 +104,7 @@ class Logger(BaseLogger):
                 self.logvars[k] = np.array(self.logvars[k])
                 print()
                 print()
-                print(self.logvars[k].dtype)
+                print(eval(f"np.{self.cfg['log'].dtype}"))
                 print()
                 print()
 
