@@ -365,6 +365,6 @@ def boot():
         shutil.copyfile(args.config, cfg['save'].exp_dir + "/config.hjson")
 
     # Log the git SHA of the commit in use by the virtual environment
-    logging.debug(f'venv running from commit SHA {os.environ['MSNN_GITSHA']}')
+    logging.debug(f"venv running from commit SHA {os.environ['MSNN_GITSHA']}")
 
     return form, cfg
