@@ -108,7 +108,7 @@ class Logger(BaseLogger):
                     old_type = self.logvars[k].dtype
                     new_type = eval(f"np.{self.cfg['log'].dtype}")
 
-                    if old_type != new_type:
+                    if old_type == np.float64:
                         self.logvars[k] = self.logvars[k].astype(new_type)
 
                         logging.debug(
