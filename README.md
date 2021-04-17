@@ -8,7 +8,7 @@ These scripts must be run as source,
 environment. To get started, clone this repository and follow the instructions below.
 
 ### Creating a [Python virtual environment](docs.python.org/3/tutorial/venv)
-`setup.py` will create in the virtual environment `msnn-custom-evars.pth`,
+`setup.py` will create in the virtual environment `msnn-custom-envars.pth`,
 which in turn creates particular environmental variables any time that
 virtual environment is active. For a list of such variables, while in the
 virtual environment, run a Python script like
@@ -25,6 +25,8 @@ At any point in the code, you can call reference these values as
 `os.environ['MSNN_GITSHA']`, for example (this feature was originally added so
 we would always have a way of identifying which version the virtual
 environment was running).
+
+Look in `setup.py` to add more environmental variables.
 
 Enter the directory containing `setup.py` and run the following:
 
