@@ -160,6 +160,7 @@
 
         /* if there are any flags for saving particular to your experiment,
          * include them here */
+        save_npz: true
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -214,7 +215,10 @@
         // 64  -->  ~16 decimal precision
         // 32  -->  ~7 decimal precision
         // 16  -->  ~3 decimal precision
-        dtype: float64
+        float_dtype: float16
+
+        // Integer size
+        int_dtype: uint16
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮

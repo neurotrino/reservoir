@@ -49,13 +49,6 @@ class Logger(BaseLogger):
         'step' or 'epoch' or 'static' (never changes)
         """
 
-        # Reduce float precision if specified in the HJSON
-        try:
-            if data.dtype == np.float64:
-                data = eval(f'data.astype(np.{self.cfg['log'].dtype})')
-        except:
-            logging.debug('unable to reduce {data_label} precision')
-
         # Primary data
         if data_label not in self.logvars:
             self.logvars[data_label] = [data]
@@ -103,11 +96,31 @@ class Logger(BaseLogger):
             step_idx = epoch_idx * cfg['train'].n_batch
             self.plot_everything(f"{lo_epoch + epoch_idx}.png", step_idx)
 
-        # If log_npz is true, save the data to disk
-        if self.cfg['log'].log_npz:
-            for k in self.logvars.keys():
-                self.logvars[k] = numpy(self.logvars[k])
+        # Save the data to disk (when toggled on)
+        if self.cfg['save'].save_npz:
 
+            # Format the data as numpy arrays
+            for k in self.logvars.keys():
+
+                # Convert to numpy array
+                self.logvars[k] = np.array(self.logvars[k])
+
+                # Adjust precision if specified in the HJSON
+                old_type = self.logvars[k].dtype
+                new_type = None
+
+                # Check for casting rules
+                if old_type in [np.float64, np.float32, np.float16]:
+                    new_type = eval(f"np.{self.cfg['log'].float_dtype}")
+                elif old_type == np.int64:
+                    new_type = eval(f"np.{self.cfg['log'].int_dtype}")
+
+                # Apply casting rules where they exist
+                if new_type is not None and new_type != old_type:
+                    self.logvars[k] = self.logvars[k].astype(new_type)
+                    logging.debug(f'cast {k} ({old_type}) to {new_type}')
+
+            # Write numpy data to disk
             np.savez_compressed(fp, **self.logvars)
 
         # Free up RAM
@@ -121,7 +134,6 @@ class Logger(BaseLogger):
             f"posted data for epochs {lo_epoch}-{hi_epoch}"
             + f" ({time.time() - t0:.2f} seconds)"
         )
-
 
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -211,7 +223,11 @@ class Logger(BaseLogger):
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def plot_everything(self, filename, idx=-1):
-        logging_level = logging
+        # Because matplotlib infringes on our logger, we quiet it here,
+        # then unquiet it when we actually need to use it
+        logger = logging.getLogger()
+        true_level = logger.level
+        logger.setLevel(max(true_level, logging.WARN))
 
         # [?] should loggers have their model as an attribute?
 
@@ -277,3 +293,6 @@ class Logger(BaseLogger):
 
         plt.clf()
         plt.close()
+
+        # Restore logger status
+        logger.setLevel(true_level)
