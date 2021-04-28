@@ -374,6 +374,6 @@ def boot():
     if not device_name:
         logging.warning('GPU device not found')
     else:
-        logging.info(f'Found GPU at {device_name}')
+        logging.debug(f'found GPU at {device_name}')
 
     return form, cfg
