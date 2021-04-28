@@ -12,6 +12,7 @@ import json
 import logging
 import os
 import shutil
+import tensorflow as tf
 import time
 
 
@@ -366,5 +367,13 @@ def boot():
 
     # Log the git SHA of the commit in use by the virtual environment
     logging.debug(f"venv running from commit SHA {os.environ['MSNN_GITSHA']}")
+
+    # Check for a GPU
+    device_name = tf.test.gpu_device_name()
+
+    if not device_name:
+        logging.warning('GPU device not found')
+    else:
+        logging.info(f'Found GPU at {device_name}')
 
     return form, cfg
