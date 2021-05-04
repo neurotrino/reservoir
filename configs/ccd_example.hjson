@@ -162,6 +162,7 @@
 
         /* if there are any flags for saving particular to your experiment,
          * include them here */
+        save_npz: false
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -229,7 +230,7 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     train:
     {
-        learning_rate: 0.1
+        learning_rate: 0.05
 
         // number of trials in batch
         batch_size: 60

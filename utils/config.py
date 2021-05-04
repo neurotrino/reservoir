@@ -233,7 +233,7 @@ def load_hjson_config(filepath, custom_save_cfg=None):
         if sd_path is None:
             # Alert the user we found a null filepath
             logging.warning(f"{subdir} is null")
-            continue;
+            continue
 
         # Create directories
         save_cfg[subdir] = os.path.join(

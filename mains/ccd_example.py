@@ -27,7 +27,7 @@ def main():
 
         "cell":
         {
-            "_class": ExInLIF
+            "_class": LIF
         }
     }
     model = form(template).build(cfg)
