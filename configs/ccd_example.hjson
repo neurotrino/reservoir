@@ -93,7 +93,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/absinput_ratereg_lif
+        exp_dir: ../experiments/limlifetime_abs_ratereg_lif
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
@@ -187,7 +187,7 @@
     log:
     {
         // Save npz files or not
-        log_npz: true
+        log_npz: false
 
         // Save logging values to disk every n epochs
         post_every: 10
