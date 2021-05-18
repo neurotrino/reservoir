@@ -93,7 +93,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/limlifetime_abs_ratereg_lif
+        exp_dir: ../experiments/limlifetimefrontend_abs_ratereg_lif
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
