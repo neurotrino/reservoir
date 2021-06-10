@@ -62,8 +62,8 @@ class Trainer(BaseTrainer):
         # training=training is needed only if there are layers with
         # different behavior during training versus inference
         # (e.g. Dropout).
-        
-        return voltage, spikes, prediction, total_loss_val
+
+        return voltage, spikes, prediction, reg_loss
 
 
     @tf.function
