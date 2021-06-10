@@ -92,7 +92,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/debug-demo-experiment
+        exp_dir: ../experiments/reg_testing
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
@@ -183,11 +183,14 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     log:
     {
+        // Save npz files or not
+        log_npz: false
+
         // Save logging values to disk every n epochs
         post_every: 2
 
         // Neuron used ([!] would like to automate this):
-        neuron: LIF
+        neuron: ExInLIF
 
         // Training used ([!] would like to automate this):
         training_method: backprop

@@ -51,6 +51,10 @@ class Trainer(BaseTrainer):
         voltage, spikes, prediction = self.model(x) # tripartite output
         loss_object = loss_object(y_true=y, y_pred=prediction)
 
+        unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
+        reg_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['model'].target_rate)) * self.cfg['model'].rate_cost
+        total_loss_val = tf.math.add(loss_object,reg_loss)
+
         # [*] Because this is a tf.function, we can't collapse tensors
         # to numpy arrays for logging, so we need to return the tensors
         # then call `.numpy()` in `.train_step()`.
@@ -58,8 +62,8 @@ class Trainer(BaseTrainer):
         # training=training is needed only if there are layers with
         # different behavior during training versus inference
         # (e.g. Dropout).
-
-        return voltage, spikes, prediction, loss_object
+        
+        return voltage, spikes, prediction, total_loss_val
 
 
     @tf.function

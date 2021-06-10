@@ -17,7 +17,7 @@ class SinusoidSlayer(BaseModel):
     def __init__(self,
         target_rate,
         rate_cost,
-        cell: LIF
+        cell: ExInLIF
     ):
         super().__init__()
 
@@ -41,14 +41,15 @@ class SinusoidSlayer(BaseModel):
 
         initial_state = cell.zero_state(cfg['train'].batch_size)
         rnn_output = rnn(inputs, initial_state=initial_state)
+        """
         regularization_layer = SpikeRegularization(
             cell,
             self.target_rate,
             self.rate_cost,
-        )
-        voltages, spikes = regularization_layer(rnn_output)
-        voltages = tf.identity(voltages, name='voltages')
-        spikes = tf.identity(spikes, name='spikes')
+        )"""
+        #voltages, spikes = regularization_layer(rnn_output)
+        voltages = tf.identity(rnn_output[0], name='voltages')
+        spikes = tf.identity(rnn_output[1], name='spikes')
 
         weighted_out_projection = tf.keras.layers.Dense(1)
         weighted_out = weighted_out_projection(spikes)
