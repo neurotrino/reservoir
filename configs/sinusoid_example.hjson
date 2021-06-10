@@ -225,7 +225,7 @@
         n_batch: 32
 
         // number of epochs the model is fit over
-        n_epochs: 6
+        n_epochs: 20
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
