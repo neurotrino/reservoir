@@ -29,7 +29,7 @@
     {
         target_rate: 0.02
 
-        rate_cost: 0.1
+        rate_cost: 100
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sub-Network & Layer Parameters                                    │
@@ -92,7 +92,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/reg_testing_norateloss
+        exp_dir: ../experiments/reg_testing_notaskloss
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:

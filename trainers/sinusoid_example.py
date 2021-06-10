@@ -63,7 +63,7 @@ class Trainer(BaseTrainer):
         # different behavior during training versus inference
         # (e.g. Dropout).
 
-        return voltage, spikes, prediction, loss_object
+        return voltage, spikes, prediction, reg_loss
 
 
     @tf.function
