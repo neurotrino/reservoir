@@ -7,7 +7,6 @@ from types import SimpleNamespace
 
 import argparse
 import hjson
-import inspect
 import json
 import logging
 import os
