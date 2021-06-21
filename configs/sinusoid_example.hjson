@@ -92,7 +92,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/reg_testing_synchlossonly
+        exp_dir: ../experiments/reg_testing_synchtaskloss
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
@@ -252,6 +252,6 @@
 
         target_synch: 2.0
 
-        synch_cost: 10
+        synch_cost: 0.5
     }
 }
