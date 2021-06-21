@@ -15,6 +15,8 @@ import tensorflow.profiler.experimental as profiler
 # local
 from trainers.base import BaseTrainer
 
+from models.common import fano_factor
+
 class Trainer(BaseTrainer):
     """TODO: docs  | note how `optimizer` isn't in the parent"""
 
@@ -49,12 +51,17 @@ class Trainer(BaseTrainer):
         # logger as an optional argument.
 
         voltage, spikes, prediction = self.model(x) # tripartite output
-        loss_object = loss_object(y_true=y, y_pred=prediction)
+        task_loss = loss_object(y_true=y, y_pred=prediction)
 
         unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
-        #reg_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['model'].target_rate)) * self.cfg['model'].rate_cost
-        #total_loss_val = tf.math.add(loss_object,reg_loss)
-        total_loss_val = loss_object
+        #rate_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['model'].target_rate)) * self.cfg['model'].rate_cost
+        #interm_loss_val = tf.math.add(task_loss,rate_loss)
+
+        synchrony = fano_factor(self, self.cfg['data'].seq_len, spikes)
+        synch_loss = tf.reduce_sum(tf.square(synchrony - self.cfg['model'].target_synch)) * self.cfg['model'.].synch_cost
+        #total_loss_val = tf.math.add(interm_loss_val,synch_loss)
+        total_loss_val = synch_loss
+        #total_loss_val = tf.math.add(task_loss, synch_loss)
 
         # [*] Because this is a tf.function, we can't collapse tensors
         # to numpy arrays for logging, so we need to return the tensors
