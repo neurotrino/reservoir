@@ -52,8 +52,9 @@ class Trainer(BaseTrainer):
         loss_object = loss_object(y_true=y, y_pred=prediction)
 
         unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
-        reg_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['model'].target_rate)) * self.cfg['model'].rate_cost
-        total_loss_val = tf.math.add(loss_object,reg_loss)
+        #reg_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['model'].target_rate)) * self.cfg['model'].rate_cost
+        #total_loss_val = tf.math.add(loss_object,reg_loss)
+        total_loss_val = loss_object
 
         # [*] Because this is a tf.function, we can't collapse tensors
         # to numpy arrays for logging, so we need to return the tensors
