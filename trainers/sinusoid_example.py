@@ -55,14 +55,14 @@ class Trainer(BaseTrainer):
 
         unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
         rate_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['model'].target_rate)) * self.cfg['model'].rate_cost
-        #interm_loss_val = tf.math.add(task_loss,rate_loss)
+        interm_loss_val = tf.math.add(task_loss,rate_loss)
 
-        #synchrony = fano_factor(self, self.cfg['data'].seq_len, spikes)
-        #synch_loss = tf.reduce_sum(tf.square(synchrony - self.cfg['misc'].target_synch)) * self.cfg['misc'].synch_cost
-        #total_loss_val = tf.math.add(interm_loss_val,synch_loss)
+        synchrony = fano_factor(self, self.cfg['data'].seq_len, spikes)
+        synch_loss = tf.reduce_sum(tf.square(synchrony - self.cfg['misc'].target_synch)) * self.cfg['misc'].synch_cost
+        total_loss_val = tf.math.add(interm_loss_val,synch_loss)
         #total_loss_val = synch_loss
         #total_loss_val = tf.math.add(task_loss, synch_loss)
-        total_loss_val = tf.math.add(task_loss,rate_loss)
+        #total_loss_val = tf.math.add(task_loss,rate_loss)
 
         # [*] Because this is a tf.function, we can't collapse tensors
         # to numpy arrays for logging, so we need to return the tensors

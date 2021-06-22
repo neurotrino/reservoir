@@ -29,7 +29,7 @@
     {
         target_rate: 0.02
 
-        rate_cost: 1.0
+        rate_cost: 10.0
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sub-Network & Layer Parameters                                    │
@@ -93,7 +93,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/limlifetimefrontend_abs_ratereg_lif
+        exp_dir: ../experiments/limlifetime_abs_ratereg_lif_trioloss
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
@@ -257,6 +257,6 @@
 
         target_synch: 2.0
 
-        synch_cost: 1
+        synch_cost: 0.01
     }
 }
