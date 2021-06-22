@@ -92,7 +92,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/reg_testing_trioloss
+        exp_dir: ../experiments/reg_testing_bothloss
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
