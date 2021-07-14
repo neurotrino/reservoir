@@ -47,7 +47,7 @@
             #┤ Values                                                        │
             #┴───────────────────────────────────────────────────────────────╯
 
-            rewiring: false
+            rewiring: true
 
             units: 100   // number of units in the layer
 
@@ -92,7 +92,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/ccd_ExInLIF_naturalCNN
+        exp_dir: ../experiments/ccd_ExInLIF_mixedCNN_rewire
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
@@ -162,7 +162,11 @@
 
         /* if there are any flags for saving particular to your experiment,
          * include them here */
-        save_npz: false
+        // whether to save the npz data
+        save_npz: true
+
+        // whether to save the losses only
+        save_loss_only: false
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -185,15 +189,12 @@
     #┤ Choose what to log during training and how.                           │
     #┴───────────────────────────────────────────────────────────────────────╯
     log:
-    {
-        // Save npz files or not
-        log_npz: false
-        
+    {   
         // Save logging values to disk every n epochs
         post_every: 10
 
         // Neuron used ([!] would like to automate this):
-        neuron: ExInLIF
+        neuron: LIF
 
         // Training used ([!] would like to automate this):
         training_method: backprop
@@ -256,7 +257,7 @@
         n_recurrent: 100
 
         //
-        rewiring: false
+        rewiring: true
 
         // μ for normal distribution (exponentiated for lognormal weights)
         mu: -0.64
