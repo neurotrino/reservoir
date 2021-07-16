@@ -29,7 +29,7 @@
     {
         target_rate: 0.02
 
-        rate_cost: 10
+        rate_cost: 0.1
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sub-Network & Layer Parameters                                    │
@@ -92,7 +92,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/reg_testing_trioloss
+        exp_dir: ../experiments/debug-demo-experiment
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
@@ -191,7 +191,7 @@
         post_every: 10
 
         // Neuron used ([!] would like to automate this):
-        neuron: ExInLIF
+        neuron: LIF
 
         // Training used ([!] would like to automate this):
         training_method: backprop
@@ -237,7 +237,7 @@
         n_batch: 10
 
         // number of epochs the model is fit over
-        n_epochs: 100
+        n_epochs: 200
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -261,9 +261,5 @@
 
         // σ for normal distribution (exponentiated for lognormal weights)
         sigma: 0.51
-
-        target_synch: 2.0
-
-        synch_cost: 0.01
     }
 }

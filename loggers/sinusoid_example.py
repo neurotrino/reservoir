@@ -96,32 +96,45 @@ class Logger(BaseLogger):
             step_idx = epoch_idx * cfg['train'].n_batch
             self.plot_everything(f"{lo_epoch + epoch_idx}.png", step_idx)
 
+        # If log_npz is true, save the data to disk
+        #if self.cfg['save'].save_npz:
+            #for k in self.logvars.keys():
+                #self.logvars[k] = numpy(self.logvars[k])
+            #np.savez_compressed(fp, **self.logvars)
+
         # Save the data to disk (when toggled on)
         if self.cfg['save'].save_npz:
+            
+            if self.cfg['save'].save_loss_only:
+                # Format the data as numpy arrays
+                # Skip the dtype change here as the file size should be very small
+                self.logvars['step_loss'] = np.array(self.logvars['step_loss'])
+                self.logvars['epoch_loss'] = np.array(self.logvars['epoch_loss'])
+                np.savez_compressed(fp, step_loss=self.logvars['step_loss'], epoch_loss=self.logvars['epoch_loss'])
 
-            # Format the data as numpy arrays
-            for k in self.logvars.keys():
+            else:
+                for k in self.logvars.keys():
 
-                # Convert to numpy array
-                self.logvars[k] = np.array(self.logvars[k])
+                    # Convert to numpy array
+                    self.logvars[k] = np.array(self.logvars[k])
 
-                # Adjust precision if specified in the HJSON
-                old_type = self.logvars[k].dtype
-                new_type = None
+                    # Adjust precision if specified in the HJSON
+                    old_type = self.logvars[k].dtype
+                    new_type = None
 
-                # Check for casting rules
-                if old_type in [np.float64, np.float32, np.float16]:
-                    new_type = eval(f"np.{self.cfg['log'].float_dtype}")
-                elif old_type == np.int64:
-                    new_type = eval(f"np.{self.cfg['log'].int_dtype}")
+                    # Check for casting rules
+                    if old_type in [np.float64, np.float32, np.float16]:
+                        new_type = eval(f"np.{self.cfg['log'].float_dtype}")
+                    elif old_type == np.int64:
+                        new_type = eval(f"np.{self.cfg['log'].int_dtype}")
 
-                # Apply casting rules where they exist
-                if new_type is not None and new_type != old_type:
-                    self.logvars[k] = self.logvars[k].astype(new_type)
-                    logging.debug(f'cast {k} ({old_type}) to {new_type}')
+                    # Apply casting rules where they exist
+                    if new_type is not None and new_type != old_type:
+                        self.logvars[k] = self.logvars[k].astype(new_type)
+                        logging.debug(f'cast {k} ({old_type}) to {new_type}')
 
-            # Write numpy data to disk
-            np.savez_compressed(fp, **self.logvars)
+                # Write numpy data to disk
+                np.savez_compressed(fp, **self.logvars)
 
         # Free up RAM
         self.logvars = {}
@@ -134,7 +147,6 @@ class Logger(BaseLogger):
             f"posted data for epochs {lo_epoch}-{hi_epoch}"
             + f" ({time.time() - t0:.2f} seconds)"
         )
-
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ (Pseudo) Callbacks                                                    │
@@ -231,7 +243,8 @@ class Logger(BaseLogger):
 
         # [?] should loggers have their model as an attribute?
 
-        last_trial_idx = self.cfg['train'].batch_size - 1
+        # last_trial_idx = self.cfg['train'].batch_size - 1
+        last_trial_idx = 0
 
         # Input
         x = self.logvars['inputs'][idx][last_trial_idx]
