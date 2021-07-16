@@ -4,7 +4,7 @@ import tensorflow_probability as tfp
 import utils.config
 
 # Build model ----
-from models.neurons.lif import ExInLIF
+from models.neurons.lif import ExInLIF, LIF
 from models.sinusoid_example import SinusoidSlayer
 
 # Load Data ------

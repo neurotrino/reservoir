@@ -1,6 +1,7 @@
 """Logger class(es) for monitoring network training and testing."""
 
 import logging
+import numpy as np
 import os
 import tensorflow as tf
 

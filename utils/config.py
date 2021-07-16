@@ -12,6 +12,7 @@ import json
 import logging
 import os
 import shutil
+import tensorflow as tf
 import time
 
 
@@ -86,10 +87,10 @@ def get_args():
 
     # Path to HJSON configuration file specifying session variables
     parser.add_argument(
-        '-c',            # short command-line flag
-        '--config',      # long flag; becomes attribute (`args.config`)
+        '-c',          # short command-line flag
+        '--config',    # long flag; becomes attribute (`args.config`)
         metavar='C',
-        default='None',  # value used when user provides none
+        default=None,  # value used when user provides none
         help='path to HJSON configuration file specifying session variables'
     )
 
@@ -232,7 +233,7 @@ def load_hjson_config(filepath, custom_save_cfg=None):
         if sd_path is None:
             # Alert the user we found a null filepath
             logging.warning(f"{subdir} is null")
-            continue;
+            continue
 
         # Create directories
         save_cfg[subdir] = os.path.join(
@@ -363,5 +364,16 @@ def boot():
     # Save a copy of this file, if the flags are set
     if cfg['save'].log_config:
         shutil.copyfile(args.config, cfg['save'].exp_dir + "/config.hjson")
+
+    # Log the git SHA of the commit in use by the virtual environment
+    logging.debug(f"venv running from commit SHA {os.environ['MSNN_GITSHA']}")
+
+    # Check for a GPU
+    device_name = tf.test.gpu_device_name()
+
+    if not device_name:
+        logging.warning('GPU device not found')
+    else:
+        logging.debug(f'found GPU at {device_name}')
 
     return form, cfg

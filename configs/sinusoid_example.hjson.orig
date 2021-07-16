@@ -1,4 +1,6 @@
-/* HJSON configuration file for use with MacLean-1 SNN experiments
+/* HJSON configuration file for use with MacLean Lab SNN experiments
+ *
+ * The HJSON syntax is fully defined here: https://hjson.github.io/
  * ---------------------------------------------------------------------------
  * This file is configured for a model trained to match a lightly-noised
  * sinusoid pattern. Its primary purpose is to serve as an example and/or
@@ -7,8 +9,6 @@
  * Some small notes about encoding Python variables in HJSON:
  * - HJSON booleans are lowercase (`true` & `false`, not `True` & `False`)
  * - Use `null` in HJSON where you want `None` in Python
- *
- * The HJSON syntax is fully defined here: https://hjson.github.io/
  */
 {
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -29,13 +29,13 @@
     {
         target_rate: 0.02
 
-        rate_cost: 10.0
+        rate_cost: 0.1
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sub-Network & Layer Parameters                                    │
         #┴───────────────────────────────────────────────────────────────────╯
         cell:
-        // currently configured for an ExInALIF neuron:
+        // currently configured for an LIF neuron:
         {
             #┬───────────────────────────────────────────────────────────────╮
             #┤ Flags                                                         │
@@ -47,7 +47,7 @@
             #┤ Values                                                        │
             #┴───────────────────────────────────────────────────────────────╯
 
-            rewiring: true
+            rewiring: false
 
             units: 100   // number of units in the layer
 
@@ -58,7 +58,7 @@
 
             dampening_factor: 0.3
 
-            frac_e: 0.8  // fraction of total units that are excitatory
+            frac_e: 0.8
 
             p: {
                 "ee": 0.160
@@ -66,7 +66,6 @@
                 "ie": 0.318
                 "ii": 0.343
             }
-
         }
     }
 
@@ -93,13 +92,13 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/limlifetime_abs_ratereg_lif_trioloss
+        exp_dir: ../experiments/debug-demo-experiment
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
         {
             #┬───────────────────────────────────────────────────────────────╮
-            #┤ Standard                                                      │
+            #┤ TensorFlow Directories                                        │
             #┴───────────────────────────────────────────────────────────────╯
 
             // Directory storing checkpoints intended to restore models for
@@ -108,19 +107,19 @@
             // Full path: {exp_dir}\{checkpoint_dir}
             checkpoint_dir: checkpoints
 
+            #┬───────────────────────────────────────────────────────────────╮
+            #┤ TensorBoard Directories                                       │
+            #┴───────────────────────────────────────────────────────────────╯
+
             // Directory storing summary data from one or more training
             // sessions
-            //
-            // Full path: {exp_dir}\{summary_dir}
-            summary_dir: summaries
+            summary_dir: tensorboard/summaries
 
             // Directory storing logdirs (*only* for use with TensorBoard)
-            //
-            // Full path: {exp_dir}\{tb_logdir}
-            tb_logdir: logdirs
+            profile_dir: tensorboard/profile
 
             #┬───────────────────────────────────────────────────────────────╮
-            #┤ Supplementary                                                 │
+            #┤ Other Directories                                             │
             #┴───────────────────────────────────────────────────────────────╯
 
             // Used to store plots
@@ -128,8 +127,6 @@
 
             // Big everything jumbo place of stuff (the important stuff)
             main_output_dir: npz-data
-
-            /* you can add more directories you want to create/use here */
         }
 
         #┬───────────────────────────────────────────────────────────────────╮
@@ -163,11 +160,7 @@
 
         /* if there are any flags for saving particular to your experiment,
          * include them here */
-        // whether to save the npz data
         save_npz: true
-
-        // whether to save the losses only
-        save_loss_only: false
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -190,12 +183,15 @@
     #┤ Choose what to log during training and how.                           │
     #┴───────────────────────────────────────────────────────────────────────╯
     log:
+    {
+        // Save npz files or not
+        log_npz: false
 
         // Save logging values to disk every n epochs
         post_every: 10
 
         // Neuron used ([!] would like to automate this):
-        neuron: ExInLIF
+        neuron: LIF
 
         // Training used ([!] would like to automate this):
         training_method: backprop
@@ -232,10 +228,10 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     train:
     {
-        learning_rate: 0.05
+        learning_rate: 0.03
 
         // number of trials in batch
-        batch_size: 5
+        batch_size: 60
 
         // number of batches in an epoch
         n_batch: 10
@@ -258,18 +254,12 @@
         n_recurrent: 100
 
         //
-        rewiring: true
+        rewiring: false
 
         // μ for normal distribution (exponentiated for lognormal weights)
         mu: -0.64
 
         // σ for normal distribution (exponentiated for lognormal weights)
         sigma: 0.51
-
-        voltage_cost: 0.1
-
-        target_synch: 2.0
-
-        synch_cost: 0.01
     }
 }

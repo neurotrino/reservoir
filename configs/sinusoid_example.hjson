@@ -160,6 +160,7 @@
 
         /* if there are any flags for saving particular to your experiment,
          * include them here */
+        save_npz: true
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -170,10 +171,10 @@
     data:
     {
         //
-        seq_len: 1000
+        seq_len: 4080
 
         // number of input units
-        n_input: 10
+        n_input: 16
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -187,7 +188,7 @@
         log_npz: false
 
         // Save logging values to disk every n epochs
-        post_every: 2
+        post_every: 10
 
         // Neuron used ([!] would like to automate this):
         neuron: ExInLIF
@@ -207,6 +208,17 @@
         layer_whitelist: [
             rnn
         ]
+
+        // Floating point precision of numpy arrays saved to disk (fewer bits
+        // consume less memory on disk)
+        //
+        // 64  -->  ~16 decimal precision
+        // 32  -->  ~7 decimal precision
+        // 16  -->  ~3 decimal precision
+        float_dtype: float16
+
+        // Integer size
+        int_dtype: uint16
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -216,13 +228,13 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     train:
     {
-        learning_rate: 0.1
+        learning_rate: 0.03
 
         // number of trials in batch
-        batch_size: 16
+        batch_size: 60
 
         // number of batches in an epoch
-        n_batch: 32
+        n_batch: 10
 
         // number of epochs the model is fit over
         n_epochs: 100
