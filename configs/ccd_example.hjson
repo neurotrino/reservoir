@@ -29,13 +29,13 @@
     {
         target_rate: 0.02
 
-        rate_cost: 0.1
+        rate_cost: 10.0
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sub-Network & Layer Parameters                                    │
         #┴───────────────────────────────────────────────────────────────────╯
         cell:
-        // currently configured for an LIF neuron:
+        // currently configured for an ExInALIF neuron:
         {
             #┬───────────────────────────────────────────────────────────────╮
             #┤ Flags                                                         │
@@ -58,7 +58,7 @@
 
             dampening_factor: 0.3
 
-            frac_e: 0.8
+            frac_e: 0.8  // fraction of total units that are excitatory
 
             p: {
                 "ee": 0.160
@@ -66,6 +66,7 @@
                 "ie": 0.318
                 "ii": 0.343
             }
+
         }
     }
 
@@ -92,7 +93,7 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/ccd_ExInLIF_mixedCNN_rewire
+        exp_dir: ../experiments/limlifetime_abs_ratereg_lif_trioloss
 
         // Collection of directories which will be placed inside exp_dir
         subdirs:
@@ -189,12 +190,12 @@
     #┤ Choose what to log during training and how.                           │
     #┴───────────────────────────────────────────────────────────────────────╯
     log:
-    {   
+
         // Save logging values to disk every n epochs
         post_every: 10
 
         // Neuron used ([!] would like to automate this):
-        neuron: LIF
+        neuron: ExInLIF
 
         // Training used ([!] would like to automate this):
         training_method: backprop
@@ -234,7 +235,7 @@
         learning_rate: 0.05
 
         // number of trials in batch
-        batch_size: 60
+        batch_size: 5
 
         // number of batches in an epoch
         n_batch: 10
@@ -264,5 +265,11 @@
 
         // σ for normal distribution (exponentiated for lognormal weights)
         sigma: 0.51
+
+        voltage_cost: 0.1
+
+        target_synch: 2.0
+
+        synch_cost: 0.01
     }
 }

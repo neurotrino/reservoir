@@ -96,6 +96,12 @@ class Logger(BaseLogger):
             step_idx = epoch_idx * cfg['train'].n_batch
             self.plot_everything(f"{lo_epoch + epoch_idx}.png", step_idx)
 
+        # If log_npz is true, save the data to disk
+        #if self.cfg['save'].save_npz:
+            #for k in self.logvars.keys():
+                #self.logvars[k] = numpy(self.logvars[k])
+            #np.savez_compressed(fp, **self.logvars)
+
         # Save the data to disk (when toggled on)
         if self.cfg['save'].save_npz:
             
@@ -141,7 +147,6 @@ class Logger(BaseLogger):
             f"posted data for epochs {lo_epoch}-{hi_epoch}"
             + f" ({time.time() - t0:.2f} seconds)"
         )
-
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ (Pseudo) Callbacks                                                    │
