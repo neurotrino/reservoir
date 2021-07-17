@@ -11,265 +11,273 @@
  * The HJSON syntax is fully defined here: https://hjson.github.io/
  */
 {
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Model-Specific Parameters                                             │
-    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-    #┤ Model-specific parameters used to construct the network used in the   │
-    #┤ experiment. These values should be a one-to-one analog with the       │
-    #┤ target model's attributes (i.e. variable names and relative object    │
-    #┤ structures need to align between the two). It's fine to omit          │
-    #┤ parameters with default values.                                       │
-    #┤                                                                       │
-    #┤ If you need to access data in `cfg` during model initialization, or   │
-    #┤ would like to have `cfg` be an attribute in a model for any other     │
-    #┤ reason, you need to indicate so in this script by adding `cfg: null`  │
-    #┤ (nested in the structure needing access).                             │
-    #┴───────────────────────────────────────────────────────────────────────╯
-    model:
+  #┬───────────────────────────────────────────────────────────────────────╮
+  #┤ Model-Specific Parameters                                             │
+  #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+  #┤ Model-specific parameters used to construct the network used in the   │
+  #┤ experiment. These values should be a one-to-one analog with the       │
+  #┤ target model's attributes (i.e. variable names and relative object    │
+  #┤ structures need to align between the two). It's fine to omit          │
+  #┤ parameters with default values.                                       │
+  #┤                                                                       │
+  #┤ If you need to access data in `cfg` during model initialization, or   │
+  #┤ would like to have `cfg` be an attribute in a model for any other     │
+  #┤ reason, you need to indicate so in this script by adding `cfg: null`  │
+  #┤ (nested in the structure needing access).                             │
+  #┴───────────────────────────────────────────────────────────────────────╯
+  model:
+  {
+    target_rate: 0.02
+
+    rate_cost: 10.0
+
+    #┬───────────────────────────────────────────────────────────────────╮
+    #┤ Sub-Network & Layer Parameters                                    │
+    #┴───────────────────────────────────────────────────────────────────╯
+    cell:
+    // currently configured for an ExInALIF neuron:
     {
-        target_rate: 0.02
+      #┬───────────────────────────────────────────────────────────────╮
+      #┤ Flags                                                         │
+      #┴───────────────────────────────────────────────────────────────╯
 
-        rate_cost: 10.0
+      cfg: null
 
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Sub-Network & Layer Parameters                                    │
-        #┴───────────────────────────────────────────────────────────────────╯
-        cell:
-        // currently configured for an ExInALIF neuron:
-        {
-            #┬───────────────────────────────────────────────────────────────╮
-            #┤ Flags                                                         │
-            #┴───────────────────────────────────────────────────────────────╯
+      #┬───────────────────────────────────────────────────────────────╮
+      #┤ Values                                                        │
+      #┴───────────────────────────────────────────────────────────────╯
 
-            cfg: null
+      rewiring: true
 
-            #┬───────────────────────────────────────────────────────────────╮
-            #┤ Values                                                        │
-            #┴───────────────────────────────────────────────────────────────╯
+      units: 100   // number of units in the layer
 
-            rewiring: true
+      thr: -50.4   // threshold [mV]
+      EL: -70.6    // [mV]
+      n_refrac: 1  // number of refractory ms
+      tau: 20.0    //
 
-            units: 100   // number of units in the layer
+      dampening_factor: 0.3
 
-            thr: -50.4   // threshold [mV]
-            EL: -70.6    // [mV]
-            n_refrac: 1  // number of refractory ms
-            tau: 20.0    //
+      frac_e: 0.8  // fraction of total units that are excitatory
 
-            dampening_factor: 0.3
+      p: {
+        "ee": 0.160
+        "ei": 0.244
+        "ie": 0.318
+        "ii": 0.343
+      }
 
-            frac_e: 0.8  // fraction of total units that are excitatory
-
-            p: {
-                "ee": 0.160
-                "ei": 0.244
-                "ie": 0.318
-                "ii": 0.343
-            }
-
-        }
     }
+  }
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ File Saving                                                           │
-    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-    #┤ Configure what gets saved, where, and how. Please be mindful of other │
-    #┤ researchers and their data when adjusting these settings.             │
-    #┤                                                                       │
-    #┤ Filepaths are relative to where the script was invoked (not           │
-    #┤ necessarily) where the script is located. See the documentation below │
-    #┤ for how directories relate to each other and what each should         │
-    #┤ contain.                                                              │
-    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-    #┤******************* THESE SETTINGS CAN DELETE FILES *******************│
-    #┴───────────────────────────────────────────────────────────────────────╯
-    save:
+  #┬───────────────────────────────────────────────────────────────────────╮
+  #┤ File Saving                                                           │
+  #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+  #┤ Configure what gets saved, where, and how. Please be mindful of other │
+  #┤ researchers and their data when adjusting these settings.             │
+  #┤                                                                       │
+  #┤ Filepaths are relative to where the script was invoked (not           │
+  #┤ necessarily) where the script is located. See the documentation below │
+  #┤ for how directories relate to each other and what each should         │
+  #┤ contain.                                                              │
+  #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+  #┤******************* THESE SETTINGS CAN DELETE FILES *******************│
+  #┴───────────────────────────────────────────────────────────────────────╯
+  save:
+  {
+    #┬───────────────────────────────────────────────────────────────────╮
+    #┤ Directories                                                       │
+    #┴───────────────────────────────────────────────────────────────────╯
+
+    // Directory containing this experiment's output. Prefixes all other
+    // directory paths.
+    //
+    // Full path: {exp_dir}
+    exp_dir: ../experiments/limlifetime_abs_ratereg_lif_trioloss
+
+    // Collection of directories which will be placed inside exp_dir
+    subdirs:
     {
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Directories                                                       │
-        #┴───────────────────────────────────────────────────────────────────╯
+      #┬───────────────────────────────────────────────────────────────╮
+      #┤ Standard                                                      │
+      #┴───────────────────────────────────────────────────────────────╯
 
-        // Directory containing this experiment's output. Prefixes all other
-        // directory paths.
-        //
-        // Full path: {exp_dir}
-        exp_dir: ../experiments/limlifetime_abs_ratereg_lif_trioloss
+      // Directory storing checkpoints intended to restore models for
+      // training (`.ckpt` or `.h5` files, generally) or holding weights
+      //
+      // Full path: {exp_dir}\{checkpoint_dir}
+      checkpoint_dir: checkpoints
 
-        // Collection of directories which will be placed inside exp_dir
-        subdirs:
-        {
-            #┬───────────────────────────────────────────────────────────────╮
-            #┤ Standard                                                      │
-            #┴───────────────────────────────────────────────────────────────╯
+      // Directory storing summary data from one or more training
+      // sessions
+      //
+      // Full path: {exp_dir}\{summary_dir}
+      summary_dir: summaries
 
-            // Directory storing checkpoints intended to restore models for
-            // training (`.ckpt` or `.h5` files, generally) or holding weights
-            //
-            // Full path: {exp_dir}\{checkpoint_dir}
-            checkpoint_dir: checkpoints
+      // Directory storing logdirs (*only* for use with TensorBoard)
+      //
+      // Full path: {exp_dir}\{tb_logdir}
+      tb_logdir: logdirs
 
-            // Directory storing summary data from one or more training
-            // sessions
-            //
-            // Full path: {exp_dir}\{summary_dir}
-            summary_dir: summaries
+      #┬───────────────────────────────────────────────────────────────╮
+      #┤ Supplementary                                                 │
+      #┴───────────────────────────────────────────────────────────────╯
 
-            // Directory storing logdirs (*only* for use with TensorBoard)
-            //
-            // Full path: {exp_dir}\{tb_logdir}
-            tb_logdir: logdirs
+      // Used to store plots
+      plot_dir: plots
 
-            #┬───────────────────────────────────────────────────────────────╮
-            #┤ Supplementary                                                 │
-            #┴───────────────────────────────────────────────────────────────╯
+      // Big everything jumbo place of stuff (the important stuff)
+      main_output_dir: npz-data
 
-            // Used to store plots
-            plot_dir: plots
-
-            // Big everything jumbo place of stuff (the important stuff)
-            main_output_dir: npz-data
-
-            /* you can add more directories you want to create/use here */
-        }
-
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Flags (Mandatory)                                                 │
-        #┴───────────────────────────────────────────────────────────────────╯
-
-        // When enabled, the exp_dir will have a number suffixed to avoid
-        // overwriting saved data
-        avoid_overwrite: true
-
-        // If avoid_overwrite is set to false, and exp_dir overwrites a
-        // directory, this will purge the contents of the old directory. This
-        // is to avoid mixing data from different experiments, but be careful.
-        hard_overwrite: false
-
-        // Experiment directories will be suffixed by a UNIX timestamp
-        timestamp: false
-
-        // Save a copy of this file to exp_dir, so there's a record of what
-        // parameters the experiment was run with (won't save any indication
-        // of what the `.py` files were like)
-        log_config: true
-
-        // Enable/disable any additional processing on the data performed
-        // after training
-        postprocess: true
-
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Flags (Supplemental)                                              │
-        #┴───────────────────────────────────────────────────────────────────╯
-
-        /* if there are any flags for saving particular to your experiment,
-         * include them here */
-        // whether to save the npz data
-        save_npz: true
-
-        // whether to save the losses only
-        save_loss_only: false
+      /* you can add more directories you want to create/use here */
     }
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Data Config                                                           │
-    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-    #┤ Variables parameterizing the datasets used to train the model.        │
-    #┴───────────────────────────────────────────────────────────────────────╯
-    data:
-    {
-        //
-        seq_len: 4080
+    #┬───────────────────────────────────────────────────────────────────╮
+    #┤ Flags (Mandatory)                                                 │
+    #┴───────────────────────────────────────────────────────────────────╯
 
-        // number of input units
-        n_input: 16
-    }
+    // When enabled, the exp_dir will have a number suffixed to avoid
+    // overwriting saved data
+    avoid_overwrite: true
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Logging Config                                                        │
-    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-    #┤ Choose what to log during training and how.                           │
-    #┴───────────────────────────────────────────────────────────────────────╯
-    log:
+    // If avoid_overwrite is set to false, and exp_dir overwrites a
+    // directory, this will purge the contents of the old directory. This
+    // is to avoid mixing data from different experiments, but be careful.
+    hard_overwrite: false
 
-        // Save logging values to disk every n epochs
-        post_every: 10
+    // Experiment directories will be suffixed by a UNIX timestamp
+    timestamp: false
 
-        // Neuron used ([!] would like to automate this):
-        neuron: ExInLIF
+    // Save a copy of this file to exp_dir, so there's a record of what
+    // parameters the experiment was run with (won't save any indication
+    // of what the `.py` files were like)
+    log_config: true
 
-        // Training used ([!] would like to automate this):
-        training_method: backprop
+    // Enable/disable any additional processing on the data performed
+    // after training
+    postprocess: true
 
-        // Toggle the TensorBoard profiler
-        run_profiler: false
+    #┬───────────────────────────────────────────────────────────────────╮
+    #┤ Flags (Supplemental)                                              │
+    #┴───────────────────────────────────────────────────────────────────╯
 
-        // If enabled, the profiler will run on each epoch in the list below
-        profiler_epochs: [
-            4
-        ]
+    /* if there are any flags for saving particular to your experiment,
+     * include them here */
+    // whether to save the npz data
+    save_npz: true
 
-        // Filter for a subset of the logging procedures in the training loop
-        layer_whitelist: [
-            rnn
-        ]
+    // whether to save the losses only
+    save_loss_only: false
+  }
 
-        // Floating point precision of numpy arrays saved to disk (fewer bits
-        // consume less memory on disk)
-        //
-        // 64  -->  ~16 decimal precision
-        // 32  -->  ~7 decimal precision
-        // 16  -->  ~3 decimal precision
-        float_dtype: float16
+  #┬───────────────────────────────────────────────────────────────────────╮
+  #┤ Data Config                                                           │
+  #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+  #┤ Variables parameterizing the datasets used to train the model.        │
+  #┴───────────────────────────────────────────────────────────────────────╯
+  data:
+  {
+    // file containing spike data
+    spike_npz:
+    /home/macleanlab/CNN_outputs/spike_train_mixed_limlifetime_abs.npz
 
-        // Integer size
-        int_dtype: uint16
-    }
+    // file containing coherence data
+    coh_npz:
+    /home/macleanlab/CNN_outputs/coherences_mixed_limlifetime_abs.npz
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Training Config                                                       │
-    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-    #┤ Variables parameterizing training.                                    │
-    #┴───────────────────────────────────────────────────────────────────────╯
-    train:
-    {
-        learning_rate: 0.05
+    //
+    seq_len: 4080
 
-        // number of trials in batch
-        batch_size: 5
+    // number of input units
+    n_input: 16
+  }
 
-        // number of batches in an epoch
-        n_batch: 10
+  #┬───────────────────────────────────────────────────────────────────────╮
+  #┤ Logging Config                                                        │
+  #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+  #┤ Choose what to log during training and how.                           │
+  #┴───────────────────────────────────────────────────────────────────────╯
+  log:
+  {
+    // Save logging values to disk every n epochs
+    post_every: 10
 
-        // number of epochs the model is fit over
-        n_epochs: 200
-    }
+    // Neuron used ([!] would like to automate this):
+    neuron: ExInLIF
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Miscellaneous                                                         │
-    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-    #┤ Any other values useful to manipulate from this file.                 │
-    #┴───────────────────────────────────────────────────────────────────────╯
-    misc:
-    {
-        // time step
-        dt: 1
+    // Training used ([!] would like to automate this):
+    training_method: backprop
 
-        //
-        n_recurrent: 100
+    // Toggle the TensorBoard profiler
+    run_profiler: false
 
-        //
-        rewiring: true
+    // If enabled, the profiler will run on each epoch in the list below
+    profiler_epochs: [
+      4
+    ]
 
-        // μ for normal distribution (exponentiated for lognormal weights)
-        mu: -0.64
+    // Filter for a subset of the logging procedures in the training loop
+    layer_whitelist: [
+      rnn
+    ]
 
-        // σ for normal distribution (exponentiated for lognormal weights)
-        sigma: 0.51
+    // Floating point precision of numpy arrays saved to disk (fewer bits
+    // consume less memory on disk)
+    //
+    // 64  -->  ~16 decimal precision
+    // 32  -->  ~7 decimal precision
+    // 16  -->  ~3 decimal precision
+    float_dtype: float16
 
-        voltage_cost: 0.1
+    // Integer size
+    int_dtype: uint16
+  }
 
-        target_synch: 2.0
+  #┬───────────────────────────────────────────────────────────────────────╮
+  #┤ Training Config                                                       │
+  #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+  #┤ Variables parameterizing training.                                    │
+  #┴───────────────────────────────────────────────────────────────────────╯
+  train:
+  {
+    learning_rate: 0.05
 
-        synch_cost: 0.01
-    }
+    // number of trials in batch
+    batch_size: 5
+
+    // number of batches in an epoch
+    n_batch: 10
+
+    // number of epochs the model is fit over
+    n_epochs: 200
+  }
+
+  #┬───────────────────────────────────────────────────────────────────────╮
+  #┤ Miscellaneous                                                         │
+  #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+  #┤ Any other values useful to manipulate from this file.                 │
+  #┴───────────────────────────────────────────────────────────────────────╯
+  misc:
+  {
+    // time step
+    dt: 1
+
+    //
+    n_recurrent: 100
+
+    //
+    rewiring: true
+
+    // μ for normal distribution (exponentiated for lognormal weights)
+    mu: -0.64
+
+    // σ for normal distribution (exponentiated for lognormal weights)
+    sigma: 0.51
+
+    voltage_cost: 0.1
+
+    target_synch: 2.0
+
+    synch_cost: 0.01
+  }
 }

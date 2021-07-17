@@ -11,23 +11,24 @@ import tensorflow as tf
 #┴───────────────────────────────────────────────────────────────────────────╯
 
 class DataGenerator(BaseDataGenerator):
-    """TODO - DOCS"""
+    """Serve coherence change detection (CCD) task data.
+
+    Stores and serves data associated with a CCD task. Data is
+    formatted as spike trains (features) and coherence values (labels).
+    """
     def __init__(self, cfg):
+        """Initialize ccd.DataGenerator object."""
         super().__init__(cfg)
 
         # Generate initial dataset
         seq_len = cfg['data'].seq_len  # no. inputs
         n_input = cfg['data'].n_input  # dim of input
 
-        spikes = load_npz('/home/macleanlab/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
-        coherences = load_npz('/home/macleanlab/CNN_outputs/coherences_mixed_limlifetime_abs.npz')
-        #spikes = load_npz('/home/macleanlab/mufeng/NaturalMotionCNN/CNN_outputs/spike_train_ch_model6_abs.npz')
-        #coherences = load_npz('/home/macleanlab/mufeng/NaturalMotionCNN/CNN_outputs/coherences_ch_model6_abs.npz')
+        spikes = load_npz(cfg['data'].spike_npz)
+        coherences = load_npz(cfg['data'].coh_npz)
 
-        # rates = np.random.randn(600, seq_len, n_input)
-        # x = (rates > 0).astype(float)
         x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
-        y = np.array(coherences.todense().reshape((-1, seq_len)))[:,:,None]
+        y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None]
 
         self.dataset = tf.data.Dataset.from_tensor_slices(
             (x, y)
@@ -35,17 +36,17 @@ class DataGenerator(BaseDataGenerator):
             count=1
         ).batch(cfg['train'].batch_size)
 
-
-
-        # Iterator
+        # Declare data iterator
         self.iterator = None
 
 
     def get(self):
+        """Retrieve a complete dataset."""
         return self.dataset
 
 
     def next(self):
+        """Retrieve a single batch from the dataset."""
         if self.iterator is None:
             self.iterator = iter(self.dataset)
         try:
@@ -58,17 +59,3 @@ class DataGenerator(BaseDataGenerator):
 def load_data(cfg):
     """Wrapper returning just the dataset."""
     return DataGenerator(cfg).dataset
-
-
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Preprocessing                                                             │
-#┴───────────────────────────────────────────────────────────────────────────╯
-
-# N/A
-
-
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Postprocessing                                                            │
-#┴───────────────────────────────────────────────────────────────────────────╯
-
-# N/A
