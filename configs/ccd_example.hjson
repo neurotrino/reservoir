@@ -69,13 +69,13 @@
       tau_adaptation: 100.
 
       // specific to AdEx neurons:
-      tauw: 144       // [ms]
-      a: 4 / 1e6      // [mSiemens] originally 4 * nSiemens
-      b: 80.5 / 1e6   // [mV * ms] originally 80.5 * pAmpere
-      gL: 30 / 1e6    // [mSiemens] originally 30 * nSiemens
-      C: 281          // [mSiemens * ms] originally 281 * uFarad
-      deltaT: 2       // [mV]
-      V_reset: -70.6  // [mV]
+      //tauw: 144       // [ms]
+      //a: 4 / 1e6      // [mSiemens] originally 4 * nSiemens
+      //b: 80.5 / 1e6   // [mV * ms] originally 80.5 * pAmpere
+      //gL: 30 / 1e6    // [mSiemens] originally 30 * nSiemens
+      //C: 281          // [mSiemens * ms] originally 281 * uFarad
+      //deltaT: 2       // [mV]
+      //V_reset: -70.6  // [mV]
 
       //Our base units (ones place) are mV and ms and mSiemens
       //Volt = 1e3
@@ -192,7 +192,7 @@
     /* if there are any flags for saving particular to your experiment,
      * include them here */
     // whether to save the npz data
-    save_npz: false
+    save_npz: true
 
     // whether to save the losses only
     save_loss_only: false
