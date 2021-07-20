@@ -120,6 +120,62 @@ def test_local():
 
 	return props
 
+def plot_density(experiment): # July 20, 2021: for sake of testing rewiring
+    dens = []
+    loss = []
+    epoch_end = [9,19,29,39,49,59,69]
+    epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70']
+    nfiles = len(epoch_groups)
+    for i in range(nfiles):
+        fname = '../experiments/' + experiment + '/npz-data' + epoch_groups[i] + '.npz'
+        data = np.load(fname)
+        for j in range(len(epoch_end)):
+            w_rec = data['tv1.postweights'][epoch_end[j],:,:]
+            total_ct = np.size(w_rec)
+            zero_ct = w_rec[w_rec==0].shape[0]
+            dens.append((total_ct - zero_ct)/float(total_ct))
+
+        # record loss
+        for j in range(len(data['epoch_loss'])):
+            loss.append(data['epoch_loss'][j])
+
+    # create plot of beginning and ending weight distributions
+    start_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[0] + '.npz'
+    start_data = np.load(start_fname)
+    start_w_rec = data['tv1.postweights'][0,:,:]
+    end_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[len(epoch_groups)-1] + '.npz'
+    end_data = np.load(end_fname)
+    end_w_rec = data['tv1.postweights'][99,:,:]
+
+    fig, ax = plt.subplots(3, figsize=(6, 8))
+    fig.suptitle("ALIF")
+
+    begin_w_dist = start_w_rec.flatten()
+    end_w_dist = end_w_rec.flatten()
+    sns.kdeplot(begin_w_dist, bw = 0.02, ax = ax[0], label='initial')
+    sns.kdeplot(end_w_dist, bw=0.02, ax = ax[0], label = 'end')
+    #ax[0].hist(start_w_rec.flatten(), bins=50, fc = '#1f77b4', label="initial")
+    #ax[0].hist(end_w_rec.flatten(), bins=50, fc = '#ff7f0e', label="end")
+    ax[0].set_xlabel("weights")
+    ax[0].set_ylabel("counts")
+    ax[0].legend(prop={'size': 7})
+    ax[0].set_title("recurrent weight distribution")
+
+    # create plot of loss over time
+    ax[1].plot(loss)
+    ax[1].set_title('total loss per epoch')
+    ax[1].set_xlabel('epoch')
+    ax[1].set_ylabel('MSE loss')
+
+    ax[2].plot(dens)
+    ax[2].set_title('proportion of total recurrent connectivity')
+    ax[2].set_xlabel("epoch")
+    ax[2].set_ylabel("density")
+
+    # draw and save plot
+    fig.subplots_adjust(hspace=1)
+    plt.draw()
+    plt.savefig('../experiments/' + experiment + "/analysis/alif_to_epoch_70.png", dpi=300)
 
 def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz meeting
     sims = 10
