@@ -65,7 +65,6 @@
       }
 
       // specific to ALIF neurons:
-      dt: 1.
       beta: 0.16
       tau_adaptation: 100.
 

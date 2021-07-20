@@ -313,6 +313,8 @@ class ExInALIF(_LIFCore):
         self.p_ie = self.p['ie']
         self.p_ii = self.p['ii']
 
+        self.dt = float(cfg['misc'].dt)
+
         # Adaptation parameters
         self.tau_adaptation = tau_adaptation
         self.beta = beta
