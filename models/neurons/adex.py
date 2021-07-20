@@ -347,16 +347,16 @@ class _EligAdexCore(BaseNeuron):
         self.set_weights([self.input_weights.value(), initial_weights_mat])
 
         # Store neurons' signs
-        try:
-            if self.rewiring:
-                wmat = -1 * np.ones([self.units, self.units])
-                wmat[0:self.n_excite,:] = -1 * wmat[0:self.n_excite,:]
-                self.rec_sign = tf.convert_to_tensor(wmat, dtype = tf.float32) # +1 for excitatory and -1 for inhibitory
-            else:
-                self.rec_sign = tf.sign(self.recurrent_weights) # as above but 0 for zeros
-        except:
+        #try:
+        if self.rewiring:
+            wmat = -1 * np.ones([self.units, self.units])
+            wmat[0:self.n_excite,:] = -1 * wmat[0:self.n_excite,:]
+            self.rec_sign = tf.convert_to_tensor(wmat, dtype = tf.float32) # +1 for excitatory and -1 for inhibitory
+        else:
             self.rec_sign = tf.sign(self.recurrent_weights) # as above but 0 for zeros
-            logging.warn(f'neuronal sign storage defaulted in {type(self)}')
+        #except:
+        #    self.rec_sign = tf.sign(self.recurrent_weights) # as above but 0 for zeros
+        #    logging.warn(f'neuronal sign storage defaulted in {type(self)}')
 
         # Needed to disconnect self-connections if self.rewiring
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)),tf.bool)
