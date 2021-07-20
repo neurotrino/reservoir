@@ -305,6 +305,8 @@ class ExInALIF(_LIFCore):
         """
         super().__init__(*args, **kwargs)
 
+        self.cfg = cfg
+
         # ExIn paramaters
         self.n_excite = int(frac_e * self.units)
         self.n_inhib = self.units - self.n_excite
