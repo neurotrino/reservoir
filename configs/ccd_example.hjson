@@ -27,15 +27,12 @@
   #┴───────────────────────────────────────────────────────────────────────╯
   model:
   {
-    target_rate: 0.02
-
-    rate_cost: 10.0
 
     #┬───────────────────────────────────────────────────────────────────╮
     #┤ Sub-Network & Layer Parameters                                    │
     #┴───────────────────────────────────────────────────────────────────╯
     cell:
-    // currently configured for an ExInALIF neuron:
+    // currently configured to support all LIF and AdEx class neurons:
     {
       #┬───────────────────────────────────────────────────────────────╮
       #┤ Flags                                                         │
@@ -47,7 +44,7 @@
       #┤ Values                                                        │
       #┴───────────────────────────────────────────────────────────────╯
 
-      rewiring: true
+      rewiring: false
 
       units: 100   // number of units in the layer
 
@@ -66,6 +63,33 @@
         "ie": 0.318
         "ii": 0.343
       }
+
+      // specific to AdEx neurons:
+      tauw: 144       // [ms]
+      a: 4 / 1e6      // [mSiemens] originally 4 * nSiemens
+      b: 80.5 / 1e6   // [mV * ms] originally 80.5 * pAmpere
+      gL: 30 / 1e6    // [mSiemens] originally 30 * nSiemens
+      C: 281          // [mSiemens * ms] originally 281 * uFarad
+      deltaT: 2       // [mV]
+      V_reset: -70.6  // [mV]
+
+      //Our base units (ones place) are mV and ms and mSiemens
+      //Volt = 1e3
+      //Siemens = 1e3
+      //Second = 1e3
+      //Ampere = Volt * Siemens
+      //mAmpere = Ampere / 1e3
+      //nAmpere = Ampere / 1e9
+      //pAmpere = Ampere / 1e12
+      //Farad = Ampere * Second / Volt
+      //Ohm = 1 / Siemens
+      //MOhm = Ohm * 1e6
+      //uFarad = Farad / 1e6
+      //mSecond = Second / 1e3
+      //mVolt = Volt / 1e3
+      //mSiemens = Siemens / 1e3
+      //nSiemens = Siemens / 1e9
+      //Hertz = 1 / Second
 
     }
   }
@@ -93,7 +117,7 @@
     // directory paths.
     //
     // Full path: {exp_dir}
-    exp_dir: ../experiments/limlifetime_abs_ratereg_lif_trioloss
+    exp_dir: ../experiments/ccd_test_rewiring_alif
 
     // Collection of directories which will be placed inside exp_dir
     subdirs:
@@ -164,7 +188,7 @@
     /* if there are any flags for saving particular to your experiment,
      * include them here */
     // whether to save the npz data
-    save_npz: true
+    save_npz: false
 
     // whether to save the losses only
     save_loss_only: false
@@ -203,7 +227,7 @@
     post_every: 10
 
     // Neuron used ([!] would like to automate this):
-    neuron: ExInLIF
+    neuron: ExInALIF
 
     // Training used ([!] would like to automate this):
     training_method: backprop
@@ -250,6 +274,16 @@
 
     // number of epochs the model is fit over
     n_epochs: 200
+
+    voltage_cost: 0.1
+
+    target_synch: 2.0
+
+    synch_cost: 0.01
+
+    target_rate: 0.02
+
+    rate_cost: 10.0
   }
 
   #┬───────────────────────────────────────────────────────────────────────╮
@@ -265,19 +299,10 @@
     //
     n_recurrent: 100
 
-    //
-    rewiring: true
-
     // μ for normal distribution (exponentiated for lognormal weights)
     mu: -0.64
 
     // σ for normal distribution (exponentiated for lognormal weights)
     sigma: 0.51
-
-    voltage_cost: 0.1
-
-    target_synch: 2.0
-
-    synch_cost: 0.01
   }
 }

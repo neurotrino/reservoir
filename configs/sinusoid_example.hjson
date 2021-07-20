@@ -27,9 +27,6 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     model:
     {
-        target_rate: 0.02
-
-        rate_cost: 10
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sub-Network & Layer Parameters                                    │
@@ -238,6 +235,14 @@
 
         // number of epochs the model is fit over
         n_epochs: 100
+
+        target_rate: 0.02
+
+        rate_cost: 10
+
+        target_synch: 2.0
+
+        synch_cost: 0.01
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -261,9 +266,5 @@
 
         // σ for normal distribution (exponentiated for lognormal weights)
         sigma: 0.51
-
-        target_synch: 2.0
-
-        synch_cost: 0.01
     }
 }

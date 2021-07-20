@@ -15,14 +15,16 @@ class SinusoidSlayer(BaseModel):
     """Model for the sinusoid-matching example."""
 
     def __init__(self,
-        target_rate,
-        rate_cost,
-        cell: ExInLIF
+        #target_rate,
+        #rate_cost,
+        cell
     ):
         super().__init__()
 
-        self.target_rate = target_rate
-        self.rate_cost = rate_cost
+        # NOTE: the variables here are those needed to build the model.
+        # now that we don't have a regularization layer, the following are not needed
+        #self.target_rate = target_rate
+        #self.rate_cost = rate_cost
         #self.voltage_cost = voltage_cost
         #self.target_synch = target_synch
         #self.synch_cost = synch_cost

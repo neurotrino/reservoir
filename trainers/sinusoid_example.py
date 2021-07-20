@@ -54,11 +54,11 @@ class Trainer(BaseTrainer):
         task_loss = loss_object(y_true=y, y_pred=prediction)
 
         unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
-        rate_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['model'].target_rate)) * self.cfg['model'].rate_cost
+        rate_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['train'].target_rate)) * self.cfg['train'].rate_cost
         interm_loss_val = tf.math.add(task_loss,rate_loss)
 
         synchrony = fano_factor(self, self.cfg['data'].seq_len, spikes)
-        synch_loss = tf.reduce_sum(tf.square(synchrony - self.cfg['misc'].target_synch)) * self.cfg['misc'].synch_cost
+        synch_loss = tf.reduce_sum(tf.square(synchrony - self.cfg['train'].target_synch)) * self.cfg['train'].synch_cost
         total_loss_val = tf.math.add(interm_loss_val,synch_loss)
         #total_loss_val = synch_loss
         #total_loss_val = tf.math.add(task_loss, synch_loss)

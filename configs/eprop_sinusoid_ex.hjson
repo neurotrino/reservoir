@@ -28,9 +28,6 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     model:
     {
-        target_rate: 0.02
-
-        rate_cost: 0.1
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sub-Network & Layer Parameters                                    │
@@ -65,13 +62,13 @@
             tauw: 144 // [mSecond]
             a: 4 // [nSiemens]
             b: 80.5  / [pAmpere]
-            
+
             ## Units requirements
             # [gL/C]=1/mSecond --> dt_gL__C is unitless
-            # pA * [dt/C] = pA * ms/pF = mV 
+            # pA * [dt/C] = pA * ms/pF = mV
             gL: 30 // [nSiemens]
             C: 281 // [pFarad]
-            
+
             deltaT: 2 // [mV]
             V_reset: -70.6  // [mV]
         }
@@ -134,7 +131,7 @@
 
             // Used to store plots
             plot_dir: plots
-            
+
             // Big everything jumbo place of stuff (the important stuff)
             pickle_dir: main_output
 
@@ -216,6 +213,10 @@
 
         // number of epochs the model is fit over
         n_epochs: 256
+
+        target_rate: 0.02
+
+        rate_cost: 0.1
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮

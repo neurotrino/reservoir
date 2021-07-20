@@ -4,7 +4,7 @@ import tensorflow_probability as tfp
 import utils.config
 
 # Build model ----
-from models.neurons.lif import ExInLIF, LIF
+from models.neurons.lif import ExInALIF, ExInLIF, LIF
 from models.sinusoid_example import SinusoidSlayer
 
 # Load Data ------
@@ -28,7 +28,7 @@ def main():
 
         "cell":
         {
-            "_class": ExInLIF
+            "_class": ExInALIF
         }
     }
     model = form(template).build(cfg)
