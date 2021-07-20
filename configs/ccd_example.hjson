@@ -64,6 +64,11 @@
         "ii": 0.343
       }
 
+      // specific to ALIF neurons:
+      dt: 1.
+      beta: 0.16
+      tau_adaptation: 100.
+
       // specific to AdEx neurons:
       tauw: 144       // [ms]
       a: 4 / 1e6      // [mSiemens] originally 4 * nSiemens
