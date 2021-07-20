@@ -127,7 +127,7 @@ def plot_density(experiment): # July 20, 2021: for sake of testing rewiring
     epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70']
     nfiles = len(epoch_groups)
     for i in range(nfiles):
-        fname = '../../../experiments/' + experiment + '/npz-data' + epoch_groups[i] + '.npz'
+        fname = '../../../experiments/' + experiment + '/npz-data/' + epoch_groups[i] + '.npz'
         data = np.load(fname)
         for j in range(len(epoch_end)):
             w_rec = data['tv1.postweights'][epoch_end[j],:,:]
