@@ -10,7 +10,9 @@ like subdirectories un-nesting themselves (e.g. `cfg['save'].checkpoint_dir`).
 
 ### Model
 Parameters used to instantiate your model. Can contain submodels and must be consistent with a) the variables passed in
-the model's `.__init__()` method and b) the `template` variable in your main script.
+the model's `.__init__()` method and b) the `template` variable in your main script. Model is a special namespace due to
+the `template` variable that should be in `main.py` files. There must be a 1:1 relationship (save attributes with
+default values) between the HJSON and the model definition.
 
 ### Save
 Parameters and flags configuring where your data gets saved and how.
