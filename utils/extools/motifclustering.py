@@ -19,7 +19,7 @@ for k in data.files:
 """
 #experiment = 'ccd_with_dot_trained_cnn_alif_3'
 #experiment = 'ccd_with_dot_trained_cnn_alif_2'
-experiment = 'ccd_with_dot_trained_cnn_lif'
+experiment = 'ccd_test_rewiring_alif_8'
 
 def test_local():
 	sims = 10
@@ -127,7 +127,7 @@ def plot_density(experiment): # July 20, 2021: for sake of testing rewiring
     epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70']
     nfiles = len(epoch_groups)
     for i in range(nfiles):
-        fname = '../experiments/' + experiment + '/npz-data' + epoch_groups[i] + '.npz'
+        fname = '../../../experiments/' + experiment + '/npz-data' + epoch_groups[i] + '.npz'
         data = np.load(fname)
         for j in range(len(epoch_end)):
             w_rec = data['tv1.postweights'][epoch_end[j],:,:]
@@ -140,10 +140,10 @@ def plot_density(experiment): # July 20, 2021: for sake of testing rewiring
             loss.append(data['epoch_loss'][j])
 
     # create plot of beginning and ending weight distributions
-    start_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[0] + '.npz'
+    start_fname = '../../../experiments/' + experiment + '/npz-data/' + epoch_groups[0] + '.npz'
     start_data = np.load(start_fname)
     start_w_rec = data['tv1.postweights'][0,:,:]
-    end_fname = '../experiments/' + experiment + '/npz-data/' + epoch_groups[len(epoch_groups)-1] + '.npz'
+    end_fname = '../../../experiments/' + experiment + '/npz-data/' + epoch_groups[len(epoch_groups)-1] + '.npz'
     end_data = np.load(end_fname)
     end_w_rec = data['tv1.postweights'][99,:,:]
 
@@ -175,7 +175,7 @@ def plot_density(experiment): # July 20, 2021: for sake of testing rewiring
     # draw and save plot
     fig.subplots_adjust(hspace=1)
     plt.draw()
-    plt.savefig('../experiments/' + experiment + "/analysis/alif_to_epoch_70.png", dpi=300)
+    plt.savefig('../../../experiments/' + experiment + "/analysis/alif_to_epoch_70.png", dpi=300)
 
 def plot_data_over_epochs(experiment): # March 23, 2021: creating plots for Graz meeting
     sims = 10
