@@ -121,7 +121,7 @@
     // directory paths.
     //
     // Full path: {exp_dir}
-    exp_dir: ../experiments/ccd_test_rewiring_alif
+    exp_dir: ../experiments/test_sparsity_loss_alif
 
     // Collection of directories which will be placed inside exp_dir
     subdirs:
@@ -192,7 +192,7 @@
     /* if there are any flags for saving particular to your experiment,
      * include them here */
     // whether to save the npz data
-    save_npz: true
+    save_npz: false
 
     // whether to save the losses only
     save_loss_only: false
@@ -288,6 +288,11 @@
     target_rate: 0.02
 
     rate_cost: 10.0
+
+    target_conn: 0.266
+    // mean of initial p's
+
+    conn_cost: 0.1
   }
 
   #┬───────────────────────────────────────────────────────────────────────╮
