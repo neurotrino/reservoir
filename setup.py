@@ -75,6 +75,6 @@ setup = installation_wrapper(setup(
         'matplotlib',
         #'tensorflow' >= 2.5,
         'tensorflow'
-        'tensorflow-probability'
+        #'tensorflow-probability'
     ]
 ))
