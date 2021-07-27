@@ -73,7 +73,8 @@ setup = installation_wrapper(setup(
         'dataclasses_json',
         'hjson',
         'matplotlib',
-        'tensorflow' >= 2.5,
+        #'tensorflow' >= 2.5,
+        'tensorflow'
         'tensorflow-probability'
     ]
 ))
