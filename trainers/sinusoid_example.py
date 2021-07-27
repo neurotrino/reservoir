@@ -64,7 +64,7 @@ class Trainer(BaseTrainer):
         #total_loss_val = tf.math.add(task_loss, synch_loss)
         #total_loss_val = tf.math.add(task_loss,rate_loss)
 
-        w_rec = self.logvars['tv0.postweights']
+        w_rec = self.data['tv1.postweights']
         total_ct = np.size(w_rec)
         zero_ct = w_rec[w_rec==0].shape[0]
         dens = (total_ct - zero_ct)/float(total_ct)
