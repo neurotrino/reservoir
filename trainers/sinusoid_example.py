@@ -59,19 +59,19 @@ class Trainer(BaseTrainer):
 
         synchrony = fano_factor(self, self.cfg['data'].seq_len, spikes)
         synch_loss = tf.reduce_sum(tf.square(synchrony - self.cfg['train'].target_synch)) * self.cfg['train'].synch_cost
-        interm_loss_val_1 = tf.math.add(interm_loss_val_0,synch_loss)
-        #total_loss_val = synch_loss
+        #interm_loss_val_1 = tf.math.add(interm_loss_val_0,synch_loss)
+        total_loss_val = tf.math.add(interm_loss_val_0,synch_loss)
         #total_loss_val = tf.math.add(task_loss, synch_loss)
         #total_loss_val = tf.math.add(task_loss,rate_loss)
 
-        w_rec = np.array(self.model.cell.recurrent_weights)
+        #w_rec = np.array(self.model.cell.recurrent_weights)
 
-        total_ct = np.size(w_rec)
-        zero_ct = w_rec[w_rec==0].shape[0]
-        dens = (total_ct - zero_ct)/float(total_ct)
+        #total_ct = np.size(w_rec)
+        #zero_ct = w_rec[w_rec==0].shape[0]
+        #dens = (total_ct - zero_ct)/float(total_ct)
 
-        conn_loss = tf.reduce_sum(tf.square(dens - self.cfg['train'].target_conn)) * self.cfg['train'].conn_cost
-        total_loss_val = tf.math.add(interm_loss_val_1,conn_loss)
+        #conn_loss = tf.reduce_sum(tf.square(dens - self.cfg['train'].target_conn)) * self.cfg['train'].conn_cost
+        #total_loss_val = tf.math.add(interm_loss_val_1,conn_loss)
 
         # [*] Because this is a tf.function, we can't collapse tensors
         # to numpy arrays for logging, so we need to return the tensors
