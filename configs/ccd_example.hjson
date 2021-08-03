@@ -214,7 +214,7 @@
     /home/macleanlab/CNN_outputs/coherences_mixed_limlifetime_abs.npz
 
     //
-    seq_len: 240
+    seq_len: 4080
 
     // number of input units
     n_input: 16
