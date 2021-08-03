@@ -19,11 +19,11 @@ class DataGenerator(BaseDataGenerator):
         seq_len = cfg['data'].seq_len  # no. inputs
         n_input = cfg['data'].n_input  # dim of input
 
-        spikes = load_npz('/home/macleanlab/mufeng/NaturalMotionCNN/CNN_outputs/spike_train.npz')
-        coherences = load_npz('/home/macleanlab/mufeng/NaturalMotionCNN/CNN_outputs/coherences.npz')
+        spikes = load_npz(cfg['data'].spike_npz)
+        matches = np.load(cfg['data'].match_npy)
 
         x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
-        y = np.array(coherences.todense().reshape((-1, seq_len)))[:,:,None]
+        y = np.array(matches.todense().reshape((-1, seq_len)))[:,:,None]
 
         self.dataset = tf.data.Dataset.from_tensor_slices(
             (x, y)

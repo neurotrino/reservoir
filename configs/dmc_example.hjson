@@ -121,7 +121,7 @@
     // directory paths.
     //
     // Full path: {exp_dir}
-    exp_dir: ../experiments/test_seq_len_ccd
+    exp_dir: ../experiments/test_dmc_alif
 
     // Collection of directories which will be placed inside exp_dir
     subdirs:
@@ -207,11 +207,11 @@
   {
     // file containing spike data
     spike_npz:
-    /home/macleanlab/CNN_outputs/spike_train_mixed_limlifetime_abs.npz
+    /home/macleanlab/stim/dmc/2021-08-02/CNN_outputs/spike_trains.npz
 
-    // file containing coherence data
-    coh_npz:
-    /home/macleanlab/CNN_outputs/coherences_mixed_limlifetime_abs.npz
+    // file containing sample match/non-match data
+    match_npy:
+    /home/macleanlab/stim/dmc/2021-08-02/CNN_outputs/match_flags_time_series.npy
 
     //
     seq_len: 240
