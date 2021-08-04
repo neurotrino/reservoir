@@ -35,7 +35,7 @@ def main():
     logging.info("model built")
 
     # Load data
-    data = ccd.DataGenerator(cfg)
+    data = dmc.DataGenerator(cfg)
     logging.info("dataset loaded")
 
     # Instantiate logger
