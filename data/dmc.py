@@ -26,14 +26,15 @@ class DataGenerator(BaseDataGenerator):
 
         spikes = load_npz(cfg['data'].spike_npz)
         matches = np.load(cfg['data'].match_npy)
-        match_labels_frames = matches.reshape(600, FRAMES_PER_TRIAL)
+        #match_labels_frames = matches.reshape(600, FRAMES_PER_TRIAL)
         # dilate the coherence vectors from frames to ms
         # sanity check: 2400*17 = 10*4080 = 40800ms per movie
-        match_labels_ms = np.repeat(match_labels_frames, int(MS_PER_TRIAL/FRAMES_PER_TRIAL)+1, axis=1)
+        #match_labels_ms = np.repeat(match_labels_frames, int(MS_PER_TRIAL/FRAMES_PER_TRIAL)+1, axis=1)
 
         x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
         #y = np.array(matches.todense().reshape((-1, seq_len)))[:,:,None]
-        y = match_labels_ms.reshape((-1,seq_len))[:,:,None]
+        #y = match_labels_ms.reshape((-1,seq_len))[:,:,None]
+        y = matches.reshape((-1,seq_len))[:,:,None]
 
         self.dataset = tf.data.Dataset.from_tensor_slices(
             (x, y)

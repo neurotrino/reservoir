@@ -207,11 +207,11 @@
   {
     // file containing spike data
     spike_npz:
-    /home/macleanlab/stim/dmc/2021-08-02/CNN_outputs/spike_trains.npz
+    /home/macleanlab/stim/dmc/2021-08-04-q/CNN_outputs/CNN_outputs/spike_train.npz
 
     // file containing sample match/non-match data
     match_npy:
-    /home/macleanlab/stim/dmc/2021-08-02/CNN_outputs/match_flags_time_series.npy
+    /home/macleanlab/stim/dmc/2021-08-04-q/CNN_outputs/CNN_outputs/match_flags_time_series.npy
 
     //
     seq_len: 4080
