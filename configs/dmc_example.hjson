@@ -121,7 +121,7 @@
     // directory paths.
     //
     // Full path: {exp_dir}
-    exp_dir: ../experiments/test_dmc_alif
+    exp_dir: ../experiments/test_dmc_category
 
     // Collection of directories which will be placed inside exp_dir
     subdirs:
@@ -207,11 +207,11 @@
   {
     // file containing spike data
     spike_npz:
-    /home/macleanlab/stim/dmc/2021-08-04-q/CNN_outputs/CNN_outputs/spike_train.npz
+    /home/macleanlab/stim/dmc/2021-08-05-1225/CNN_outputs/spike_train.npz
 
     // file containing sample match/non-match data
     match_npy:
-    /home/macleanlab/stim/dmc/2021-08-04-q/CNN_outputs/CNN_outputs/match_flags_time_series.npy
+    /home/macleanlab/stim/dmc/2021-08-05-1225/CNN_outputs/cat_time_series.npy
 
     //
     seq_len: 4080
@@ -268,7 +268,7 @@
   #┴───────────────────────────────────────────────────────────────────────╯
   train:
   {
-    learning_rate: 0.005
+    learning_rate: 0.01
 
     // number of trials in batch
     batch_size: 5
