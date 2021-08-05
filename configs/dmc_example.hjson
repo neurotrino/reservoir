@@ -268,7 +268,7 @@
   #┴───────────────────────────────────────────────────────────────────────╯
   train:
   {
-    learning_rate: 0.01
+    learning_rate: 0.001
 
     // number of trials in batch
     batch_size: 5
@@ -283,7 +283,7 @@
 
     target_synch: 2.0
 
-    synch_cost: 0.01
+    synch_cost: 0.05
 
     target_rate: 0.02
 
