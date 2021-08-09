@@ -6,8 +6,6 @@ import tensorflow as tf
 # Base model for the neurons we use
 class BaseNeuron(tf.keras.layers.Layer):
     """TODO: docs"""
-    def __init__(self):
-        super().__init__(dynamic=False)
 
     def pseudo_derivative(self, v_scaled, dampening_factor):
         """TODO: docs"""

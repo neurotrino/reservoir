@@ -37,7 +37,7 @@ class Trainer(BaseTrainer):
     #┤ Training Loop (step level)                                            │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    @tf.function
+    #@tf.function
     def loss(self, x, y):
         """Calculate the loss on data x labeled y."""
         loss_object = tf.keras.losses.MeanSquaredError()
@@ -75,7 +75,7 @@ class Trainer(BaseTrainer):
         return voltage, spikes, prediction, total_loss_val
 
 
-    @tf.function
+    #@tf.function
     def grad(self, inputs, targets):
         """Gradient calculation(s)"""
         with tf.GradientTape() as tape:
