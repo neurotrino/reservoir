@@ -140,6 +140,18 @@ class _LIFCore(BaseNeuron):
             #self.rec_sign = tf.sign(self.recurrent_weights)
             self.rec_sign = tf.sign(self.recurrent_weights)
 
+        with open('rec_sign.py', 'wb') as file:
+            np.save(file, self.rec_sign)
+        exit()
+        """
+        with open(f'init_{self.times_called}.npy', 'wb') as file:
+            np.save(file, self.recurrent_weights)
+        with open(f'dcmask_{self.times_called}.npy', 'wb') as file:
+            np.save(file, self.recurrent_weights)
+        with open(f'post_{self.times_called}.npy', 'wb') as file:
+            np.save(file, self.recurrent_weights)
+        """
+
 
     def call(self, inputs, state):
         """
@@ -387,23 +399,12 @@ class ExInALIF(_LIFCore):
         """TODO: docs"""
         [old_v, old_r, old_b, old_z] = state[:4]
 
-        # ==== debug start
-        self.times_called += 1
-        with open(f'init_{self.times_called}.npy', 'wb') as file:
-            np.save(file, self.recurrent_weights)
-        # ====== debug end
-
         if self.rewiring:
             # Make sure all self-connections remain 0
             self.recurrent_weights.assign(tf.where(
                 self.disconnect_mask, tf.zeros_like(self.recurrent_weights),
                 self.recurrent_weights
             ))
-
-        # ==== debug start
-        with open(f'dcmask_{self.times_called}.npy', 'wb') as file:
-            np.save(file, self.recurrent_weights)
-        # ====== debug end
 
         # If the sign of a weight changed from the original or the
         # weight is no longer 0, make the weight 0
@@ -414,11 +415,6 @@ class ExInALIF(_LIFCore):
             self.recurrent_weights,
             0
         ))
-
-        # ==== debug start
-        with open(f'post_{self.times_called}.npy', 'wb') as file:
-            np.save(file, self.recurrent_weights)
-        # ====== debug end
 
         i_in = tf.matmul(inputs, self.input_weights)
         i_rec = tf.matmul(old_z, self.recurrent_weights)
