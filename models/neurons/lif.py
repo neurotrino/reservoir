@@ -134,7 +134,7 @@ class _LIFCore(BaseNeuron):
             # Store using 0 for
             # zerosself.rec_sign = tf.sign(self.recurrent_weights)
             #self.rec_sign = tf.sign(self.recurrent_weights)
-            self.rec_sign = tf.sign(self.weights)
+            self.rec_sign = tf.sign(self.recurrent_weights)
 
         super().build(input_shape)
 
