@@ -3,6 +3,7 @@
 # external ----
 from collections import OrderedDict
 from datetime import datetime
+from tensorflow.python.client import device_lib
 from types import SimpleNamespace
 
 import argparse
@@ -372,6 +373,10 @@ def boot():
 
     if not device_name:
         logging.warning('GPU device not found')
+        logging.warning(
+            'output of device_lib.list_local_devices():'
+            + f'{device_lib.list_local_devices()}'
+        )
     else:
         logging.debug(f'found GPU at {device_name}')
 
