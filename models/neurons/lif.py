@@ -411,7 +411,7 @@ class ExInALIF(_LIFCore):
         #
         # i.e. keep all Is as Is and all Es as Es
         self.recurrent_weights.assign(tf.where(
-            self.rec_sign * self.recurrent_weights > 0,
+            self.rec_sign * self.recurrent_weights > 0 or self.rec_sign * self.recurrent_weights <= 0,
             self.recurrent_weights,
             0
         ))
