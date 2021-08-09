@@ -133,9 +133,11 @@ class _LIFCore(BaseNeuron):
         else:
             # Store using 0 for
             # zerosself.rec_sign = tf.sign(self.recurrent_weights)
-            self.rec_sign = tf.sign(self.recurrent_weights)
+            #self.rec_sign = tf.sign(self.recurrent_weights)
+            self.rec_sign = tf.sign(self.get_weights())
 
         super().build(input_shape)
+
 
     def call(self, inputs, state):
         """
@@ -376,7 +378,8 @@ class ExInALIF(_LIFCore):
             # as above but 0 for zeros
             self.rec_sign = tf.sign(self.recurrent_weights)
 
-        BaseNeuron().build(input_shape)  # TODO?: refactor for _LIFCore
+        super().build(input_shape, connmat_generator)
+
 
     def call(self, inputs, state):
         """TODO: docs"""
@@ -391,6 +394,8 @@ class ExInALIF(_LIFCore):
 
         # If the sign of a weight changed from the original or the
         # weight is no longer 0, make the weight 0
+        #
+        # i.e. keep all Is as Is and all Es as Es
         self.recurrent_weights.assign(tf.where(
             self.rec_sign * self.recurrent_weights > 0,
             self.recurrent_weights,
