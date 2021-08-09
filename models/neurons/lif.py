@@ -112,6 +112,8 @@ class _LIFCore(BaseNeuron):
             trainable=True,
             name='recurrent_weights'
         )
+        with open('after_add_weights.npy', 'wb') as file:
+            np.save(file, self.recurrent_weights)
 
         # 2020-Nov-07: works with CMG's lognormal weight specification
         initial_weights_mat = connmat_generator.run_generator()
@@ -135,6 +137,9 @@ class _LIFCore(BaseNeuron):
             # zerosself.rec_sign = tf.sign(self.recurrent_weights)
             #self.rec_sign = tf.sign(self.recurrent_weights)
             self.rec_sign = tf.sign(self.recurrent_weights)
+
+        with open('after_rewiring.npy', 'wb') as file:
+            np.save(file, self.recurrent_weights)
 
         super().build(input_shape)
 
