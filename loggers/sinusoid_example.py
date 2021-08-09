@@ -97,10 +97,10 @@ class Logger(BaseLogger):
             self.plot_everything(f"{lo_epoch + epoch_idx}.png", step_idx)
 
         # If log_npz is true, save the data to disk
-        #if self.cfg['save'].save_npz:
-            #for k in self.logvars.keys():
-                #self.logvars[k] = numpy(self.logvars[k])
-            #np.savez_compressed(fp, **self.logvars)
+        if self.cfg['save'].save_npz:
+            for k in self.logvars.keys():
+                self.logvars[k] = numpy(self.logvars[k])
+            np.savez_compressed(fp, **self.logvars)
 
         # Save the data to disk (when toggled on)
         if self.cfg['save'].save_npz:

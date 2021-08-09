@@ -398,9 +398,7 @@ class ExInALIF(_LIFCore):
     def call(self, inputs, state):
         """TODO: docs"""
         [old_v, old_r, old_b, old_z] = state[:4]
-        print()
-        print('ran call()')
-        print()
+
         if self.rewiring:
             # Make sure all self-connections remain 0
             self.recurrent_weights.assign(tf.where(
