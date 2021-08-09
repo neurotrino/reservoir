@@ -109,7 +109,7 @@ class _LIFCore(BaseNeuron):
             shape=(self.units, self.units),
             initializer=tf.keras.initializers.Orthogonal(gain=0.7),
             #initializer = tf.keras.initializers.RandomNormal();
-            trainable = True,
+            trainable=True,
             name='recurrent_weights'
         )
 
@@ -134,7 +134,7 @@ class _LIFCore(BaseNeuron):
             # Store using 0 for
             # zerosself.rec_sign = tf.sign(self.recurrent_weights)
             #self.rec_sign = tf.sign(self.recurrent_weights)
-            self.rec_sign = tf.sign(self.get_weights())
+            self.rec_sign = tf.sign(self.weights)
 
         super().build(input_shape)
 
