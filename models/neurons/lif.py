@@ -219,6 +219,7 @@ class _LIFCore(BaseNeuron):
 
         with open('rec_sign.npy', 'wb') as file:
             np.save(file, self.rec_sign)
+        exit()
 
         return output, new_state
 
