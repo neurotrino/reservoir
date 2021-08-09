@@ -99,7 +99,10 @@ class Logger(BaseLogger):
         # If log_npz is true, save the data to disk
         if self.cfg['save'].save_npz:
             for k in self.logvars.keys():
-                self.logvars[k] = numpy(self.logvars[k])
+                try:
+                    self.logvars[k] = numpy(self.logvars[k])
+                except:
+                    pass
             np.savez_compressed(fp, **self.logvars)
 
         # Save the data to disk (when toggled on)
