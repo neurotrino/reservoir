@@ -373,9 +373,13 @@ def boot():
 
     if not device_name:
         logging.warning('GPU device not found')
-        logging.warning(
-            'output of device_lib.list_local_devices():'
+        logging.debug(
+            'output of device_lib.list_local_devices(): '
             + f'{device_lib.list_local_devices()}'
+        )
+        logging.debug(
+            'output of tf.config.list_physical_devices(): '
+            + f'{tf.config.list_physical_devices()}'
         )
     else:
         logging.debug(f'found GPU at {device_name}')
