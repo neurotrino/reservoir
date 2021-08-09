@@ -140,16 +140,16 @@ class _LIFCore(BaseNeuron):
             #self.rec_sign = tf.sign(self.recurrent_weights)
             self.rec_sign = tf.sign(self.recurrent_weights)
 
+        """
         with open('rec_sign.py', 'wb') as file:
             np.save(file, self.rec_sign)
-        exit()
-        """
         with open(f'init_{self.times_called}.npy', 'wb') as file:
             np.save(file, self.recurrent_weights)
         with open(f'dcmask_{self.times_called}.npy', 'wb') as file:
             np.save(file, self.recurrent_weights)
         with open(f'post_{self.times_called}.npy', 'wb') as file:
             np.save(file, self.recurrent_weights)
+        exit()
         """
 
 
