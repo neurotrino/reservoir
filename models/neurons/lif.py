@@ -320,9 +320,6 @@ class ExInALIF(_LIFCore):
         TODO: method docs
         """
         super().__init__(*args, **kwargs)
-        #debug
-        self.times_called = 0
-        #debug
 
         # ExIn paramaters
         self.n_excite = int(frac_e * self.units)
@@ -460,9 +457,6 @@ class ExInALIF(_LIFCore):
 
         new_state = (new_v, new_r, new_b, new_z)
         output = (new_v, new_z)
-
-        with open(f'rec_sign{self.times_called}.npy', 'wb') as file:
-            np.save(file, self.rec_sign)
 
         return output, new_state
 
