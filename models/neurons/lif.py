@@ -170,7 +170,7 @@ class _LIFCore(BaseNeuron):
         # If the sign of a weight changed from the original unit's
         # designation or the weight is no longer 0, make it 0
         self.recurrent_weights.assign(tf.where(
-            self.rec_sign * self.recurrent_weights > 0,
+            self.rec_sign * self.recurrent_weights > 0 or self.rec_sign * self.recurrent_weights <= 0,
             self.recurrent_weights,
             0
         ))
