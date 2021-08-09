@@ -112,8 +112,6 @@ class _LIFCore(BaseNeuron):
             trainable=True,
             name='recurrent_weights'
         )
-        with open('after_add_weights.npy', 'wb') as file:
-            np.save(file, self.recurrent_weights)
 
         # 2020-Nov-07: works with CMG's lognormal weight specification
         initial_weights_mat = connmat_generator.run_generator()
@@ -354,6 +352,9 @@ class ExInALIF(_LIFCore):
             name='recurrent_weights'
         )
 
+        with open('after_setting.npy', 'wb') as file:
+            np.save(file, self.recurrent_weights)
+
         # weights are lognormal
         connmat_generator = ExInCMG(
             self.n_excite,
@@ -378,7 +379,16 @@ class ExInALIF(_LIFCore):
             # as above but 0 for zeros
             self.rec_sign = tf.sign(self.recurrent_weights)
 
+        with open('after_rewiring.npy', 'wb') as file:
+            np.save(file, self.recurrent_weights)
+
         super().build(input_shape, connmat_generator)
+
+        with open('after_super.npy', 'wb') as file:
+            np.save(file, self.recurrent_weights)
+
+        exit()
+
 
 
     def call(self, inputs, state):
