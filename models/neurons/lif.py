@@ -138,16 +138,6 @@ class _LIFCore(BaseNeuron):
             #self.rec_sign = tf.sign(self.recurrent_weights)
             self.rec_sign = tf.sign(self.recurrent_weights)
 
-        with open('after_rewiring.npy', 'wb') as file:
-            np.save(file, self.recurrent_weights)
-
-        super().build(input_shape)
-
-        with open('after_super.npy', 'wb') as file:
-            np.save(file, self.recurrent_weights)
-
-        exit()
-
 
     def call(self, inputs, state):
         """
