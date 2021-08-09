@@ -217,12 +217,6 @@ class _LIFCore(BaseNeuron):
         new_state = (new_v, new_r, new_z)
         output = (new_v, new_z)
 
-        """
-        with open('rec_sign.npy', 'wb') as file:
-            np.save(file, self.rec_sign)
-        exit()
-        """
-
         return output, new_state
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -463,6 +457,10 @@ class ExInALIF(_LIFCore):
 
         new_state = (new_v, new_r, new_b, new_z)
         output = (new_v, new_z)
+
+        with open('rec_sign.npy', 'wb') as file:
+            np.save(file, self.rec_sign)
+        exit()
 
         return output, new_state
 
