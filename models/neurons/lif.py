@@ -456,7 +456,7 @@ class ExInALIF(_LIFCore):
             self._n_refrac)
 
         new_state = (new_v, new_r, new_b, new_z)
-        output = (new_v, new_z, self.rec_sign)
+        output = (new_v, new_z)
 
         return output, new_state
 

@@ -52,7 +52,6 @@ class SinusoidSlayer(BaseModel):
         #voltages, spikes = regularization_layer(rnn_output)
         voltages = tf.identity(rnn_output[0], name='voltages')
         spikes = tf.identity(rnn_output[1], name='spikes')
-        rec_sign = tf.identity(rnn_output[2], name='rec_sign')
 
         weighted_out_projection = tf.keras.layers.Dense(1)
         weighted_out = weighted_out_projection(spikes)
@@ -62,5 +61,5 @@ class SinusoidSlayer(BaseModel):
 
         return tf.keras.Model(
             inputs=inputs,
-            outputs=[voltages, spikes, prediction, rec_sign]
+            outputs=[voltages, spikes, prediction]
         )
