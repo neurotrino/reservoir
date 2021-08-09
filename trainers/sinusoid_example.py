@@ -50,7 +50,7 @@ class Trainer(BaseTrainer):
         # trial values, plus the end values; or `.call()` could take a
         # logger as an optional argument.
 
-        voltage, spikes, prediction = self.model(x) # tripartite output
+        voltage, spikes, prediction, rec_sign = self.model(x) # tripartite output
         task_loss = loss_object(y_true=y, y_pred=prediction)
 
         unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
@@ -72,14 +72,14 @@ class Trainer(BaseTrainer):
         # different behavior during training versus inference
         # (e.g. Dropout).
 
-        return voltage, spikes, prediction, total_loss_val
+        return voltage, spikes, prediction, total_loss_val, rec_sign
 
 
     @tf.function
     def grad(self, inputs, targets):
         """Gradient calculation(s)"""
         with tf.GradientTape() as tape:
-            voltage, spikes, prediction, loss_val = self.loss(inputs, targets)
+            voltage, spikes, prediction, loss_val, rec_sign = self.loss(inputs, targets)
 
         # Calculate the gradient of the loss with respect to each
         # layer's trainable variables. In this example, calculates the
@@ -89,7 +89,7 @@ class Trainer(BaseTrainer):
         # > `dense/kernel:0`
         # > `dense/bias:0`
         grads = tape.gradient(loss_val, self.model.trainable_variables)
-        return voltage, spikes, prediction, loss_val, grads
+        return voltage, spikes, prediction, loss_val, grads, rec_sign
 
 
     def train_step(self, batch_x, batch_y, batch_idx=None):
@@ -139,7 +139,10 @@ class Trainer(BaseTrainer):
         #┤ Gradient Calculation                                              │
         #┴───────────────────────────────────────────────────────────────────╯
 
-        voltage, spikes, prediction, loss, grads = self.grad(batch_x, batch_y)
+        voltage, spikes, prediction, loss, grads, rec_sign = self.grad(batch_x, batch_y)
+        with open('rec_sign_mid_train.npy', 'wb') as file:
+            np.save(file, rec_sign)
+        exit()
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Mid-Step Logging                                                  │
