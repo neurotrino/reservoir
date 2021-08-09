@@ -35,6 +35,10 @@ class _LIFCore(BaseNeuron):
     ):
         super().__init__()
 
+        # ==== debug start
+        self.times_called = 0
+        # ====== debug end
+
         self.cfg = cfg
 
         self.rewiring = rewiring
@@ -352,9 +356,6 @@ class ExInALIF(_LIFCore):
             name='recurrent_weights'
         )
 
-        with open('after_setting.npy', 'wb') as file:
-            np.save(file, self.recurrent_weights)
-
         # weights are lognormal
         connmat_generator = ExInCMG(
             self.n_excite,
@@ -379,21 +380,18 @@ class ExInALIF(_LIFCore):
             # as above but 0 for zeros
             self.rec_sign = tf.sign(self.recurrent_weights)
 
-        with open('after_rewiring.npy', 'wb') as file:
-            np.save(file, self.recurrent_weights)
-
         super().build(input_shape, connmat_generator)
-
-        with open('after_super.npy', 'wb') as file:
-            np.save(file, self.recurrent_weights)
-
-        exit()
-
 
 
     def call(self, inputs, state):
         """TODO: docs"""
         [old_v, old_r, old_b, old_z] = state[:4]
+
+        # ==== debug start
+        self.times_called += 1
+        with open(f'init_{self.times_called}.npy', 'wb') as file:
+            np.save(file, self.recurrent_weights)
+        # ====== debug end
 
         if self.rewiring:
             # Make sure all self-connections remain 0
@@ -401,6 +399,11 @@ class ExInALIF(_LIFCore):
                 self.disconnect_mask, tf.zeros_like(self.recurrent_weights),
                 self.recurrent_weights
             ))
+
+        # ==== debug start
+        with open(f'dcmask_{self.times_called}.npy', 'wb') as file:
+            np.save(file, self.recurrent_weights)
+        # ====== debug end
 
         # If the sign of a weight changed from the original or the
         # weight is no longer 0, make the weight 0
@@ -411,6 +414,11 @@ class ExInALIF(_LIFCore):
             self.recurrent_weights,
             0
         ))
+
+        # ==== debug start
+        with open(f'post_{self.times_called}.npy', 'wb') as file:
+            np.save(file, self.recurrent_weights)
+        # ====== debug end
 
         i_in = tf.matmul(inputs, self.input_weights)
         i_rec = tf.matmul(old_z, self.recurrent_weights)
