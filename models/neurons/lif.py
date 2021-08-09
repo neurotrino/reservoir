@@ -141,6 +141,8 @@ class _LIFCore(BaseNeuron):
         with open('after_rewiring.npy', 'wb') as file:
             np.save(file, self.recurrent_weights)
 
+        exit()
+
         super().build(input_shape)
 
 
