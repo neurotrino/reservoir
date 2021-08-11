@@ -147,6 +147,9 @@
       // Full path: {exp_dir}\{tb_logdir}
       tb_logdir: logdirs
 
+      // Directory storing logdirs (*only* for use with TensorBoard)
+      profile_dir: tensorboard/profile
+
       #┬───────────────────────────────────────────────────────────────╮
       #┤ Supplementary                                                 │
       #┴───────────────────────────────────────────────────────────────╯
