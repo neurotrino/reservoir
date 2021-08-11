@@ -240,7 +240,7 @@
     training_method: backprop
 
     // Toggle the TensorBoard profiler
-    run_profiler: true
+    run_profiler: false
 
     // If enabled, the profiler will run on each epoch in the list below
     profiler_epochs: [
@@ -274,7 +274,7 @@
     learning_rate: 0.05
 
     // number of trials in batch
-    batch_size: 5
+    batch_size: 32
 
     // number of batches in an epoch
     n_batch: 10
