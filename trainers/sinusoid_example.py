@@ -288,6 +288,7 @@ class Trainer(BaseTrainer):
         # on, make sure you include enough info in your logger and
         # output files to associate the values with the right epoch and
         # step.
+        """
         for layer in self.model.layers:
             # [*] If there's any information you'd like to log
             # about individual layers, do so here.
@@ -296,7 +297,6 @@ class Trainer(BaseTrainer):
             # log the below information for. If you wish to log the
             # information of all layers, move the `.log()` call
             # outside of this `if` guard.
-            """
             if layer.name in self.cfg['log'].layer_whitelist:
 
                 # Log each of the weights defining the layer's state.
@@ -347,6 +347,7 @@ class Trainer(BaseTrainer):
                 #     }
                 # )
                 # ```
+        """
 
         # Log the calculated step loss
         self.logger.log(
