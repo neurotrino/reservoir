@@ -213,6 +213,7 @@ class Trainer(BaseTrainer):
         for i in range(len(self.model.trainable_variables)):
             tvar = self.model.trainable_variables[i]
 
+            """
             # [?] should we store the names somewhere
 
             # Layer shape
@@ -249,19 +250,23 @@ class Trainer(BaseTrainer):
                         + ' before applying the gradients'
                 }
             )
+            """
 
             # Weights after applying gradients
-            self.logger.log(
-                data_label=f"tv{i}.postweights",
-                data=tvar.numpy(),
-                meta={
-                    'stride': 'step',
-                    'description':
-                        'layer weights for '
-                        + tvar.name
-                        + ' after applying the gradients'
-                }
-            )
+            try:
+                self.logger.log(
+                    data_label=f"tv{i}.postweights",
+                    data=tvar.numpy(),
+                    meta={
+                        'stride': 'step',
+                        'description':
+                            'layer weights for '
+                            + tvar.name
+                            + ' after applying the gradients'
+                    }
+                )
+            except:
+                pass
 
         # [*] Stepwise logging for *all* layers; might have redundancy
         # [*] Can also grab layer weights here
@@ -291,6 +296,7 @@ class Trainer(BaseTrainer):
             # log the below information for. If you wish to log the
             # information of all layers, move the `.log()` call
             # outside of this `if` guard.
+            """
             if layer.name in self.cfg['log'].layer_whitelist:
 
                 # Log each of the weights defining the layer's state.
@@ -341,6 +347,7 @@ class Trainer(BaseTrainer):
                 #     }
                 # )
                 # ```
+            """
 
         # Log the calculated step loss
         self.logger.log(
