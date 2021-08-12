@@ -34,9 +34,7 @@ def main():
     model = form(template).build(cfg)
     logging.info("model built")
 
-    print()
-    print(model.summary())
-    print()
+    keras.utils.plot_model(model, "m.png", show_shapes=True)
 
     # Load data
     data = ccd.DataGenerator(cfg)
