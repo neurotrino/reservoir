@@ -35,6 +35,19 @@ def main():
     logger = Logger(cfg)
     logging.info("logger instantiated")
 
+    print()
+    print()
+    print(cfg)
+    print()
+    print()
+    print(model)
+    print()
+    print()
+    print(data)
+    print()
+    print()
+    print(logger)
+
     # Instantiate trainer
     trainer = Trainer(cfg, model, data, logger)
     logging.info("trainer instantiated")
