@@ -24,16 +24,7 @@ def main():
     logging.info("experiment directory: " + abspath(cfg['save'].exp_dir))
 
     # Build model
-    template =                                                               \
-    {
-        "_class": SinusoidSlayer,
-
-        "cell":
-        {
-            "_class": ExInLIF
-        }
-    }
-    model = form(template).build(cfg)
+    model = SinusoidSlayer(cfg)
     logging.info("model built")
 
     # Load data

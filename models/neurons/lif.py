@@ -21,40 +21,25 @@ class _LIFCore(BaseNeuron):
     #┤ Special Methods                                                       │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def __init__(
-        self,
-        cfg: Any,
-        rewiring: bool,
-        units: int,            # number of neurons in the model
-        thr: float,            # thr
-        EL: float,             #
-        n_refrac: int,         #
-        tau: float,            #
-        dampening_factor: Any, #
-        p: Union[float, Dict[str, float]]  # connectivity
-    ):
+    def __init__(self, cfg):
         super().__init__()
-
-        # ==== debug start
-        self.times_called = 0
-        # ====== debug end
 
         self.cfg = cfg
 
-        self.rewiring = rewiring
+        self.rewiring = cfg['model'].cell.rewiring
 
-        self.units = units
-        self.thr = thr
-        self.EL = EL
-        self.n_refrac = n_refrac
-        self.tau = tau
+        self.units = cfg['model'].cell.units
+        self.thr = cfg['model'].cell.thr
+        self.EL = cfg['model'].cell.EL
+        self.n_refrac = cfg['model'].cell.n_refrac
+        self.tau = cfg['model'].cell.tau
         self.dt = float(cfg['misc'].dt)
-        self.dampening_factor = dampening_factor
+        self.dampening_factor = cfg['model'].cell.dampening_factor
 
-        self._decay = tf.exp(-self.dt / tau)
-        self._n_refrac = n_refrac
-        self._dampening_factor = dampening_factor
-        self.p = p
+        self._decay = tf.exp(-self.dt / self.tau)
+        self._n_refrac = cfg['model'].cell.n_refrac
+        self._dampening_factor = cfg['model'].cell.dampening_factor
+        self.p = cfg['model'].cell.p
 
         self.input_weights = None
         self.bias_currents = None
@@ -275,18 +260,18 @@ class ExInLIF(_LIFCore):
     #┤ Special Methods                                                       │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def __init__(self, frac_e, *args, **kwargs):
+    def __init__(self, cfg):
         """
         TODO: method docs
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(cfg)
 
-        self.n_excite = int(frac_e * self.units)
+        self.n_excite = int(cfg['model'].cell.frac_e * self.units)
         self.n_inhib = self.units - self.n_excite
-        self.p_ee = self.p['ee']
-        self.p_ei = self.p['ei']
-        self.p_ie = self.p['ie']
-        self.p_ii = self.p['ii']
+        self.p_ee = self.p.ee
+        self.p_ei = self.p.ei
+        self.p_ie = self.p.ie
+        self.p_ii = self.p.ii
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Reserved Methods                                                      │

@@ -14,12 +14,14 @@ from models.neurons.adex import *
 class SinusoidSlayer(BaseModel):
     """Model for the sinusoid-matching example."""
 
-    def __init__(self, cfg, cell):
+    def __init__(self, cfg):
         """ ... """
         super().__init__()
 
-        # define cell
-        self.cell = cell  # [!] holdover from old HSJON init
+        # Attribute assignments
+        self.cfg = cfg
+        cell_class = eval(cfg['log'].neuron)  # [!] shouldn't be in 'log' section
+        self.cell = cell_class(cfg)  # [!] replace with cell_cfg
 
         # Layer definitions
         self.rnn1 = tf.keras.layers.RNN(cell, return_sequences=True)
