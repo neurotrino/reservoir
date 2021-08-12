@@ -49,7 +49,7 @@ def main():
     print(logger)
 
     # Instantiate trainer
-    trainer = Trainer(cfg, model, data, logger, logger)
+    trainer = Trainer(cfg, cfg, model, data, logger)
     logging.info("trainer instantiated")
 
     # Train model
