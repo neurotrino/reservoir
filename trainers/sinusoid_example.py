@@ -361,7 +361,6 @@ class Trainer(BaseTrainer):
             }
         )
         self.logger.on_step_end()
-            """
 
         return loss  # in classification tasks, also return accuracy
 
