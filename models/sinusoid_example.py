@@ -14,52 +14,28 @@ from models.neurons.adex import *
 class SinusoidSlayer(BaseModel):
     """Model for the sinusoid-matching example."""
 
-    def __init__(self,
-        #target_rate,
-        #rate_cost,
-        cell
-    ):
+    def __init__(self, cfg, cell):
+        """ ... """
         super().__init__()
 
-        # NOTE: the variables here are those needed to build the model.
-        # now that we don't have a regularization layer, the following are not needed
-        #self.target_rate = target_rate
-        #self.rate_cost = rate_cost
-        #self.voltage_cost = voltage_cost
-        #self.target_synch = target_synch
-        #self.synch_cost = synch_cost
+        # define cell
+        self.cell = cell  # [!] holdover from old HSJON init
 
-        # Sub-networks and layers
-        self.cell = cell
+        # Layer definitions
+        self.rnn1 = tf.keras.layers.RNN(cell, return_sequences=True)
+        self.dense1 = tf.keras.layers.Dense(1)
 
-    def build(self, cfg):
-        cell = self.cell
 
-        inputs = tf.keras.Input(
-            shape=(cfg['data'].seq_len, cfg['data'].n_input)
+    def call(self, inputs, training=False):
+        """ ... """
+
+        # [!] is okay that I got rid of tf.identity for the outputs?
+        # [!] is it a problem that I'm putting cell.initial_state here?
+        voltages, spikes = self.rnn1(
+            inputs,
+            initial_state=self.cell.zero_state(cfg['train'].batch_size)
         )
+        prediction = self.dense1(spikes)
+        prediction = exp_convolve(prediction, axis=1)
 
-        rnn = tf.keras.layers.RNN(cell, return_sequences=True)
-
-        initial_state = cell.zero_state(cfg['train'].batch_size)
-        rnn_output = rnn(inputs, initial_state=initial_state)
-        """
-        regularization_layer = SpikeRegularization(
-            cell,
-            self.target_rate,
-            self.rate_cost,
-        )"""
-        #voltages, spikes = regularization_layer(rnn_output)
-        voltages = tf.identity(rnn_output[0], name='voltages')
-        spikes = tf.identity(rnn_output[1], name='spikes')
-
-        weighted_out_projection = tf.keras.layers.Dense(1)
-        weighted_out = weighted_out_projection(spikes)
-
-        prediction = exp_convolve(weighted_out, axis=1)
-        prediction = tf.identity(prediction, name='output')
-
-        return tf.keras.Model(
-            inputs=inputs,
-            outputs=[voltages, spikes, prediction]
-        )
+        return voltages, spikes, prediction
