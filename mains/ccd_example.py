@@ -34,6 +34,10 @@ def main():
     model = form(template).build(cfg)
     logging.info("model built")
 
+    print()
+    print(model.summary())
+    print()
+
     # Load data
     data = ccd.DataGenerator(cfg)
     logging.info("dataset loaded")
