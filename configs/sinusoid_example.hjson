@@ -91,6 +91,8 @@
         // Full path: {exp_dir}
         exp_dir: ../experiments/reg_testing_trioloss
 
+        save_loss_only: false
+
         // Collection of directories which will be placed inside exp_dir
         subdirs:
         {
@@ -186,8 +188,6 @@
 
         // Save logging values to disk every n epochs
         post_every: 4
-
-        save_loss_only: false
 
         // Neuron used ([!] would like to automate this):
         neuron: ExInLIF
