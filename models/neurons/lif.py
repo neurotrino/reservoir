@@ -47,7 +47,7 @@ class _LIFCore(BaseNeuron):
         self.disconnect_mask = None
 
         # (voltage, refractory, previous_spikes)
-        self.state_size = (units, units, units)
+        self.state_size = (cfg['model'].cell.units, cfg['model'].cell.units, cfg['model'].cell.units)
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Reserved Methods                                                      │
