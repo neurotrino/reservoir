@@ -347,7 +347,6 @@ class Trainer(BaseTrainer):
                 #     }
                 # )
                 # ```
-            """
 
         # Log the calculated step loss
         self.logger.log(
@@ -361,6 +360,7 @@ class Trainer(BaseTrainer):
             }
         )
         self.logger.on_step_end()
+            """
 
         return loss  # in classification tasks, also return accuracy
 
@@ -424,7 +424,7 @@ class Trainer(BaseTrainer):
 
         # [*] Post-training operations on epoch-level log variables
         epoch_loss = np.mean(losses)
-
+        """
         # [*] Log any epoch-wise variables.
         self.logger.log(
             data_label='epoch_loss',
@@ -445,6 +445,7 @@ class Trainer(BaseTrainer):
                 ("epoch_loss", epoch_loss),
             }
         )
+        """
 
         return epoch_loss
 
