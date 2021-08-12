@@ -107,7 +107,7 @@ class Logger(BaseLogger):
 
         # Save the data to disk (when toggled on)
         if self.cfg['save'].save_npz:
-            
+
             if self.cfg['save'].save_loss_only:
                 # Format the data as numpy arrays
                 # Skip the dtype change here as the file size should be very small

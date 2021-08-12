@@ -187,6 +187,8 @@
         // Save logging values to disk every n epochs
         post_every: 4
 
+        save_loss_only: false
+
         // Neuron used ([!] would like to automate this):
         neuron: ExInLIF
 
