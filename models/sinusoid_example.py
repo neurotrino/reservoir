@@ -35,7 +35,7 @@ class SinusoidSlayer(BaseModel):
         # [!] is it a problem that I'm putting cell.initial_state here?
         voltages, spikes = self.rnn1(
             inputs,
-            initial_state=self.cell.zero_state(cfg['train'].batch_size)
+            initial_state=self.cell.zero_state(self.cfg['train'].batch_size)
         )
         prediction = self.dense1(spikes)
         prediction = exp_convolve(prediction, axis=1)
