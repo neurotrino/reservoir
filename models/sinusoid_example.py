@@ -24,7 +24,7 @@ class SinusoidSlayer(BaseModel):
         self.cell = cell_class(cfg)  # [!] replace with cell_cfg
 
         # Layer definitions
-        self.rnn1 = tf.keras.layers.RNN(cell, return_sequences=True)
+        self.rnn1 = tf.keras.layers.RNN(self.cell, return_sequences=True)
         self.dense1 = tf.keras.layers.Dense(1)
 
 
