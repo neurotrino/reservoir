@@ -185,7 +185,7 @@
         log_npz: false
 
         // Save logging values to disk every n epochs
-        post_every: 10
+        post_every: 4
 
         // Neuron used ([!] would like to automate this):
         neuron: ExInLIF
@@ -228,7 +228,7 @@
         learning_rate: 0.03
 
         // number of trials in batch
-        batch_size: 60
+        batch_size: 5
 
         // number of batches in an epoch
         n_batch: 10
