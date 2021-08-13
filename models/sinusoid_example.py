@@ -31,7 +31,7 @@ class SinusoidSlayer(BaseModel):
     def call(self, inputs, training=False):
         """ ... """
 
-        # [!] is okay that I got rid of tf.identity for the outputs?
+        # [!] is it okay that I got rid of tf.identity for the outputs?
         # [!] is it a problem that I'm putting cell.initial_state here?
         voltages, spikes = self.rnn1(
             inputs,

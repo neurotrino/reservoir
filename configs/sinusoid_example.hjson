@@ -14,36 +14,13 @@
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Model-Specific Parameters                                             │
     #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-    #┤ Model-specific parameters used to construct the network used in the   │
-    #┤ experiment. These values should be a one-to-one analog with the       │
-    #┤ target model's attributes (i.e. variable names and relative object    │
-    #┤ structures need to align between the two). It's fine to omit          │
-    #┤ parameters with default values.                                       │
-    #┤                                                                       │
-    #┤ If you need to access data in `cfg` during model initialization, or   │
-    #┤ would like to have `cfg` be an attribute in a model for any other     │
-    #┤ reason, you need to indicate so in this script by adding `cfg: null`  │
-    #┤ (nested in the structure needing access).                             │
+    #┤ Any parameter used to define your experiment's models and layers.     │
     #┴───────────────────────────────────────────────────────────────────────╯
     model:
     {
-
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Sub-Network & Layer Parameters                                    │
-        #┴───────────────────────────────────────────────────────────────────╯
         cell:
         // currently configured for an LIF neuron:
         {
-            #┬───────────────────────────────────────────────────────────────╮
-            #┤ Flags                                                         │
-            #┴───────────────────────────────────────────────────────────────╯
-
-            cfg: null
-
-            #┬───────────────────────────────────────────────────────────────╮
-            #┤ Values                                                        │
-            #┴───────────────────────────────────────────────────────────────╯
-
             rewiring: false
 
             units: 100   // number of units in the layer
@@ -89,11 +66,13 @@
         // directory paths.
         //
         // Full path: {exp_dir}
+        //
+        // Manditory variable.
         exp_dir: ../experiments/reg_testing_trioloss
 
-        save_loss_only: false
-
         // Collection of directories which will be placed inside exp_dir
+        //
+        // Manditory namespace.
         subdirs:
         {
             #┬───────────────────────────────────────────────────────────────╮
@@ -160,6 +139,7 @@
         /* if there are any flags for saving particular to your experiment,
          * include them here */
         save_npz: true
+        save_loss_only: false
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
