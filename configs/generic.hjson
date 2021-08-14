@@ -12,51 +12,6 @@
  */
 {
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Model-Specific Parameters                                             │
-    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-    #┤ Any parameter used to define your experiment's models and layers.     │
-    #┴───────────────────────────────────────────────────────────────────────╯
-    model:
-    {
-        cell:
-        {
-            type: ExInALIF
-
-            rewiring: false
-
-            units: 100   // number of units in the layer
-
-            thr: -50.4   // threshold [mV]
-            EL: -70.6    // [mV]
-            n_refrac: 1  // number of refractory ms
-            tau: 20.0    //
-
-            dampening_factor: 0.3
-
-            frac_e: 0.8
-
-            p: {
-                "ee": 0.160
-                "ei": 0.244
-                "ie": 0.318
-                "ii": 0.343
-            }
-
-            //
-            n_recurrent: 100
-
-            //
-            rewiring: false
-
-            // μ for normal distribution (exponentiated for lognormal weights)
-            mu: -0.64
-
-            // σ for normal distribution (exponentiated for lognormal weights)
-            sigma: 0.51
-        }
-    }
-
-    #┬───────────────────────────────────────────────────────────────────────╮
     #┤ File Saving                                                           │
     #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
     #┤ Configure what gets saved, where, and how. Please be mindful of other │
@@ -156,6 +111,53 @@
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Model-Specific Parameters                                             │
+    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+    #┤ Any parameter used to define your experiment's models and layers.     │
+    #┴───────────────────────────────────────────────────────────────────────╯
+    model:
+    {
+        type: grey_goo
+
+        cell:
+        {
+            type: ExInALIF
+
+            rewiring: false
+
+            units: 100   // number of units in the layer
+
+            thr: -50.4   // threshold [mV]
+            EL: -70.6    // [mV]
+            n_refrac: 1  // number of refractory ms
+            tau: 20.0    //
+
+            dampening_factor: 0.3
+
+            frac_e: 0.8
+
+            p: {
+                "ee": 0.160
+                "ei": 0.244
+                "ie": 0.318
+                "ii": 0.343
+            }
+
+            //
+            n_recurrent: 100
+
+            //
+            rewiring: false
+
+            // μ for normal distribution (exponentiated for lognormal weights)
+            mu: -0.64
+
+            // σ for normal distribution (exponentiated for lognormal weights)
+            sigma: 0.51
+        }
+    }
+
+    #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Data Config                                                           │
     #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
     #┤ Variables parameterizing the datasets used to train the model.        │
@@ -225,6 +227,8 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     train:
     {
+        type: sinusoid_example
+
         learning_rate: 0.03
 
         // number of trials in batch

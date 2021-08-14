@@ -8,16 +8,16 @@ import tensorflow as tf
 import utils.config
 
 # Build model ----
-from models.grey_goo import GreyGoo
+from models import *
 
 # Load Data ------
-from data import sinusoid
+from data import *
 
 # Log ------------
-from loggers.sinusoid_example import Logger as Logger
+from loggers import *
 
 # Train ----------
-from trainers.sinusoid_example import Trainer
+from trainers import *
 
 def main():
     # Use command line arguments to load data, create directories, etc.
@@ -25,20 +25,20 @@ def main():
     logging.info("experiment directory: " + abspath(cfg['save'].exp_dir))
 
     # Build model
-    model = GreyGoo(cfg)
-    logging.info("model built")
+    model = eval(cfg['model'].type).Model(cfg)
+    logging.info(f"model built: {cfg['model'].type}")
 
     # Load data
-    data = sinusoid.DataGenerator(cfg)
-    logging.info("dataset loaded")
+    data = eval(cfg['data'].type).DataGenerator(cfg)
+    logging.info(f"dataset loaded: {cfg['data'].type}")
 
     # Instantiate logger
-    logger = Logger(cfg)
-    logging.info("logger instantiated")
+    logger = eval(cfg['log'].type).Logger(cfg)
+    logging.info(f"logger instantiated: {cfg['log'].type}")
 
     # Instantiate trainer
-    trainer = Trainer(cfg, model, data, logger)
-    logging.info("trainer instantiated")
+    trainer = eval(cfg['train'].type).Trainer(cfg, model, data, logger)
+    logging.info(f"trainer instantiated: {cfg['train'].type}")
 
     # Train model
     trainer.train()
