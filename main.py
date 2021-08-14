@@ -30,7 +30,7 @@ for filepath in Path('.').rglob('*.py'):
 
         # Call `import data.ccd` and so on
         exec(f'import {module_name}')
-        print(f"registered {fp_str} as {module_name}")
+        logging.debug(f"registered {fp_str} as {module_name}")
 
 
 def main():
@@ -41,22 +41,22 @@ def main():
     # Build model
     model_module = eval(f"models.{cfg['model'].type}")
     model = model_module.Model(cfg)
-    logging.info(f"model built: {cfg['model'].type}")
+    logging.info(f"model   : models.{cfg['model'].type}.Model")
 
     # Load data
     data_module = eval(f"data.{cfg['data'].type}")
     data = data_module.DataGenerator(cfg)
-    logging.info(f"dataset loaded: {cfg['data'].type}")
+    logging.info(f"data    : data.{cfg['data'].type}.DataGenerator")
 
     # Instantiate logger
     logger_module = eval(f"loggers.{cfg['log'].type}")
     logger = logger_module.Logger(cfg)
-    logging.info(f"logger instantiated: {cfg['log'].type}")
+    logging.info(f"logger  : loggers.{cfg['log'].type}.Logger")
 
     # Instantiate trainer
     trainer_module = eval(f"trainers.{cfg['train'].type}")
     trainer = trainer_module.Trainer(cfg, model, data, logger)
-    logging.info(f"trainer instantiated: {cfg['train'].type}")
+    logging.info(f"trainer : trainers.{cfg['train'].type}.Trainer")
 
     # Train model
     trainer.train()
