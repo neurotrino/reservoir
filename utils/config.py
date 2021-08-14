@@ -269,6 +269,22 @@ def load_hjson_config(filepath):
     return cfg
 
 
+def subconfig(cfg, subcfg, old_label='model', new_label='cell'):
+    """Create a new configuration for a submodel or layer.
+
+    This is done to preserve abstraction, so that when designing a
+    model or layer, it doesn't matter how nested it is in the initial
+    model call. E.g. you don't have to code
+    `cfg['model'].submodel.submodel.param` in the class definition.
+    """
+    new_cfg = cfg.copy()  # create deep copy to avoid weirdness
+
+    new_cfg.pop(old_label)       # preserve encapsulation
+    new_cfg[new_label] = subcfg  # preserve abstraction/generalization
+
+    return new_cfg  # configuration for use by sub- model/layer
+
+
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Startup Boilerplate                                                       │
 #┴───────────────────────────────────────────────────────────────────────────╯
