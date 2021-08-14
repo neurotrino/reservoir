@@ -16,7 +16,7 @@ import importlib.util
 for filepath in Path('.').rglob('*.py'):
     fp_str = str(filepath)
 
-    if not (fp_str.endswith("__init__.py") or fp_str == __file__):
+    if fp_str not in [__file__, "__init__.py", "setup.py"]:
         # Convert filepath syntax to modulepath syntax
         module_name = fp_str[:-3]
         module_name = module_name.replace('/', '.')
