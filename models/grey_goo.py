@@ -1,18 +1,19 @@
 """TODO: module docs"""
 
 # external
-from typing import Any
-
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-# local
-from models.common import BaseModel, SpikeRegularization, SpikeVoltageRegularization, SynchronyRateVoltageRegularization, exp_convolve
-from models.neurons.lif import *
+# internal
+from models.common import *
 from models.neurons.adex import *
+from models.neurons.lif import *
+from utils.config import subconfig
 
-class SinusoidSlayer(BaseModel):
-    """Model for the sinusoid-matching example."""
+class GreyGoo(BaseModel):
+    """Generic prototyping model designed to test new features and
+    provide an example to people learning the research infrastructure.
+    """
 
     def __init__(self, cfg):
         """ ... """
@@ -20,8 +21,14 @@ class SinusoidSlayer(BaseModel):
 
         # Attribute assignments
         self.cfg = cfg
-        cell_class = eval(cfg['log'].neuron)  # [!] shouldn't be in 'log' section
-        self.cell = cell_class(cfg)  # [!] replace with cell_cfg
+
+        cell_type = eval(cfg['model'].cell.type)  # neuron (class)
+        self.cell = cell_type(subconfig(          # neuron (object)
+            cfg,
+            cfg['model'].cell,
+            old_label='model',
+            new_label='cell'
+        ))
 
         # Layer definitions
         self.rnn1 = tf.keras.layers.RNN(self.cell, return_sequences=True)
