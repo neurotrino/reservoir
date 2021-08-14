@@ -41,22 +41,22 @@ def main():
     # Build model
     model_module = eval(f"models.{cfg['model'].type}")
     model = model_module.Model(cfg)
-    logging.info(f"model   : models.{cfg['model'].type}.Model")
+    logging.info(f"instantiated {cfg['model'].type}.Model")
 
     # Load data
     data_module = eval(f"data.{cfg['data'].type}")
     data = data_module.DataGenerator(cfg)
-    logging.info(f"data    : data.{cfg['data'].type}.DataGenerator")
+    logging.info(f"instantiated {cfg['data'].type}.DataGenerator")
 
     # Instantiate logger
     logger_module = eval(f"loggers.{cfg['log'].type}")
     logger = logger_module.Logger(cfg)
-    logging.info(f"logger  : loggers.{cfg['log'].type}.Logger")
+    logging.info(f"instantiated {cfg['log'].type}.Logger")
 
     # Instantiate trainer
     trainer_module = eval(f"trainers.{cfg['train'].type}")
     trainer = trainer_module.Trainer(cfg, model, data, logger)
-    logging.info(f"trainer : trainers.{cfg['train'].type}.Trainer")
+    logging.info(f"instantiated {cfg['train'].type}.Trainer")
 
     # Train model
     trainer.train()
