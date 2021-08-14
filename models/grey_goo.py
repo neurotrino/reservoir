@@ -10,7 +10,7 @@ from models.neurons.adex import *
 from models.neurons.lif import *
 from utils.config import subconfig
 
-class Model(BaseModel):
+class GreyGoo(BaseModel):
     """Generic prototyping model designed to test new features and
     provide an example to people learning the research infrastructure.
     """

@@ -8,16 +8,16 @@ import tensorflow as tf
 import utils.config
 
 # Build model ----
-from .models import *
+from models import *
 
 # Load Data ------
-from .data import *
+from data import *
 
 # Log ------------
-from .loggers import *
+from loggers import *
 
 # Train ----------
-from .trainers import *
+from trainers import *
 
 def main():
     # Use command line arguments to load data, create directories, etc.
