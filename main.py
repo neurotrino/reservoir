@@ -7,17 +7,29 @@ import os
 import tensorflow as tf
 import utils.config
 
-# Build model ----
-import msnn.models as models
 
-# Load Data ------
-import data
+#=================================
 
-# Log ------------
-import loggers
+import glob
 
-# Train ----------
-import trainers
+# Get file paths of all modules.
+modules = glob.glob('subdirectory/*.py')
+
+print()
+print()
+print(modules)
+print()
+print()
+exit()
+"""
+import importlib.util
+spec = importlib.util.spec_from_file_location("module.name", "/path/to/file.py")
+foo = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(foo)
+"""
+
+#=================================
+
 
 def main():
     # Use command line arguments to load data, create directories, etc.
