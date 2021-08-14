@@ -17,9 +17,27 @@ import importlib.util
 import glob
 
 for mod in ['data', 'loggers', 'models', 'trainers']:
-    for submod in glob(f'{mod}/*.py'):
+    for submod in glob.glob(f'{mod}/*.py'):
         print(submod)
 exit()
+
+for filepath in Path('.').rglob('*.py'):
+
+    fp_str = str(filepath)
+
+    if not fp_str.endswith("__init__.py"):
+        # Convert filepath syntax to modulepath syntax
+        module_name = fp_str[:-3]
+        module_name = module_name.replace('/', '.')
+
+        # Load module into python
+        spec = importlib.util.spec_from_file_location(module_name, fp_str)
+        print(spec)
+        print()
+        x = importlib.util.module_from_spec(spec)
+        """
+        spec.loader.exec_module(x)
+        """
 
 #=================================
 
