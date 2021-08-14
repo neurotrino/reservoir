@@ -10,39 +10,24 @@ import utils.config
 
 #=================================
 
-import glob
 from pathlib import Path
+
+import importlib.util
 
 for filepath in Path('.').rglob('*.py'):
 
-    fp = str(filepath)
+    fp_str = str(filepath)
 
-    if not fp.endswith("__init__.py"):
-        module_name = fp[:-3]  # remove '.py' from string
+    if not fp_str.endswith("__init__.py"):
+        # Convert filepath syntax to modulepath syntax
+        module_name = fp_str[:-3]
         module_name = module_name.replace('/', '.')
-        print()
-        print(module_name)
-        print()
-print("---------------")
 
-# Get file paths of all modules.
-modules = glob.glob('*.py')
-
-print()
-print()
-print(modules)
-print()
-print()
-exit()
-"""
-import importlib.util
-spec = importlib.util.spec_from_file_location("module.name", "/path/to/file.py")
-foo = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(foo)
-"""
+        # Load module into python
+        spec = importlib.util.spec_from_file_location(module_name, fp_str)
+        spec.loader.exec_module(importlib.util.module_from_spec(spec))
 
 #=================================
-
 
 def main():
     # Use command line arguments to load data, create directories, etc.
@@ -50,7 +35,7 @@ def main():
     logging.info("experiment directory: " + abspath(cfg['save'].exp_dir))
 
     # Build model
-    model = eval(f"models.grey_goo.{cfg['model'].type}")(cfg)
+    model = eval(f"models.{cfg['model'].type}.Model")(cfg)
     logging.info(f"model built: {cfg['model'].type}")
 
     # Load data
