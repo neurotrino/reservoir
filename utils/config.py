@@ -273,11 +273,11 @@ def load_hjson_config(filepath):
 
     cfg = {
         'model': recursively_make_namespace(config['model']),
-        'save': recursively_make_namespace(confgi['save']),
+        'save': recursively_make_namespace(config['save']),
         'data': recursively_make_namespace(config['data']),
-        'log': recursively_make_namespace(confgi['log']),
-        'train': recursively_make_namespace(confgi['train']),
-        'misc': recursively_make_namespace(confgi['misc'])
+        'log': recursively_make_namespace(config['log']),
+        'train': recursively_make_namespace(config['train']),
+        'misc': recursively_make_namespace(config['misc'])
     }
     return cfg
 
