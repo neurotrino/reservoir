@@ -8,7 +8,7 @@ import tensorflow as tf
 import utils.config
 
 # Build model ----
-import models
+import msnn.models as models
 
 # Load Data ------
 import data
