@@ -121,7 +121,7 @@
 
         cell:
         {
-            type: ExInALIF
+            type: LIF
 
             rewiring: false
 
@@ -187,7 +187,7 @@
         log_npz: false
 
         // Save logging values to disk every n epochs
-        post_every: 4
+        post_every: 2
 
         // Neuron used ([!] would like to automate this):
         neuron: ExInLIF
@@ -232,13 +232,13 @@
         learning_rate: 0.03
 
         // number of trials in batch
-        batch_size: 5
+        batch_size: 8
 
         // number of batches in an epoch
-        n_batch: 10
+        n_batch: 4
 
         // number of epochs the model is fit over
-        n_epochs: 100
+        n_epochs: 2
 
         target_rate: 0.02
 

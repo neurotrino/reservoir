@@ -1,21 +1,42 @@
 """Leaky integrate-and-fire (LIF) neuron implementations."""
 
-from typing import Any, Dict, Union
-
+# external modules
 import numpy as np
 import tensorflow as tf
 
-# local
+# internal modules
 from models.neurons.base import BaseNeuron
 from utils.connmat import ConnectivityMatrixGenerator as CMG
 from utils.connmat import ExInConnectivityMatrixGenerator as ExInCMG
 
 #┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Core Properties                                                           │
+#┤ Leaky Integrate-and-Fire (LIF) Neuron                                     │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class _LIFCore(BaseNeuron):
-    """Properties core to all the following LIF implementations."""
+class LIF(BaseNeuron):
+    """Layer of leaky integrate-and-fire neurons.
+
+    All other neurons in the lif.py module inherit from this class.
+
+    Configuration Parameters:
+        rewiring - enable/disable rewiring
+        tau - parameter used in signal decay calculations
+        units - number of neurons in the layer
+
+    Public Attributes:
+        state_size - layer dimensions
+
+    October 16th, 2020:
+        In this version of LIF, when a synaptic weight changes sign
+        from its initialization, it goes to zero. However, it need not
+        remain at zero. It is allowed to change in the direction of its
+        initial sign. Due to the initialization with a lognormal
+        distribution, all synapses here are excitatory. Only synapses
+        that begin at 0 must remain at 0. These include self-recurrent
+        connections. Therefore connectivity can never go above initial
+        p, but it can go below it. We have not yet implemented
+        rewiring. That will come with its own considerations.
+    """
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Special Methods                                                       │
@@ -26,20 +47,7 @@ class _LIFCore(BaseNeuron):
 
         self.cfg = cfg
 
-        self.rewiring = cfg['model'].cell.rewiring
-
-        self.units = cfg['model'].cell.units
-        self.thr = cfg['model'].cell.thr
-        self.EL = cfg['model'].cell.EL
-        self.n_refrac = cfg['model'].cell.n_refrac
-        self.tau = cfg['model'].cell.tau
-        self.dt = float(cfg['misc'].dt)
-        self.dampening_factor = cfg['model'].cell.dampening_factor
-
-        self._decay = tf.exp(-self.dt / self.tau)
-        self._n_refrac = cfg['model'].cell.n_refrac
-        self._dampening_factor = cfg['model'].cell.dampening_factor
-        self.p = cfg['model'].cell.p
+        self._decay = tf.exp(-cfg['misc'].dt / cfg['cell'].tau)
 
         self.input_weights = None
         self.bias_currents = None
@@ -47,7 +55,7 @@ class _LIFCore(BaseNeuron):
         self.disconnect_mask = None
 
         # (voltage, refractory, previous_spikes)
-        self.state_size = (cfg['model'].cell.units, cfg['model'].cell.units, cfg['model'].cell.units)
+        self.state_size = tuple([cfg['cell'].units] * 3)
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Reserved Methods                                                      │
@@ -124,18 +132,6 @@ class _LIFCore(BaseNeuron):
             # zerosself.rec_sign = tf.sign(self.recurrent_weights)
             #self.rec_sign = tf.sign(self.recurrent_weights)
             self.rec_sign = tf.sign(self.recurrent_weights)
-
-        """
-        with open('rec_sign.py', 'wb') as file:
-            np.save(file, self.rec_sign)
-        with open(f'init_{self.times_called}.npy', 'wb') as file:
-            np.save(file, self.recurrent_weights)
-        with open(f'dcmask_{self.times_called}.npy', 'wb') as file:
-            np.save(file, self.recurrent_weights)
-        with open(f'post_{self.times_called}.npy', 'wb') as file:
-            np.save(file, self.recurrent_weights)
-        exit()
-        """
 
 
     def call(self, inputs, state):
@@ -216,43 +212,11 @@ class _LIFCore(BaseNeuron):
         return v0, r0, z_buf0  # voltage, refractory, spike
 
 #┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Leaky Integrate-and-Fire (LIF) Neuron                                     │
-#┴───────────────────────────────────────────────────────────────────────────╯
-
-class LIF(_LIFCore):
-    """
-    TODO: formalize class docs
-
-    October 16th, 2020:
-        In this version of LIF, when a synaptic weight changes sign
-        from its initialization, it goes to zero. However, it need not
-        remain at zero. It is allowed to change in the direction of its
-        initial sign. Due to the initialization with a lognormal
-        distribution, all synapses here are excitatory. Only synapses
-        that begin at 0 must remain at 0. These include self-recurrent
-        connections. Therefore connectivity can never go above initial
-        p, but it can go below it. We have not yet implemented
-        rewiring. That will come with its own considerations.
-    """
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Reserved Methods                                                      │
-    #┴───────────────────────────────────────────────────────────────────────╯
-
-    def build(self, input_shape):
-        """Build from _LIFCore using the standard CMG"""
-        misc_cfg = self.cfg['misc']
-        super().build(
-            input_shape,
-            CMG(self.units, self.p, misc_cfg.mu, misc_cfg.sigma)
-        )
-
-#┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Excitatory/Inhibitory LIF Neuron                                          │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class ExInLIF(_LIFCore):
-    """TODO: docs, emphasizing differenct from _LIFCore"""
+class ExInLIF(LIF):
+    """TODO: docs, emphasizing difference from _LIFCore"""
 
     # base template from October 16th, 2020 version of LIFCell
 
@@ -261,17 +225,15 @@ class ExInLIF(_LIFCore):
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def __init__(self, cfg):
-        """
-        TODO: method docs
+        """ExInLIF layers are initialized to track the number of
+        excitatory and inhibitory cells in the layer, in addition to
+        the core initialization properties inherent to a LIF cell.
         """
         super().__init__(cfg)
 
-        self.n_excite = int(cfg['model'].cell.frac_e * self.units)
-        self.n_inhib = self.units - self.n_excite
-        self.p_ee = self.p.ee
-        self.p_ei = self.p.ei
-        self.p_ie = self.p.ie
-        self.p_ii = self.p.ii
+        # Number of excitatory and inhibitory neurons in the layer
+        self.n_excite = int(cfg['cell'].frac_e * self.cfg['cell'].units)
+        self.n_inhib = self.cfg['cell'].units - self.cfg['cell'].n_excite
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Reserved Methods                                                      │
@@ -292,37 +254,44 @@ class ExInLIF(_LIFCore):
 #┤ Excitatory/Inhibitory Adaptive LIF (ALIF) Neuron                          │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class ExInALIF(_LIFCore):
-    """TODO: docs"""
+class ExInALIF(LIF):
+    """Layer of adaptive leaky integrate-and-fire neurons containing
+    both excitatory and inhibitory connections.
+
+    Configuration Parameters:
+        p - set of four values (p.ee, p.ei, p.ie, p.ii) determining
+            connection probablities between and within excitatory and
+            inhibitory neurons
+        tau_adaptation -
+        beta -
+
+    Public Attributes:
+        ecount - number of excitatory neurons in the layer
+        icount - number of inhibitory neurons in the layer
+        decay_b -
+        state_size -
+    """
     # base template from October 22nd, 2020 version of LIF_EI
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Special Methods                                                       │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def __init__(self, frac_e, beta, tau_adaptation, *args, **kwargs):
+    def __init__(self, cfg):
         """
         TODO: method docs
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(cfg)  # core LIF attributes and initialization
 
         # ExIn paramaters
-        self.n_excite = int(frac_e * self.units)
+        self.n_excite = int(frac_e * cfg['cell'].units)
         self.n_inhib = self.units - self.n_excite
-        self.p_ee = self.p['ee']
-        self.p_ei = self.p['ei']
-        self.p_ie = self.p['ie']
-        self.p_ii = self.p['ii']
-
-        self.dt = float(self.cfg['misc'].dt)
 
         # Adaptation parameters
-        self.tau_adaptation = tau_adaptation
-        self.beta = beta
-        self.decay_b = tf.exp(-self.dt / tau_adaptation)
+        self.decay_b = tf.exp(-cfg['misc'].dt / cfg['cell'].tau_adaptation)
 
         # voltage, refractory, adaptation, prior spikes
-        self.state_size = tuple([self.units]*4)
+        self.state_size = tuple([self.units] * 4)
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Reserved Methods                                                      │
@@ -411,7 +380,7 @@ class ExInALIF(_LIFCore):
         # to return to baseline 0, or approximately baseline now to
         # have the analogous behavior using real voltage values, we
         # must subtract the difference between thr and EL
-        i_reset = -(self.thr-self.EL) * old_z
+        i_reset = -(self.thr - self.EL) * old_z
         # ^ approx driving the voltage 20 mV more negative
 
         input_current = i_in + i_rec + i_reset # + self.bias_currents[None]
