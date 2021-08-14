@@ -13,10 +13,15 @@ import utils.config
 import glob
 from pathlib import Path
 
-for path in Path('.').rglob('*.py'):
-    if not path.endswith("__init__.py"):
+for filepath in Path('.').rglob('*.py'):
+
+    fp = str(filepath)
+
+    if not fp.endswith("__init__.py"):
+        module_name = fp[:-3]  # remove '.py' from string
+        module_name = module_name.replace('/', '.')
         print()
-        print(path)
+        print(module_name)
         print()
 print("---------------")
 
