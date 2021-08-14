@@ -339,18 +339,24 @@ def boot():
     print('\nA\n')
 
     for filepath in Path('.').rglob('*.py'):
+        print('\nB1\n')
 
         fp_str = str(filepath)
+        print('\nB2\n')
 
         if not (fp_str.endswith("__init__.py") or fp_str == __file__):
+            print('\nB3\n')
             # Convert filepath syntax to modulepath syntax
             module_name = fp_str[:-3]
+            print('\nB4\n')
             module_name = module_name.replace('/', '.')
+            print('\nB5\n')
 
             # Load module into python
             spec = importlib.util.spec_from_file_location(module_name, fp_str)
+            print('\nB6\n')
             spec.loader.exec_module(importlib.util.module_from_spec(spec))
-    print('\nB\n')
+            print('\nB7\n')
 
     #=================================
 
