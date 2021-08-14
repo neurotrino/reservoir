@@ -7,7 +7,17 @@ import os
 import tensorflow as tf
 import utils.config
 
-from . import *
+# Build model ----
+from models import *
+
+# Load Data ------
+from data import *
+
+# Log ------------
+from loggers import *
+
+# Train ----------
+from trainers import *
 
 def main():
     # Use command line arguments to load data, create directories, etc.
