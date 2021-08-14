@@ -39,21 +39,23 @@ def main():
     logging.info("experiment directory: " + abspath(cfg['save'].exp_dir))
 
     # Build model
-    model = eval(f"models.{cfg['model'].type}.Model")(cfg)
+    model_module = eval(f"models.{cfg['model'].type}")
+    model = model_module.Model(cfg)
     logging.info(f"model built: {cfg['model'].type}")
 
     # Load data
-    data = eval(f"data.{cfg['data'].type}").DataGenerator(cfg)
+    data_module = eval(f"data.{cfg['data'].type}")
+    data = data_module.DataGenerator(cfg)
     logging.info(f"dataset loaded: {cfg['data'].type}")
 
     # Instantiate logger
-    logger = eval(f"loggers.{cfg['log'].type}").Logger(cfg)
+    logger_module = eval(f"loggers.{cfg['log'].type}")
+    logger = logger_module.Logger(cfg)
     logging.info(f"logger instantiated: {cfg['log'].type}")
 
     # Instantiate trainer
-    trainer = eval(f"trainers.{cfg['train'].type}").Trainer(
-        cfg, model, data, logger
-    )
+    trainer_module = eval(f"trainers.{cfg['train'].type}")
+    trainer = trainer_module.Trainer(cfg, model, data, logger)
     logging.info(f"trainer instantiated: {cfg['train'].type}")
 
     # Train model
