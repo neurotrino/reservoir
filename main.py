@@ -10,7 +10,7 @@ import utils.config
 def main():
     # Parse command-line arguments
     try:
-        args = get_args()
+        args = utils.config.get_args()
     except:
         raise Exception("missing or invalid arguments")
 
