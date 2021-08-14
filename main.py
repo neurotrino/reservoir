@@ -25,7 +25,7 @@ def main():
     logging.info("experiment directory: " + abspath(cfg['save'].exp_dir))
 
     # Build model
-    model = eval(f'models.{cfg['model'].type}').Model(cfg)
+    model = eval(f"models.{cfg['model'].type}").Model(cfg)
     logging.info(f"model built: {cfg['model'].type}")
 
     # Load data
