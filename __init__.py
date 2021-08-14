@@ -1,7 +1,5 @@
 from os.path import basename, dirname, isfile, join
-
 import glob
-
 modules = glob.glob(join(dirname(__file__), "*.py"))
 __all__ = [
     basename(f)[:-3]
@@ -9,3 +7,4 @@ __all__ = [
         in modules
         if isfile(f) and not f.endswith('__init__.py')
 ]
+from . import *
