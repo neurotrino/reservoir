@@ -291,9 +291,7 @@ def boot():
 
     # Parse command-line arguments
     try:
-        print('\nA\n')
         args = get_args()
-        print('\nB\n')
     except:
         raise Exception("missing or invalid arguments")
 
@@ -334,6 +332,7 @@ def boot():
         logging.debug(f'found GPU at {device_name}')
 
     #=================================
+    print('\nA\n')
 
     from pathlib import Path
 
@@ -351,6 +350,7 @@ def boot():
             # Load module into python
             spec = importlib.util.spec_from_file_location(module_name, fp_str)
             spec.loader.exec_module(importlib.util.module_from_spec(spec))
+    print('\nB\n')
 
     #=================================
 
