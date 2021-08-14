@@ -25,8 +25,10 @@ for filepath in Path('.').rglob('*.py'):
 
         # Load module into python
         spec = importlib.util.spec_from_file_location(module_name, fp_str)
-        """
+        print(spec)
+        print()
         x = importlib.util.module_from_spec(spec)
+        """
         spec.loader.exec_module(x)
         """
 
