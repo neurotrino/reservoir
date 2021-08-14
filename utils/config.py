@@ -331,5 +331,26 @@ def boot():
     else:
         logging.debug(f'found GPU at {device_name}')
 
+    #=================================
+
+    from pathlib import Path
+
+    import importlib.util
+
+    for filepath in Path('.').rglob('*.py'):
+
+        fp_str = str(filepath)
+
+        if not (fp_str.endswith("__init__.py") or fp_str == __file__):
+            # Convert filepath syntax to modulepath syntax
+            module_name = fp_str[:-3]
+            module_name = module_name.replace('/', '.')
+
+            # Load module into python
+            spec = importlib.util.spec_from_file_location(module_name, fp_str)
+            spec.loader.exec_module(importlib.util.module_from_spec(spec))
+
+    #=================================
+
     # Return configuration settings
     return cfg
