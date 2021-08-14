@@ -3,9 +3,8 @@
 
 import tensorflow as tf
 
-# Base model for the neurons we use
 class BaseNeuron(tf.keras.layers.Layer):
-    """TODO: docs"""
+    """Parent class for all neuron variants."""
 
     def pseudo_derivative(self, v_scaled, dampening_factor):
         """TODO: docs"""
