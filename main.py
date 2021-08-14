@@ -5,7 +5,6 @@ import importlib.util
 import logging
 import utils.config
 
-logging.getLogger().setLevel(logging.CRITICAL)
 
 for filepath in Path('.').rglob('*.py'):
     """Hacky code to abstract imports.

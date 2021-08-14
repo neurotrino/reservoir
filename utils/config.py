@@ -39,7 +39,7 @@ def start_logger(clevel_str, flevel_str, fpath, writemode='w+'):
         'w+'). See `logging.FileHandler` for further documentation.
     """
     logger = logging.getLogger()
-    # [!] current also turns on external module logging :/
+    logger.handlers = []
 
     formatter = logging.Formatter(
         '[%(asctime)s] %(levelname)-9s- %(message)s', '%Y-%m-%d %H:%M:%S'
