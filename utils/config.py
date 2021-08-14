@@ -16,6 +16,10 @@ import tensorflow as tf
 import time
 
 
+from pathlib import Path
+
+import importlib.util
+
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Python (Not TensorFlow) Logger                                            │
 #┴───────────────────────────────────────────────────────────────────────────╯
@@ -333,10 +337,6 @@ def boot():
 
     #=================================
     print('\nA\n')
-
-    from pathlib import Path
-
-    import importlib.util
 
     for filepath in Path('.').rglob('*.py'):
 
