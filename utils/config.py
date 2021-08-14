@@ -290,7 +290,7 @@ def load_hjson_config(filepath):
 #┤ Startup Boilerplate                                                       │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-def boot():
+def boot(args):
     """Parse command line arguments and HJSON configuration files."""
 
     #=================================
@@ -306,12 +306,6 @@ def boot():
             spec = importlib.util.spec_from_file_location(module_name, fp_str)
             spec.loader.exec_module(importlib.util.module_from_spec(spec))  # error-causing line
     #=================================
-
-    # Parse command-line arguments
-    try:
-        args = get_args()
-    except:
-        raise Exception("missing or invalid arguments")
 
     # Initialize the vanilla python logger (configured in command line)
     start_logger(

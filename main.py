@@ -8,8 +8,14 @@ import tensorflow as tf
 import utils.config
 
 def main():
+    # Parse command-line arguments
+    try:
+        args = get_args()
+    except:
+        raise Exception("missing or invalid arguments")
+
     # Use command line arguments to load data, create directories, etc.
-    cfg = utils.config.boot()
+    cfg = utils.config.boot(args)
     logging.info("experiment directory: " + abspath(cfg['save'].exp_dir))
 
     # Build model
