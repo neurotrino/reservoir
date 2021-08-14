@@ -14,6 +14,13 @@ from pathlib import Path
 
 import importlib.util
 
+import glob
+
+for mod in ['data', 'loggers', 'models', 'trainers']:
+    for submod in glob(f'{mod}/*.py'):
+        print(submod)
+exit()
+
 for filepath in Path('.').rglob('*.py'):
 
     fp_str = str(filepath)
