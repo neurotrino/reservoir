@@ -126,8 +126,39 @@ def get_args():
 
 
 #┬───────────────────────────────────────────────────────────────────────────╮
-#┤ HJSON Parsing                                                             │
+#┤ HJSON Parsing and Configuration Operations                                │
 #┴───────────────────────────────────────────────────────────────────────────╯
+
+def recursively_make_namespace(src_dict):
+    """Convert each key into a namespace. Recurse if the key leads to a
+    dictionary value.
+    """
+    new_dict = {}
+    for key in src_dict.keys():
+        if type(src_dict[key]) == OrderedDict:
+            new_dict[key] = recursively_make_namespace(src_dict[key])
+        else:
+            new_dict[key] = src_dict[key]
+    return SimpleNamespace(**new_dict)
+
+    model_cfg = recursively_make_namespace()
+
+
+def subconfig(cfg, subcfg, old_label='model', new_label='cell'):
+    """Create a new configuration for a submodel or layer.
+
+    This is done to preserve abstraction, so that when designing a
+    model or layer, it doesn't matter how nested it is in the initial
+    model call. E.g. you don't have to code
+    `cfg['model'].submodel.submodel.param` in the class definition.
+    """
+    new_cfg = cfg.copy()  # create deep copy to avoid weirdness
+
+    new_cfg.pop(old_label)       # preserve encapsulation
+    new_cfg[new_label] = subcfg  # preserve abstraction/generalization
+
+    return new_cfg  # configuration for use by sub- model/layer
+
 
 def load_hjson_config(filepath):
     """Read configuration settings in from an HJSON file.
@@ -162,25 +193,7 @@ def load_hjson_config(filepath):
         config = hjson.load(config_file)  # read HJSON from filepath
 
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Model Configuration                                                   │
-    #┴───────────────────────────────────────────────────────────────────────╯
-
-    # [!] Right now this is only applied to some fields (model)
-    def recursively_make_namespace(src_dict):
-        """We use a namespace to enforce model attribute consistency.
-        """
-        new_dict = {}
-        for key in src_dict.keys():
-            if type(src_dict[key]) == OrderedDict:
-                new_dict[key] = recursively_make_namespace(src_dict[key])
-            else:
-                new_dict[key] = src_dict[key]
-        return SimpleNamespace(**new_dict)
-
-        model_cfg = recursively_make_namespace()
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ File-Saving Configuration                                             │
+    #┤ Special Configuration Steps for File-Saving Settings                  │
     #┴───────────────────────────────────────────────────────────────────────╯
 
     save_cfg = config['save']
@@ -255,34 +268,18 @@ def load_hjson_config(filepath):
             raise Exception(err)
 
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Bundle Configuration Settings                                         │
+    #┤ Finalize Configuration Settings                                       │
     #┴───────────────────────────────────────────────────────────────────────╯
 
     cfg = {
-        'model': model_cfg,
-        'save': save_cfg,
-        'data': data_cfg,
-        'log': log_cfg,
-        'train': train_cfg,
-        'misc': misc_cfg
+        'model': recursively_make_namespace(config['model']),
+        'save': recursively_make_namespace(save_cfg),
+        'data': recursively_make_namespace(config['data']),
+        'log': recursively_make_namespace(log_cfg),
+        'train': recursively_make_namespace(train_cfg),
+        'misc': recursively_make_namespace(misc_cfg)
     }
     return cfg
-
-
-def subconfig(cfg, subcfg, old_label='model', new_label='cell'):
-    """Create a new configuration for a submodel or layer.
-
-    This is done to preserve abstraction, so that when designing a
-    model or layer, it doesn't matter how nested it is in the initial
-    model call. E.g. you don't have to code
-    `cfg['model'].submodel.submodel.param` in the class definition.
-    """
-    new_cfg = cfg.copy()  # create deep copy to avoid weirdness
-
-    new_cfg.pop(old_label)       # preserve encapsulation
-    new_cfg[new_label] = subcfg  # preserve abstraction/generalization
-
-    return new_cfg  # configuration for use by sub- model/layer
 
 
 #┬───────────────────────────────────────────────────────────────────────────╮
@@ -334,5 +331,5 @@ def boot():
     else:
         logging.debug(f'found GPU at {device_name}')
 
-    # Return configuration file
+    # Return configuration settings
     return cfg
