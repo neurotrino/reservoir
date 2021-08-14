@@ -29,15 +29,15 @@ def main():
     logging.info(f"model built: {cfg['model'].type}")
 
     # Load data
-    data = eval(f'data.{cfg['data'].type}').DataGenerator(cfg)
+    data = eval(f"data.{cfg['data'].type}").DataGenerator(cfg)
     logging.info(f"dataset loaded: {cfg['data'].type}")
 
     # Instantiate logger
-    logger = eval(f'loggers.{cfg['log'].type}').Logger(cfg)
+    logger = eval(f"loggers.{cfg['log'].type}").Logger(cfg)
     logging.info(f"logger instantiated: {cfg['log'].type}")
 
     # Instantiate trainer
-    trainer = eval(f'trainers.{cfg['train'].type}').Trainer(
+    trainer = eval(f"trainers.{cfg['train'].type}").Trainer(
         cfg, model, data, logger
     )
     logging.info(f"trainer instantiated: {cfg['train'].type}")
