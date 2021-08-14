@@ -8,7 +8,7 @@ import tensorflow as tf
 import utils.config
 
 # Build model ----
-import models
+from models import *
 
 # Load Data ------
 from data import *
