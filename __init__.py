@@ -8,7 +8,16 @@ def load_all_modules_from_dir(dirname):
         if full_package_name not in sys.modules:
             module = importer.find_module(package_name
                         ).load_module(full_package_name)
+            print()
             print(module)
+            print()
 
-
+print()
+print()
+print()
+print()
 load_all_modules_from_dir('Foo')
+print()
+print()
+print()
+print()
