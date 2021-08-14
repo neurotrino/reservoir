@@ -13,7 +13,7 @@ import utils.config
 import glob
 
 # Get file paths of all modules.
-modules = glob.glob('subdirectory/*.py')
+modules = glob.glob('*.py')
 
 print()
 print()
