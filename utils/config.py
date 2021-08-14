@@ -291,7 +291,9 @@ def boot():
 
     # Parse command-line arguments
     try:
+        print('\nA\n')
         args = get_args()
+        print('\nB\n')
     except:
         raise Exception("missing or invalid arguments")
 
