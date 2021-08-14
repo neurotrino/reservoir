@@ -438,7 +438,7 @@ class _EligAdexCore(BaseNeuron):
         return [v0, r0, w0, z_buf0]
 
 #┬───────────────────────────────────────────────────────────────────────────╮
-#┤ E-prop Adaptive Exponential Integrate-and-Fire (AdEx) Neuron                     │
+#┤ E-prop Adaptive Exponential Integrate-and-Fire (AdEx) Neuron              │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
 class EligAdEx(_EligAdexCore):
@@ -453,7 +453,7 @@ class EligAdEx(_EligAdexCore):
 
 
 #┬───────────────────────────────────────────────────────────────────────────╮
-#┤ E-prop Excitatory/Inhibitory AdEx Neuron                                         │
+#┤ E-prop Excitatory/Inhibitory AdEx Neuron                                  │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
 class EligExInAdEx(_EligAdexCore):
