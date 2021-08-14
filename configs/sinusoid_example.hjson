@@ -19,8 +19,9 @@
     model:
     {
         cell:
-        // currently configured for an LIF neuron:
         {
+            type: ExInALIF
+
             rewiring: false
 
             units: 100   // number of units in the layer
@@ -40,6 +41,18 @@
                 "ie": 0.318
                 "ii": 0.343
             }
+
+            //
+            n_recurrent: 100
+
+            //
+            rewiring: false
+
+            // μ for normal distribution (exponentiated for lognormal weights)
+            mu: -0.64
+
+            // σ for normal distribution (exponentiated for lognormal weights)
+            sigma: 0.51
         }
     }
 
@@ -236,17 +249,5 @@
     {
         // time step
         dt: 1
-
-        //
-        n_recurrent: 100
-
-        //
-        rewiring: false
-
-        // μ for normal distribution (exponentiated for lognormal weights)
-        mu: -0.64
-
-        // σ for normal distribution (exponentiated for lognormal weights)
-        sigma: 0.51
     }
 }
