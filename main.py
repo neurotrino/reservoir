@@ -8,16 +8,16 @@ import tensorflow as tf
 import utils.config
 
 # Build model ----
-from models import *
+import models
 
 # Load Data ------
-from data import *
+import data as data
 
 # Log ------------
-from loggers import *
+import loggers as loggers
 
 # Train ----------
-from trainers import *
+import trainers as trainers
 
 def main():
     # Use command line arguments to load data, create directories, etc.
@@ -25,19 +25,19 @@ def main():
     logging.info("experiment directory: " + abspath(cfg['save'].exp_dir))
 
     # Build model
-    model = eval(f"{cfg['model'].type}").Model(cfg)
+    model = eval(f"models.{cfg['model'].type}").Model(cfg)
     logging.info(f"model built: {cfg['model'].type}")
 
     # Load data
-    data = eval(f"{cfg['data'].type}").DataGenerator(cfg)
+    data = eval(f"data.{cfg['data'].type}").DataGenerator(cfg)
     logging.info(f"dataset loaded: {cfg['data'].type}")
 
     # Instantiate logger
-    logger = eval(f"{cfg['log'].type}").Logger(cfg)
+    logger = eval(f"loggers.{cfg['log'].type}").Logger(cfg)
     logging.info(f"logger instantiated: {cfg['log'].type}")
 
     # Instantiate trainer
-    trainer = eval(f"{cfg['train'].type}").Trainer(
+    trainer = eval(f"trainers.{cfg['train'].type}").Trainer(
         cfg, model, data, logger
     )
     logging.info(f"trainer instantiated: {cfg['train'].type}")
