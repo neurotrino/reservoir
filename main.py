@@ -66,7 +66,7 @@ if __name__ == '__main__':
             spec = importlib.util.spec_from_file_location(module_name, fp_str)
             spec.loader.exec_module(importlib.util.module_from_spec(spec))
 
-            logging.debug(f"registered {fp_str}")
+            print(f"registered {fp_str}")
     #======================================================================
 
     main()
