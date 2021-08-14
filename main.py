@@ -14,9 +14,10 @@ import glob
 from pathlib import Path
 
 for path in Path('.').rglob('*.py'):
-    print()
-    print(path)
-    print()
+    if not path.endswith("__init__.py"):
+        print()
+        print(path)
+        print()
 print("---------------")
 
 # Get file paths of all modules.
