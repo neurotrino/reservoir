@@ -13,7 +13,7 @@ import utils.config
 import glob
 from pathlib import Path
 
-for path in Path('src').rglob('*.c'):
+for path in Path('.').rglob('*.py'):
     print(path.name)
 
 # Get file paths of all modules.
