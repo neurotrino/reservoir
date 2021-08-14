@@ -30,7 +30,7 @@ for filepath in Path('.').rglob('*.py'):
 
         # Call `import data.ccd` and so on
         exec(f'import {module_name}')
-        logging.debug(f"registered {fp_str} as {module_name}")
+        print(f"registered {fp_str} as {module_name}")
 
 
 def main():
