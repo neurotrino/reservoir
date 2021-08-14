@@ -3,8 +3,6 @@
 # then ultimately on inferred functional and recruitment graphs
 
 import sys
-#sys.path.append("snn-infrastructure/")
-from motifclustering import *
 
 import numpy as np
 import matplotlib.pyplot as plt
