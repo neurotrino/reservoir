@@ -265,7 +265,7 @@ class ExInLIF(_LIFCore):
             input_shape,
             ExInCMG(
                 self.n_excite, self.n_inhib,
-                self.p_ee, self.p_ei, self.p_ie, self.p_ii,
+                self.p.ee, self.p.ei, self.p.ie, self.p.ii,
                 self.cfg['misc'].mu, self.cfg['misc'].sigma
             )
         )
