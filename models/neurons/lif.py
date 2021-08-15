@@ -290,7 +290,7 @@ class ExInALIF(_LIFCore):
         self.n_inhib = self.units - self.n_excite
 
         # Adaptation parameters
-        self.decay_b = tf.exp(-cfg['misc'].dt / cfg['cell'].tau_adaptation)
+        self.decay_b = tf.exp(-cfg['misc'].dt / self.cfg['cell'].tau_adaptation)
 
         # voltage, refractory, adaptation, prior spikes
         self.state_size = tuple([self.units] * 4)
