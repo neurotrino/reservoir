@@ -64,7 +64,7 @@ class Model(BaseModel):
 
         # decay ~0.95 as in Bellec et al. (2020) where they use
         # np.exp(-dt/tau_out) with tau_out is between 15 and 30 ms
-        filtered_Z = exp_convolve(spikes, decay=np.exp(-1/20))
+        filtered_Z = exp_convolve(spikes, decay=np.exp(-1/10))
 
         B_out = tf.constant(
             np.random.standard_normal((self.cfg['model'].cell.units, 1)),
