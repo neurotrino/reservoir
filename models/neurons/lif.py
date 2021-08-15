@@ -215,7 +215,7 @@ class LIF(_LIFCore):
             CMG(
                 self.units,
                 self.p,
-                self.cfg['misc'].mu, self.cfg['misc'].sigma
+                self.mu, self.sigma
             )
         )
 
@@ -339,8 +339,8 @@ class ExInALIF(_LIFCore):
             self.p_ei,
             self.p_ie,
             self.p_ii,
-            self.cfg['misc'].mu,
-            self.cfg['misc'].sigma
+            self.mu,
+            self.sigma
         )
         initial_weights_mat = connmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
