@@ -247,7 +247,6 @@ class ExInLIF(_LIFCore):
         the core initialization properties inherent to a LIF cell.
         """
         super().__init__(cfg)
-    def __init__(self, n_excite, n_inhib, p_ee, p_ei, p_ie, p_ii, mu, sigma):
         self.connmat_generator = ExInCMG(
             self.n_excite, self.n_inhib,
             self.p.ee, self.p.ei, self.p.ie, self.p.ii,
