@@ -56,7 +56,7 @@ class Model(BaseModel):
         # Additional step(s):
         out_initializer = tf.keras.initializers.GlorotUniform()
         out_values = out_initializer(shape=(self.cfg['model'].cell.units, 1))
-        W_out = tf.Variable(out_values, name='out_weight', trainable=True)
+        W_out = out_values#tf.Variable(out_values, name='out_weight', trainable=True)
 
         # decay ~0.95 as in Bellec et al. (2020) where they use
         # np.exp(-dt/tau_out) with tau_out is between 15 and 30 ms
