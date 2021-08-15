@@ -212,6 +212,12 @@ class _LIFCore(BaseNeuron):
 
 
 class LIF(_LIFCore):
+    def __init__(self, cfg):
+        super().__init__(cfg)
+        # [!] TODO: figure out a way to improve the CMG integration w/
+        #           inheritence
+        self.connmat_generator = CMG(self.units, self.p, self.mu, self.sigma)
+
     def build(self, input_shape):
         super().build(
             input_shape,
@@ -241,10 +247,17 @@ class ExInLIF(_LIFCore):
         the core initialization properties inherent to a LIF cell.
         """
         super().__init__(cfg)
+    def __init__(self, n_excite, n_inhib, p_ee, p_ei, p_ie, p_ii, mu, sigma):
+        self.connmat_generator = ExInCMG(
+            self.n_excite, self.n_inhib,
+            self.p.ee, self.p.ei, self.p.ie, self.p.ii,
+            self.mu, self.sigma
+        )
 
         # Number of excitatory and inhibitory neurons in the layer
         self.n_excite = int(cfg['cell'].frac_e * self.cfg['cell'].units)
         self.n_inhib = self.cfg['cell'].units - self.n_excite
+
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Reserved Methods                                                      │
@@ -252,14 +265,7 @@ class ExInLIF(_LIFCore):
 
     def build(self, input_shape):
         """TODO: docs"""
-        super().build(
-            input_shape,
-            ExInCMG(
-                self.n_excite, self.n_inhib,
-                self.p.ee, self.p.ei, self.p.ie, self.p.ii,
-                self.mu, self.sigma
-            )
-        )
+        super().build(input_shape)
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Excitatory/Inhibitory Adaptive LIF (ALIF) Neuron                          │
