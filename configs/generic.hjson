@@ -188,7 +188,7 @@
     log:
     {
         // logger to use
-        type: sinusoid_example
+        type: std_timeseries
 
         // Save npz files or not
         log_npz: true
