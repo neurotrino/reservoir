@@ -224,7 +224,7 @@ class LIF(_LIFCore):
     def build(self, input_shape):
         super().build(
             input_shape,
-            CMF(
+            CMG(
                 self.units,
                 self.p,
                 self.cfg['misc'].mu, self.cfg['misc'].sigma
