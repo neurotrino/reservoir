@@ -9,6 +9,7 @@ import tensorflow as tf
 from models.common import BaseModel, SpikeRegularization, exp_convolve, matmul_random_feedback
 from models.neurons.lif import *
 from models.neurons.adex import *
+from utils.config import subconfig
 
 class Model(BaseModel):
     """Model for the sinusoid-matching example."""
