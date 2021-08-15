@@ -547,14 +547,12 @@ class Trainer(BaseTrainer):
             # Logger-controlled actions (prefer doing things in the
             # logger when possible, use this when not)
             action_list = self.logger.on_epoch_end()
-            """
             if 'save_weights' in action_list:
                 # Create checkpoints
-                self.model.save(os.path.join(
+                self.model.save_weights(os.path.join(
                     self.cfg['save'].checkpoint_dir,
                     f"checkpoint_e{epoch_idx + 1}"
                 ))
-            """
 
 
 
