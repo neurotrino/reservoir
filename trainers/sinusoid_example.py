@@ -209,8 +209,8 @@ class Trainer(BaseTrainer):
             # Make sure all self-connections remain 0
             self.model.cell.recurrent_weights.assign(tf.where(
                 self.model.cell.disconnect_mask,
-                tf.zeros_like(self.model.trainable_variables[1]),
-                self.model.trainable_variables[1]
+                tf.zeros_like(self.model.cell.recurrent_weights),
+                self.model.cell.recurrent_weights
             ))
 
         # If the sign of a weight changed from the original or the
@@ -220,8 +220,8 @@ class Trainer(BaseTrainer):
         # rewiring = false whereas it contains +1's or -1's (for excit
         # or inhib) for initial 0's when rewiring = true
         self.model.cell.recurrent_weights.assign(tf.where(
-            self.model.cell.rec_sign * self.model.trainable_variables[1] > 0,
-            self.model.trainable_variables[1],
+            self.model.cell.rec_sign * self.model.cell.recurrent_weights > 0,
+            self.model.cell.recurrent_weights,
             0
         ))
 
