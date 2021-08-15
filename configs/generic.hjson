@@ -121,7 +121,7 @@
 
         cell:
         {
-            type: ExInLIF
+            type: LIF
 
             rewiring: false
 
@@ -136,12 +136,15 @@
 
             frac_e: 0.8
 
+            p: 0.7  // LIF
+            /* ExInLIF
             p: {
                 "ee": 0.160
                 "ei": 0.244
                 "ie": 0.318
                 "ii": 0.343
             }
+            */
 
             //
             n_recurrent: 100

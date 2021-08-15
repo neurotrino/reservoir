@@ -42,11 +42,11 @@ class _LIFCore(BaseNeuron):
     #┤ Special Methods                                                       │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def __init__(self, cfg, cfg_key='cell'):
+    def __init__(self, cfg):
         super().__init__()
 
         self.cfg = cfg
-        cell_cfg = cfg[cfg_key]
+        cell_cfg = cfg['cell']
 
         # Configuration parameters
         self.EL = cell_cfg.EL
@@ -104,21 +104,12 @@ class _LIFCore(BaseNeuron):
         self.recurrent_weights = self.add_weight(
             shape=(self.units, self.units),
             initializer=tf.keras.initializers.Orthogonal(gain=0.7),
-            #initializer = tf.keras.initializers.RandomNormal();
             trainable=True,
             name='recurrent_weights'
         )
 
-        # 2020-Nov-07: works with CMG's lognormal weight specification
         initial_weights_mat = connmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
-
-        # not currently using bias currents
-        #self.bias_currents = self.add_weight(
-        #    shape=(self.units,),
-        #    initializer=tf.keras.initializers.Zeros(),
-        #    name='bias_currents'
-        #)
 
         # Store neurons' signs
         if self.rewiring:
