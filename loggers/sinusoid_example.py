@@ -26,7 +26,7 @@ class Logger(BaseLogger):
     """Logging interface used while training."""
 
     def __init__(self, cfg, cb=None):
-        super().__init__(cfg, cb)
+        super().__init__(cfg, cb)  # cb == callback(s)
 
 
     #┬───────────────────────────────────────────────────────────────────────╮
