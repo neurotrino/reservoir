@@ -55,7 +55,7 @@ class Model(BaseModel):
 
         # Additional step(s):
         out_initializer = tf.keras.initializers.GlorotUniform()
-        out_values = out_initializer(shape=(cfg['model'].cell.units, 1))
+        out_values = out_initializer(shape=(self.cfg['model'].cell.units, 1))
         W_out = tf.Variable(out_values, name='out_weight', trainable=True)
 
         # decay ~0.95 as in Bellec et al. (2020) where they use
@@ -63,7 +63,7 @@ class Model(BaseModel):
         filtered_Z = exp_convolve(spikes, decay=np.exp(-1/20))
 
         B_out = tf.constant(
-            np.random.standard_normal((cfg['model'].cell.units, 1)),
+            np.random.standard_normal((self.cfg['model'].cell.units, 1)),
             dtype=tf.float32,
             name='feedback_weights'
         )
