@@ -53,9 +53,10 @@ class _LIFCore(BaseNeuron):
         self.tau = cell_cfg.tau
         self.thr = cell_cfg.thr
         self.units = cell_cfg.units
-        self.mu = cell_cfg.mu # [?] pretty sure all LIF have this
-        self.sigma = cell_cfg.sigma # [?] pretty sure all LIF have this
-        self.p = cell_cfg.p  # [?] pretty sure all LIF/cells have this
+        self.mu = cell_cfg.mu # [?] check if all LIF should have this
+        self.sigma = cell_cfg.sigma # [?] check if all LIF should have this
+        self.rewiring = cell_cfg.rewiring # [?] check if all cells should have this
+        self.p = cell_cfg.p  # [?] check if all LIF/cells should have this
         # TODO: move `p` to BaseNeuron and inherit
 
         # Derived attributes
