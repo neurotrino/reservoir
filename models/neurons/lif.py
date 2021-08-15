@@ -297,6 +297,8 @@ class ExInALIF(_LIFCore):
         self.p_ie = cfg['cell'].p_ie
         self.p_ii = cfg['cell'].p_ii
 
+        self.beta = cfg['cell'].beta
+
         # ExIn paramaters
         self.n_excite = int(self.cfg['cell'].frac_e * cfg['cell'].units)
         self.n_inhib = self.units - self.n_excite
