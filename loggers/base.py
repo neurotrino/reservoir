@@ -158,10 +158,10 @@ class BaseLogger:
                 continue
 
             # Convert to numpy array
-            self.logvars[k] = np.array(self.logvars[k])
+            self.logvars[data_label] = np.array(self.logvars[data_label])
 
             # Adjust precision if specified in the HJSON
-            old_type = self.logvars[k].dtype
+            old_type = self.logvars[data_label].dtype
             new_type = None
 
             # Check for casting rules
@@ -172,7 +172,9 @@ class BaseLogger:
 
             # Apply casting rules where they exist
             if new_type is not None and new_type != old_type:
-                self.logvars[k] = self.logvars[k].astype(new_type)
+                self.logvars[data_label] = self.logvars[data_label].astype(
+                    new_type
+                )
                 logging.debug(f'cast {k} ({old_type}) to {new_type}')
 
         # Write numpy data to disk
