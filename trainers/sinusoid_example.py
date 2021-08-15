@@ -210,7 +210,7 @@ class Trainer(BaseTrainer):
         # that is taken care of through the rec_sign application below
         if self.cfg['model'].cell.rewiring:
             # Make sure all self-connections remain 0
-            self.model.trainable_variables[1].assign(tf.where(
+            self.model.cell.recurrent_weights.assign(tf.where(
                 self.model.cell.disconnect_mask,
                 tf.zeros_like(self.model.trainable_variables[1]),
                 self.model.trainable_variables[1]
@@ -222,7 +222,7 @@ class Trainer(BaseTrainer):
         # Reminder that rec_sign contains 0's for initial 0's when
         # rewiring = false whereas it contains +1's or -1's (for excit
         # or inhib) for initial 0's when rewiring = true
-        self.model.trainable_variables[1].assign(tf.where(
+        self.model.cell.recurrent_weights.assign(tf.where(
             self.model.cell.rec_sign * self.model.trainable_variables[1] > 0,
             self.model.trainable_variables[1],
             0
