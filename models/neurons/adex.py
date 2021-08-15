@@ -208,7 +208,7 @@ class ExInAdEx(_AdExCore):
     def __init__(self, cfg):
         super().__init__(cfg)
 
-        self.n_excite = int(self.frac_e * self.units)
+        self.n_excite = int(self.cfg['cell'].frac_e * self.units)
         self.n_inhib = self.units - self.n_excite
         self.p_ee = self.p['ee']
         self.p_ei = self.p['ei']
