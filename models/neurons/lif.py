@@ -53,6 +53,7 @@ class _LIFCore(BaseNeuron):
         self.tau = cell_cfg.tau
         self.thr = cell_cfg.thr
         self.units = cell_cfg.units
+        self.mu = cell_cfg.mu # [?] pretty sure all LIF have this
         self.p = cell_cfg.p  # [?] pretty sure all LIF/cells have this
         # TODO: move `p` to BaseNeuron and inherit
 
