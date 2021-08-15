@@ -119,6 +119,10 @@
     {
         type: grey_goo
 
+        // [!] WIP to integrate checkpoints into our workflow
+        // [?] move to train
+        ckpt: ../experiments/saved_checkpoints
+
         cell:
         {
             type: ExInALIF
@@ -196,12 +200,6 @@
         // Save logging values to disk every n epochs
         post_every: 2
 
-        // Neuron used ([!] would like to automate this):
-        neuron: ExInLIF
-
-        // Training used ([!] would like to automate this):
-        training_method: backprop
-
         // Toggle the TensorBoard profiler
         run_profiler: false
 
@@ -225,6 +223,17 @@
 
         // Integer size
         int_dtype: uint16
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Model Saving and Checkpoints                                      │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        // Create a checkpoint every N epochs (checkpoints disabled if N=0)
+        ckpt_freq: 10
+
+        // Maximum number of checkpoints saved per experiment (will save the
+        // most recent)
+        ckpt_lim: 10
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮

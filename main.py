@@ -43,6 +43,10 @@ def main():
     model = model_module.Model(cfg)
     logging.info(f"instantiated {cfg['model'].type}.Model")
 
+    if cfg['train'].ckpt is not None:
+        model.restore(cfg['model'].ckpt)
+        logging.info("advanced model to checkpoint")
+
     # Load data
     data_module = eval(f"data.{cfg['data'].type}")
     data = data_module.DataGenerator(cfg)
