@@ -248,19 +248,19 @@ class _EligAdExCore(BaseNeuron):  # how is this different than _AdexCore
         self.cfg = cfg
         self._dt = float(cfg['misc'].dt)
 
-        self.units = units
-        self.thr = thr
-        self.n_refrac = n_refrac
-        self.dampening_factor = dampening_factor
-        self.tauw = tauw
-        self.a = a
-        self.b = b
-        self.gL = gL
-        self.EL = EL
-        self.C = C
-        self.deltaT = deltaT
-        self.V_reset = V_reset
-        self.p = p
+        self.units = self.cfg['cell'].units
+        self.thr = self.cfg['cell'].thr
+        self.n_refrac = self.cfg['cell'].n_refrac
+        self.dampening_factor = self.cfg['cell'].dampening_factor
+        self.tauw = self.cfg['cell'].tauw
+        self.a = self.cfg['cell'].a
+        self.b = self.cfg['cell'].b
+        self.gL = self.cfg['cell'].gL
+        self.EL = self.cfg['cell'].EL
+        self.C = self.cfg['cell'].C
+        self.deltaT = self.cfg['cell'].deltaT
+        self.V_reset = self.cfg['cell'].V_reset
+        self.p = self.cfg['cell'].p
         self.dt_gL__C = self._dt * self.gL / self.C
         self.dt_a__tauw = self._dt * self.a / self.tauw
 
@@ -407,7 +407,7 @@ class EligAdEx(_EligAdExCore):
     def build(self, input_shape):
         super().build(
             input_shape,
-            CMG(self.units, self.p, self.cfg['misc'].mu, self.cfg['misc'].sigma),
+            CMG(self.units, self.p, self.cfg['cell'].mu, self.cfg['cell'].sigma),
             initializers={
                 'input_weights': kinits.RandomUniform(minval=0.0, maxval=0.4)
             }
@@ -423,7 +423,7 @@ class EligExInAdEx(_EligAdExCore):
     def __init__(self, cfg):
         super().__init__(cfg)
 
-        self.n_excite = int(frac_e * self.units)
+        self.n_excite = int(self.cfg['cell'].frac_e * self.units)
         self.n_inhib = self.units - self.n_excite
         self.p_ee = self.p_ee
         self.p_ei = self.p_ei
@@ -437,7 +437,7 @@ class EligExInAdEx(_EligAdExCore):
             connmat_generator=ExInCMG(
                 self.n_excite, self.n_inhib,
                 self.p_ee, self.p_ei, self.p_ie, self.p_ii,
-                self.cfg['misc'].mu, self.cfg['misc'].sigma
+                self.cfg['cell'].mu, self.cfg['cell'].sigma
             ),
             initializers={
                 # TODO?: minval/maxval might be good HJSON config items
