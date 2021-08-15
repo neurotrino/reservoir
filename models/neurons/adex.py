@@ -125,7 +125,6 @@ class _AdExCore(BaseNeuron):
     def call(self, inputs, state):
         old_v, old_r, old_w, old_z = state[:4]  # old states
 
-        """
         if self.rewiring:  # I believe this has been moved to the trainer
             # Make sure all self-connections are 0
             self.recurrent_weights.assign(tf.where(self.disconnect_mask, tf.zeros_like(self.recurrent_weights), self.recurrent_weights))
@@ -134,7 +133,6 @@ class _AdExCore(BaseNeuron):
         else:
             # If the sign of a weight changed or the weight is no longer 0, make the weight 0
             self.recurrent_weights.assign(tf.where(self.rec_sign * self.recurrent_weights > 0, self.recurrent_weights, 0))
-        """
 
         # Calculate input current
         i_in = tf.matmul(inputs, self.input_weights)
