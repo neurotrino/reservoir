@@ -501,12 +501,12 @@ class Trainer(BaseTrainer):
         ckpt = tf.train.Checkpoint(
             step=tf.Variable(1),
             optimizer=self.optimizer,
-            net=self.model
+            model=self.model
         )
         cpm = tf.train.CheckpointManager(
             ckpt,
             self.cfg['save'].checkpoint_dir,
-            max_to_keep=None
+            max_to_keep=3
         )
 
         #┬───────────────────────────────────────────────────────────────────╮
@@ -544,18 +544,24 @@ class Trainer(BaseTrainer):
             #┤ Logging (mid-training)                                        │
             #┴───────────────────────────────────────────────────────────────╯
 
+            # Save checkpoints
+            if True:  # [!]
+                ckpt.step.assign_add(1)
+                if epoch_idx == 4:
+                    save_path = cpm.save()
+
+            """
             # Logger-controlled actions (prefer doing things in the
             # logger when possible, use this when not)
             action_list = self.logger.on_epoch_end()
             if 'save_weights' in action_list:
                 # Create checkpoints
                 tf.saved_model.save(self.model, self.cfg['save'].checkpoint_dir)
-                """
                 self.model.save_model(os.path.join(
                     self.cfg['save'].checkpoint_dir,
                     f"checkpoint_e{epoch_idx + 1}"
                 ))
-                """
+            """
 
 
 
