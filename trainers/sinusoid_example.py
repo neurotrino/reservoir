@@ -549,10 +549,13 @@ class Trainer(BaseTrainer):
             action_list = self.logger.on_epoch_end()
             if 'save_weights' in action_list:
                 # Create checkpoints
+                tf.saved_model.save(self.model, self.cfg['save'].checkpoint_dir)
+                """
                 self.model.save_model(os.path.join(
                     self.cfg['save'].checkpoint_dir,
                     f"checkpoint_e{epoch_idx + 1}"
                 ))
+                """
 
 
 
