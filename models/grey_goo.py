@@ -35,6 +35,11 @@ class Model(BaseModel):
         self.rnn1 = tf.keras.layers.RNN(self.cell, return_sequences=True)
         self.dense1 = tf.keras.layers.Dense(1)
 
+        self.layers = [  # gather in a list for later convenience
+            self.rnn1,
+            self.dense1
+        ]
+
 
     @tf.function
     def call(self, inputs, training=False):

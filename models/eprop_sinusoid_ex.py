@@ -40,6 +40,10 @@ class Model(BaseModel):
             self.target_rate,
             self.rate_cost
         )
+        self.layers = [  # gather in a list for later convenience
+            self.rnn1,
+            self.reg1
+        ]
 
 
     @tf.function

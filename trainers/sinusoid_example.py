@@ -338,13 +338,7 @@ class Trainer(BaseTrainer):
         # log the below information for. If you wish to log the
         # information of all layers, move the `.log()` call
         # outside of this `if` guard.
-        layers_to_log = [  # [!] todo: put in HJSON  OR  have .layers in model definition
-            self.model.rnn1,
-            #self.model.dense1
-            self.model.reg1
-        ]
-
-        for layer in layers_to_log:
+        for layer in model.layers:
             # Log each of the weights defining the layer's state.
             #
             # For a linear layer, these weights are `w` and `b`.
