@@ -161,6 +161,15 @@
 
             // σ for normal distribution (exponentiated for lognormal weights)
             sigma: 0.51
+
+            // A bunch of AdEx parameters all at once with no context
+            tauw: 144
+            a: 4
+            b: 80.5
+            gL: 30
+            C: 281
+            deltaT: 2
+            V_reset: -70.6
         }
     }
 
