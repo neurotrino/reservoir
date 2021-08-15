@@ -67,6 +67,8 @@ class Logger(BaseLogger):
 
         # Plot data from the end of each epoch
         # [!] prefer not to rely on post_every?
+        lo_epoch = 1 if self.last_post['epoch'] is None else self.last_post['epoch'] + 1
+        hi_epoch = self.cur_epoch
         for epoch_idx in range(self.cfg['log'].post_every):
             step_idx = epoch_idx * self.cfg['train'].n_batch
             self.plot_everything(f"{lo_epoch + epoch_idx}.png", step_idx)

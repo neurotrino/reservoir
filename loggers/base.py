@@ -135,7 +135,7 @@ class BaseLogger:
         lo_epoch = 1 if self.last_post['epoch'] is None else self.last_post['epoch'] + 1
         hi_epoch = self.cur_epoch
 
-        fp = os.path.join(
+        fp = os.path.join(  # [?] I wonder if I can encapsulate this better
             self.cfg['save'].main_output_dir,
             f"{lo_epoch}-{hi_epoch}.npz"
         )
