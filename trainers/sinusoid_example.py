@@ -214,7 +214,7 @@ class Trainer(BaseTrainer):
             ))
 
         # If the sign of a weight changed from the original or the
-        # weight is no longer 0, make the weight 0.
+        # weight (previously 0) is no longer 0, make the weight 0.
         #
         # Reminder that rec_sign contains 0's for initial 0's when
         # rewiring = false whereas it contains +1's or -1's (for excit
