@@ -175,7 +175,7 @@ class BaseLogger:
                 self.logvars[data_label] = self.logvars[data_label].astype(
                     new_type
                 )
-                logging.debug(f'cast {k} ({old_type}) to {new_type}')
+                logging.debug(f'cast {data_label} ({old_type}) to {new_type}')
 
         # Write numpy data to disk
         np.savez_compressed(fp, **self.logvars)
