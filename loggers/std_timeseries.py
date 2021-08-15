@@ -23,7 +23,16 @@ import time
 from loggers.base import BaseLogger
 
 class Logger(BaseLogger):
-    """Logging interface used while training."""
+    """Standard timeseries logger.
+
+    Logger equipped with functionality core to most experiments using
+    timeseries data.
+
+    [?] Is there a way we can add abstraction in here so we can pass
+        layers, so that the logger isn't tied to any specific model
+        architecture? (I mean there is a way, this is basically just me
+        writing a "TODO" to find the cleanest way)
+    """
 
     def __init__(self, cfg, cb=None):
         super().__init__(cfg, cb)  # cb == callback(s)
