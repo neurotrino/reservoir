@@ -340,7 +340,8 @@ class Trainer(BaseTrainer):
         # outside of this `if` guard.
         layers_to_log = [  # [!] todo: put in HJSON
             self.model.rnn1,
-            self.model.dense1
+            #self.model.dense1
+            self.model.reg1
         ]
 
         for layer in layers_to_log:
