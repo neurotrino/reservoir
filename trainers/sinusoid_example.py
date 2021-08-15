@@ -545,7 +545,10 @@ class Trainer(BaseTrainer):
             #┴───────────────────────────────────────────────────────────────╯
 
             # Save checkpoints
-            if True:  # [!]
+            # [?] move to logger
+            # [!] not integrated with broader training paradigm
+            # [!] still don't have full model saving
+            if self.cfg['log'].ckpt_freq * self.cfg['log'].ckpt_lim > 0:
                 ckpt.step.assign_add(1)
                 if epoch_idx == 2:
                     save_path = cpm.save()

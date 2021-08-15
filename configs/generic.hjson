@@ -119,10 +119,6 @@
     {
         type: grey_goo
 
-        // [!] WIP to integrate checkpoints into our workflow
-        // [?] move to train
-        ckpt: ../experiments/saved_checkpoints
-
         cell:
         {
             type: ExInALIF
@@ -228,12 +224,17 @@
         #┤ Model Saving and Checkpoints                                      │
         #┴───────────────────────────────────────────────────────────────────╯
 
+        // [!] still trying to figure out how to save models as SavedModel
+        // [!] we can save checkpoints and read them with
+        //     tf.train.load_checkpointbut I'm still trying to figure out how
+        //     to integrate them into the training infrastructure
+
         // Create a checkpoint every N epochs (checkpoints disabled if N=0)
-        ckpt_freq: 10
+        ckpt_freq: 0
 
         // Maximum number of checkpoints saved per experiment (will save the
         // most recent)
-        ckpt_lim: 10
+        ckpt_lim: 0
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
