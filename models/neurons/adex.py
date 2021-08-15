@@ -210,10 +210,10 @@ class ExInAdEx(_AdExCore):
 
         self.n_excite = int(self.cfg['cell'].frac_e * self.units)
         self.n_inhib = self.units - self.n_excite
-        self.p_ee = self.p['ee']
-        self.p_ei = self.p['ei']
-        self.p_ie = self.p['ie']
-        self.p_ii = self.p['ii']
+        self.p_ee = self.cfg['cell'].p_ee
+        self.p_ei = self.cfg['cell'].p_ei
+        self.p_ie = self.cfg['cell'].p_ie
+        self.p_ii = self.cfg['cell'].p_ii
 
 
     def build(self, input_shape):
