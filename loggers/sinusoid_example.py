@@ -87,7 +87,7 @@ class Logger(BaseLogger):
         hi_epoch = self.cur_epoch
 
         fp = os.path.join(
-            cfg['save'].main_output_dir,
+            '.',
             f"{lo_epoch}-{hi_epoch}.npz"
         )
 
