@@ -52,8 +52,6 @@ class Model(BaseModel):
             initial_state=self.cell.zero_state(self.cfg['train'].batch_size)
         )
         voltages, spikes = self.reg1(x)
-        prediction = self.dense1(spikes)
-        prediction = exp_convolve(prediction, axis=1)
 
         # Additional step(s):
         out_initializer = tf.keras.initializers.GlorotUniform()
@@ -77,5 +75,6 @@ class Model(BaseModel):
         # Note: prediction and loss computation is different than how
         # Bellec et al. do it but it should work for this task
         prediction = matmul_random_feedback(filtered_Z, W_out, B_out)
+        prediction = exp_convolve(prediction, axis=1)
 
         return voltages, spikes, prediction
