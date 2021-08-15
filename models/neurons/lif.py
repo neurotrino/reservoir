@@ -42,13 +42,22 @@ class LIF(BaseNeuron):
     #┤ Special Methods                                                       │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def __init__(self, cfg):
+    def __init__(self, cfg, cfg_key='cell'):
         super().__init__()
 
         self.cfg = cfg
+        cell_cfg = cfg[cfg_key]
 
-        self._decay = tf.exp(-cfg['misc'].dt / cfg['cell'].tau)
+        # Configuration parameters
+        self.EL = cell_cfg.EL
+        self.tau = cell_cfg.tau
+        self.thr = cell_cfg.thr
+        self.units = cell_cfg.units
 
+        # Derived attributes
+        self._decay = tf.exp(-cfg['misc'].dt / self.tau)
+
+        # Other attributes
         self.input_weights = None
         self.bias_currents = None
         self.recurrent_weights = None
