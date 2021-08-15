@@ -29,6 +29,9 @@
     model:
     {
 
+        target_rate: 0.02
+
+        rate_cost: 0.1
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sub-Network & Layer Parameters                                    │
         #┴───────────────────────────────────────────────────────────────────╯
@@ -61,7 +64,7 @@
             # mV * [dt_a__tauw] = mV * ms * nS/ms = mV * nS = pA = [b]
             tauw: 144 // [mSecond]
             a: 4 // [nSiemens]
-            b: 80.5  / [pAmpere]
+            b: 80.5  // [pAmpere]
 
             ## Units requirements
             # [gL/C]=1/mSecond --> dt_gL__C is unitless
@@ -129,6 +132,8 @@
             // Stores pickled numpy arrays
             np_arrays: np_arrs
 
+            main_output_dir: debugdirectory
+
             // Used to store plots
             plot_dir: plots
 
@@ -194,6 +199,42 @@
     {
         // Unload every n epochs
         post_every: 1
+
+        // Save npz files or not
+        log_npz: false
+
+        // Save logging values to disk every n epochs
+        post_every: 10
+
+        // Neuron used ([!] would like to automate this):
+        neuron: ExInLIF
+
+        // Training used ([!] would like to automate this):
+        training_method: backprop
+
+        // Toggle the TensorBoard profiler
+        run_profiler: false
+
+        // If enabled, the profiler will run on each epoch in the list below
+        profiler_epochs: [
+            4
+        ]
+
+        // Filter for a subset of the logging procedures in the training loop
+        layer_whitelist: [
+            rnn
+        ]
+
+        // Floating point precision of numpy arrays saved to disk (fewer bits
+        // consume less memory on disk)
+        //
+        // 64  -->  ~16 decimal precision
+        // 32  -->  ~7 decimal precision
+        // 16  -->  ~3 decimal precision
+        float_dtype: float16
+
+        // Integer size
+        int_dtype: uint16
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -217,6 +258,10 @@
         target_rate: 0.02
 
         rate_cost: 0.1
+
+        target_synch: 2.0
+
+        synch_cost: 0.01
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
