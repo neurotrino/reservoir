@@ -231,7 +231,7 @@ class ExInAdEx(_AdExCore):
         )
 
 
-class _EligAdexCore(BaseNeuron):  # how is this different than _AdexCore
+class _EligAdExCore(BaseNeuron):  # how is this different than _AdexCore
     """TODO: docs"""
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -403,7 +403,7 @@ class _EligAdexCore(BaseNeuron):  # how is this different than _AdexCore
 #┤ E-prop Adaptive Exponential Integrate-and-Fire (AdEx) Neuron              │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class EligAdEx(_EligAdexCore):
+class EligAdEx(_EligAdExCore):
     def build(self, input_shape):
         super().build(
             input_shape,
@@ -418,7 +418,7 @@ class EligAdEx(_EligAdexCore):
 #┤ E-prop Excitatory/Inhibitory AdEx Neuron                                  │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class EligExInAdEx(_EligAdexCore):
+class EligExInAdEx(_EligAdExCore):
 
     def __init__(self, cfg):
         super().__init__(cfg)
