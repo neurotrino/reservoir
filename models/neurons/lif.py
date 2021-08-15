@@ -201,7 +201,7 @@ class _LIFCore(BaseNeuron):
         is_refractory = tf.greater(old_r, 0)
         #v_scaled = (new_v - self.thr) / self.thr
         v_scaled = -(self.thr - new_v) / (self.thr - self.EL)
-        new_z = self.spike_function(v_scaled, self._dampening_factor)
+        new_z = self.spike_function(v_scaled, self.cfg['cell'].dampening_factor)
         new_z = tf.where(is_refractory, tf.zeros_like(new_z), new_z)
         new_r = tf.clip_by_value(
             old_r - 1 + tf.cast(new_z * self._n_refrac, tf.int32),
@@ -427,7 +427,7 @@ class ExInALIF(_LIFCore):
         adaptive_thr = self.thr + old_b * self.beta
         v_scaled = -(adaptive_thr-new_v) / (adaptive_thr-self.EL)
         new_b = self.decay_b * old_b + old_z
-        new_z = self.spike_function(v_scaled, self._dampening_factor)
+        new_z = self.spike_function(v_scaled, self.cfg['cell'].dampening_factor)
         new_z = tf.where(is_refractory, tf.zeros_like(new_z), new_z)
         new_r = tf.clip_by_value(
             old_r - 1 + tf.cast(new_z * self._n_refrac, tf.int32),
