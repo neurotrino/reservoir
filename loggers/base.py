@@ -54,6 +54,12 @@ class BaseLogger:
         # Log all vars no in this list (overrides whitelist)
         self.logvar_blacklist = None
 
+        # Only log vars with labels in this list
+        self.todisk_whitelist = None
+
+        # Log all vars no in this list (overrides whitelist)
+        self.todisk_blacklist = None
+
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ TensorFlow/TensorBoard Integration                                │
         #┴───────────────────────────────────────────────────────────────────╯
@@ -144,7 +150,8 @@ class BaseLogger:
         #
         # TODO: be more intelligent about when a value
         #       shouldn't be converted and when another
-        #       error occurs
+        #       error occurs [?]
+        logvars_being_saved = {}
         for data_label in self.logvars:
 
             bl = self.todisk_blacklist
@@ -158,7 +165,7 @@ class BaseLogger:
                 continue
 
             # Convert to numpy array
-            self.logvars[data_label] = np.array(self.logvars[data_label])
+            logvars_being_saved = np.array(self.logvars[data_label])
 
             # Adjust precision if specified in the HJSON
             old_type = self.logvars[data_label].dtype
@@ -172,13 +179,13 @@ class BaseLogger:
 
             # Apply casting rules where they exist
             if new_type is not None and new_type != old_type:
-                self.logvars[data_label] = self.logvars[data_label].astype(
+                logvars_being_saved[data_label] = logvars_being_saved[data_label].astype(
                     new_type
                 )
                 logging.debug(f'cast {data_label} ({old_type}) to {new_type}')
 
-        # Write numpy data to disk
-        np.savez_compressed(fp, **self.logvars)
+        if logvars_being_saved != {}:
+            np.savez_compressed(fp, **logvars_being_saved)
 
         # Flush buffer to avoid running out of RAM
         self.logvars = {}
