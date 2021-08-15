@@ -239,13 +239,14 @@ class _EligAdExCore(BaseNeuron):  # how is this different than _AdexCore
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def __init__(self, cfg):
+        super().__init__()
+        self.cfg = cfg
+
         if self.cfg['cell'].tauw is None:
             raise ValueError("Time constant for adaptive bias must be set.")
         if self.cfg['cell'].a is None:
             raise ValueError("a parameter for adaptive bias must be set.")
 
-        super().__init__()
-        self.cfg = cfg
         self._dt = float(cfg['misc'].dt)
 
         self.units = self.cfg['cell'].units
