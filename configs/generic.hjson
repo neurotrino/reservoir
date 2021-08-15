@@ -190,6 +190,27 @@
         // logger to use
         type: std_timeseries
 
+        // Whitelist and blacklist for logvars
+        //
+        // Logvars with labels in these lists won't be collected or processed
+        // at all by the logger. A value of `null` will disable the list, a
+        // value of [] will create an empty but functioning white/black -list.
+        //
+        // Blacklist values take precedence over whitelist values.
+        logvar_whitelist: [
+            step_loss
+            epoch_loss
+        ]
+        logvar_blacklist: null
+
+        // Whitelist and blacklist for writing to disk
+        //
+        // Unlike the logvar lists, these values will still be stored in the
+        // logger, they just won't be written to disk. This is useful if you
+        // want to generate plots but not keep the underlying data.
+        todisk_whitelist: null
+        todisk_blacklist: null
+
         // Save npz files or not
         log_npz: true
 
