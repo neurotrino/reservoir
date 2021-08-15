@@ -70,7 +70,7 @@ class LIF(BaseNeuron):
     #┤ Reserved Methods                                                      │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def build(self, input_shape, connmat_generator):
+    def build(self, input_shape, connmat_generator=CMG):
         """TODO: docs"""
 
         # using uniform weight dist for inputs as opposed to
