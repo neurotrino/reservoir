@@ -244,7 +244,6 @@ class Trainer(BaseTrainer):
         for i in range(len(self.model.trainable_variables)):
             tvar = self.model.trainable_variables[i]
 
-            """
             # [?] should we store the names somewhere
 
             # Layer shape
@@ -268,6 +267,7 @@ class Trainer(BaseTrainer):
                         'gradients calculated for ' + tvar.name
                 }
             )
+            """
 
             # Weights before applying gradients
             self.logger.log(
