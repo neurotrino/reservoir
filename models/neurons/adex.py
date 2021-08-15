@@ -269,7 +269,7 @@ class _EligAdExCore(BaseNeuron):  # how is this different than _AdexCore
         self.bias_currents = None
         self.recurrent_weights = None
         self.disconnect_mask = None
-        self.rewiring = rewiring
+        self.rewiring = self.cfg['cell'].rewiring
 
         #                  voltage,    refractory, adaptation, spikes (spiking or not)
         self.state_size = (self.units, self.units, self.units, self.units)
