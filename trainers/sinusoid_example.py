@@ -130,7 +130,11 @@ class Trainer(BaseTrainer):
             }
         )
 
-        """empty first time (needs at least one forward pass)
+        """
+        # [!] empty first time (needs at least one forward pass)
+        # [!] besides the first time, this is just postweights of the
+        #     last batch, so we want to have a `static` save of the
+        #     first time, but not this
         preweights = [x.numpy() for x in self.model.trainable_variables]
         """
 
@@ -558,10 +562,10 @@ class Trainer(BaseTrainer):
                 if epoch_idx == 2:
                     save_path = cpm.save()
 
-            """
             # Logger-controlled actions (prefer doing things in the
             # logger when possible, use this when not)
             action_list = self.logger.on_epoch_end()
+            """
             if 'save_weights' in action_list:
                 # Create checkpoints
                 tf.saved_model.save(self.model, self.cfg['save'].checkpoint_dir)
