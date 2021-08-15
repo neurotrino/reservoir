@@ -268,7 +268,7 @@ class ExInLIF(_LIFCore):
             ExInCMG(
                 self.n_excite, self.n_inhib,
                 self.p.ee, self.p.ei, self.p.ie, self.p.ii,
-                self.cfg['misc'].mu, self.cfg['misc'].sigma
+                self.mu, self.sigma
             )
         )
 
