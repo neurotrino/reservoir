@@ -253,7 +253,7 @@ class ExInLIF(_LIFCore):
 
         # Number of excitatory and inhibitory neurons in the layer
         self.n_excite = int(cfg['cell'].frac_e * self.cfg['cell'].units)
-        self.n_inhib = self.cfg['cell'].units - self.cfg['cell'].n_excite
+        self.n_inhib = self.cfg['cell'].units - self.n_excite
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Reserved Methods                                                      │
