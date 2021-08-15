@@ -338,7 +338,7 @@ class Trainer(BaseTrainer):
         # log the below information for. If you wish to log the
         # information of all layers, move the `.log()` call
         # outside of this `if` guard.
-        for layer in model.layers:
+        for layer in self.model.layers:
             # Log each of the weights defining the layer's state.
             #
             # For a linear layer, these weights are `w` and `b`.
