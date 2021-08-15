@@ -210,14 +210,7 @@ class LIF(_LIFCore):
         self.connmat_generator = CMG(self.units, self.p, self.mu, self.sigma)
 
     def build(self, input_shape):
-        super().build(
-            input_shape,
-            CMG(
-                self.units,
-                self.p,
-                self.mu, self.sigma
-            )
-        )
+        super().build(input_shape)
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Excitatory/Inhibitory LIF Neuron                                          │
