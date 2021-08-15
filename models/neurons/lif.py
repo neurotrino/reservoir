@@ -56,8 +56,9 @@ class _LIFCore(BaseNeuron):
         self.mu = cell_cfg.mu # [?] check if all LIF should have this
         self.sigma = cell_cfg.sigma # [?] check if all LIF should have this
         self.rewiring = cell_cfg.rewiring # [?] check if all cells should have this
-        self.p = cell_cfg.p  # [?] check if all LIF/cells should have this
-        # TODO: move `p` to BaseNeuron and inherit
+
+        # self.p = cell_cfg.p  # [?] check if all LIF/cells should have this
+        # TODO: move `p` to BaseNeuron and inherit or keep as is below w/ p vs p_...
 
         # Derived attributes
         self._decay = tf.exp(-cfg['misc'].dt / self.tau)
@@ -205,6 +206,7 @@ class _LIFCore(BaseNeuron):
 class LIF(_LIFCore):
     def __init__(self, cfg):
         super().__init__(cfg)
+        self.p = cfg['cell'].p
         # [!] TODO: figure out a way to improve the CMG integration w/
         #           inheritence
         self.connmat_generator = CMG(self.units, self.p, self.mu, self.sigma)
@@ -232,6 +234,11 @@ class ExInLIF(_LIFCore):
         """
         super().__init__(cfg)
 
+        self.p_ee = cfg['cell'].p_ee
+        self.p_ei = cfg['cell'].p_ei
+        self.p_ie = cfg['cell'].p_ie
+        self.p_ii = cfg['cell'].p_ii
+
         # Number of excitatory and inhibitory neurons in the layer
         self.n_excite = int(cfg['cell'].frac_e * self.cfg['cell'].units)
         self.n_inhib = self.cfg['cell'].units - self.n_excite
@@ -239,7 +246,7 @@ class ExInLIF(_LIFCore):
         # For use in .build()
         self.connmat_generator = ExInCMG(
             self.n_excite, self.n_inhib,
-            self.p.ee, self.p.ei, self.p.ie, self.p.ii,
+            self.p_ee, self.p_ei, self.p_ie, self.p_ii,
             self.mu, self.sigma
         )
 
@@ -284,6 +291,11 @@ class ExInALIF(_LIFCore):
         TODO: method docs
         """
         super().__init__(cfg)  # core LIF attributes and initialization
+
+        self.p_ee = cfg['cell'].p_ee
+        self.p_ei = cfg['cell'].p_ei
+        self.p_ie = cfg['cell'].p_ie
+        self.p_ii = cfg['cell'].p_ii
 
         # ExIn paramaters
         self.n_excite = int(self.cfg['cell'].frac_e * cfg['cell'].units)
