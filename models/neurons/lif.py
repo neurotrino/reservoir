@@ -247,15 +247,17 @@ class ExInLIF(_LIFCore):
         the core initialization properties inherent to a LIF cell.
         """
         super().__init__(cfg)
+
+        # Number of excitatory and inhibitory neurons in the layer
+        self.n_excite = int(cfg['cell'].frac_e * self.cfg['cell'].units)
+        self.n_inhib = self.cfg['cell'].units - self.n_excite
+
+        # For use in .build()
         self.connmat_generator = ExInCMG(
             self.n_excite, self.n_inhib,
             self.p.ee, self.p.ei, self.p.ie, self.p.ii,
             self.mu, self.sigma
         )
-
-        # Number of excitatory and inhibitory neurons in the layer
-        self.n_excite = int(cfg['cell'].frac_e * self.cfg['cell'].units)
-        self.n_inhib = self.cfg['cell'].units - self.n_excite
 
 
     #┬───────────────────────────────────────────────────────────────────────╮
