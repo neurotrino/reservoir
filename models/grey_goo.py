@@ -36,6 +36,7 @@ class Model(BaseModel):
         self.dense1 = tf.keras.layers.Dense(1)
 
 
+    @tf.function
     def call(self, inputs, training=False):
         """ ... """
 
