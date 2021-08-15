@@ -132,6 +132,8 @@
             // Stores pickled numpy arrays
             np_arrays: np_arrs
 
+            main_output_dir: debugdirectory
+
             // Used to store plots
             plot_dir: plots
 
