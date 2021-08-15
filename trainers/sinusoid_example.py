@@ -201,6 +201,34 @@ class Trainer(BaseTrainer):
         )
 
         #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Sparsity Application                                              │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        # disconnect self-recurrent connections
+        disconnect_mask = tf.cast(
+            np.diag(np.ones(self.cfg['model'].cell.units, dtype=np.bool)),
+            tf.bool
+        )
+
+        # if rewiring is permitted (i.e. sparsity is NOT enforced),
+        # this step is needed to explicitly ensure self-recurrent connections remain zero
+        # otherwise (if sparsity IS enforced) that is taken care of through the rec_sign application below
+        if self.cfg['model'].cell.rewiring:
+            # Make sure all self-connections remain 0
+            self.model.trainable_variables[1].assign(tf.where(disconnect_mask, tf.zeros_like(self.model.trainable_variables[1]), self.model.trainable_variables[1]))
+
+        # If the sign of a weight changed from the original or the
+        # weight is no longer 0, make the weight 0.
+        # Reminder that rec_sign contains 0's for initial 0's when rewiring = false
+        # whereas it contains +1's or -1's (for excit or inhib) for initial 0's when rewiring = true
+        self.model.trainable_variables[1].assign(tf.where(self.model.cell.rec_signs * self.model.trainable_variables[1] > 0, self.model.trainable_variables[1], 0))
+
+        # In a similar way, one could use CMG to create sparse initial input weights,
+        # then capture the signs so as to enforce -1/+1/0's throughout training
+        # by doing self.model.trainable_variables[0].assign() etc.
+
+
+        #┬───────────────────────────────────────────────────────────────────╮
         #┤ Post-Step Logging                                                 │
         #┴───────────────────────────────────────────────────────────────────╯
 
