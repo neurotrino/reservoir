@@ -547,7 +547,7 @@ class Trainer(BaseTrainer):
             # Save checkpoints
             if True:  # [!]
                 ckpt.step.assign_add(1)
-                if epoch_idx == 4:
+                if epoch_idx == 2:
                     save_path = cpm.save()
 
             """
