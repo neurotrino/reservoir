@@ -53,6 +53,8 @@ class _LIFCore(BaseNeuron):
         self.tau = cell_cfg.tau
         self.thr = cell_cfg.thr
         self.units = cell_cfg.units
+        self.p = cell_cfg.p  # [?] pretty sure all LIF/cells have this
+        # TODO: move `p` to BaseNeuron and inherit
 
         # Derived attributes
         self._decay = tf.exp(-cfg['misc'].dt / self.tau)
