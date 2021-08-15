@@ -216,8 +216,8 @@ class LIF(BaseNeuron):
 #┤ Excitatory/Inhibitory LIF Neuron                                          │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class ExInLIF(_LIFCore):
-    """TODO: docs, emphasizing difference from _LIFCore"""
+class ExInLIF(LIF):
+    """TODO: docs, emphasizing difference from LIF"""
 
     # base template from October 16th, 2020 version of LIFCell
 
@@ -244,7 +244,7 @@ class ExInLIF(_LIFCore):
 #┤ Excitatory/Inhibitory Adaptive LIF (ALIF) Neuron                          │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class ExInALIF(_LIFCore):
+class ExInALIF(LIF):
     """Layer of adaptive leaky integrate-and-fire neurons containing
     both excitatory and inhibitory connections.
 
