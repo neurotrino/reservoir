@@ -64,7 +64,7 @@
             # mV * [dt_a__tauw] = mV * ms * nS/ms = mV * nS = pA = [b]
             tauw: 144 // [mSecond]
             a: 4 // [nSiemens]
-            b: 80.5  / [pAmpere]
+            b: 80.5  // [pAmpere]
 
             ## Units requirements
             # [gL/C]=1/mSecond --> dt_gL__C is unitless
