@@ -98,6 +98,8 @@ class Trainer(BaseTrainer):
         #┤ Pre-Step Logging                                                  │
         #┴───────────────────────────────────────────────────────────────────╯
 
+        self.logger.on_step_begin()
+
         # Input/reference variables
         self.logger.log(
             data_label='inputs',
@@ -529,6 +531,7 @@ class Trainer(BaseTrainer):
                 print("trainable_variables:")
                 print(k)
             """
+            action_list = self.logger.on_epoch_begin() # put profiler in here?
 
             profile_epoch = (
                 self.cfg['log'].run_profiler
