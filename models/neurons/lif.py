@@ -13,7 +13,7 @@ from utils.connmat import ExInConnectivityMatrixGenerator as ExInCMG
 #┤ Leaky Integrate-and-Fire (LIF) Neuron                                     │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class LIF(BaseNeuron):
+class _LIFCore(BaseNeuron):
     """Layer of leaky integrate-and-fire neurons.
 
     All other neurons in the lif.py module inherit from this class.
@@ -63,7 +63,6 @@ class LIF(BaseNeuron):
         self._decay = tf.exp(-cfg['misc'].dt / self.tau)
 
         # Other attributes
-        self.connmat_generator = CMG(self.units, self.p, self.mu, self.sigma)
         self.input_weights = None
         self.bias_currents = None
         self.recurrent_weights = None
@@ -80,7 +79,7 @@ class LIF(BaseNeuron):
         """Create initial layer weights.
 
         Create layer weights the first time `.__call__()` is called.
-        Layers weights for the LIF neuron {...docs...}.
+        Layers weights for the LIF neuron {...docs...}
         """
 
         connmat_generator = self.connmat_generator
@@ -212,12 +211,23 @@ class LIF(BaseNeuron):
         return v0, r0, z_buf0  # voltage, refractory, spike
 
 
+class LIF(_LIFCore):
+    def build(self, input_shape):
+        super().build(
+            input_shape,
+            CMG(
+                self.units,
+                self.p,
+                self.cfg['misc'].mu, self.cfg['misc'].sigma
+            )
+        )
+
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Excitatory/Inhibitory LIF Neuron                                          │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class ExInLIF(LIF):
-    """TODO: docs, emphasizing difference from LIF"""
+class ExInLIF(_LIFCore):
+    """TODO: docs, emphasizing difference from _LIFCore"""
 
     # base template from October 16th, 2020 version of LIFCell
 
@@ -236,15 +246,26 @@ class ExInLIF(LIF):
         self.n_excite = int(cfg['cell'].frac_e * self.cfg['cell'].units)
         self.n_inhib = self.cfg['cell'].units - self.n_excite
 
-        self.p = vars(cfg['cell'].p)  # transform to dictionary
-        self.connmat_generator = ExInCMG(self.n_excite, self.n_inhib, self.p, self.mu, self.sigma)
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Reserved Methods                                                      │
+    #┴───────────────────────────────────────────────────────────────────────╯
 
+    def build(self, input_shape):
+        """TODO: docs"""
+        super().build(
+            input_shape,
+            ExInCMG(
+                self.n_excite, self.n_inhib,
+                self.p.ee, self.p.ei, self.p.ie, self.p.ii,
+                self.mu, self.sigma
+            )
+        )
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Excitatory/Inhibitory Adaptive LIF (ALIF) Neuron                          │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class ExInALIF(LIF):
+class ExInALIF(_LIFCore):
     """Layer of adaptive leaky integrate-and-fire neurons containing
     both excitatory and inhibitory connections.
 
