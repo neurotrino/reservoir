@@ -13,7 +13,7 @@ from utils.connmat import ExInConnectivityMatrixGenerator as ExInCMG
 #┤ Leaky Integrate-and-Fire (LIF) Neuron                                     │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class _LIFCore(BaseNeuron):
+class LIF(BaseNeuron):
     """Layer of leaky integrate-and-fire neurons.
 
     All other neurons in the lif.py module inherit from this class.
@@ -63,6 +63,7 @@ class _LIFCore(BaseNeuron):
         self._decay = tf.exp(-cfg['misc'].dt / self.tau)
 
         # Other attributes
+        self.connmat_generator = CMG(self.units, self.p, self.mu, self.sigma)
         self.input_weights = None
         self.bias_currents = None
         self.recurrent_weights = None
@@ -75,24 +76,16 @@ class _LIFCore(BaseNeuron):
     #┤ Reserved Methods                                                      │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def build(self, input_shape, connmat_generator):
-        """TODO: docs"""
+    def build(self, input_shape):
+        """Create initial layer weights.
 
-        # using uniform weight dist for inputs as opposed to
-        #
-        # ```
-        # RandomNormal(
-        #     mean=1.0,
-        #     stddev=1.0 / np.sqrt(input_shape[-1] + self.units)
-        # )
-        # self.input_weights = self.add_weight(
-        #     shape=(input_shape[-1], self.units),
-        #     initializer=tf.keras.initializers.RandomNormal(
-        #         stddev=1.0 / np.sqrt(input_shape[-1] + self.units)
-        #     ),
-        #     name='input_weights'
-        # )
-        # ```
+        Create layer weights the first time `.__call__()` is called.
+        Layers weights for the LIF neuron {...docs...}.
+        """
+
+        connmat_generator = self.connmat_generator
+
+        # currently using uniform weight distribution for inputs
         self.input_weights = self.add_weight(
             shape=(input_shape[-1], self.units),
             initializer=tf.keras.initializers.RandomUniform(
@@ -108,13 +101,6 @@ class _LIFCore(BaseNeuron):
             np.diag(np.ones(self.units, dtype=np.bool)),
             tf.bool
         )
-
-        #self.recurrent_weights = self.add_weight(
-        #    shape=(self.units, self.units),
-        #    initializer = LogNormal(self.mu, uni.sigma, self.units, self.p),
-        #    trainable=True,
-        #    name='recurrent_weights'
-        #)
 
         self.recurrent_weights = self.add_weight(
             shape=(self.units, self.units),
@@ -225,16 +211,6 @@ class _LIFCore(BaseNeuron):
         z_buf0 = tf.zeros((batch_size, self.units), tf.float32)
         return v0, r0, z_buf0  # voltage, refractory, spike
 
-class LIF(_LIFCore):
-    def build(self, input_shape):
-        super().build(
-            input_shape,
-            CMG(
-                self.units,
-                self.p,
-                self.cfg['misc'].mu, self.cfg['misc'].sigma
-            )
-        )
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Excitatory/Inhibitory LIF Neuron                                          │
@@ -260,20 +236,9 @@ class ExInLIF(_LIFCore):
         self.n_excite = int(cfg['cell'].frac_e * self.cfg['cell'].units)
         self.n_inhib = self.cfg['cell'].units - self.n_excite
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Reserved Methods                                                      │
-    #┴───────────────────────────────────────────────────────────────────────╯
+        self.p = vars(cfg['cell'].p)  # transform to dictionary
+        self.connmat_generator = ExInCMG(self.n_excite, self.n_inhib, self.p, self.mu, self.sigma)
 
-    def build(self, input_shape):
-        """TODO: docs"""
-        super().build(
-            input_shape,
-            ExInCMG(
-                self.n_excite, self.n_inhib,
-                self.p.ee, self.p.ei, self.p.ie, self.p.ii,
-                self.mu, self.sigma
-            )
-        )
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Excitatory/Inhibitory Adaptive LIF (ALIF) Neuron                          │

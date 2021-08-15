@@ -93,7 +93,7 @@ class ConnectivityMatrixGenerator(object):
 
 class ExInConnectivityMatrixGenerator(object):
 
-    def __init__(self, n_excite, n_inhib, p_ee, p_ei, p_ie, p_ii, mu, sigma):
+    def __init__(self, n_excite, n_inhib, p, mu, sigma):
 
         # Determine numbers of neurons
         self.n_excite = n_excite
@@ -111,10 +111,10 @@ class ExInConnectivityMatrixGenerator(object):
 
         # Calculate total number of connections per neuron (remove
         # neuron from target if included (ee and ii))
-        self.k_ii = int(round(p_ii * (self.n_inhib - 1)))
-        self.k_ei = int(round(p_ei * self.n_inhib))
-        self.k_ie = int(round(p_ie * self.n_excite))
-        self.k_ee = int(round(p_ee * (self.n_excite - 1)))
+        self.k_ii = int(round(p['ii'] * (self.n_inhib - 1)))
+        self.k_ei = int(round(p['ei'] * self.n_inhib))
+        self.k_ie = int(round(p['ie'] * self.n_excite))
+        self.k_ee = int(round(p['ee'] * (self.n_excite - 1)))
 
     def run_generator(self):
 
