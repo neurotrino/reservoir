@@ -146,6 +146,9 @@
             }
             */
 
+            beta: 0.16
+            tau_adaptation: 100
+
             //
             n_recurrent: 100
 
