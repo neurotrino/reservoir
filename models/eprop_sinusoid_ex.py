@@ -79,6 +79,6 @@ class Model(BaseModel):
         # Note: prediction and loss computation is different than how
         # Bellec et al. do it but it should work for this task
         prediction = matmul_random_feedback(filtered_Z, W_out, B_out)
-        #prediction = exp_convolve(prediction, axis=1)
+        prediction = exp_convolve(prediction, axis=1)
 
         return voltages, spikes, prediction

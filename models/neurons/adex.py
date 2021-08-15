@@ -122,7 +122,7 @@ class _AdExCore(BaseNeuron):
 
         super().build(input_shape)
 
-
+    @tf.function
     def call(self, inputs, state):
         old_v, old_r, old_w, old_z = state[:4]  # old states
 
