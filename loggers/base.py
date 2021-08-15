@@ -168,7 +168,7 @@ class BaseLogger:
             logvars_being_saved = np.array(self.logvars[data_label])
 
             # Adjust precision if specified in the HJSON
-            old_type = self.logvars[data_label].dtype
+            old_type = logvars_being_saved[data_label].dtype
             new_type = None
 
             # Check for casting rules
