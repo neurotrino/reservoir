@@ -136,15 +136,16 @@
 
             frac_e: 0.8
 
-            p: 0.7  // LIF
-            /* ExInLIF
-            p: {
-                "ee": 0.160
-                "ei": 0.244
-                "ie": 0.318
-                "ii": 0.343
-            }
-            */
+            // These paramters will only be used for non-ExIn neurons
+            p: 0.7
+
+            // These parameters will only be used for ExIn neurons
+            p_ee: 0.160
+            p_ei: 0.244
+            p_ie: 0.318
+            p_ii: 0.343
+
+            // ...
 
             beta: 0.16
             tau_adaptation: 100
