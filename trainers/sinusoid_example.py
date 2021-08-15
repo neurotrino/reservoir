@@ -319,7 +319,6 @@ class Trainer(BaseTrainer):
         # on, make sure you include enough info in your logger and
         # output files to associate the values with the right epoch and
         # step.
-        """
         for layer in self.model.layers:
             # [*] If there's any information you'd like to log
             # about individual layers, do so here.
@@ -357,6 +356,7 @@ class Trainer(BaseTrainer):
                     }
                 )
 
+                """
                 # [*] This is how you calculate layer outputs for
                 # layers your network isn't directly reporting. This is
                 # very expensive, so if you can have your network
@@ -378,7 +378,7 @@ class Trainer(BaseTrainer):
                 #     }
                 # )
                 # ```
-        """
+                """
 
         # Log the calculated step loss
         self.logger.log(
@@ -551,7 +551,7 @@ class Trainer(BaseTrainer):
                 if epoch_idx == 2:
                     save_path = cpm.save()
 
-            """
+            """[!]
             # Logger-controlled actions (prefer doing things in the
             # logger when possible, use this when not)
             action_list = self.logger.on_epoch_end()
