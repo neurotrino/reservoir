@@ -121,7 +121,7 @@
 
         cell:
         {
-            type: LIF
+            type: ExInALIF
 
             rewiring: false
 
