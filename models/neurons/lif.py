@@ -286,7 +286,7 @@ class ExInALIF(_LIFCore):
         super().__init__(cfg)  # core LIF attributes and initialization
 
         # ExIn paramaters
-        self.n_excite = int(frac_e * cfg['cell'].units)
+        self.n_excite = int(self.cfg['cell'].frac_e * cfg['cell'].units)
         self.n_inhib = self.units - self.n_excite
 
         # Adaptation parameters
