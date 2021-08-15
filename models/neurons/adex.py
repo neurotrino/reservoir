@@ -149,7 +149,6 @@ class _AdExCore(BaseNeuron):
         # Update adaptation term
         new_w = old_w - ((self._dt / self.tauw) * old_w) + (self.dt_a__tauw * (old_v - self.EL))
         new_w += self.b * old_z
-        old_z = tf.stop_gradient(old_z)  # [!] temporary
 
         # Determine if the neuron is spiking
         is_refractory = tf.greater(old_r, 0)
