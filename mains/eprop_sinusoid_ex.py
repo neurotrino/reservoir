@@ -7,7 +7,7 @@ from models.neurons.adex import EligAdEx
 from models.eprop_sinusoid_ex import SinusoidSlayer  # Not sure if I needed a new one
 
 # Load Data ------
-from data import sinusoid_example as sinusoid
+from data import sinusoid as sinusoid
 
 # Log ------------
 from loggers.callbacks.plots import LIF as PlotCB  # Didn't create one for Adex b/c same output
