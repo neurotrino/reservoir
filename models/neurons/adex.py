@@ -222,7 +222,7 @@ class ExInAdEx(_AdExCore):
             connmat_generator=ExInCMG(
                 self.n_excite, self.n_inhib,
                 self.p_ee, self.p_ei, self.p_ie, self.p_ii,
-                self.cfg['misc'].mu, self.cfg['misc'].sigma
+                self.cfg['cell'].mu, self.cfg['cell'].sigma
             ),
             initializers={
                 'input_weights': kinits.RandomUniform(minval=0.0, maxval=0.4)
