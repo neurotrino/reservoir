@@ -307,6 +307,13 @@ class ExInALIF(_LIFCore):
         # voltage, refractory, adaptation, prior spikes
         self.state_size = tuple([self.units] * 4)
 
+        # For use in .build()
+        self.connmat_generator = ExInCMG(
+            self.n_excite, self.n_inhib,
+            self.p_ee, self.p_ei, self.p_ie, self.p_ii,
+            self.mu, self.sigma
+        )
+
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Reserved Methods                                                      │
     #┴───────────────────────────────────────────────────────────────────────╯
@@ -360,7 +367,7 @@ class ExInALIF(_LIFCore):
             # as above but 0 for zeros
             self.rec_sign = tf.sign(self.recurrent_weights)
 
-        super().build(input_shape, connmat_generator)
+        super().build(input_shape)
 
 
     def call(self, inputs, state):
