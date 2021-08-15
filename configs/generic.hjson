@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: ../experiments/reg_testing_trioloss
+        exp_dir: ../experiments/issue-21
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -81,12 +81,12 @@
 
         // When enabled, the exp_dir will have a number suffixed to avoid
         // overwriting saved data
-        avoid_overwrite: true
+        avoid_overwrite: false
 
         // If avoid_overwrite is set to false, and exp_dir overwrites a
         // directory, this will purge the contents of the old directory. This
         // is to avoid mixing data from different experiments, but be careful.
-        hard_overwrite: false
+        hard_overwrite: true
 
         // Experiment directories will be suffixed by a UNIX timestamp
         timestamp: false
@@ -97,7 +97,7 @@
         log_config: true
 
         // Enable/disable any additional processing on the data performed
-        // after training
+        // after training (doesn't do anything right now [?])
         postprocess: true
 
         #┬───────────────────────────────────────────────────────────────────╮

@@ -60,9 +60,6 @@ class Trainer(BaseTrainer):
         synchrony = fano_factor(self, self.cfg['data'].seq_len, spikes)
         synch_loss = tf.reduce_sum(tf.square(synchrony - self.cfg['train'].target_synch)) * self.cfg['train'].synch_cost
         total_loss_val = tf.math.add(interm_loss_val,synch_loss)
-        #total_loss_val = synch_loss
-        #total_loss_val = tf.math.add(task_loss, synch_loss)
-        #total_loss_val = tf.math.add(task_loss,rate_loss)
 
         # [*] Because this is a tf.function, we can't collapse tensors
         # to numpy arrays for logging, so we need to return the tensors
@@ -247,7 +244,6 @@ class Trainer(BaseTrainer):
         for i in range(len(self.model.trainable_variables)):
             tvar = self.model.trainable_variables[i]
 
-            """
             # [?] should we store the names somewhere
 
             # Layer shape
@@ -284,7 +280,6 @@ class Trainer(BaseTrainer):
                         + ' before applying the gradients'
                 }
             )
-            """
 
             # Weights after applying gradients
             try:
@@ -322,7 +317,6 @@ class Trainer(BaseTrainer):
         # on, make sure you include enough info in your logger and
         # output files to associate the values with the right epoch and
         # step.
-        """
         for layer in self.model.layers:
             # [*] If there's any information you'd like to log
             # about individual layers, do so here.
@@ -381,7 +375,6 @@ class Trainer(BaseTrainer):
                 #     }
                 # )
                 # ```
-        """
 
         # Log the calculated step loss
         self.logger.log(
@@ -458,7 +451,6 @@ class Trainer(BaseTrainer):
 
         # [*] Post-training operations on epoch-level log variables
         epoch_loss = np.mean(losses)
-        """
         # [*] Log any epoch-wise variables.
         self.logger.log(
             data_label='epoch_loss',
@@ -479,7 +471,6 @@ class Trainer(BaseTrainer):
                 ("epoch_loss", epoch_loss),
             }
         )
-        """
 
         return epoch_loss
 
