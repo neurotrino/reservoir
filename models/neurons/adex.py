@@ -122,7 +122,6 @@ class _AdExCore(BaseNeuron):
 
         super().build(input_shape)
 
-    @tf.function
     def call(self, inputs, state):
         old_v, old_r, old_w, old_z = state[:4]  # old states
 
@@ -239,23 +238,7 @@ class _EligAdexCore(BaseNeuron):  # how is this different than _AdexCore
     #┤ Special Methods                                                       │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def __init__(self,
-        cfg: Any,
-        rewiring: bool,
-        units: int,
-        thr: float,
-        EL: float,
-        n_refrac: int,
-        dampening_factor: Any,
-        p: Union[float, Dict[str, float]],
-        tauw: float,
-        a: float,
-        b: float,
-        gL: float,
-        C: float,
-        deltaT: float,
-        V_reset: float,
-    ):
+    def __init__(self, cfg):
         if tauw is None:
             raise ValueError("Time constant for adaptive bias must be set.")
         if a is None:
@@ -437,15 +420,15 @@ class EligAdEx(_EligAdexCore):
 
 class EligExInAdEx(_EligAdexCore):
 
-    def __init__(self, frac_e, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, cfg):
+        super().__init__(cfg)
 
         self.n_excite = int(frac_e * self.units)
         self.n_inhib = self.units - self.n_excite
-        self.p_ee = self.p['ee']
-        self.p_ei = self.p['ei']
-        self.p_ie = self.p['ie']
-        self.p_ii = self.p['ii']
+        self.p_ee = self.p_ee
+        self.p_ei = self.p_ei
+        self.p_ie = self.p_ie
+        self.p_ii = self.p_ii
 
 
     def build(self, input_shape):
