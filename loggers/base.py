@@ -151,7 +151,7 @@ class BaseLogger:
         # TODO: be more intelligent about when a value
         #       shouldn't be converted and when another
         #       error occurs [?]
-        logvars_being_saved = {}
+        vars_to_save = {}
         for data_label in self.logvars:
 
             bl = self.todisk_blacklist
@@ -165,10 +165,12 @@ class BaseLogger:
                 continue
 
             # Convert to numpy array
-            logvars_being_saved = np.array(self.logvars[data_label])
+            vars_to_save[data_label] = np.array(
+                self.logvars[data_label]
+            )
 
             # Adjust precision if specified in the HJSON
-            old_type = logvars_being_saved[data_label].dtype
+            old_type = vars_to_save[data_label].dtype
             new_type = None
 
             # Check for casting rules
@@ -179,13 +181,13 @@ class BaseLogger:
 
             # Apply casting rules where they exist
             if new_type is not None and new_type != old_type:
-                logvars_being_saved[data_label] = logvars_being_saved[data_label].astype(
+                vars_to_save[data_label] = vars_to_save[data_label].astype(
                     new_type
                 )
                 logging.debug(f'cast {data_label} ({old_type}) to {new_type}')
 
-        if logvars_being_saved != {}:
-            np.savez_compressed(fp, **logvars_being_saved)
+        if vars_to_save != {}:
+            np.savez_compressed(fp, **vars_to_save)
 
         # Flush buffer to avoid running out of RAM
         self.logvars = {}
