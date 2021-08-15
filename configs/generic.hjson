@@ -121,15 +121,15 @@
 
         cell:
         {
-            type: EligExInAdEx
+            type: ExInAdEx
 
             rewiring: false
 
             units: 100   // number of units in the layer
 
-            thr: -50.4   // threshold [mV]
+            thr: -40.4   // threshold [mV]
             EL: -70.6    // [mV]
-            n_refrac: 1  // number of refractory ms
+            n_refrac: 2  // number of refractory ms
             tau: 20.0    //
 
             dampening_factor: 0.3

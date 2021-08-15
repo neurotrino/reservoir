@@ -396,7 +396,7 @@ class ExInALIF(_LIFCore):
             0
         ))
 
-        i_in = tf.matmul(inputs, self.input_weights)
+        i_in = tf.matmul(inputs, self.input_weights)  # input current
         i_rec = tf.matmul(old_z, self.recurrent_weights)
 
         # to circumvent the problem of voltage reset, we have a
