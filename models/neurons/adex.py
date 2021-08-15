@@ -100,6 +100,7 @@ class _AdExCore(BaseNeuron):
         initial_weights_mat = connmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
 
+        """
         # Store neurons' signs
         #try:
         if self.rewiring:
@@ -114,6 +115,7 @@ class _AdExCore(BaseNeuron):
 
         # Needed to disconnect self-connections if self.rewiring
         self.disconnect_mask = tf.cast(np.diag(np.ones(self.units, dtype=np.bool)),tf.bool)
+        """
 
         # Bias_currents; commented out because we are not using it and it might affect the way I am assigning the weights
         # self.bias_currents = self.add_weight(shape=(self.units,),
