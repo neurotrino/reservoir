@@ -130,7 +130,9 @@ class Trainer(BaseTrainer):
             }
         )
 
+        """empty first time (needs at least one forward pass)
         preweights = [x.numpy() for x in self.model.trainable_variables]
+        """
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Gradient Calculation                                              │
@@ -268,6 +270,7 @@ class Trainer(BaseTrainer):
                 }
             )
 
+            """
             # Weights before applying gradients
             self.logger.log(
                 data_label=tvar.name + '.preweights',
@@ -280,6 +283,7 @@ class Trainer(BaseTrainer):
                         + ' before applying the gradients'
                 }
             )
+            """
 
             # Weights after applying gradients
             try:
@@ -317,70 +321,71 @@ class Trainer(BaseTrainer):
         # on, make sure you include enough info in your logger and
         # output files to associate the values with the right epoch and
         # step.
-        """
         # [!] 'Model' object has no attribute 'layers' : I think we can
         #     add in model a .layers attribute and just make it a list,
         #     because it will have shallow copies
 
-        for layer in self.model.layers:
-            # [*] If there's any information you'd like to log
-            # about individual layers, do so here.
+        # [*] If there's any information you'd like to log
+        # about individual layers, do so here.
+        #
+        # In this example, we're using a whitelist of layers to
+        # log the below information for. If you wish to log the
+        # information of all layers, move the `.log()` call
+        # outside of this `if` guard.
+        layers_to_log = [  # [!] todo: put in HJSON
+            self.model.rnn1,
+            self.model.dense1
+        ]
+
+        for layer in layers_to_log:
+            # Log each of the weights defining the layer's state.
             #
-            # In this example, we're using a whitelist of layers to
-            # log the below information for. If you wish to log the
-            # information of all layers, move the `.log()` call
-            # outside of this `if` guard.
-            if layer.name in self.cfg['log'].layer_whitelist:
-
-                # Log each of the weights defining the layer's state.
-                #
-                # For a linear layer, these weights are `w` and `b`.
-                for i in range(len(layer.weights)):
-                    self.logger.log(
-                        data_label=layer.name + '.w' + str(i),
-                        data=layer.weights[i].numpy(),
-                        meta={
-                            'stride': 'step',
-
-                            'description':
-                                'w weights of ' + layer.name
-                        }
-                    )
-
-                # Log any losses associated with the layer
+            # For a linear layer, these weights are `w` and `b`.
+            for i in range(len(layer.weights)):
                 self.logger.log(
-                    data_label=layer.name + '.losses',
-                    data=layer.losses,
+                    data_label=layer.name + '.w' + str(i),
+                    data=layer.weights[i].numpy(),
                     meta={
                         'stride': 'step',
 
                         'description':
-                            'losses for ' + layer.name
+                            'w weights of ' + layer.name
                     }
                 )
 
-                # [*] This is how you calculate layer outputs for
-                # layers your network isn't directly reporting. This is
-                # very expensive, so if you can have your network
-                # report directly, or access this data anywhere besides
-                # the training loop, that's preferable. Nevertheless,
-                # should you wish to partake in the dark arts, here you
-                # go:
-                #
-                # ```
-                # kf = K.function([self.model.input], [layer.output])
-                # self.logger.log(
-                #     data_label=layer.name + '.outputs',
-                #     data=kf([batch_x]),
-                #     meta={
-                #         'stride': 'step',
-                #
-                #         'description':
-                #             'outputs for ' + layer.name
-                #     }
-                # )
-                # ```
-        """
+            # Log any losses associated with the layer
+            self.logger.log(
+                data_label=layer.name + '.losses',
+                data=layer.losses,
+                meta={
+                    'stride': 'step',
+
+                    'description':
+                        'losses for ' + layer.name
+                }
+            )
+
+            # [*] This is how you calculate layer outputs for
+            # layers your network isn't directly reporting. This is
+            # very expensive, so if you can have your network
+            # report directly, or access this data anywhere besides
+            # the training loop, that's preferable. Nevertheless,
+            # should you wish to partake in the dark arts, here you
+            # go:
+            #
+            # ```
+            # kf = K.function([self.model.input], [layer.output])
+            # self.logger.log(
+            #     data_label=layer.name + '.outputs',
+            #     data=kf([batch_x]),
+            #     meta={
+            #         'stride': 'step',
+            #
+            #         'description':
+            #             'outputs for ' + layer.name
+            #     }
+            # )
+            # ```
 
         # Log the calculated step loss
         self.logger.log(
