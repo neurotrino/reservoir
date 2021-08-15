@@ -67,7 +67,10 @@ class _LIFCore(BaseNeuron):
         self.input_weights = None
         self.bias_currents = None
         self.recurrent_weights = None
-        self.disconnect_mask = None
+        self.disconnect_mask = tf.cast(
+            np.diag(np.ones(self.units, dtype=np.bool)),
+            tf.bool
+        )
 
         # (voltage, refractory, previous_spikes)
         self.state_size = tuple([cfg['cell'].units] * 3)
