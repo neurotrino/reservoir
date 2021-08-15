@@ -145,7 +145,7 @@ class BaseLogger:
         # TODO: be more intelligent about when a value
         #       shouldn't be converted and when another
         #       error occurs
-        for k in self.logvars:
+        for data_label in self.logvars:
 
             bl = self.todisk_blacklist
             wl = self.todisk_whitelist
