@@ -13,7 +13,7 @@ from utils.connmat import ExInConnectivityMatrixGenerator as ExInCMG
 #┤ Leaky Integrate-and-Fire (LIF) Neuron                                     │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class LIF(BaseNeuron):
+class _LIFCore(BaseNeuron):
     """Layer of leaky integrate-and-fire neurons.
 
     All other neurons in the lif.py module inherit from this class.
@@ -70,7 +70,7 @@ class LIF(BaseNeuron):
     #┤ Reserved Methods                                                      │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def build(self, input_shape, connmat_generator=CMG):
+    def build(self, input_shape, connmat_generator):
         """TODO: docs"""
 
         # using uniform weight dist for inputs as opposed to
@@ -220,11 +220,22 @@ class LIF(BaseNeuron):
         z_buf0 = tf.zeros((batch_size, self.units), tf.float32)
         return v0, r0, z_buf0  # voltage, refractory, spike
 
+class LIF(_LIFCore):
+    def build(self, input_shape):
+        super().build(
+            input_shape,
+            CMF(
+                self.units,
+                self.p,
+                self.cfg['misc'].mu, self.cfg['misc'].sigma
+            )
+        )
+
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Excitatory/Inhibitory LIF Neuron                                          │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class ExInLIF(LIF):
+class ExInLIF(_LIFCore):
     """TODO: docs, emphasizing difference from _LIFCore"""
 
     # base template from October 16th, 2020 version of LIFCell
@@ -263,7 +274,7 @@ class ExInLIF(LIF):
 #┤ Excitatory/Inhibitory Adaptive LIF (ALIF) Neuron                          │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class ExInALIF(LIF):
+class ExInALIF(_LIFCore):
     """Layer of adaptive leaky integrate-and-fire neurons containing
     both excitatory and inhibitory connections.
 
