@@ -132,57 +132,51 @@ class BaseLogger:
         """Flush data from the logging buffer to disk, possibly with
         additional processing.
         """
-
-        # Save all stored logvars to .npz files. Note that .log()
-        # performs white and black -list operations.
-
-
-
-
-        #===================[tidy up]
-
         lo_epoch = 1 if self.last_post['epoch'] is None else self.last_post['epoch'] + 1
         hi_epoch = self.cur_epoch
 
         fp = os.path.join(
-            cfg['save'].main_output_dir,
+            self.cfg['save'].main_output_dir,
             f"{lo_epoch}-{hi_epoch}.npz"
         )
 
-        # Save the data to disk (when toggled on)
-        if self.cfg['save'].save_npz:  # replace with white/black -list
+        # Save data to disk
+        #
+        # TODO: be more intelligent about when a value
+        #       shouldn't be converted and when another
+        #       error occurs
+        for k in self.logvars:
 
-            # TODO: be more intelligent about when a value
-            #       shouldn't be converted and when another
-            #       error occurs
+            bl = self.todisk_blacklist
+            wl = self.todisk_whitelist
 
-            for k in self.logvars:
+            if (bl != None) and (data_label in bl):
+                # Data label explicitly blacklisted
+                continue
+            elif (wl != None) and (data_label not in wl):
+                # Data label explicitly *not* whitelisted
+                continue
 
-                # Convert to numpy array
-                self.logvars[k] = np.array(self.logvars[k])
+            # Convert to numpy array
+            self.logvars[k] = np.array(self.logvars[k])
 
-                # Adjust precision if specified in the HJSON
-                old_type = self.logvars[k].dtype
-                new_type = None
+            # Adjust precision if specified in the HJSON
+            old_type = self.logvars[k].dtype
+            new_type = None
 
-                # Check for casting rules
-                if old_type in [np.float64, np.float32, np.float16]:
-                    new_type = eval(f"np.{self.cfg['log'].float_dtype}")
-                elif old_type == np.int64:
-                    new_type = eval(f"np.{self.cfg['log'].int_dtype}")
+            # Check for casting rules
+            if old_type in [np.float64, np.float32, np.float16]:
+                new_type = eval(f"np.{self.cfg['log'].float_dtype}")
+            elif old_type == np.int64:
+                new_type = eval(f"np.{self.cfg['log'].int_dtype}")
 
-                # Apply casting rules where they exist
-                if new_type is not None and new_type != old_type:
-                    self.logvars[k] = self.logvars[k].astype(new_type)
-                    logging.debug(f'cast {k} ({old_type}) to {new_type}')
+            # Apply casting rules where they exist
+            if new_type is not None and new_type != old_type:
+                self.logvars[k] = self.logvars[k].astype(new_type)
+                logging.debug(f'cast {k} ({old_type}) to {new_type}')
 
-            # Write numpy data to disk
-            np.savez_compressed(fp, **self.logvars)
-
-        #===================
-
-
-
+        # Write numpy data to disk
+        np.savez_compressed(fp, **self.logvars)
 
         # Flush buffer to avoid running out of RAM
         self.logvars = {}
