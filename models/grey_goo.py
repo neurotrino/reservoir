@@ -29,6 +29,7 @@ class Model(BaseModel):
             old_label='model',
             new_label='cell'
         ))
+        logging.info(f"cell type set to {cell_type.__name__}")
 
         # Layer definitions
         self.rnn1 = tf.keras.layers.RNN(self.cell, return_sequences=True)
