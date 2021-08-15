@@ -58,7 +58,7 @@ class _LIFCore(BaseNeuron):
         self.rewiring = cell_cfg.rewiring # [?] check if all cells should have this
 
         # self.p = cell_cfg.p  # [?] check if all LIF/cells should have this
-        # TODO: move `p` to BaseNeuron and inherit or keep as is below w/ p vs p_...
+        # TODO: move `p` to BaseNeuron and inherit or keep as is below w/ p vs p_... ?
 
         # Derived attributes
         self._decay = tf.exp(-cfg['misc'].dt / self.tau)

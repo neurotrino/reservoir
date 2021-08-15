@@ -267,7 +267,6 @@ class Trainer(BaseTrainer):
                         'gradients calculated for ' + tvar.name
                 }
             )
-            """
 
             # Weights before applying gradients
             self.logger.log(
@@ -281,7 +280,6 @@ class Trainer(BaseTrainer):
                         + ' before applying the gradients'
                 }
             )
-            """
 
             # Weights after applying gradients
             try:
@@ -320,6 +318,10 @@ class Trainer(BaseTrainer):
         # output files to associate the values with the right epoch and
         # step.
         """
+        # [!] 'Model' object has no attribute 'layers' : I think we can
+        #     add in model a .layers attribute and just make it a list,
+        #     because it will have shallow copies
+
         for layer in self.model.layers:
             # [*] If there's any information you'd like to log
             # about individual layers, do so here.
