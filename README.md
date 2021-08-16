@@ -1,6 +1,8 @@
 # MacLean Lab SNN Infrastructure
-An infrastructure for the creation and study of spiking neural networks
-[[project wiki]](https://github.com/MacLeanLabUChi/snn-wiki/wiki).
+An infrastructure for the creation and study of spiking neural networks.
+
+
+For detailed documentation, see the [project wiki](https://github.com/MacLeanLabUChi/snn-wiki/wiki).
 
 
 ## Installation
@@ -32,7 +34,7 @@ pip install -e .         # add this repository to the virtual environment
 ```
 
 ### Closing the virtual environment
-When you're done running experiments, `deactivate` closes the virtual environment.
+When you're done running experiments, `conda deactivate` or just `deactivate` closes the virtual environment.
 
 ### Persistent Environmental Variables
 `setup.py` will create in the virtual environment `msnn-custom-envars.pth`,
