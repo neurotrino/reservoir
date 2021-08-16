@@ -23,46 +23,31 @@ import time
 from loggers.base import BaseLogger
 
 class Logger(BaseLogger):
-    """Logging interface used while training."""
+    """Standard timeseries logger.
+
+    Logger equipped with functionality core to most experiments using
+    timeseries data.
+
+    [?] Is there a way we can add abstraction in here so we can pass
+        layers, so that the logger isn't tied to any specific model
+        architecture? (I mean there is a way, this is basically just me
+        writing a "TODO" to find the cleanest way)
+    """
 
     def __init__(self, cfg, cb=None):
-        super().__init__(cfg, cb)
+        super().__init__(cfg, cb)  # cb == callback(s)
+
+        # TODO: support NoneType in these positions
+        self.logvar_whitelist = cfg['log'].logvar_whitelist
+        self.logvar_blacklist = cfg['log'].logvar_blacklist
+
+        self.todisk_whitelist = cfg['log'].todisk_whitelist
+        self.todisk_blacklist = cfg['log'].todisk_blacklist
 
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Standard Methods                                                      │
     #┴───────────────────────────────────────────────────────────────────────╯
-
-    def log(self, data_label, data, meta={}):
-        """Main logging interface.
-
-        All data must be reduceable to a numpy array. If you have data
-        you want nested, you'll have to name it in a way that that info
-        can be recovered.
-
-        Any metadata you want about the main data will be included in
-        `meta.pickle`. This should be about the nature of the variable,
-        not the individually logged values, as it will only be added
-        the first time the data is observed. Examples of good metadata
-        include whether the data is stepwise or epochwise, a text
-        description, etc. `stride` is the expected keyword as either
-        'step' or 'epoch' or 'static' (never changes)
-        """
-
-        # Primary data
-        if data_label not in self.logvars:
-            self.logvars[data_label] = [data]
-        else:
-            self.logvars[data_label].append(data)
-
-        # Metadata
-        if data_label not in self.meta:
-            meta['dtype'] = type(data)
-            self.meta[data_label] = meta
-
-            if 'stride' not in meta:
-                logging.warning('stride unspecified for ' + data_label)
-
 
     def post(self):
         """Flush logvars to disk and generate plots.
@@ -78,74 +63,22 @@ class Logger(BaseLogger):
 
         The logvars buffer is emptied after this operation.
         """
-
-        t0 = time.time()
-
-        cfg = self.cfg
-
-        lo_epoch = 1 if self.last_post[0] is None else self.last_post[0] + 1
-        hi_epoch = self.cur_epoch
-
-        fp = os.path.join(
-            cfg['save'].main_output_dir,
-            f"{lo_epoch}-{hi_epoch}.npz"
-        )
+        t0 = time.time()  # used to track `.post()` overhead
 
         # Plot data from the end of each epoch
-        for epoch_idx in range(cfg['log'].post_every):
-            step_idx = epoch_idx * cfg['train'].n_batch
+        # [!] prefer not to rely on post_every?
+        lo_epoch = 1 if self.last_post['epoch'] is None else self.last_post['epoch'] + 1
+        hi_epoch = self.cur_epoch
+        for epoch_idx in range(self.cfg['log'].post_every):
+            step_idx = epoch_idx * self.cfg['train'].n_batch
             self.plot_everything(f"{lo_epoch + epoch_idx}.png", step_idx)
 
-        # If log_npz is true, save the data to disk
-        if self.cfg['save'].save_npz:
-            for k in self.logvars.keys():
-                try:
-                    self.logvars[k] = numpy(self.logvars[k])
-                except:
-                    pass
-            np.savez_compressed(fp, **self.logvars)
-
-        # Save the data to disk (when toggled on)
-        if self.cfg['save'].save_npz:
-            
-            if self.cfg['save'].save_loss_only:
-                # Format the data as numpy arrays
-                # Skip the dtype change here as the file size should be very small
-                self.logvars['step_loss'] = np.array(self.logvars['step_loss'])
-                self.logvars['epoch_loss'] = np.array(self.logvars['epoch_loss'])
-                np.savez_compressed(fp, step_loss=self.logvars['step_loss'], epoch_loss=self.logvars['epoch_loss'])
-
-            else:
-                for k in self.logvars.keys():
-
-                    # Convert to numpy array
-                    self.logvars[k] = np.array(self.logvars[k])
-
-                    # Adjust precision if specified in the HJSON
-                    old_type = self.logvars[k].dtype
-                    new_type = None
-
-                    # Check for casting rules
-                    if old_type in [np.float64, np.float32, np.float16]:
-                        new_type = eval(f"np.{self.cfg['log'].float_dtype}")
-                    elif old_type == np.int64:
-                        new_type = eval(f"np.{self.cfg['log'].int_dtype}")
-
-                    # Apply casting rules where they exist
-                    if new_type is not None and new_type != old_type:
-                        self.logvars[k] = self.logvars[k].astype(new_type)
-                        logging.debug(f'cast {k} ({old_type}) to {new_type}')
-
-                # Write numpy data to disk
-                np.savez_compressed(fp, **self.logvars)
-
-        # Free up RAM
-        self.logvars = {}
-
-        # Bookkeeping
-        self.last_post = (self.cur_epoch, self.cur_step)
+        # Write to disk, free RAM, and perform bookkeeping
+        super().post()
 
         # Report how long the saving operation(s) took
+        # [?] have two timers for plots and disk writing so we can have
+        #     a more self-contained parent class?
         logging.info(
             f"posted data for epochs {lo_epoch}-{hi_epoch}"
             + f" ({time.time() - t0:.2f} seconds)"
@@ -191,10 +124,7 @@ class Logger(BaseLogger):
         as saving model weights, where `.save_weights()` must be called
         from the trainer, at least for now).
         """
-        action_list = {}
-
-        # Bookkeeping
-        self.cur_step += 1
+        action_list = super().on_step_end()
 
         # Maintain, for convenience, a list of epoch and step numbers
         # to align stepwise data to in the npz file
@@ -214,11 +144,7 @@ class Logger(BaseLogger):
         as saving model weights, where `.save_weights()` must be called
         from the trainer, at least for now).
         """
-        action_list = {}
-
-        # Bookkeeping
-        self.cur_epoch += 1
-        self.cur_step = 0
+        action_list = super().on_epoch_end()
 
         # Maintain, for convenience, a list of epoch numbers to align
         # epochwise data to in the npz file

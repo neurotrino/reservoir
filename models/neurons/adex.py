@@ -25,46 +25,32 @@ class _AdExCore(BaseNeuron):
     #┤ Special Methods                                                       │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def __init__(self,
-        cfg: Any,
-        rewiring: bool,
-        units: int,
-        thr: float,
-        EL: float,
-        n_refrac: int,
-        dampening_factor: Any,
-        p: Union[float, Dict[str, float]],
-        tauw: float,
-        a: float,
-        b: float,
-        gL: float,
-        C: float,
-        deltaT: float,
-        V_reset: float,
-    ):
-        if tauw is None:
-            raise ValueError("Time constant for adaptive bias must be set.")
-        if a is None:
-            raise ValueError("a parameter for adaptive bias must be set.")
+    def __init__(self, cfg):
+        super().__init__(cfg)
 
-        super().__init__()
-        
         self.cfg = cfg
+
+        self.rewiring = cfg['cell'].rewiring
+        self.units = cfg['cell'].units
+        self.thr = cfg['cell'].thr
+        self.EL = cfg['cell'].EL
+        self.n_refrac = cfg['cell'].n_refrac
+        self.dampening_factor = cfg['cell'].dampening_factor
+        self.tauw = cfg['cell'].tauw
+        self.a = cfg['cell'].a
+        self.b = cfg['cell'].b
+        self.gL = cfg['cell'].gL
+        self.C = cfg['cell'].C
+        self.deltaT = cfg['cell'].deltaT
+        self.V_reset = cfg['cell'].V_reset
+
+        if self.tauw is None:
+            raise ValueError("time constant must be set for adaptive bias")
+        if self.a is None:
+            raise ValueError("parameter 'a' must be set for adaptive bias ")
+
         self._dt = float(cfg['misc'].dt)
 
-        self.units = units
-        self.thr = thr
-        self.n_refrac = n_refrac
-        self.dampening_factor = dampening_factor
-        self.tauw = tauw
-        self.a = a
-        self.b = b
-        self.gL = gL
-        self.EL = EL
-        self.C = C
-        self.deltaT = deltaT
-        self.V_reset = V_reset
-        self.p = p
         self.dt_gL__C = self._dt * self.gL / self.C
         self.dt_a__tauw = self._dt * self.a / self.tauw
 
@@ -72,7 +58,6 @@ class _AdExCore(BaseNeuron):
         self.bias_currents = None
         self.recurrent_weights = None
         self.disconnect_mask = None
-        self.rewiring = rewiring
 
         #                  voltage,    refractory, adaptation, spikes (spiking or not)
         self.state_size = (self.units, self.units, self.units, self.units)
@@ -137,16 +122,10 @@ class _AdExCore(BaseNeuron):
 
         super().build(input_shape)
 
-
     def call(self, inputs, state):
+        old_v, old_r, old_w, old_z = state[:4]  # old states
 
-        # Old states
-        old_v = state[0]
-        old_r = state[1]
-        old_w = state[2]
-        old_z = state[3]
-
-        if self.rewiring:
+        if self.rewiring:  # I believe this has been moved to the trainer
             # Make sure all self-connections are 0
             self.recurrent_weights.assign(tf.where(self.disconnect_mask, tf.zeros_like(self.recurrent_weights), self.recurrent_weights))
             # If the sign of a weight changed, make it 0
@@ -191,7 +170,7 @@ class _AdExCore(BaseNeuron):
     #┤ Additional Methods                                                    │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def zero_state(self, batch_size, dtype=tf.float32):
+    def zero_state(self, batch_size, dtype=tf.float32):  # is this not in BaseNeuron? does it differ from LIF?
         # Voltage (all at EL)
         v0 = tf.zeros((batch_size, self.units), dtype) + self.EL  # Do we want to start with random V?
         # Refractory (all 0)
@@ -225,15 +204,15 @@ class AdEx(_AdExCore):
 
 class ExInAdEx(_AdExCore):
 
-    def __init__(self, frac_e, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, cfg):
+        super().__init__(cfg)
 
-        self.n_excite = int(frac_e * self.units)
+        self.n_excite = int(self.cfg['cell'].frac_e * self.units)
         self.n_inhib = self.units - self.n_excite
-        self.p_ee = self.p['ee']
-        self.p_ei = self.p['ei']
-        self.p_ie = self.p['ie']
-        self.p_ii = self.p['ii']
+        self.p_ee = self.cfg['cell'].p_ee
+        self.p_ei = self.cfg['cell'].p_ei
+        self.p_ie = self.cfg['cell'].p_ie
+        self.p_ii = self.cfg['cell'].p_ii
 
 
     def build(self, input_shape):
@@ -242,7 +221,7 @@ class ExInAdEx(_AdExCore):
             connmat_generator=ExInCMG(
                 self.n_excite, self.n_inhib,
                 self.p_ee, self.p_ei, self.p_ie, self.p_ii,
-                self.cfg['misc'].mu, self.cfg['misc'].sigma
+                self.cfg['cell'].mu, self.cfg['cell'].sigma
             ),
             initializers={
                 'input_weights': kinits.RandomUniform(minval=0.0, maxval=0.4)
@@ -250,52 +229,37 @@ class ExInAdEx(_AdExCore):
         )
 
 
-class _EligAdexCore(BaseNeuron):
+class _EligAdExCore(BaseNeuron):  # how is this different than _AdexCore
     """TODO: docs"""
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Special Methods                                                       │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def __init__(self,
-        cfg: Any,
-        rewiring: bool,
-        units: int,
-        thr: float,
-        EL: float,
-        n_refrac: int,
-        dampening_factor: Any,
-        p: Union[float, Dict[str, float]],
-        tauw: float,
-        a: float,
-        b: float,
-        gL: float,
-        C: float,
-        deltaT: float,
-        V_reset: float,
-    ):
-        if tauw is None:
-            raise ValueError("Time constant for adaptive bias must be set.")
-        if a is None:
-            raise ValueError("a parameter for adaptive bias must be set.")
-
+    def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
+
+        if self.cfg['cell'].tauw is None:
+            raise ValueError("Time constant for adaptive bias must be set.")
+        if self.cfg['cell'].a is None:
+            raise ValueError("a parameter for adaptive bias must be set.")
+
         self._dt = float(cfg['misc'].dt)
 
-        self.units = units
-        self.thr = thr
-        self.n_refrac = n_refrac
-        self.dampening_factor = dampening_factor
-        self.tauw = tauw
-        self.a = a
-        self.b = b
-        self.gL = gL
-        self.EL = EL
-        self.C = C
-        self.deltaT = deltaT
-        self.V_reset = V_reset
-        self.p = p
+        self.units = self.cfg['cell'].units
+        self.thr = self.cfg['cell'].thr
+        self.n_refrac = self.cfg['cell'].n_refrac
+        self.dampening_factor = self.cfg['cell'].dampening_factor
+        self.tauw = self.cfg['cell'].tauw
+        self.a = self.cfg['cell'].a
+        self.b = self.cfg['cell'].b
+        self.gL = self.cfg['cell'].gL
+        self.EL = self.cfg['cell'].EL
+        self.C = self.cfg['cell'].C
+        self.deltaT = self.cfg['cell'].deltaT
+        self.V_reset = self.cfg['cell'].V_reset
+        self.p = self.cfg['cell'].p
         self.dt_gL__C = self._dt * self.gL / self.C
         self.dt_a__tauw = self._dt * self.a / self.tauw
 
@@ -303,7 +267,7 @@ class _EligAdexCore(BaseNeuron):
         self.bias_currents = None
         self.recurrent_weights = None
         self.disconnect_mask = None
-        self.rewiring = rewiring
+        self.rewiring = self.cfg['cell'].rewiring
 
         #                  voltage,    refractory, adaptation, spikes (spiking or not)
         self.state_size = (self.units, self.units, self.units, self.units)
@@ -369,13 +333,10 @@ class _EligAdexCore(BaseNeuron):
         super().build(input_shape)
 
 
-    def call(self, inputs, state):
+    def call(self, inputs, state):  # seems to contain a lot of duplicate code
 
         # Old states
-        old_v = state[0]
-        old_r = state[1]
-        old_w = state[2]
-        old_z = state[3]
+        old_v, old_r, old_w, old_z = state[:4]
 
         if self.rewiring:
             # Make sure all self-connections are 0
@@ -438,14 +399,14 @@ class _EligAdexCore(BaseNeuron):
         return [v0, r0, w0, z_buf0]
 
 #┬───────────────────────────────────────────────────────────────────────────╮
-#┤ E-prop Adaptive Exponential Integrate-and-Fire (AdEx) Neuron                     │
+#┤ E-prop Adaptive Exponential Integrate-and-Fire (AdEx) Neuron              │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class EligAdEx(_EligAdexCore):
+class EligAdEx(_EligAdExCore):
     def build(self, input_shape):
         super().build(
             input_shape,
-            CMG(self.units, self.p, self.cfg['misc'].mu, self.cfg['misc'].sigma),
+            CMG(self.units, self.p, self.cfg['cell'].mu, self.cfg['cell'].sigma),
             initializers={
                 'input_weights': kinits.RandomUniform(minval=0.0, maxval=0.4)
             }
@@ -453,20 +414,20 @@ class EligAdEx(_EligAdexCore):
 
 
 #┬───────────────────────────────────────────────────────────────────────────╮
-#┤ E-prop Excitatory/Inhibitory AdEx Neuron                                         │
+#┤ E-prop Excitatory/Inhibitory AdEx Neuron                                  │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class EligExInAdEx(_EligAdexCore):
+class EligExInAdEx(_EligAdExCore):
 
-    def __init__(self, frac_e, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, cfg):
+        super().__init__(cfg)
 
-        self.n_excite = int(frac_e * self.units)
+        self.n_excite = int(self.cfg['cell'].frac_e * self.units)
         self.n_inhib = self.units - self.n_excite
-        self.p_ee = self.p['ee']
-        self.p_ei = self.p['ei']
-        self.p_ie = self.p['ie']
-        self.p_ii = self.p['ii']
+        self.p_ee = self.cfg['cell'].p_ee
+        self.p_ei = self.cfg['cell'].p_ei
+        self.p_ie = self.cfg['cell'].p_ie
+        self.p_ii = self.cfg['cell'].p_ii
 
 
     def build(self, input_shape):
@@ -475,7 +436,7 @@ class EligExInAdEx(_EligAdexCore):
             connmat_generator=ExInCMG(
                 self.n_excite, self.n_inhib,
                 self.p_ee, self.p_ei, self.p_ie, self.p_ii,
-                self.cfg['misc'].mu, self.cfg['misc'].sigma
+                self.cfg['cell'].mu, self.cfg['cell'].sigma
             ),
             initializers={
                 # TODO?: minval/maxval might be good HJSON config items
