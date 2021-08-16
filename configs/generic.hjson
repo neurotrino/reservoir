@@ -117,7 +117,7 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     model:
     {
-        type: eprop_sinusoid_ex
+        type: std_backprop
 
         cell:
         {
@@ -127,12 +127,13 @@
 
             units: 100   // number of units in the layer
 
-            thr: -40.4   // threshold [mV]
+            thr: -50.4   // threshold [mV]
             EL: -70.6    // [mV]
             n_refrac: 2  // number of refractory ms
             tau: 20.0    //
 
-            dampening_factor: 0.3
+            // dampening_factor: 0.3  // for LIF variants
+            dampening_factor: 0.2  // for AdEx variants
 
             frac_e: 0.8
 
@@ -164,12 +165,12 @@
 
             // A bunch of AdEx parameters all at once with no context
             tauw: 144
-            a: 4
-            b: 80.5
-            gL: 30
+            a: 0.000004
+            b: 0.0000805
+            gL: 0.00003
             C: 281
             deltaT: 2
-            V_reset: -70.6
+            V_reset: -51
         }
     }
 
@@ -206,6 +207,8 @@
         // value of [] will create an empty but functioning white/black -list.
         //
         // Blacklist values take precedence over whitelist values.
+        //
+        // TODO: add list of potential logged variables
         logvar_whitelist: null
         logvar_blacklist: null
 

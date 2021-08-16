@@ -186,17 +186,6 @@ class SpikeVoltageRegularization(tf.keras.layers.Layer):
 #┤ Useful Functions                                                          │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-@tf.custom_gradient  # Taken from Bellec et al. (2020) code
-def matmul_random_feedback(filtered_z, W_out_arg, B_out_arg):
-    """Document this"""
-    logits = tf.einsum('btj,jk->btk', filtered_z, W_out_arg)
-    def grad(dy):
-        dloss_dW_out = tf.einsum('bij,bik->jk', filtered_z, dy)
-        dloss_dfiltered_z = tf.einsum('bik,jk->bij', dy, B_out_arg)
-        dloss_db_out = tf.zeros_like(B_out_arg)
-        return [dloss_dfiltered_z, dloss_dW_out, dloss_db_out]
-    return logits, grad
-
 
 def fano_factor(self, seq_len, spike):
 

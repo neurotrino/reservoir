@@ -1,4 +1,7 @@
-"""TODO: module docs"""
+"""TODO: module docs
+
+Backprop
+"""
 
 # external
 import tensorflow as tf
