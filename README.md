@@ -2,12 +2,15 @@
 An infrastructure for the creation and study of spiking neural networks.
 
 
+For detailed documentation, see the [project wiki](https://github.com/MacLeanLabUChi/snn-wiki/wiki).
+
+
 ## Installation
 These scripts must be run as source,
 [ideally](https://www.tensorflow.org/install/pip#2.-create-a-virtual-environment-recommended) in a Python virtual
 environment. To get started, clone this repository and follow the instructions below.
 
-### Creating a [Python virtual environment](docs.python.org/3/tutorial/venv)
+### Creating a [Python virtual environment](docs.python.org/3/tutorial/venv) (optional as of 2.1.0)
 Enter the directory containing `setup.py` and run the following:
 
 #### With a Conda Environment
@@ -31,7 +34,7 @@ pip install -e .         # add this repository to the virtual environment
 ```
 
 ### Closing the virtual environment
-When you're done running experiments, `deactivate` closes the virtual environment.
+When you're done running experiments, `conda deactivate` or just `deactivate` closes the virtual environment.
 
 ### Persistent Environmental Variables
 `setup.py` will create in the virtual environment `msnn-custom-envars.pth`,
@@ -89,8 +92,8 @@ If you just want to run a model, execute the following:
 python main.py -c config.hjson
 ```
 
-where `main.py` is a script located in `\mains` and `config.hjson` is an experiment configuration file located in
-`\configs`. See the README in `\utils` for more documentation on commandline interactions.
+where `config.hjson` is an experiment configuration file located in `\configs`. See the README in `\utils` for more
+documentation on commandline interactions.
 
 ### Troubleshooting
 - **Local modules aren't being recognized**
@@ -133,11 +136,6 @@ Then, in your logger, under `.post()`:
 if self.cfg['log'].log_npz:
     # log npz files here
 ```
-
-### Style Guidelines
-When in doubt, refer first to the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html), then
-to [PEP 8](https://www.python.org/dev/peps/pep-0008/) and [PEP 257](https://www.python.org/dev/peps/pep-0257).
-
 
 ## Credits
 - MacLean Lab (maintainers)

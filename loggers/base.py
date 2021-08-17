@@ -12,17 +12,19 @@ class BaseLogger:
         """Create a new logger."""
         self.cfg = cfg
 
-
-        # Bookkeeping -------------------------------------------------
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Bookkeeping                                                       │
+        #┴───────────────────────────────────────────────────────────────────╯
 
         self.cur_epoch = 0  # current epoch in training
         self.cur_step = 0   # current step in current epoch
 
         # (epoch, step) of last post. `(None, None)` if yet to post.
-        self.last_post = (None, None)
+        self.last_post = {'epoch': None, 'step': None}
 
-
-        # Logging buffer(s) -------------------------------------------
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Logging Buffer(s)                                                 │
+        #┴───────────────────────────────────────────────────────────────────╯
 
         # Buffered data for each logvar.
         #
@@ -42,8 +44,25 @@ class BaseLogger:
         # posted data.
         self.meta = dict()
 
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Logging Filters                                                   │
+        #┴───────────────────────────────────────────────────────────────────╯
 
-        # TensorFlow/TensorBoard --------------------------------------
+        # Only log vars with labels in this list
+        self.logvar_whitelist = None
+
+        # Log all vars no in this list (overrides whitelist)
+        self.logvar_blacklist = None
+
+        # Only log vars with labels in this list
+        self.todisk_whitelist = None
+
+        # Log all vars no in this list (overrides whitelist)
+        self.todisk_blacklist = None
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ TensorFlow/TensorBoard Integration                                │
+        #┴───────────────────────────────────────────────────────────────────╯
 
         # Summary writers.
         #
@@ -71,26 +90,110 @@ class BaseLogger:
         if cb is not None:
             self.add_callback(cb)
 
+        # TODO: move checkpointing to the logger (as much as possible)
+        #       > add checkpoint manager in .__init__()
+
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Core Operations                                                       │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def log(self, data_label, data, meta):
-        """Add data to the logging buffer."""
-        class_name = self.__class__.__name__
-        logging.warning(f"{class_name}.log() called but not implemented")
+    def log(self, data_label, data, meta={}):
+        """Main logging interface.
+
+        All data must be reduceable to a numpy array. If you have data
+        you want nested, you'll have to name it in a way that that info
+        can be recovered.
+
+        Any metadata you want about the main data will be included in
+        `meta.pickle`. This should be about the nature of the variable,
+        not the individually logged values, as it will only be added
+        the first time the data is observed. Examples of good metadata
+        include whether the data is stepwise or epochwise, a text
+        description, etc. `stride` is the expected keyword as either
+        'step' or 'epoch' or 'static' (never changes)
+        """
+
+        # Primary data
+        if data_label not in self.logvars:
+            bl = self.logvar_blacklist
+            wl = self.logvar_whitelist
+            if (bl == None) or (data_label not in bl):  # blacklisting
+                if (wl == None) or (data_label in wl):  # whitelisting
+                    self.logvars[data_label] = [data]
+        else:
+            self.logvars[data_label].append(data)
+
+        # Metadata
+        if data_label not in self.meta:
+            meta['dtype'] = type(data)
+            self.meta[data_label] = meta
+
+            if 'stride' not in meta:
+                # TODO: add case for `static` stride
+                logging.warning('stride unspecified for ' + data_label)
 
 
     def post(self):
         """Flush data from the logging buffer to disk, possibly with
         additional processing.
         """
-        class_name = self.__class__.__name__
-        logging.warning(
-            f"{class_name}.post() called but not implemented: flushing buffer"
+        lo_epoch = 1 if self.last_post['epoch'] is None else self.last_post['epoch'] + 1
+        hi_epoch = self.cur_epoch
+
+        fp = os.path.join(  # [?] I wonder if I can encapsulate this better
+            self.cfg['save'].main_output_dir,
+            f"{lo_epoch}-{hi_epoch}.npz"
         )
-        self.logvars = {}  # flush buffer to avoid running out of RAM
+
+        # Save data to disk
+        #
+        # TODO: be more intelligent about when a value
+        #       shouldn't be converted and when another
+        #       error occurs [?]
+        vars_to_save = {}
+        for data_label in self.logvars:
+
+            bl = self.todisk_blacklist
+            wl = self.todisk_whitelist
+
+            if (bl != None) and (data_label in bl):
+                # Data label explicitly blacklisted
+                continue
+            elif (wl != None) and (data_label not in wl):
+                # Data label explicitly *not* whitelisted
+                continue
+
+            # Convert to numpy array
+            vars_to_save[data_label] = np.array(
+                self.logvars[data_label]
+            )
+
+            # Adjust precision if specified in the HJSON
+            old_type = vars_to_save[data_label].dtype
+            new_type = None
+
+            # Check for casting rules
+            if old_type in [np.float64, np.float32, np.float16]:
+                new_type = eval(f"np.{self.cfg['log'].float_dtype}")
+            elif old_type == np.int64:
+                new_type = eval(f"np.{self.cfg['log'].int_dtype}")
+
+            # Apply casting rules where they exist
+            if new_type is not None and new_type != old_type:
+                vars_to_save[data_label] = vars_to_save[data_label].astype(
+                    new_type
+                )
+                logging.debug(f'cast {data_label} ({old_type}) to {new_type}')
+
+        if vars_to_save != {}:
+            np.savez_compressed(fp, **vars_to_save)
+
+        # Flush buffer to avoid running out of RAM
+        self.logvars = {}
+
+        # Bookkeeping
+        self.last_post = {'epoch': self.cur_epoch, 'step': self.cur_step}
 
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -126,7 +229,7 @@ class BaseLogger:
 
 
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Callbacks and Pseudo-Callbacks                                        │
+    #┤ Callbacks                                                             │
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def add_callback(self, cb):
@@ -148,6 +251,10 @@ class BaseLogger:
             # Add a single callback
             self.callbacks.append(cb)
 
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Pseudo-Callbacks                                                      │
+    #┴───────────────────────────────────────────────────────────────────────╯
 
     def on_train_begin(self):
         """Logging logic/operations performed at the start of training.
@@ -194,6 +301,9 @@ class BaseLogger:
         weights).
         """
         action_list = {}
+
+        self.cur_step = 0  # bookkeeping
+
         return action_list
 
 
@@ -214,30 +324,6 @@ class BaseLogger:
 
     def on_step_end(self):
         """Logging logic/operations performed at the end of each step.
-
-        Returns an "action list" of command strings and values
-        indicating operations for the trainer to perform (e.g. saving
-        weights).
-        """
-        action_list = {}
-        return action_list
-
-
-    def on_batch_begin(self):
-        """Logging logic/operations performed at the start of each
-        batch processing step.
-
-        Returns an "action list" of command strings and values
-        indicating operations for the trainer to perform (e.g. saving
-        weights).
-        """
-        action_list = {}
-        return action_list
-
-
-    def on_batch_end(self):
-        """Logging logic/operations performed at the end of each batch
-        processing step.
 
         Returns an "action list" of command strings and values
         indicating operations for the trainer to perform (e.g. saving

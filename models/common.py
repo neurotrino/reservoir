@@ -183,8 +183,9 @@ class SpikeVoltageRegularization(tf.keras.layers.Layer):
         return inputs
 
 #┬───────────────────────────────────────────────────────────────────────────╮
-#┤ ...                                                                       │
+#┤ Useful Functions                                                          │
 #┴───────────────────────────────────────────────────────────────────────────╯
+
 
 def fano_factor(self, seq_len, spike):
 

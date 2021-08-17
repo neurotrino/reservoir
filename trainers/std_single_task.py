@@ -27,7 +27,7 @@ class Trainer(BaseTrainer):
 
         try:
             self.optimizer = tf.keras.optimizers.Adam(
-                lr=train_cfg.learning_rate
+                learning_rate=train_cfg.learning_rate
             )
         except Exception as e:
             logging.warning(f"learning rate not set: {e}")
@@ -110,6 +110,8 @@ class Trainer(BaseTrainer):
         #┤ Pre-Step Logging                                                  │
         #┴───────────────────────────────────────────────────────────────────╯
 
+        self.logger.on_step_begin()
+
         # Input/reference variables
         self.logger.log(
             data_label='inputs',
@@ -142,7 +144,13 @@ class Trainer(BaseTrainer):
             }
         )
 
+        """
+        # [!] empty first time (needs at least one forward pass)
+        # [!] besides the first time, this is just postweights of the
+        #     last batch, so we want to have a `static` save of the
+        #     first time, but not this
         preweights = [x.numpy() for x in self.model.trainable_variables]
+        """
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Gradient Calculation                                              │
@@ -210,6 +218,40 @@ class Trainer(BaseTrainer):
         )
 
         #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Sparsity Application                                              │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        # if rewiring is permitted (i.e. sparsity is NOT enforced),
+        # this step is needed to explicitly ensure self-recurrent
+        # connections remain zero otherwise (if sparsity IS enforced)
+        # that is taken care of through the rec_sign application below
+        if self.cfg['model'].cell.rewiring:
+            # Make sure all self-connections remain 0
+            self.model.cell.recurrent_weights.assign(tf.where(
+                self.model.cell.disconnect_mask,
+                tf.zeros_like(self.model.cell.recurrent_weights),
+                self.model.cell.recurrent_weights
+            ))
+
+        # If the sign of a weight changed from the original or the
+        # weight (previously 0) is no longer 0, make the weight 0.
+        #
+        # Reminder that rec_sign contains 0's for initial 0's when
+        # rewiring = false whereas it contains +1's or -1's (for excit
+        # or inhib) for initial 0's when rewiring = true
+        self.model.cell.recurrent_weights.assign(tf.where(
+            self.model.cell.rec_sign * self.model.cell.recurrent_weights > 0,
+            self.model.cell.recurrent_weights,
+            0
+        ))
+
+        # In a similar way, one could use CMG to create sparse initial
+        # input weights, then capture the signs so as to enforce
+        # -1/+1/0's throughout training by doing
+        # self.model.trainable_variables[0].assign() etc.
+
+
+        #┬───────────────────────────────────────────────────────────────────╮
         #┤ Post-Step Logging                                                 │
         #┴───────────────────────────────────────────────────────────────────╯
 
@@ -246,6 +288,7 @@ class Trainer(BaseTrainer):
                 }
             )
 
+            """
             # Weights before applying gradients
             self.logger.log(
                 data_label=tvar.name + '.preweights',
@@ -258,19 +301,23 @@ class Trainer(BaseTrainer):
                         + ' before applying the gradients'
                 }
             )
+            """
 
             # Weights after applying gradients
-            self.logger.log(
-                data_label=f"tv{i}.postweights",
-                data=tvar.numpy(),
-                meta={
-                    'stride': 'step',
-                    'description':
-                        'layer weights for '
-                        + tvar.name
-                        + ' after applying the gradients'
-                }
-            )
+            try:
+                self.logger.log(
+                    data_label=f"tv{i}.postweights",
+                    data=tvar.numpy(),
+                    meta={
+                        'stride': 'step',
+                        'description':
+                            'layer weights for '
+                            + tvar.name
+                            + ' after applying the gradients'
+                    }
+                )
+            except:
+                pass
 
         # [*] Stepwise logging for *all* layers; might have redundancy
         # [*] Can also grab layer weights here
@@ -292,64 +339,66 @@ class Trainer(BaseTrainer):
         # on, make sure you include enough info in your logger and
         # output files to associate the values with the right epoch and
         # step.
+        # [!] 'Model' object has no attribute 'layers' : I think we can
+        #     add in model a .layers attribute and just make it a list,
+        #     because it will have shallow copies
+
+        # [*] If there's any information you'd like to log
+        # about individual layers, do so here.
+        #
+        # In this example, we're using a whitelist of layers to
+        # log the below information for. If you wish to log the
+        # information of all layers, move the `.log()` call
+        # outside of this `if` guard.
         for layer in self.model.layers:
-            # [*] If there's any information you'd like to log
-            # about individual layers, do so here.
+            # Log each of the weights defining the layer's state.
             #
-            # In this example, we're using a whitelist of layers to
-            # log the below information for. If you wish to log the
-            # information of all layers, move the `.log()` call
-            # outside of this `if` guard.
-            if layer.name in self.cfg['log'].layer_whitelist:
-
-                # Log each of the weights defining the layer's state.
-                #
-                # For a linear layer, these weights are `w` and `b`.
-                for i in range(len(layer.weights)):
-                    self.logger.log(
-                        data_label=layer.name + '.w' + str(i),
-                        data=layer.weights[i].numpy(),
-                        meta={
-                            'stride': 'step',
-
-                            'description':
-                                'w weights of ' + layer.name
-                        }
-                    )
-
-                # Log any losses associated with the layer
+            # For a linear layer, these weights are `w` and `b`.
+            for i in range(len(layer.weights)):
                 self.logger.log(
-                    data_label=layer.name + '.losses',
-                    data=layer.losses,
+                    data_label=layer.name + '.w' + str(i),
+                    data=layer.weights[i].numpy(),
                     meta={
                         'stride': 'step',
 
                         'description':
-                            'losses for ' + layer.name
+                            'w weights of ' + layer.name
                     }
                 )
 
-                # [*] This is how you calculate layer outputs for
-                # layers your network isn't directly reporting. This is
-                # very expensive, so if you can have your network
-                # report directly, or access this data anywhere besides
-                # the training loop, that's preferable. Nevertheless,
-                # should you wish to partake in the dark arts, here you
-                # go:
-                #
-                # ```
-                # kf = K.function([self.model.input], [layer.output])
-                # self.logger.log(
-                #     data_label=layer.name + '.outputs',
-                #     data=kf([batch_x]),
-                #     meta={
-                #         'stride': 'step',
-                #
-                #         'description':
-                #             'outputs for ' + layer.name
-                #     }
-                # )
-                # ```
+            # Log any losses associated with the layer
+            self.logger.log(
+                data_label=layer.name + '.losses',
+                data=layer.losses,
+                meta={
+                    'stride': 'step',
+
+                    'description':
+                        'losses for ' + layer.name
+                }
+            )
+
+            # [*] This is how you calculate layer outputs for
+            # layers your network isn't directly reporting. This is
+            # very expensive, so if you can have your network
+            # report directly, or access this data anywhere besides
+            # the training loop, that's preferable. Nevertheless,
+            # should you wish to partake in the dark arts, here you
+            # go:
+            #
+            # ```
+            # kf = K.function([self.model.input], [layer.output])
+            # self.logger.log(
+            #     data_label=layer.name + '.outputs',
+            #     data=kf([batch_x]),
+            #     meta={
+            #         'stride': 'step',
+            #
+            #         'description':
+            #             'outputs for ' + layer.name
+            #     }
+            # )
+            # ```
 
         # Log the calculated step loss
         self.logger.log(
@@ -426,7 +475,6 @@ class Trainer(BaseTrainer):
 
         # [*] Post-training operations on epoch-level log variables
         epoch_loss = np.mean(losses)
-
         # [*] Log any epoch-wise variables.
         self.logger.log(
             data_label='epoch_loss',
@@ -471,12 +519,12 @@ class Trainer(BaseTrainer):
         ckpt = tf.train.Checkpoint(
             step=tf.Variable(1),
             optimizer=self.optimizer,
-            net=self.model
+            model=self.model
         )
         cpm = tf.train.CheckpointManager(
             ckpt,
             self.cfg['save'].checkpoint_dir,
-            max_to_keep=None
+            max_to_keep=3
         )
 
         #┬───────────────────────────────────────────────────────────────────╮
@@ -490,6 +538,7 @@ class Trainer(BaseTrainer):
                 print("trainable_variables:")
                 print(k)
             """
+            action_list = self.logger.on_epoch_begin() # put profiler in here?
 
             profile_epoch = (
                 self.cfg['log'].run_profiler
@@ -514,18 +563,27 @@ class Trainer(BaseTrainer):
             #┤ Logging (mid-training)                                        │
             #┴───────────────────────────────────────────────────────────────╯
 
+            # Save checkpoints
+            # [?] move to logger
+            # [!] not integrated with broader training paradigm
+            # [!] still don't have full model saving
+            if self.cfg['log'].ckpt_freq * self.cfg['log'].ckpt_lim > 0:
+                ckpt.step.assign_add(1)
+                if epoch_idx == 2:
+                    save_path = cpm.save()
+
             # Logger-controlled actions (prefer doing things in the
             # logger when possible, use this when not)
             action_list = self.logger.on_epoch_end()
-
+            """
             if 'save_weights' in action_list:
                 # Create checkpoints
-                self.model.save_weights(os.path.join(
+                tf.saved_model.save(self.model, self.cfg['save'].checkpoint_dir)
+                self.model.save_model(os.path.join(
                     self.cfg['save'].checkpoint_dir,
                     f"checkpoint_e{epoch_idx + 1}"
                 ))
-
-
+            """
 
             # Stop profiler
             if profile_epoch:

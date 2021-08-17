@@ -12,61 +12,6 @@
  */
 {
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Model-Specific Parameters                                             │
-    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-    #┤ Model-specific parameters used to construct the network used in the   │
-    #┤ experiment. These values should be a one-to-one analog with the       │
-    #┤ target model's attributes (i.e. variable names and relative object    │
-    #┤ structures need to align between the two). It's fine to omit          │
-    #┤ parameters with default values.                                       │
-    #┤                                                                       │
-    #┤ If you need to access data in `cfg` during model initialization, or   │
-    #┤ would like to have `cfg` be an attribute in a model for any other     │
-    #┤ reason, you need to indicate so in this script by adding `cfg: null`  │
-    #┤ (nested in the structure needing access).                             │
-    #┴───────────────────────────────────────────────────────────────────────╯
-    model:
-    {
-
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Sub-Network & Layer Parameters                                    │
-        #┴───────────────────────────────────────────────────────────────────╯
-        cell:
-        // currently configured for an LIF neuron:
-        {
-            #┬───────────────────────────────────────────────────────────────╮
-            #┤ Flags                                                         │
-            #┴───────────────────────────────────────────────────────────────╯
-
-            cfg: null
-
-            #┬───────────────────────────────────────────────────────────────╮
-            #┤ Values                                                        │
-            #┴───────────────────────────────────────────────────────────────╯
-
-            rewiring: false
-
-            units: 100   // number of units in the layer
-
-            thr: -50.4   // threshold [mV]
-            EL: -70.6    // [mV]
-            n_refrac: 1  // number of refractory ms
-            tau: 20.0    //
-
-            dampening_factor: 0.3
-
-            frac_e: 0.8
-
-            p: {
-                "ee": 0.160
-                "ei": 0.244
-                "ie": 0.318
-                "ii": 0.343
-            }
-        }
-    }
-
-    #┬───────────────────────────────────────────────────────────────────────╮
     #┤ File Saving                                                           │
     #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
     #┤ Configure what gets saved, where, and how. Please be mindful of other │
@@ -89,9 +34,13 @@
         // directory paths.
         //
         // Full path: {exp_dir}
-        exp_dir: ../experiments/reg_testing_trioloss
+        //
+        // Manditory variable.
+        exp_dir: ../experiments/issue-21
 
         // Collection of directories which will be placed inside exp_dir
+        //
+        // Manditory namespace.
         subdirs:
         {
             #┬───────────────────────────────────────────────────────────────╮
@@ -132,12 +81,12 @@
 
         // When enabled, the exp_dir will have a number suffixed to avoid
         // overwriting saved data
-        avoid_overwrite: true
+        avoid_overwrite: false
 
         // If avoid_overwrite is set to false, and exp_dir overwrites a
         // directory, this will purge the contents of the old directory. This
         // is to avoid mixing data from different experiments, but be careful.
-        hard_overwrite: false
+        hard_overwrite: true
 
         // Experiment directories will be suffixed by a UNIX timestamp
         timestamp: false
@@ -148,7 +97,7 @@
         log_config: true
 
         // Enable/disable any additional processing on the data performed
-        // after training
+        // after training (doesn't do anything right now [?])
         postprocess: true
 
         #┬───────────────────────────────────────────────────────────────────╮
@@ -158,6 +107,71 @@
         /* if there are any flags for saving particular to your experiment,
          * include them here */
         save_npz: true
+        save_loss_only: false
+    }
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Model-Specific Parameters                                             │
+    #┼ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
+    #┤ Any parameter used to define your experiment's models and layers.     │
+    #┴───────────────────────────────────────────────────────────────────────╯
+    model:
+    {
+        type: std_backprop
+
+        cell:
+        {
+            type: ExInAdEx
+
+            rewiring: false
+
+            units: 100   // number of units in the layer
+
+            thr: -50.4   // threshold [mV]
+            EL: -70.6    // [mV]
+            n_refrac: 2  // number of refractory ms
+            tau: 20.0    //
+
+            // dampening_factor: 0.3  // for LIF variants
+            dampening_factor: 0.2  // for AdEx variants
+
+            frac_e: 0.8
+
+            // These paramters will only be used for non-ExIn neurons
+            p: 0.7
+
+            // These parameters will only be used for ExIn neurons
+            p_ee: 0.160
+            p_ei: 0.244
+            p_ie: 0.318
+            p_ii: 0.343
+
+            // ...
+
+            beta: 0.16
+            tau_adaptation: 100
+
+            //
+            n_recurrent: 100
+
+            //
+            rewiring: false
+
+            // μ for normal distribution (exponentiated for lognormal weights)
+            mu: -0.64
+
+            // σ for normal distribution (exponentiated for lognormal weights)
+            sigma: 0.51
+
+            // A bunch of AdEx parameters all at once with no context
+            tauw: 144
+            a: 0.000004
+            b: 0.0000805
+            gL: 0.00003
+            C: 281
+            deltaT: 2
+            V_reset: -51
+        }
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -167,6 +181,8 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     data:
     {
+        type: sinusoid
+
         //
         seq_len: 4080
 
@@ -181,17 +197,37 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     log:
     {
+        // logger to use
+        type: std_timeseries
+
+        // Whitelist and blacklist for logvars
+        //
+        // Logvars with labels in these lists won't be collected or processed
+        // at all by the logger. A value of `null` will disable the list, a
+        // value of [] will create an empty but functioning white/black -list.
+        //
+        // Blacklist values take precedence over whitelist values.
+        //
+        // TODO: add list of potential logged variables
+        logvar_whitelist: null
+        logvar_blacklist: null
+
+        // Whitelist and blacklist for writing to disk
+        //
+        // Unlike the logvar lists, these values will still be stored in the
+        // logger, they just won't be written to disk. This is useful if you
+        // want to generate plots but not keep the underlying data.
+        todisk_whitelist: [
+            step_loss
+            epoch_loss
+        ]
+        todisk_blacklist: null
+
         // Save npz files or not
-        log_npz: false
+        log_npz: true
 
         // Save logging values to disk every n epochs
-        post_every: 10
-
-        // Neuron used ([!] would like to automate this):
-        neuron: ExInLIF
-
-        // Training used ([!] would like to automate this):
-        training_method: backprop
+        post_every: 2
 
         // Toggle the TensorBoard profiler
         run_profiler: false
@@ -216,6 +252,22 @@
 
         // Integer size
         int_dtype: uint16
+
+        #┬───────────────────────────────────────────────────────────────────╮
+        #┤ Model Saving and Checkpoints                                      │
+        #┴───────────────────────────────────────────────────────────────────╯
+
+        // [!] still trying to figure out how to save models as SavedModel
+        // [!] we can save checkpoints and read them with
+        //     tf.train.load_checkpointbut I'm still trying to figure out how
+        //     to integrate them into the training infrastructure
+
+        // Create a checkpoint every N epochs (checkpoints disabled if N=0)
+        ckpt_freq: 0
+
+        // Maximum number of checkpoints saved per experiment (will save the
+        // most recent)
+        ckpt_lim: 0
     }
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -225,16 +277,18 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     train:
     {
+        type: sinusoid_example
+
         learning_rate: 0.03
 
         // number of trials in batch
-        batch_size: 60
+        batch_size: 8
 
         // number of batches in an epoch
-        n_batch: 10
+        n_batch: 4
 
         // number of epochs the model is fit over
-        n_epochs: 100
+        n_epochs: 4
 
         target_rate: 0.02
 
@@ -254,17 +308,5 @@
     {
         // time step
         dt: 1
-
-        //
-        n_recurrent: 100
-
-        //
-        rewiring: false
-
-        // μ for normal distribution (exponentiated for lognormal weights)
-        mu: -0.64
-
-        // σ for normal distribution (exponentiated for lognormal weights)
-        sigma: 0.51
     }
 }

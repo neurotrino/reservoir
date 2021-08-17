@@ -3,6 +3,7 @@
 # external ----
 from collections import OrderedDict
 from datetime import datetime
+from tensorflow.python.client import device_lib
 from types import SimpleNamespace
 
 import argparse
@@ -13,7 +14,6 @@ import os
 import shutil
 import tensorflow as tf
 import time
-
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Python (Not TensorFlow) Logger                                            │
@@ -39,7 +39,7 @@ def start_logger(clevel_str, flevel_str, fpath, writemode='w+'):
         'w+'). See `logging.FileHandler` for further documentation.
     """
     logger = logging.getLogger()
-    # [!] current also turns on external module logging :/
+    logger.handlers = []
 
     formatter = logging.Formatter(
         '[%(asctime)s] %(levelname)-9s- %(message)s', '%Y-%m-%d %H:%M:%S'
@@ -70,6 +70,7 @@ def start_logger(clevel_str, flevel_str, fpath, writemode='w+'):
         flevel = logging.CRITICAL + 1
 
     logger.setLevel(min(clevel, flevel))
+
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Command Line Parsing                                                      │
@@ -122,12 +123,46 @@ def get_args():
 
     return parser.parse_args()
 
+
 #┬───────────────────────────────────────────────────────────────────────────╮
-#┤ HJSON Parsing                                                             │
+#┤ HJSON Parsing and Configuration Operations                                │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-def load_hjson_config(filepath, custom_save_cfg=None):
+def recursively_make_namespace(src_dict):
+    """Convert each key into a namespace. Recurse if the key leads to a
+    dictionary value.
+    """
+    new_dict = {}
+    for key in src_dict.keys():
+        if type(src_dict[key]) == OrderedDict:
+            new_dict[key] = recursively_make_namespace(src_dict[key])
+        else:
+            new_dict[key] = src_dict[key]
+    return SimpleNamespace(**new_dict)
+
+    model_cfg = recursively_make_namespace()
+
+
+def subconfig(cfg, subcfg, old_label='model', new_label='cell'):
+    """Create a new configuration for a submodel or layer.
+
+    This is done to preserve abstraction, so that when designing a
+    model or layer, it doesn't matter how nested it is in the initial
+    model call. E.g. you don't have to code
+    `cfg['model'].submodel.submodel.param` in the class definition.
+    """
+    new_cfg = cfg.copy()  # create deep copy to avoid weirdness
+
+    new_cfg.pop(old_label)       # preserve encapsulation
+    new_cfg[new_label] = subcfg  # preserve abstraction/generalization
+
+    return new_cfg  # configuration for use by sub- model/layer
+
+
+def load_hjson_config(filepath):
     """Read configuration settings in from an HJSON file.
+
+    UPDATE: no longer does any model instantiation
 
     Reads an HJSON file into various formats. Model configurations are
     stored as strings, allowing easy instantiation of models with the
@@ -145,9 +180,7 @@ def load_hjson_config(filepath, custom_save_cfg=None):
         filepath: string of relative filepath to HJSON config file
 
     Returns:
-        form, bundled_cfg:
-          - form: function taking a model class (*not* an object) which
-              instantiates that model
+        bundled_cfg:
           - bundled_cfg: dictionary containing various non-model config
               settings
               - 'save': save config
@@ -156,32 +189,13 @@ def load_hjson_config(filepath, custom_save_cfg=None):
         ValueError: if no experiment ID was provided
     """
     with open(filepath, 'r') as config_file:
-        config = hjson.load(config_file)
+        config = hjson.load(config_file)  # read HJSON from filepath
 
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Model Configuration                                                   │
+    #┤ Special Configuration Steps for File-Saving Settings                  │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    # [!] Right now this is only applied to some fields (model)
-    def recursively_make_namespace(src_dict):
-        new_dict = {}
-        for key in src_dict.keys():
-            if type(src_dict[key]) == OrderedDict:
-                new_dict[key] = recursively_make_namespace(src_dict[key])
-            else:
-                new_dict[key] = src_dict[key]
-        return SimpleNamespace(**new_dict)
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ File-Saving Configuration                                             │
-    #┴───────────────────────────────────────────────────────────────────────╯
-
-    # Check for script-based save settings
-    if custom_save_cfg is None:
-        save_cfg = config['save']
-    else:
-        save_cfg = custom_save_cfg
-        logging.warning("HJSON save settings overwritten by script")
+    save_cfg = config['save']
 
     # Check for null base directory
     if save_cfg['exp_dir'] is None:
@@ -189,6 +203,7 @@ def load_hjson_config(filepath, custom_save_cfg=None):
 
     # Directory for this experiment
     if save_cfg['timestamp']:
+        # Timestamp the experiment directory if requested
         s = "%Y-%m-%d %H.%M.%S"
         s = datetime.utcfromtimestamp(time.time()).strftime(s)
         s = " [" + s + "]"
@@ -198,7 +213,7 @@ def load_hjson_config(filepath, custom_save_cfg=None):
     if os.path.exists(save_cfg['exp_dir']):
         logging.info(f"{os.path.abspath(save_cfg['exp_dir'])} already exists")
 
-        # Check if we're okay writing into this directory
+        # If we're *not* okay overwriting this directory...
         if save_cfg['avoid_overwrite']:
             # Append a number at the end of the filepath so it's unique
             original = save_cfg['exp_dir']
@@ -208,10 +223,15 @@ def load_hjson_config(filepath, custom_save_cfg=None):
                 save_cfg['exp_dir'] = original + f"_{unique_id}"
                 unique_id += 1
 
+            # Inform the user that we've selected a new directory to
+            # save into
             logging.warning(
                 "renamed output directory to avoid overwriting data"
             )
+
+        # If we *are* okay overwriting this directory...
         else:
+            # Set the save path to the existing directory
             fullpath = os.path.abspath(save_cfg['exp_dir'])
 
             # Alert the user that we'll be writing into this directory
@@ -220,9 +240,9 @@ def load_hjson_config(filepath, custom_save_cfg=None):
                 logging.warning(f"purging old data in {fullpath}")
                 shutil.rmtree(save_cfg['exp_dir'])
             else:
-                logging.warning(
-                    f"potentially overwriting data in {fullpath}"
-                )
+                # Warn the user that new data will be mixed in with the
+                # old data and might overwrite preexisting files
+                logging.warning(f"potentially overwriting data in {fullpath}")
 
     # Instantiate subdirectories
     for subdir in save_cfg['subdirs']:
@@ -234,7 +254,7 @@ def load_hjson_config(filepath, custom_save_cfg=None):
             logging.warning(f"{subdir} is null")
             continue
 
-        # Create directories
+        # Create directories within the experiment directory
         save_cfg[subdir] = os.path.join(
             save_cfg['exp_dir'],
             save_cfg['subdirs'][subdir]
@@ -247,92 +267,19 @@ def load_hjson_config(filepath, custom_save_cfg=None):
             raise Exception(err)
 
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Data Configuration                                                    │
+    #┤ Finalize Configuration Settings                                       │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    data_cfg = config['data']
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Logging Configuration                                                 │
-    #┴───────────────────────────────────────────────────────────────────────╯
-
-    log_cfg = config['log']
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Training Configuration                                                │
-    #┴───────────────────────────────────────────────────────────────────────╯
-
-    train_cfg = config['train']
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Miscellaneous Configuration                                           │
-    #┴───────────────────────────────────────────────────────────────────────╯
-
-    misc_cfg = config['misc']
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Packaging                                                             │
-    #┴───────────────────────────────────────────────────────────────────────╯
-
-    bundled_cfg = {
+    cfg = {
         'model': recursively_make_namespace(config['model']),
-
-        'save': SimpleNamespace(**save_cfg),
-
-        'data': SimpleNamespace(**data_cfg),
-        'log': SimpleNamespace(**log_cfg),
-        'train': SimpleNamespace(**train_cfg),
-
-        'misc': recursively_make_namespace(misc_cfg)
+        'save': recursively_make_namespace(config['save']),
+        'data': recursively_make_namespace(config['data']),
+        'log': recursively_make_namespace(config['log']),
+        'train': recursively_make_namespace(config['train']),
+        'misc': recursively_make_namespace(config['misc'])
     }
+    return cfg
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Model Instantiator                                                    │
-    #┴───────────────────────────────────────────────────────────────────────╯
-
-    def form(template):
-        """Instantiates a model according to a configured template."""
-
-        # Create a model from the provided template
-        try:
-            def cfg_to_class(template, actual):
-                """Create nested models from a JSON dictionary."""
-
-                # peel off class data
-                c = template['_class']
-                del template['_class']
-
-                logging.debug(f'parsing HJSON for {c}')
-
-                # reformat provided data into the specified class
-                if 'cfg' in actual:
-                    # if the class is requesting access to the
-                    # configuration data, provide it, allowing it to be
-                    # referenced in the class' instantiation function
-                    #
-                    # classes requestion the configuration data must
-                    # have it as one of their positional arguments
-                    del actual['cfg']
-                    m = c(cfg=bundled_cfg, **actual)
-                else:
-                    m = c(**actual)
-
-                # recurse
-                for k in template.keys():
-                    x = cfg_to_class(template[k], actual[k])
-                    setattr(m, k, x)
-                return m
-
-            model_cfg = json.loads(hjson.dumpsJSON(config['model']))
-            model = cfg_to_class(template, model_cfg)
-        except Exception as e:
-            logging.critical('failed to instantiate model from HJSON')
-            raise Exception(e, 'issue instantiating model from HJSON')
-
-        logging.info(f'instantiated {type(model)} from HJSON')
-        return model
-
-    return form, bundled_cfg
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Startup Boilerplate                                                       │
@@ -356,7 +303,7 @@ def boot():
 
     # Parse HJSON configuration files
     try:
-        form, cfg = load_hjson_config(args.config)
+        cfg = load_hjson_config(args.config)
     except Exception as e:
         raise Exception(e, "issue parsing HJSON")
 
@@ -372,7 +319,16 @@ def boot():
 
     if not device_name:
         logging.warning('GPU device not found')
+        logging.debug(
+            'output of device_lib.list_local_devices(): '
+            + f'{device_lib.list_local_devices()}'
+        )
+        logging.debug(
+            'output of tf.config.list_physical_devices(): '
+            + f'{tf.config.list_physical_devices()}'
+        )
     else:
         logging.debug(f'found GPU at {device_name}')
 
-    return form, cfg
+    # Return configuration settings
+    return cfg
