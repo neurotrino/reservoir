@@ -285,7 +285,7 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     train:
     {
-        type: sinusoid_example
+        type: std_single_task
 
         learning_rate: 0.01
 
