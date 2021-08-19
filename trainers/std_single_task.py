@@ -55,14 +55,14 @@ class Trainer(BaseTrainer):
 
         unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
         rate_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['train'].target_rate)) * self.cfg['train'].rate_cost
-        interm_loss_val_0 = tf.math.add(task_loss,rate_loss)
+        #interm_loss_val_0 = tf.math.add(task_loss,rate_loss)
 
-        synchrony = fano_factor(self, self.cfg['data'].seq_len, spikes)
-        synch_loss = tf.reduce_sum(tf.square(synchrony - self.cfg['train'].target_synch)) * self.cfg['train'].synch_cost
+        #synchrony = fano_factor(self, self.cfg['data'].seq_len, spikes)
+        #synch_loss = tf.reduce_sum(tf.square(synchrony - self.cfg['train'].target_synch)) * self.cfg['train'].synch_cost
         #interm_loss_val_1 = tf.math.add(interm_loss_val_0,synch_loss)
-        total_loss_val = tf.math.add(interm_loss_val_0,synch_loss)
+        #total_loss_val = tf.math.add(interm_loss_val_0,synch_loss)
         #total_loss_val = tf.math.add(task_loss, synch_loss)
-        #total_loss_val = tf.math.add(task_loss,rate_loss)
+        total_loss_val = tf.math.add(task_loss, rate_loss)
 
         #w_rec = np.array(self.model.cell.recurrent_weights)
 
