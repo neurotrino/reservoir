@@ -123,7 +123,7 @@
         {
             type: ExInALIF
 
-            rewiring: false
+            rewiring: true
 
             units: 100   // number of units in the layer
 
