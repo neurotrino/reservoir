@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: ../experiments/dmc_sparse_lif
+        exp_dir: ../experiments/ccd_sparse_lif
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -178,14 +178,14 @@
     #┴───────────────────────────────────────────────────────────────────────╯
     data:
     {
-        type: dmc
+        type: ccd
 
         // file containing spike data for CCD or DMC
-        spike_npz:
-        /home/macleanlab/stim/dmc/2021-08-05-1225/CNN_outputs/spike_train.npz
-
         //spike_npz:
-        ///home/macleanlab/CNN_outputs/spike_train_mixed_limlifetime_abs.npz
+        ///home/macleanlab/stim/dmc/2021-08-05-1225/CNN_outputs/spike_train.npz
+
+        spike_npz:
+        /home/macleanlab/CNN_outputs/spike_train_mixed_limlifetime_abs.npz
 
         // file containing sample match/non-match data
         match_npy:
