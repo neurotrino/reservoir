@@ -155,6 +155,7 @@ class _LIFCore(BaseNeuron):
 
         # If rewiring is permitted, then count new zeros
         # Create that same # of new connections (from post-update zero connections)
+        """
         if self.rewiring:
             pre_zeros = tf.where(tf.equal(preweights, 0))
             #pre_zeros_ct = tf.cast(tf.size(pre_zeros)/2, tf.int32)
@@ -173,6 +174,7 @@ class _LIFCore(BaseNeuron):
                         new_w = - new_w * 10
                     # reassign to self.recurrent_weights
                     self.recurrent_weights.assign(post_zeros[new_pos_idx], new_w)
+        """
 
 
         i_in = tf.matmul(inputs, self.input_weights)
