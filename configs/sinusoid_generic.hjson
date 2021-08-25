@@ -153,9 +153,6 @@
             beta: 0.16
             tau_adaptation: 100
 
-            //
-            rewiring: false
-
             // μ for normal distribution (exponentiated for lognormal weights)
             mu: -0.64
 
