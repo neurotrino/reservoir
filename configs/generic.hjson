@@ -162,9 +162,9 @@
 
             // A bunch of AdEx parameters all at once with no context
             tauw: 144
-            a: 0.000004
-            b: 0.0000805
-            gL: 0.00003
+            a: 4e-6
+            b: 8.05e-5
+            gL: 3e-5
             C: 281
             deltaT: 2
             V_reset: -51
