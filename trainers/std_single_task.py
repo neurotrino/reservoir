@@ -210,6 +210,8 @@ class Trainer(BaseTrainer):
             }
         )
 
+        pre_zeros = tf.where(tf.equal(tf.cell.recurrent_weights, 0))
+
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Gradient Application                                              │
         #┴───────────────────────────────────────────────────────────────────╯
@@ -247,7 +249,6 @@ class Trainer(BaseTrainer):
         ))
 
         if self.cfg['model'].cell.rewiring:
-            pre_zeros = tf.where(tf.equal(preweights, 0))
             #pre_zeros_ct = tf.cast(tf.size(pre_zeros)/2, tf.int32)
             post_zeros = tf.where(tf.equal(self.model.cell.recurrent_weights, 0))
             #post_zeros_ct = tf.where(tf.size(post_zeros)/2, tf.int32)
