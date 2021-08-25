@@ -263,8 +263,11 @@ class Trainer(BaseTrainer):
                         # if inhib, make weight -10x
                         new_w = - new_w * 10
                     # reassign to self.recurrent_weights
-                    #self.model.cell.recurrent_weights.assign(post_zeros[new_pos_idx], new_w)
-                    self.model.cell.recurrent_weights = tf.tensor_scatter_nd_update(self.model.cell.recurrent_weights, [post_zeros[new_pos_idx]], [new_w])
+                    self.model.cell.recurrent_weights.assign(tf.where(
+                        self.model.cell.recurrent_weights == self.model.cell.recurrent_weights[post_zeros[new_pos_idx]],
+                        self.model.cell.recurrent_weights,
+                        new_w)
+                    #tf.tensor_scatter_nd_update(self.model.cell.recurrent_weights, [post_zeros[new_pos_idx]], [new_w])
 
         # In a similar way, one could use CMG to create sparse initial
         # input weights, then capture the signs so as to enforce
