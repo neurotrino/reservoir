@@ -264,7 +264,7 @@ class Trainer(BaseTrainer):
                         new_w = - new_w * 10
                     # reassign to self.recurrent_weights
                     self.model.cell.recurrent_weights.assign(tf.where(
-                        self.model.cell.recurrent_weights == self.model.cell.recurrent_weights[post_zeros[new_pos_idx]],
+                        self.model.cell.recurrent_weights == self.model.cell.recurrent_weights[tf.cast(post_zeros[new_pos_idx], tf.int32)],
                         new_w,
                         self.model.cell.recurrent_weights))
                     #tf.tensor_scatter_nd_update(self.model.cell.recurrent_weights, [post_zeros[new_pos_idx]], [new_w])
