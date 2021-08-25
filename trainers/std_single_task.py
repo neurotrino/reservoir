@@ -252,7 +252,7 @@ class Trainer(BaseTrainer):
             post_zeros = tf.where(tf.equal(self.model.cell.recurrent_weights, 0))
             #post_zeros_ct = tf.where(tf.size(post_zeros)/2, tf.int32)
             #new_zeros_ct = tf.subtract(post_zeros_ct, pre_zeros_ct)
-            new_zeros_ct = tf.subtract(tf.shape(pre_zeros)[0],tf.shape(post_zeros)[0])
+            new_zeros_ct = tf.subtract(tf.shape(post_zeros)[0],tf.shape(pre_zeros)[0])
             if new_zeros_ct > 0:
                 for i in range(0,new_zeros_ct): # for all new zeros
                     # randomly select a position from post_zeros (total possible zeros)
