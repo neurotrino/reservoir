@@ -19,7 +19,8 @@ class _LIFCore(BaseNeuron):
     All other neurons in the lif.py module inherit from this class.
 
     Configuration Parameters:
-        rewiring - enable/disable rewiring
+        freewiring - enable/disable wiring without any constraints
+        rewiring - when a synapse goes to 0, a random new synapse will form
         tau - parameter used in signal decay calculations
         units - number of neurons in the layer
 
@@ -55,6 +56,7 @@ class _LIFCore(BaseNeuron):
         self.units = cell_cfg.units
         self.mu = cell_cfg.mu # [?] check if all LIF should have this
         self.sigma = cell_cfg.sigma # [?] check if all LIF should have this
+        self.freewiring = cell_cfg.freewiring
         self.rewiring = cell_cfg.rewiring # [?] check if all cells should have this
 
         # self.p = cell_cfg.p  # [?] check if all LIF/cells should have this
@@ -116,7 +118,7 @@ class _LIFCore(BaseNeuron):
         self.set_weights([self.input_weights.value(), initial_weights_mat])
 
         # Store neurons' signs
-        if self.rewiring:
+        if self.freewiring:
             # Store using +1 for excitatory, -1 for inhibitory
             wmat = -1 * np.ones([self.units, self.units])
             wmat[0:self.n_excite,:] = -1 * wmat[0:self.n_excite,:]
@@ -134,7 +136,7 @@ class _LIFCore(BaseNeuron):
         """
         [old_v, old_r, old_z] = state[:3]
 
-        if self.rewiring:
+        if self.freewiring:
             # Make sure all self-connections remain 0
             self.recurrent_weights.assign(tf.where(
                 self.disconnect_mask,
@@ -144,11 +146,34 @@ class _LIFCore(BaseNeuron):
 
         # If the sign of a weight changed from the original unit's
         # designation or the weight is no longer 0, make it 0
+        preweights = self.recurrent_weights
         self.recurrent_weights.assign(tf.where(
             self.rec_sign * self.recurrent_weights > 0,
             self.recurrent_weights,
             0
         ))
+
+        # If rewiring is permitted, then count new zeros
+        # Create that same # of new connections (from post-update zero connections)
+        if self.rewiring:
+            pre_zeros = tf.where(tf.equal(preweights, 0))
+            #pre_zeros_ct = tf.cast(tf.size(pre_zeros)/2, tf.int32)
+            post_zeros = tf.where(tf.equal(self.recurrent_weights, 0))
+            #post_zeros_ct = tf.where(tf.size(post_zeros)/2, tf.int32)
+            #new_zeros_ct = tf.subtract(post_zeros_ct, pre_zeros_ct)
+            new_zeros_ct = tf.subtract(tf.shape(pre_zeros)[0],tf.shape(post_zeros)[0])
+            if new_zeros_ct > 0:
+                for i in range(0,new_zeros_ct): # for all new zeros
+                    # randomly select a position from post_zeros (total possible zeros)
+                    new_pos_idx = numpy.random.randint(0, tf.shape(post_zeros)[0])
+                    # draw a new weight
+                    new_w = numpy.random.lognormal(self.mu, self.sigma)
+                    if post_zeros[new_pos_idx][0] >= self.n_excite:
+                        # if inhib, make weight -10x
+                        new_w = - new_w * 10
+                    # reassign to self.recurrent_weights
+                    self.recurrent_weights.assign(post_zeros[new_pos_idx], new_w)
+
 
         i_in = tf.matmul(inputs, self.input_weights)
         i_rec = tf.matmul(old_z, self.recurrent_weights)
@@ -363,7 +388,7 @@ class ExInALIF(_LIFCore):
         self.set_weights([self.input_weights.value(), initial_weights_mat])
 
         # Store neurons' signs
-        if self.rewiring:
+        if self.freewiring:
             # +1 for excitatory and -1 for inhibitory
             wmat = -1 * np.ones([self.units, self.units])
             wmat[0:self.n_excite,:] = -1 * wmat[0:self.n_excite,:]
@@ -379,7 +404,7 @@ class ExInALIF(_LIFCore):
         """TODO: docs"""
         [old_v, old_r, old_b, old_z] = state[:4]
 
-        if self.rewiring:
+        if self.freewiring:
             # Make sure all self-connections remain 0
             self.recurrent_weights.assign(tf.where(
                 self.disconnect_mask, tf.zeros_like(self.recurrent_weights),

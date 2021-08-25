@@ -151,6 +151,7 @@ class Trainer(BaseTrainer):
         #     first time, but not this
         preweights = [x.numpy() for x in self.model.trainable_variables]
         """
+        preweights = [x.numpy() for x in self.model.trainable_variables]
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Gradient Calculation                                              │
@@ -221,11 +222,11 @@ class Trainer(BaseTrainer):
         #┤ Sparsity Application                                              │
         #┴───────────────────────────────────────────────────────────────────╯
 
-        # if rewiring is permitted (i.e. sparsity is NOT enforced),
+        # if freewiring is permitted (i.e. sparsity of any kind is NOT enforced),
         # this step is needed to explicitly ensure self-recurrent
         # connections remain zero otherwise (if sparsity IS enforced)
         # that is taken care of through the rec_sign application below
-        if self.cfg['model'].cell.rewiring:
+        if self.cfg['model'].cell.freewiring:
             # Make sure all self-connections remain 0
             self.model.cell.recurrent_weights.assign(tf.where(
                 self.model.cell.disconnect_mask,
@@ -244,6 +245,25 @@ class Trainer(BaseTrainer):
             self.model.cell.recurrent_weights,
             0
         ))
+
+        if self.cfg['model'].cell.rewiring:
+            pre_zeros = tf.where(tf.equal(preweights[1], 0))
+            #pre_zeros_ct = tf.cast(tf.size(pre_zeros)/2, tf.int32)
+            post_zeros = tf.where(tf.equal(self.model.cell.recurrent_weights, 0))
+            #post_zeros_ct = tf.where(tf.size(post_zeros)/2, tf.int32)
+            #new_zeros_ct = tf.subtract(post_zeros_ct, pre_zeros_ct)
+            new_zeros_ct = tf.subtract(tf.shape(pre_zeros)[0],tf.shape(post_zeros)[0])
+            if new_zeros_ct > 0:
+                for i in range(0,new_zeros_ct): # for all new zeros
+                    # randomly select a position from post_zeros (total possible zeros)
+                    new_pos_idx = numpy.random.randint(0, tf.shape(post_zeros)[0])
+                    # draw a new weight
+                    new_w = numpy.random.lognormal(self.model.cell.mu, self.model.cell.sigma)
+                    if post_zeros[new_pos_idx][0] >= self.model.cell.n_excite:
+                        # if inhib, make weight -10x
+                        new_w = - new_w * 10
+                    # reassign to self.recurrent_weights
+                    self.model.cell.recurrent_weights.assign(post_zeros[new_pos_idx], new_w)
 
         # In a similar way, one could use CMG to create sparse initial
         # input weights, then capture the signs so as to enforce
