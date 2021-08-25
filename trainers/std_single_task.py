@@ -256,9 +256,9 @@ class Trainer(BaseTrainer):
             if new_zeros_ct > 0:
                 for i in range(0,new_zeros_ct): # for all new zeros
                     # randomly select a position from post_zeros (total possible zeros)
-                    new_pos_idx = numpy.random.randint(0, tf.shape(post_zeros)[0])
+                    new_pos_idx = np.random.randint(0, tf.shape(post_zeros)[0])
                     # draw a new weight
-                    new_w = numpy.random.lognormal(self.model.cell.mu, self.model.cell.sigma)
+                    new_w = np.random.lognormal(self.model.cell.mu, self.model.cell.sigma)
                     if post_zeros[new_pos_idx][0] >= self.model.cell.n_excite:
                         # if inhib, make weight -10x
                         new_w = - new_w * 10
