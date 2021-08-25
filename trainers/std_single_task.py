@@ -151,7 +151,6 @@ class Trainer(BaseTrainer):
         #     first time, but not this
         preweights = [x.numpy() for x in self.model.trainable_variables]
         """
-        preweights = self.model.cell.recurrent_weights
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Gradient Calculation                                              │
@@ -210,7 +209,7 @@ class Trainer(BaseTrainer):
             }
         )
 
-        pre_zeros = tf.where(tf.equal(tf.cell.recurrent_weights, 0))
+        pre_zeros = tf.where(tf.equal(self.model.cell.recurrent_weights, 0))
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Gradient Application                                              │
