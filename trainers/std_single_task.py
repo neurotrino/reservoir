@@ -297,7 +297,7 @@ class Trainer(BaseTrainer):
                 #     not implemented as of TensorFlow 2.6.0
                 zero_indices = [[x] for x in zero_indices]
                 tf.tensor_scatter_nd_update(
-                    self.recurrent_weights,
+                    self.model.cell.recurrent_weights,
                     zero_indices,
                     new_weights
                 )
