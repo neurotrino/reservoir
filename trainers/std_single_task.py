@@ -255,6 +255,7 @@ class Trainer(BaseTrainer):
             # [?] tf.equal(...)
             zero_indices = tf.where(self.model.cell.recurrent_weights == 0)
             new_zeros_ct = tf.subtract(tf.shape(zero_indices)[0],tf.shape(pre_zeros)[0])
+            logging.debug(f'found {len(zero_indices)} zeroes')
 
             # Replace any new zeros (not necessarily in the same spot)
             if new_zeros_ct > 0:
@@ -268,23 +269,8 @@ class Trainer(BaseTrainer):
 
                 # Randomly select zero-weight indices (without replacement)
                 # [?] use tf instead of np
-                print()
-                print('A:')
-                print(zero_indices)
-                print()
-                print()
                 meta_indices = np.random.choice(len(zero_indices), new_zeros_ct, False)
-                print()
-                print('B:')
-                print(meta_indices)
-                print()
-                print()
                 zero_indices = tf.gather(zero_indices, meta_indices)
-                print()
-                print('C:')
-                print(zero_indices)
-                print()
-                print()
 
                 # Invert and scale inhibitory neurons
                 # [!] should have a method in .cell abstracting this or
@@ -300,17 +286,12 @@ class Trainer(BaseTrainer):
                 # Update recurrent weights
                 # [*] in-place version of tensor_scatter_nd_update()
                 #     not implemented as of TensorFlow 2.6.0
-                print()
-                print('D:')
-                print(self.model.cell.recurrent_weights)
-                print()
-                print('E:')
                 x = tf.tensor_scatter_nd_update(
                     tf.zeros(self.model.cell.recurrent_weights.shape),
                     zero_indices,
                     new_weights
                 )
-                logging.debug(f'{tf.math.count_nonzero(x)} non-zero values in recurrent weight patch')
+                logging.debug(f'{tf.math.count_nonzero(x)} non-zero values generated in recurrent weight patch')
                 print(x)
                 self.model.cell.recurrent_weights.assign_add(x)  # assign_add?
                 # as of version 2.6.0, tensorflow does not support in-place
