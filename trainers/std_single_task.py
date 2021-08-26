@@ -269,7 +269,7 @@ class Trainer(BaseTrainer):
                 # Randomly select zero-weight indices (without replacement)
                 # [?] use tf instead of np
                 meta_indices = np.random.choice(len(zero_indices), new_zeros_ct, False)
-                zero_indices = zero_indices[tf.convert_to_tensor(meta_indices)]  # [!] would prefer not casting here
+                zero_indices = zero_indices[[tf.int64(x) for x in meta_indices]]  # [!] would prefer not to have to cast
 
                 # Invert and scale inhibitory neurons
                 # [!] should have a method in .cell abstracting this or
