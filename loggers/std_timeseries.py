@@ -164,6 +164,7 @@ class Logger(BaseLogger):
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def plot_everything(self, filename, idx=-1):
+        return#[!] tmp
         # Because matplotlib infringes on our logger, we quiet it here,
         # then unquiet it when we actually need to use it
         logger = logging.getLogger()
