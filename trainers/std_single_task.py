@@ -300,7 +300,7 @@ class Trainer(BaseTrainer):
             logging.debug(f'calculated {new_zeros_ct} new zeroes')
             self.model.cell.recurrent_weights.assign(tf.where(  # undo the thing
                 self.model.cell.disconnect_mask,
-                tf.zeros_like(self.recurrent_weights),
+                tf.zeros_like(self.model.cell.recurrent_weights),
                 self.model.cell.recurrent_weights
             ))
 
