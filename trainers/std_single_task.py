@@ -279,7 +279,7 @@ class Trainer(BaseTrainer):
                 print(meta_indices)
                 print()
                 print()
-                zero_indices = tf.gather_nd(zero_indices, meta_indices)
+                zero_indices = tf.gather(zero_indices, meta_indices)
                 print()
                 print('C:')
                 print(zero_indices)
