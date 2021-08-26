@@ -333,8 +333,12 @@ class Trainer(BaseTrainer):
                 )
 
                 # [!] Should make this a cell method
+                print()
+                print('zero_indices:')
+                print(zero_indices)
+                print()
                 to_change = tf.where(self.model.cell.recurrent_weights > 0)
-                to_change = tf.where(to_change[0] >= self.model.cell.n_excite)
+                to_change = to_change[tf.where(to_change[0] >= self.model.cell.n_excite)]
                 print()
                 print('to_change:')
                 print(to_change)
