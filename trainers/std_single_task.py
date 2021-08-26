@@ -295,7 +295,7 @@ class Trainer(BaseTrainer):
                 # Update recurrent weights
                 # [*] in-place version of tensor_scatter_nd_update()
                 #     not implemented as of TensorFlow 2.6.0
-                self.cell.recurrent_weights.assign(
+                self.model.cell.recurrent_weights.assign(
                     tf.tensor_scatter_nd_update(
                         self.model.cell.recurrent_weights,
                         zero_indices,
