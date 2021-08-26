@@ -301,6 +301,18 @@ class Trainer(BaseTrainer):
                 meta_indices = np.random.choice(len(zero_indices), new_zeros_ct, False)
                 zero_indices = tf.gather(zero_indices, meta_indices)
 
+                # Invert and scale inhibitory neurons
+                # [!] should have a method in .cell abstracting this or
+                #     an attribute cell.eneuron_indices
+                # update weights after .assign()
+                # >> take a slice of all neurons after the excitatory
+                #    then run a .where(> 0) *= -10
+                #ex_idxs = np.where(zero_indices[0] >= self.model.cell.n_excite)
+                #zero_indices[ex_idxs] *= -10  #[!] add back in
+                #
+                # Where zero(meta?)_indices are above value, weights *=
+                new_weights[np.where(zero_indices >= self.model.cell.n_excite)] *= -10
+
                 # Update recurrent weights
                 # [*] in-place version of tensor_scatter_nd_update()
                 #     not implemented as of TensorFlow 2.6.0
@@ -310,16 +322,6 @@ class Trainer(BaseTrainer):
                     new_weights
                 )
                 logging.debug(f'{tf.math.count_nonzero(x)} non-zero values generated in recurrent weight patch')
-
-                # Invert and scale inhibitory neurons
-                # [!] should have a method in .cell abstracting this or
-                #     an attribute cell.eneuron_indices
-                # update weights after .assign()
-                # >> take a slice of all neurons after the excitatory
-                #    then run a .where(> 0) *= -10
-                #ex_idxs = np.where(zero_indices[0] >= self.model.cell.n_excite)
-                #zero_indices[ex_idxs] *= -10  #[!] add back in
-                x[self.model.cell.n_excite:] *= -10
 
                 # as of version 2.6.0, tensorflow does not support in-place
                 # operation of tf.tensor_scatter_nd_update(), so we just
