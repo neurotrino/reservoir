@@ -357,7 +357,7 @@ class ExInALIF(_LIFCore):
                 minval=0.0,
                 maxval=0.4
             ),
-            trainable = True,
+            trainable=True,
             name='input_weights'
         )
 
