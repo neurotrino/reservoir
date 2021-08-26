@@ -274,9 +274,14 @@ class Trainer(BaseTrainer):
                 print()
                 print()
                 meta_indices = np.random.choice(len(zero_indices), new_zeros_ct, False)
-                zero_indices = zero_indices[[tf.cast(x, tf.int32) for x in meta_indices]]  # [!] would prefer not to have to cast
                 print()
                 print('B:')
+                print(meta_indices)
+                print()
+                print()
+                zero_indices = zero_indices[[tf.cast(x, tf.int32) for x in meta_indices]]  # [!] would prefer not to have to cast
+                print()
+                print('C:')
                 print(zero_indices)
                 print()
                 print()
