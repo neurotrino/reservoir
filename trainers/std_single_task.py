@@ -311,18 +311,6 @@ class Trainer(BaseTrainer):
                 #zero_indices[ex_idxs] *= -10  #[!] add back in
                 #
                 # Where zero(meta?)_indices are above value, weights *=
-                print()
-                print('New Weights:')
-                print(new_weights)
-                print()
-                print('zero_indices:')
-                print(zero_indices)
-                print()
-                print('np.where(...):')
-                print(np.where(zero_indices >= self.model.cell.n_excite))
-                print()
-                print()
-                new_weights[np.where(zero_indices >= self.model.cell.n_excite)] *= -10
 
                 # Update recurrent weights
                 # [*] in-place version of tensor_scatter_nd_update()
@@ -344,6 +332,12 @@ class Trainer(BaseTrainer):
                     f'{tf.math.count_nonzero(self.model.cell.recurrent_weights)} non-zeroes in recurrent layer after adjustments'
                 )
 
+                # [!] Should make this a cell method
+                to_change = tf.where(self.model.cell.recurrent_weights > 0)
+                print()
+                print('to_change:')
+                print(to_change)
+                print()
                 # [!] Still need to exclude self-connections
 
         # In a similar way, one could use CMG to create sparse initial
