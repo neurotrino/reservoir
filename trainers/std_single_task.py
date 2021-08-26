@@ -295,13 +295,21 @@ class Trainer(BaseTrainer):
                 # Update recurrent weights
                 # [*] in-place version of tensor_scatter_nd_update()
                 #     not implemented as of TensorFlow 2.6.0
-                self.model.cell.recurrent_weights.assign(
-                    tf.tensor_scatter_nd_update(
-                        self.model.cell.recurrent_weights,
-                        zero_indices,
-                        new_weights
-                    )
-                )
+                print()
+                print('D:')
+                print(self.model.cell.recurrent_weights)
+                print()
+                print('F:')
+                print(tf.tensor_scatter_nd_update(
+                    self.model.cell.recurrent_weights,
+                    zero_indices,
+                    new_weights
+                ))
+                print()
+                print('E:')
+                print(self.model.cell.recurrent_weights)
+                print()
+                print()
 
                 """
                 # [!] Still need to exclude self-connections
