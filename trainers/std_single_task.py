@@ -277,14 +277,32 @@ class Trainer(BaseTrainer):
             )
 
             # Determine how many weights went to zero in this step
-            # [?] tf.equal(...)
-            zero_indices = tf.where(self.model.cell.recurrent_weights == 0 and self.model.cell.recurrent_weights[0] != self.model.cell.recurrent_weights[1])
+            self.model.cell.recurrent_weights.assign(tf.where(
+                self.model.cell.disconnect_mask,
+                tf.ones_like(self.model.cell.recurrent_weights),
+                self.model.cell.recurrent_weights
+            ))
+            # so what I'm doing here is basically just setting the
+            # diagonal to non-zero for a second so that it doesn't get
+            # put into the "draw pile" and then we set it back. Not
+            # sure if this is an efficient or unproblematic solution
+            # but it's easy
+            #
+            # if there are side effects, an option would be to make a
+            # deep copy of the recurrent weights and use *that* to
+            # generate the indices we need
+            zero_indices = tf.where(self.model.cell.recurrent_weights == 0)
             new_zeros_ct = tf.shape(zero_indices)[0] - tf.shape(pre_zeros)[0]
             logging.debug(
                 f'found {tf.math.count_nonzero(self.model.cell.recurrent_weights)}'
                 + ' non-zeroes'
             )
             logging.debug(f'calculated {new_zeros_ct} new zeroes')
+            self.model.cell.recurrent_weights.assign(tf.where(  # undo the thing
+                self.model.cell.disconnect_mask,
+                tf.zeros_like(self.recurrent_weights),
+                self.model.cell.recurrent_weights
+            ))
 
             # Replace any new zeros (not necessarily in the same spot)
             if new_zeros_ct > 0:
