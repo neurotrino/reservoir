@@ -309,7 +309,7 @@ class Trainer(BaseTrainer):
                     new_weights
                 )
                 #print(x)
-                self.model.cell.recurrent_weights.add_assign(x)  # assign_add?
+                self.model.cell.recurrent_weights.assign_add(x)  # assign_add?
                 # as of version 2.6.0, tensorflow does not support in-place
                 # operation of tf.tensor_scatter_nd_update(), so we just
                 # add it to our recurrent weights, which works because
