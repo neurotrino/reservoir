@@ -279,7 +279,7 @@ class Trainer(BaseTrainer):
                 print(meta_indices)
                 print()
                 print()
-                zero_indices = zero_indices[meta_indices]  # [!] would prefer not to have to cast
+                zero_indices = zero_indices[tf.convert_to_tensor(meta_indices)]  # [!] would prefer not to have to cast
                 print()
                 print('C:')
                 print(zero_indices)
