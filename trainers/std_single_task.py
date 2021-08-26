@@ -340,7 +340,7 @@ class Trainer(BaseTrainer):
                 to_change = tf.where(self.model.cell.recurrent_weights > 0)
                 to_change = to_change[tf.where(to_change[0] >= self.model.cell.n_excite)]
                 print()
-                print('to_change:')
+                print(f'to_change (cutoff={self.model.cell.n_excite}):')
                 print(to_change)
                 print()
                 # [!] Still need to exclude self-connections
