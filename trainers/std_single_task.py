@@ -312,7 +312,13 @@ class Trainer(BaseTrainer):
                 #
                 # Where zero(meta?)_indices are above value, weights *=
                 print()
+                print('New Weights:')
+                print(new_weights)
                 print()
+                print('zero_indices:')
+                print(zero_indices)
+                print()
+                print('np.where(...):')
                 print(np.where(zero_indices >= self.model.cell.n_excite))
                 print()
                 print()
