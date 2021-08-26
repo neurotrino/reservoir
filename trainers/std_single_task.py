@@ -269,17 +269,22 @@ class Trainer(BaseTrainer):
                 # Randomly select zero-weight indices (without replacement)
                 # [?] use tf instead of np
                 print()
-                print()
+                print('A:')
                 print(zero_indices)
                 print()
                 print()
                 meta_indices = np.random.choice(len(zero_indices), new_zeros_ct, False)
                 zero_indices = zero_indices[[tf.cast(x, tf.int32) for x in meta_indices]]  # [!] would prefer not to have to cast
+                print()
+                print('B:')
+                print(zero_indices)
+                print()
+                print()
 
                 # Invert and scale inhibitory neurons
                 # [!] should have a method in .cell abstracting this or
                 #     an attribute cell.eneuron_indices
-                ex_idxs = np.where(zero_indices >= self.model.cell.n_excite)
+                ex_idxs = np.where(zero_indices[0] >= self.model.cell.n_excite)
                 zero_indices[ex_idxs] *= -10
 
                 # Update recurrent weights
