@@ -268,6 +268,11 @@ class Trainer(BaseTrainer):
 
                 # Randomly select zero-weight indices (without replacement)
                 # [?] use tf instead of np
+                print()
+                print()
+                print(zero_indices)
+                print()
+                print()
                 meta_indices = np.random.choice(len(zero_indices), new_zeros_ct, False)
                 zero_indices = zero_indices[[tf.cast(x, tf.int32) for x in meta_indices]]  # [!] would prefer not to have to cast
 
