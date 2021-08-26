@@ -278,7 +278,7 @@ class Trainer(BaseTrainer):
 
             # Determine how many weights went to zero in this step
             # [?] tf.equal(...)
-            zero_indices = tf.where(self.model.cell.recurrent_weights == 0)
+            zero_indices = tf.where(self.model.cell.recurrent_weights == 0 and self.model.cell.recurrent_weights[0] != self.model.cell.recurrent_weights[1])
             new_zeros_ct = tf.shape(zero_indices)[0] - tf.shape(pre_zeros)[0]
             logging.debug(
                 f'found {tf.math.count_nonzero(self.model.cell.recurrent_weights)}'
