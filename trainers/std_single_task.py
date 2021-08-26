@@ -300,11 +300,11 @@ class Trainer(BaseTrainer):
                 print(self.model.cell.recurrent_weights)
                 print()
                 print('F:')
-                print(tf.tensor_scatter_nd_update(
+                self.model.cell.recurrent_weights = tf.tensor_scatter_nd_update(
                     self.model.cell.recurrent_weights,
                     zero_indices,
                     new_weights
-                ))
+                )
                 print()
                 print('E:')
                 print(self.model.cell.recurrent_weights)
