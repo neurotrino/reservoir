@@ -209,7 +209,7 @@ class Trainer(BaseTrainer):
             }
         )
 
-        pre_zeros = tf.where(tf.equal(self.model.cell.recurrent_weights, 0))
+        pre_zeros = tf.where(self.model.cell.recurrent_weights == 0)
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Gradient Application                                              │
@@ -254,8 +254,9 @@ class Trainer(BaseTrainer):
             # Determine how many weights went to zero in this step
             # [?] tf.equal(...)
             zero_indices = tf.where(self.model.cell.recurrent_weights == 0)
-            new_zeros_ct = tf.subtract(tf.shape(zero_indices)[0],tf.shape(pre_zeros)[0])
+            new_zeros_ct = tf.shape(zero_indices)[0] - tf.shape(pre_zeros)[0]
             logging.debug(f'found {len(zero_indices)} zeroes')
+            logging.debug(f'calculated {new_zeros_ct} new zeroes')
 
             # Replace any new zeros (not necessarily in the same spot)
             if new_zeros_ct > 0:
