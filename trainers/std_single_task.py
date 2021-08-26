@@ -251,6 +251,8 @@ class Trainer(BaseTrainer):
         if self.cfg['model'].cell.rewiring:  # TODO: document in HJSON
             #self.model.cell.rewire()  # end goal is to have this method
 
+            logging.debug(f'{tf.math.count_nonzero(self.model.cell.recurrent_weights)} zeroes in recurrent layer after gradients')
+
             # Determine how many weights went to zero in this step
             # [?] tf.equal(...)
             zero_indices = tf.where(self.model.cell.recurrent_weights == 0)
@@ -293,18 +295,15 @@ class Trainer(BaseTrainer):
                     new_weights
                 )
                 logging.debug(f'{tf.math.count_nonzero(x)} non-zero values generated in recurrent weight patch')
-                print(x)
                 self.model.cell.recurrent_weights.assign_add(x)  # assign_add?
+                logging.debug(
+                    f'{tf.math.count_nonzero(self.model.cell.recurrent_weights)} zeroes in recurrent layer after adjustments'
+                )
                 # as of version 2.6.0, tensorflow does not support in-place
                 # operation of tf.tensor_scatter_nd_update(), so we just
                 # add it to our recurrent weights, which works because
                 # scatter_nd_update, only has values in places where
                 # recurrent weights are zero
-                print()
-                print('F:')
-                print(self.model.cell.recurrent_weights)
-                print()
-                print()
 
                 # [!] Still need to exclude self-connections
                 # [*] should not be getting more zeros
