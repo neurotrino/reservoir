@@ -300,11 +300,16 @@ class Trainer(BaseTrainer):
                 print(self.model.cell.recurrent_weights)
                 print()
                 print('F:')
-                self.model.cell.recurrent_weights = tf.tensor_scatter_nd_update(
+                self.model.cell.recurrent_weights += tf.tensor_scatter_nd_update(
                     self.model.cell.recurrent_weights,
                     zero_indices,
                     new_weights
                 )
+                # as of version 2.6.0, tensorflow does not support in-place
+                # operation of tf.tensor_scatter_nd_update(), so we just
+                # add it to our recurrent weights, which works because
+                # scatter_nd_update, only has values in places where
+                # recurrent weights are zero
                 print()
                 print('E:')
                 print(self.model.cell.recurrent_weights)
