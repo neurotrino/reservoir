@@ -257,7 +257,7 @@ class Trainer(BaseTrainer):
             # [?] tf.equal(...)
             zero_indices = tf.where(self.model.cell.recurrent_weights == 0)
             new_zeros_ct = tf.shape(zero_indices)[0] - tf.shape(pre_zeros)[0]
-            logging.debug(f'found {len(zero_indices)} zeroes')
+            logging.debug(f'found {tf.math.count_nonzero(self.model.cell.recurrent_weights)} non-zeroes')
             logging.debug(f'calculated {new_zeros_ct} new zeroes')
 
             # Replace any new zeros (not necessarily in the same spot)
@@ -297,7 +297,7 @@ class Trainer(BaseTrainer):
                 logging.debug(f'{tf.math.count_nonzero(x)} non-zero values generated in recurrent weight patch')
                 self.model.cell.recurrent_weights.assign_add(x)  # assign_add?
                 logging.debug(
-                    f'{tf.math.count_nonzero(self.model.cell.recurrent_weights)} zeroes in recurrent layer after adjustments'
+                    f'{tf.math.count_nonzero(self.model.cell.recurrent_weights)} non-zeroes in recurrent layer after adjustments'
                 )
                 # as of version 2.6.0, tensorflow does not support in-place
                 # operation of tf.tensor_scatter_nd_update(), so we just
