@@ -258,6 +258,11 @@ class Trainer(BaseTrainer):
             new_zeros_ct = tf.subtract(tf.shape(post_zeros)[0],tf.shape(pre_zeros)[0])
 
             if new_zeros_ct > 0:
+
+                # [!] Would, for efficiency, much prefer to create a
+                #     mask than run a for-loop
+                # [?] Is random supposed to be with replacement below
+
                 for i in range(0, new_zeros_ct): # for all new zeros
                     # randomly select a position from post_zeros (total possible zeros)
                     new_pos_idx = np.random.randint(0, tf.shape(post_zeros)[0])
@@ -272,7 +277,9 @@ class Trainer(BaseTrainer):
                         #self.model.cell.recurrent_weights))
 
                     # [!] get this step to work
-                    tf.assign(self.model.cell.recurrent_weights, [post_zeros[new_pos_idx]], [new_w])
+                    x = tf.tensor_scatter_nd_update(self.model.cell.recurrent_weights, [post_zeros[new_pos_idx]], [new_w])
+                    self.model.cell.recurrent_weights.assign(x)
+                    #, [post_zeros[new_pos_idx]], [new_w])
 
         # In a similar way, one could use CMG to create sparse initial
         # input weights, then capture the signs so as to enforce
