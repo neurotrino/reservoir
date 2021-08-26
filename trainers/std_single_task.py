@@ -268,55 +268,55 @@ class Trainer(BaseTrainer):
 
                 # Randomly select zero-weight indices (without replacement)
                 # [?] use tf instead of np
-                print()
-                print('A:')
-                print(zero_indices)
-                print()
-                print()
+                #print()
+                #print('A:')
+                #print(zero_indices)
+                #print()
+                #print()
                 meta_indices = np.random.choice(len(zero_indices), new_zeros_ct, False)
-                print()
-                print('B:')
-                print(meta_indices)
-                print()
-                print()
+                #print()
+                #print('B:')
+                #print(meta_indices)
+                #print()
+                #print()
                 zero_indices = tf.gather(zero_indices, meta_indices)
-                print()
-                print('C:')
-                print(zero_indices)
-                print()
-                print()
+                #print()
+                #print('C:')
+                #print(zero_indices)
+                #print()
+                #print()
 
                 # Invert and scale inhibitory neurons
                 # [!] should have a method in .cell abstracting this or
                 #     an attribute cell.eneuron_indices
                 ex_idxs = np.where(zero_indices[0] >= self.model.cell.n_excite)
-                #zero_indices[ex_idxs] *= -10  #[!] add back in
+                zero_indices[ex_idxs] *= -10  #[!] add back in
 
                 # Update recurrent weights
                 # [*] in-place version of tensor_scatter_nd_update()
                 #     not implemented as of TensorFlow 2.6.0
-                print()
-                print('D:')
-                print(self.model.cell.recurrent_weights)
-                print()
-                print('E:')
+                #print()
+                #print('D:')
+                #print(self.model.cell.recurrent_weights)
+                #print()
+                #print('E:')
                 x = tf.tensor_scatter_nd_update(
                     self.model.cell.recurrent_weights,
                     zero_indices,
                     new_weights
                 )
-                print(x)
-                self.model.cell.recurrent_weights.assign_add(x)
+                #print(x)
+                self.model.cell.recurrent_weights.assign(x)  # assign_add?
                 # as of version 2.6.0, tensorflow does not support in-place
                 # operation of tf.tensor_scatter_nd_update(), so we just
                 # add it to our recurrent weights, which works because
                 # scatter_nd_update, only has values in places where
                 # recurrent weights are zero
-                print()
-                print('F:')
-                print(self.model.cell.recurrent_weights)
-                print()
-                print()
+                #print()
+                #print('F:')
+                #print(self.model.cell.recurrent_weights)
+                #print()
+                #print()
 
                 """
                 # [!] Still need to exclude self-connections
