@@ -338,11 +338,9 @@ class Trainer(BaseTrainer):
                 print(zero_indices)
                 print()
                 to_change = tf.where(self.model.cell.recurrent_weights > 0)
-                #to_change = to_change[tf.where(to_change[0] >= self.model.cell.n_excite)]
-                print()
-                print(f'to_change (cutoff={self.model.cell.n_excite}):')
-                print(to_change)
-                print()
+                for [x, y] in to_change:  # [!] loop is inefficient
+                    if x >= self.model.cell.n_excite:
+                        self.model.cell.recurrent_weights[x][y] *= -10
                 # [!] Still need to exclude self-connections
 
         # In a similar way, one could use CMG to create sparse initial
