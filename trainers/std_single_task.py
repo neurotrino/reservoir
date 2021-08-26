@@ -251,6 +251,7 @@ class Trainer(BaseTrainer):
         if self.cfg['model'].cell.rewiring:  # TODO: document in HJSON
             #self.model.cell.rewire()  # end goal is to have this method
 
+            logging.debug(f'program thinks we should have {pre_zeros.shape[0]} zeros')
             logging.debug(f'{tf.math.count_nonzero(self.model.cell.recurrent_weights)} zeroes in recurrent layer after gradients')
 
             # Determine how many weights went to zero in this step
