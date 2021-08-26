@@ -155,9 +155,13 @@ class Trainer(BaseTrainer):
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Gradient Calculation                                              │
         #┴───────────────────────────────────────────────────────────────────╯
-        pre_zeros = tf.where(self.model.cell.recurrent_weights == 0)
 
-        voltage, spikes, prediction, loss, grads = self.grad(batch_x, batch_y)
+        try:
+            pre_zeros = tf.where(self.model.cell.recurrent_weights == 0)
+            voltage, spikes, prediction, loss, grads = self.grad(batch_x, batch_y)
+        except:
+            voltage, spikes, prediction, loss, grads = self.grad(batch_x, batch_y)
+            pre_zeros = tf.where(self.model.cell.recurrent_weights == 0)
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Mid-Step Logging                                                  │
