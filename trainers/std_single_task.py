@@ -289,8 +289,8 @@ class Trainer(BaseTrainer):
                 # Invert and scale inhibitory neurons
                 # [!] should have a method in .cell abstracting this or
                 #     an attribute cell.eneuron_indices
-                ex_idxs = np.where(zero_indices[0] >= self.model.cell.n_excite)
-                zero_indices[ex_idxs] *= -10  #[!] add back in
+                #ex_idxs = np.where(zero_indices[0] >= self.model.cell.n_excite)
+                #zero_indices[ex_idxs] *= -10  #[!] add back in
 
                 # Update recurrent weights
                 # [*] in-place version of tensor_scatter_nd_update()
