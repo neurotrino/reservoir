@@ -251,35 +251,65 @@ class Trainer(BaseTrainer):
         if self.cfg['model'].cell.rewiring:  # TODO: document in HJSON
             #self.model.cell.rewire()  # end goal is to have this method
 
-            #pre_zeros_ct = tf.cast(tf.size(pre_zeros)/2, tf.int32)
-            post_zeros = tf.where(tf.equal(self.model.cell.recurrent_weights, 0))
-            #post_zeros_ct = tf.where(tf.size(post_zeros)/2, tf.int32)
-            #new_zeros_ct = tf.subtract(post_zeros_ct, pre_zeros_ct)
-            new_zeros_ct = tf.subtract(tf.shape(post_zeros)[0],tf.shape(pre_zeros)[0])
+            # Determine how many weights went to zero in this step
+            # [?] tf.equal(...)
+            zero_indices = tf.where(self.model.cell.recurrent_weights == 0)
+            new_zeros_ct = tf.subtract(tf.shape(zero_indices)[0],tf.shape(pre_zeros)[0])
 
+            # Replace any new zeros (not necessarily in the same spot)
             if new_zeros_ct > 0:
+                # Generate a list of non-zero replacement weights
+                new_weights = np.random.lognormal(
+                    self.model.cell.mu,
+                    self.model.cell.sigma,
+                    new_zeros_ct
+                )
+                new_weights[np.where(new_weights == 0)] += 0.01
 
-                # [!] Would, for efficiency, much prefer to create a
-                #     mask than run a for-loop
-                # [?] Is random supposed to be with replacement below
+                # Randomly select zero-weight indices (without replacement)
+                zero_indices = np.random.choice(zero_idxs, new_zeros_ct, False)
 
-                for i in range(0, new_zeros_ct): # for all new zeros
-                    # randomly select a position from post_zeros (total possible zeros)
-                    new_pos_idx = np.random.randint(0, tf.shape(post_zeros)[0])
+                # Invert and scale inhibitory neurons
+                # [!] should have a method in .cell abstracting this or
+                #     an attribute cell.eneuron_indices
+                ex_idxs = np.where(zero_indices >= self.model.cell.n_excite)
+                zero_indices[ex_idxs] *= -10
+
+                # Update recurrent weights
+                # [*] in-place version of tensor_scatter_nd_update()
+                #     not implemented as of TensorFlow 2.6.0
+                zero_indices = [[x] for x in zero_indices]
+                tf.tensor_scatter_nd_update(
+                    self.recurrent_weights,
+                    zero_indices,
+                    new_weights
+                )
+
+                """
+                # [!] Still need to exclude self-connections
+                for _ in range(0, new_zeros_ct): # for all new zeros
+                    # randomly select a position from zero_indices (total possible zeros)
+                    new_pos_idx = np.random.randint(0, tf.shape(zero_indices)[0])
+
+                    # [!] create seeded random list and then take the first
+                    # [*] should not be getting more zeros
+
                     # draw a new weight
-                    new_w = np.random.lognormal(self.model.cell.mu, self.model.cell.sigma)
-                    if post_zeros[new_pos_idx][0] >= self.model.cell.n_excite:
+                    ####new_w = np.random.lognormal(self.model.cel .mu, self.model.cell.sigma)
+                    if zero_indices[new_pos_idx][0] >= self.model.cell.n_excite:  # all excitatory neurons are 0-X
                         new_w *= -10  # invert and scale inhibitory neurons
+
                     # reassign to self.recurrent_weights
-                    #self.model.cell.recurrent_weights.assign(tf.where(
-                        #self.model.cell.recurrent_weights == self.model.cell.recurrent_weights[tf.cast(post_zeros[new_pos_idx], tf.int32)],
-                        #new_w,
-                        #self.model.cell.recurrent_weights))
+                    self.model.cell.recurrent_weights.assign(tf.where(
+                        rw == rw[tf.cast(zero_indices[new_pos_idx], tf.int32)],  # [NTS: fix]
+                        new_w,
+                        self.model.cell.recurrent_weights))
 
                     # [!] get this step to work
-                    x = tf.tensor_scatter_nd_update(self.model.cell.recurrent_weights, [post_zeros[new_pos_idx]], [new_w])
-                    self.model.cell.recurrent_weights.assign(x)
-                    #, [post_zeros[new_pos_idx]], [new_w])
+                    #x = tf.tensor_scatter_nd_update(self.model.cell.recurrent_weights, [zero_indices[new_pos_idx]], [new_w])
+                    #self.model.cell.recurrent_weights.assign(x)
+                    #, [zero_indices[new_pos_idx]], [new_w])
+                """
 
         # In a similar way, one could use CMG to create sparse initial
         # input weights, then capture the signs so as to enforce
