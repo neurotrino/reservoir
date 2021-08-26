@@ -227,13 +227,14 @@ class Trainer(BaseTrainer):
         # this step is needed to explicitly ensure self-recurrent
         # connections remain zero otherwise (if sparsity IS enforced)
         # that is taken care of through the rec_sign application below
-        if self.cfg['model'].cell.freewiring:
+        if self.cfg['model'].cell.freewiring:  # TODO: document in HJSON
             # Make sure all self-connections remain 0
             self.model.cell.recurrent_weights.assign(tf.where(
                 self.model.cell.disconnect_mask,
                 tf.zeros_like(self.model.cell.recurrent_weights),
                 self.model.cell.recurrent_weights
             ))
+            #self.model.cell.freewire()  # end goal is to have this method
 
         # If the sign of a weight changed from the original or the
         # weight (previously 0) is no longer 0, make the weight 0.
@@ -247,27 +248,31 @@ class Trainer(BaseTrainer):
             0
         ))
 
-        if self.cfg['model'].cell.rewiring:
+        if self.cfg['model'].cell.rewiring:  # TODO: document in HJSON
+            #self.model.cell.rewire()  # end goal is to have this method
+
             #pre_zeros_ct = tf.cast(tf.size(pre_zeros)/2, tf.int32)
             post_zeros = tf.where(tf.equal(self.model.cell.recurrent_weights, 0))
             #post_zeros_ct = tf.where(tf.size(post_zeros)/2, tf.int32)
             #new_zeros_ct = tf.subtract(post_zeros_ct, pre_zeros_ct)
             new_zeros_ct = tf.subtract(tf.shape(post_zeros)[0],tf.shape(pre_zeros)[0])
+
             if new_zeros_ct > 0:
-                for i in range(0,new_zeros_ct): # for all new zeros
+                for i in range(0, new_zeros_ct): # for all new zeros
                     # randomly select a position from post_zeros (total possible zeros)
                     new_pos_idx = np.random.randint(0, tf.shape(post_zeros)[0])
                     # draw a new weight
                     new_w = np.random.lognormal(self.model.cell.mu, self.model.cell.sigma)
                     if post_zeros[new_pos_idx][0] >= self.model.cell.n_excite:
-                        # if inhib, make weight -10x
-                        new_w = - new_w * 10
+                        new_w *= -10  # invert and scale inhibitory neurons
                     # reassign to self.recurrent_weights
                     #self.model.cell.recurrent_weights.assign(tf.where(
                         #self.model.cell.recurrent_weights == self.model.cell.recurrent_weights[tf.cast(post_zeros[new_pos_idx], tf.int32)],
                         #new_w,
                         #self.model.cell.recurrent_weights))
-                    tf.tensor_scatter_nd_update(self.model.cell.recurrent_weights, [post_zeros[new_pos_idx]], [new_w])
+
+                    # [!] get this step to work
+                    tf.assign(self.model.cell.recurrent_weights, [post_zeros[new_pos_idx]], [new_w])
 
         # In a similar way, one could use CMG to create sparse initial
         # input weights, then capture the signs so as to enforce
