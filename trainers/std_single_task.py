@@ -272,7 +272,9 @@ class Trainer(BaseTrainer):
                 new_weights[np.where(new_weights == 0)] += 0.01
 
                 # Randomly select zero-weight indices (without replacement)
-                zero_indices = np.random.choice(zero_indices, new_zeros_ct, False)
+                # [?] use tf instead of np
+                meta_indices = np.random.choice(len(zero_indices), new_zeros_ct, False)
+                zero_indices = zero_indices[meta_indices]
 
                 # Invert and scale inhibitory neurons
                 # [!] should have a method in .cell abstracting this or
