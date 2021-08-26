@@ -254,11 +254,6 @@ class Trainer(BaseTrainer):
             # Determine how many weights went to zero in this step
             # [?] tf.equal(...)
             zero_indices = tf.where(self.model.cell.recurrent_weights == 0)
-            print()
-            print()
-            print(zero_indices)
-            print()
-            print()
             new_zeros_ct = tf.subtract(tf.shape(zero_indices)[0],tf.shape(pre_zeros)[0])
 
             # Replace any new zeros (not necessarily in the same spot)
@@ -274,7 +269,7 @@ class Trainer(BaseTrainer):
                 # Randomly select zero-weight indices (without replacement)
                 # [?] use tf instead of np
                 meta_indices = np.random.choice(len(zero_indices), new_zeros_ct, False)
-                zero_indices = zero_indices[meta_indices]
+                zero_indices = zero_indices[tf.convert_to_tensor(meta_indices)]  # [!] would prefer not casting here
 
                 # Invert and scale inhibitory neurons
                 # [!] should have a method in .cell abstracting this or
