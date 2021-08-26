@@ -290,15 +290,17 @@ class Trainer(BaseTrainer):
                 # [!] should have a method in .cell abstracting this or
                 #     an attribute cell.eneuron_indices
                 ex_idxs = np.where(zero_indices[0] >= self.model.cell.n_excite)
-                #zero_indices[ex_idxs] *= -10
+                #zero_indices[ex_idxs] *= -10  #[!] add back in
 
                 # Update recurrent weights
                 # [*] in-place version of tensor_scatter_nd_update()
                 #     not implemented as of TensorFlow 2.6.0
-                tf.tensor_scatter_nd_update(
-                    self.model.cell.recurrent_weights,
-                    zero_indices,
-                    new_weights
+                self.cell.recurrent_weights.assign(
+                    tf.tensor_scatter_nd_update(
+                        self.model.cell.recurrent_weights,
+                        zero_indices,
+                        new_weights
+                    )
                 )
 
                 """
