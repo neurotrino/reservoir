@@ -310,6 +310,7 @@ class Trainer(BaseTrainer):
                     zero_indices,
                     new_weights
                 )
+                logging.debug(f'{tf.math.count_nonzero(x)} non-zero values in recurrent weight patch')
                 print(x)
                 self.model.cell.recurrent_weights.assign_add(x)  # assign_add?
                 # as of version 2.6.0, tensorflow does not support in-place
