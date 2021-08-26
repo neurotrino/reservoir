@@ -318,16 +318,6 @@ class Trainer(BaseTrainer):
                 for i in range(len(zero_indices)):  # [?] do without loop?
                     if zero_indices[i][0] >= self.model.cell.n_excite:
                         new_weights[i] *= -10
-                        print('WORKS')
-                        print('WORKS')
-                        print('WORKS')
-                        print('WORKS')
-                        print('WORKS')
-                        print('WORKS')
-                        print('WORKS')
-                        print('WORKS')
-                        print('WORKS')
-                        print('WORKS')
                 x = tf.tensor_scatter_nd_update(
                     tf.zeros(self.model.cell.recurrent_weights.shape),
                     zero_indices,
