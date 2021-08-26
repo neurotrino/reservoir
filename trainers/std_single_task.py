@@ -155,6 +155,7 @@ class Trainer(BaseTrainer):
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Gradient Calculation                                              │
         #┴───────────────────────────────────────────────────────────────────╯
+        pre_zeros = tf.where(self.model.cell.recurrent_weights == 0)
 
         voltage, spikes, prediction, loss, grads = self.grad(batch_x, batch_y)
 
@@ -209,7 +210,6 @@ class Trainer(BaseTrainer):
             }
         )
 
-        pre_zeros = tf.where(self.model.cell.recurrent_weights == 0)
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Gradient Application                                              │
@@ -251,7 +251,7 @@ class Trainer(BaseTrainer):
         if self.cfg['model'].cell.rewiring:  # TODO: document in HJSON
             #self.model.cell.rewire()  # end goal is to have this method
 
-            logging.debug(f'program thinks we should have {len(pre_zeros)} zeros')
+            logging.debug(f'program thinks we should have {pre_zeros.shape[0]} zeros')
             logging.debug(f'{tf.math.count_nonzero(self.model.cell.recurrent_weights)} non-zeroes in recurrent layer after gradients')
 
             # Determine how many weights went to zero in this step
