@@ -311,6 +311,11 @@ class Trainer(BaseTrainer):
                 #zero_indices[ex_idxs] *= -10  #[!] add back in
                 #
                 # Where zero(meta?)_indices are above value, weights *=
+                print()
+                print()
+                print(np.where(zero_indices >= self.model.cell.n_excite))
+                print()
+                print()
                 new_weights[np.where(zero_indices >= self.model.cell.n_excite)] *= -10
 
                 # Update recurrent weights
