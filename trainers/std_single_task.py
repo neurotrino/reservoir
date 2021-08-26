@@ -315,6 +315,9 @@ class Trainer(BaseTrainer):
                 # Update recurrent weights
                 # [*] in-place version of tensor_scatter_nd_update()
                 #     not implemented as of TensorFlow 2.6.0
+                for i in range(len(zero_indices)):  # [?] do without loop?
+                    if zero_indices[i][0] >= self.model.cell.n_excite:
+                        new_weights[i] *= -10
                 x = tf.tensor_scatter_nd_update(
                     tf.zeros(self.model.cell.recurrent_weights.shape),
                     zero_indices,
@@ -331,16 +334,6 @@ class Trainer(BaseTrainer):
                 logging.debug(
                     f'{tf.math.count_nonzero(self.model.cell.recurrent_weights)} non-zeroes in recurrent layer after adjustments'
                 )
-
-                # [!] Should make this a cell method
-                print()
-                print('zero_indices:')
-                print(zero_indices)
-                print()
-                to_change = tf.where(self.model.cell.recurrent_weights > 0)
-                for [x, y] in to_change:  # [!] loop is inefficient
-                    if x >= self.model.cell.n_excite:
-                        self.model.cell.recurrent_weights[x][y] *= -10
                 # [!] Still need to exclude self-connections
 
         # In a similar way, one could use CMG to create sparse initial
