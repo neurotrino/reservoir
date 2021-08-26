@@ -289,6 +289,9 @@ class Trainer(BaseTrainer):
                 # Invert and scale inhibitory neurons
                 # [!] should have a method in .cell abstracting this or
                 #     an attribute cell.eneuron_indices
+
+                # update weights after .assign()
+
                 #ex_idxs = np.where(zero_indices[0] >= self.model.cell.n_excite)
                 #zero_indices[ex_idxs] *= -10  #[!] add back in
 
@@ -301,12 +304,12 @@ class Trainer(BaseTrainer):
                 #print()
                 #print('E:')
                 x = tf.tensor_scatter_nd_update(
-                    self.model.cell.recurrent_weights,
+                    tf.zeros(self.model.cell.recurrent_weights.shape),
                     zero_indices,
                     new_weights
                 )
                 #print(x)
-                self.model.cell.recurrent_weights.assign(x)  # assign_add?
+                self.model.cell.recurrent_weights.add_assign(x)  # assign_add?
                 # as of version 2.6.0, tensorflow does not support in-place
                 # operation of tf.tensor_scatter_nd_update(), so we just
                 # add it to our recurrent weights, which works because
