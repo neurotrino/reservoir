@@ -156,25 +156,10 @@ class Trainer(BaseTrainer):
         #┤ Gradient Calculation                                              │
         #┴───────────────────────────────────────────────────────────────────╯
 
-        # This try/except is necessary because of how .grad() works. If
-        # we don't do this, then pre_zeros will keep decreasing.
-        #
-        # NOTE: keep an eye on this. I'm slightly worried that we might
-        # just be bug-masking.
-        try:
-            # Goes all but the first time
-            pre_zeros = tf.where(self.model.cell.recurrent_weights == 0)
-            voltage, spikes, prediction, loss, grads = self.grad(
-                batch_x,
-                batch_y
-            )
-        except:
-            # Goes only the first time
-            voltage, spikes, prediction, loss, grads = self.grad(
-                batch_x,
-                batch_y
-            )
-            pre_zeros = tf.where(self.model.cell.recurrent_weights == 0)
+        voltage, spikes, prediction, loss, grads = self.grad(
+            batch_x,
+            batch_y
+        )
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Mid-Step Logging                                                  │

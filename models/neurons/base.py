@@ -200,7 +200,7 @@ class ExIn(object):
             self.recurrent_weights
         ))
         zero_indices = tf.where(self.recurrent_weights == 0)
-        num_new_zeros = tf.shape(zero_indices)[0] - tf.shape(pre_zeros)[0]
+        num_new_zeros = tf.shape(zero_indices)[0] - self._target_zcount
         self.recurrent_weights.assign(tf.where(  # undo the thing
             self.disconnect_mask,
             tf.zeros_like(self.recurrent_weights),
