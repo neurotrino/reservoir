@@ -173,7 +173,6 @@ class ExIn(object):
             self._cmg_set = True  # bookkeeeping
 
 
-#=============================================================================
     def rewire(self):
         if self._target_zcount is None:
             # When no target number of zeros is recorded, count how
@@ -227,21 +226,12 @@ class ExIn(object):
             zero_indices = tf.gather(zero_indices, meta_indices)
 
             # Invert and scale inhibitory neurons
-            # [!] Will use the in_mask I worked so obnoxiously long on
-            #     instead of this (slightly) inefficient loop
+            # [!] Eventually prefer to use .in_mask instead of a loop
+            # [!] Have not explicitly checked that excitatory and
+            #     inhibitory neuonrs stay that way
             for i in range(len(zero_indices)):
                 if zero_indices[i][0] >= self.num_ex:
                     new_weights[i] *= -10
-                """
-                logging.debug(
-                    f'{} non-zero excitatory neurons '
-                    + f'({} accidental negatives)'
-                )
-                logging.debug(
-                    f'{} non-zero inhibitory neurons '
-                    + f'({} accidental negatives)'
-                )
-                """
 
             # Update recurrent weights
             x = tf.tensor_scatter_nd_update(
@@ -260,4 +250,3 @@ class ExIn(object):
             logging.debug(
                 f'{tf.math.count_nonzero(self.recurrent_weights)} non-zeroes in recurrent layer after adjustments'
             )
-#=============================================================================
