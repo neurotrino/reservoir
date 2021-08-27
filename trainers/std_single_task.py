@@ -251,7 +251,7 @@ class Trainer(BaseTrainer):
                 tf.zeros_like(self.model.cell.recurrent_weights),
                 self.model.cell.recurrent_weights
             ))
-            #self.model.cell.freewire()  # end goal is to have this method
+            #self.model.cell.freewire()  # [!] end goal is to have this method
 
         # If the sign of a weight changed from the original or the
         # weight (previously 0) is no longer 0, make the weight 0.
@@ -266,7 +266,7 @@ class Trainer(BaseTrainer):
         ))
 
         if self.cfg['model'].cell.rewiring:  # TODO: document in HJSON
-            #self.model.cell.rewire()  # end goal is to have this method
+            #self.model.cell.rewire()  # [!] end goal is to have this method
 
             logging.debug(
                 f'{pre_zeros.shape[0]} zeros before applying gradients'
@@ -352,7 +352,6 @@ class Trainer(BaseTrainer):
                 logging.debug(
                     f'{tf.math.count_nonzero(self.model.cell.recurrent_weights)} non-zeroes in recurrent layer after adjustments'
                 )
-                # [!] Still need to exclude self-connections
 
         # In a similar way, one could use CMG to create sparse initial
         # input weights, then capture the signs so as to enforce
