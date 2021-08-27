@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 
 # internal modules
-from models.neurons.base import BaseNeuron
+from models.neurons.base import ExIn, Neuron
 from utils.connmat import ConnectivityMatrixGenerator as CMG
 from utils.connmat import ExInConnectivityMatrixGenerator as ExInCMG
 
@@ -13,7 +13,7 @@ from utils.connmat import ExInConnectivityMatrixGenerator as ExInCMG
 #┤ Leaky Integrate-and-Fire (LIF) Neuron                                     │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class _LIFCore(BaseNeuron):
+class _LIFCore(Neuron):
     """Layer of leaky integrate-and-fire neurons.
 
     All other neurons in the lif.py module inherit from this class.
@@ -60,7 +60,7 @@ class _LIFCore(BaseNeuron):
         self.rewiring = cell_cfg.rewiring # [?] check if all cells should have this
 
         # self.p = cell_cfg.p  # [?] check if all LIF/cells should have this
-        # TODO: move `p` to BaseNeuron and inherit or keep as is below w/ p vs p_... ?
+        # TODO: move `p` to Neuron and inherit or keep as is below w/ p vs p_... ?
 
         # Derived attributes
         self._decay = tf.exp(-cfg['misc'].dt / self.tau)
@@ -121,7 +121,7 @@ class _LIFCore(BaseNeuron):
         if self.freewiring:
             # Store using +1 for excitatory, -1 for inhibitory
             wmat = -1 * np.ones([self.units, self.units])
-            wmat[0:self.n_excite,:] = -1 * wmat[0:self.n_excite,:]
+            wmat[0:self.num_ex,:] = -1 * wmat[0:self.num_ex,:]
             self.rec_sign = tf.convert_to_tensor(wmat, dtype = tf.float32)
         else:
             # Store using 0 for
@@ -169,7 +169,7 @@ class _LIFCore(BaseNeuron):
                     new_pos_idx = numpy.random.randint(0, tf.shape(post_zeros)[0])
                     # draw a new weight
                     new_w = numpy.random.lognormal(self.mu, self.sigma)
-                    if post_zeros[new_pos_idx][0] >= self.n_excite:
+                    if post_zeros[new_pos_idx][0] >= self.num_ex:
                         # if inhib, make weight -10x
                         new_w = - new_w * 10
                     # reassign to self.recurrent_weights
@@ -248,7 +248,7 @@ class LIF(_LIFCore):
 #┤ Excitatory/Inhibitory LIF Neuron                                          │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class ExInLIF(_LIFCore):
+class ExInLIF(ExIn, _LIFCore):  # TODO: try and replace _LIFCore with LIF
     """TODO: docs, emphasizing difference from _LIFCore"""
 
     # base template from October 16th, 2020 version of LIFCell
@@ -262,20 +262,12 @@ class ExInLIF(_LIFCore):
         excitatory and inhibitory cells in the layer, in addition to
         the core initialization properties inherent to a LIF cell.
         """
-        super().__init__(cfg)
-
-        self.p_ee = cfg['cell'].p_ee
-        self.p_ei = cfg['cell'].p_ei
-        self.p_ie = cfg['cell'].p_ie
-        self.p_ii = cfg['cell'].p_ii
-
-        # Number of excitatory and inhibitory neurons in the layer
-        self.n_excite = int(cfg['cell'].frac_e * self.cfg['cell'].units)
-        self.n_inhib = self.cfg['cell'].units - self.n_excite
+        _LIFCore.__init__(self, cfg)
+        ExIn.__init__(self, cfg)
 
         # For use in .build()
         self.connmat_generator = ExInCMG(
-            self.n_excite, self.n_inhib,
+            self.num_ex, self.num_in,
             self.p_ee, self.p_ei, self.p_ie, self.p_ii,
             self.mu, self.sigma
         )
@@ -320,18 +312,10 @@ class ExInALIF(_LIFCore):
         """
         TODO: method docs
         """
-        super().__init__(cfg)  # core LIF attributes and initialization
-
-        self.p_ee = cfg['cell'].p_ee
-        self.p_ei = cfg['cell'].p_ei
-        self.p_ie = cfg['cell'].p_ie
-        self.p_ii = cfg['cell'].p_ii
+        _LIFCore.__init__(self, cfg)
+        ExIn.__init__(self, cfg)
 
         self.beta = cfg['cell'].beta
-
-        # ExIn paramaters
-        self.n_excite = int(self.cfg['cell'].frac_e * cfg['cell'].units)
-        self.n_inhib = self.units - self.n_excite
 
         # Adaptation parameters
         self.decay_b = tf.exp(-cfg['misc'].dt / self.cfg['cell'].tau_adaptation)
@@ -341,7 +325,7 @@ class ExInALIF(_LIFCore):
 
         # For use in .build()
         self.connmat_generator = ExInCMG(
-            self.n_excite, self.n_inhib,
+            self.num_ex, self.num_in,
             self.p_ee, self.p_ei, self.p_ie, self.p_ii,
             self.mu, self.sigma
         )
@@ -377,8 +361,8 @@ class ExInALIF(_LIFCore):
 
         # weights are lognormal
         connmat_generator = ExInCMG(
-            self.n_excite,
-            self.n_inhib,
+            self.num_ex,
+            self.num_in,
             self.p_ee,
             self.p_ei,
             self.p_ie,
@@ -393,7 +377,7 @@ class ExInALIF(_LIFCore):
         if self.freewiring:
             # +1 for excitatory and -1 for inhibitory
             wmat = -1 * np.ones([self.units, self.units])
-            wmat[0:self.n_excite,:] = -1 * wmat[0:self.n_excite,:]
+            wmat[0:self.num_ex,:] = -1 * wmat[0:self.num_ex,:]
             self.rec_sign = tf.convert_to_tensor(wmat, dtype=tf.float32)
         else:
             # as above but 0 for zeros
