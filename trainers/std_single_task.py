@@ -236,7 +236,6 @@ class Trainer(BaseTrainer):
                 tf.zeros_like(self.model.cell.recurrent_weights),
                 self.model.cell.recurrent_weights
             ))
-            #self.model.cell.freewire()  # [!] end goal is to have this method
 
         # If the sign of a weight changed from the original or the
         # weight (previously 0) is no longer 0, make the weight 0.
