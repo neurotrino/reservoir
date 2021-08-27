@@ -209,7 +209,9 @@ class ExIn(object):
 
         # Replace any new zeros (not necessarily in the same spot)
         if num_new_zeros > 0:
-            logging.debug(f'found {num_new_zeros} new zeros')
+            logging.debug(
+                f'found {num_new_zeros} new zeros for a total of '
+                + f'{len(zero_indices)} zeros')
             # Generate a list of non-zero replacement weights
             new_weights = np.random.lognormal(
                 self.mu,
