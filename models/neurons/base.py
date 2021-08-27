@@ -32,6 +32,7 @@ class Neuron(tf.keras.layers.Layer):
         super().__init__()
 
         cell_cfg = cfg['cell']
+        self.cfg = cell_cfg
 
         # Internal flag to see if CMG has been built already
         self._cmg_set = False
@@ -147,10 +148,10 @@ class ExIn(object):
 
         if not self._cmg_set:
             # Read connectivity parameters
-            self.p_ee = cfg['cell'].exin_p.ee
-            self.p_ei = cfg['cell'].exin_p.ei
-            self.p_ie = cfg['cell'].exin_p.ie
-            self.p_ii = cfg['cell'].exin_p.ii
+            self.p_ee = self.cfg['cell'].exin_p.ee
+            self.p_ei = self.cfg['cell'].exin_p.ei
+            self.p_ie = self.cfg['cell'].exin_p.ie
+            self.p_ii = self.cfg['cell'].exin_p.ii
 
             # Generate connectivity matrix
             self.connmat_generator = ExInCMG(
