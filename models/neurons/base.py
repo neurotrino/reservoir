@@ -1,5 +1,22 @@
 """TODO: module docs
+
+If you're not familiar with the rules of Python's multiple inheritance
+and MRO, remember this rule of thumb: inherit in grammatical order and
+then call __init__() in the opposite order, e.g.
+
+```
+# inheritance makes grammatical sense (ExIn + Neuron == ExIn Neuron)
+class ExInALIF(ExIn, Neuron):
+
+    # init goes in the opposite order
+    def __init__(self, cfg):
+        Neuron.__init__(self, cfg)
+        ExIn.__init__(self, cfg)
+```
 """
+
+from utils.connmat import ConnectivityMatrixGenerator as CMG
+from utils.connmat import ExInConnectivityMatrixGenerator as ExInCMG
 
 import tensorflow as tf
 
@@ -10,9 +27,57 @@ import tensorflow as tf
 class Neuron(tf.keras.layers.Layer):
     """Parent class for all neuron variants."""
 
+    def __init__(self, cfg):
+        super().__init__()
+
+        cell_cfg = cfg['cell']
+
+        # Internal flag to see if CMG has been built already
+        self._cmg_set = False
+
+        # Rewiring behavior
+        self.freewiring = cell_cfg.freewiring
+        self.rewiring = cell_cfg.rewiring
+
+        # Layer shape
+        self.units = cell_cfg.units
+
+        # Parameters for initial weight distribution
+        self.mu = cell_cfg.mu
+        self.sigma = cell_cfg.sigma
+
+
+    def build(self, input_shape):
+        """DOCS"""
+
+        # [!] Current solution to issues abstracting CMG was to have
+        #     an internal flag in each Neuron object tracking whether
+        #     or not a CMG was already set, with the idea being that
+        #     if it's already set, then the build logic shouldn't be
+        #     repeated. I'm not a huge fan of this solution, but it's
+        #     good enough for now. I've decided to also (at least for
+        #     now) stretch this logic to also handle what to do when
+        #     given a probability of the wrong format. The problem with
+        #     this is that it's not exactly fantastic encapsulation,
+        #     but it's better than most of the solutions I thought of,
+        #     so for now we'll leave it be.
+        if not self._cmg_set:
+            # Read connectivity parameters
+            self.p = cell_cfg.p
+
+            # Generate connectiviy matrix
+            self.connmat_generator = CMG(
+                self.units,
+                self.p,
+                self.mu, self.sigma
+            )
+            self._cmg_set = True  # bookkeeeping
+
+
     def pseudo_derivative(self, v_scaled, dampening_factor):
         """TODO: docs"""
         return dampening_factor * tf.maximum(1 - tf.abs(v_scaled), 0)
+
 
     @tf.custom_gradient
     def spike_function(self, v_scaled, dampening_factor):
@@ -37,11 +102,12 @@ class Neuron(tf.keras.layers.Layer):
 
         return tf.identity(z_, name="spike_function"), grad
 
+
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Modifiers                                                                 │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class ExIn:
+class ExIn(object):
     """Excitatory/inhibitory modifier to the neuron class.
 
     Neurons with a mix of excitatory and inhibitory synapses should
@@ -54,13 +120,6 @@ class ExIn:
     """
     def __init__(self, cfg):
         super().__init__(cfg)
-
-        # Connection probabilities between neurons (excitatory to
-        # excitatory, excitatory to inhbitory, and so on)
-        self.p_ee = cfg['cell'].p_ee
-        self.p_ei = cfg['cell'].p_ei
-        self.p_ie = cfg['cell'].p_ie
-        self.p_ii = cfg['cell'].p_ii
 
         # Number of excitatory and inhibitory neurons in the layer
         self.num_ex = int(cfg['cell'].frac_e * self.cfg['cell'].units)
@@ -80,3 +139,22 @@ class ExIn:
         self.ex_mask = np.zeros(mask_shape, dtype=bool)
         self.ex_mask[0:self.num_ex] = True
         self.in_mask = np.invert(self.ex_mask)
+
+
+    def build(self, input_shape):
+        """DOCS"""
+
+        if not self._cmg_set:
+            # Read connectivity parameters
+            self.p_ee = cfg['cell'].exin_p.ee
+            self.p_ei = cfg['cell'].exin_p.ei
+            self.p_ie = cfg['cell'].exin_p.ie
+            self.p_ii = cfg['cell'].exin_p.ii
+
+            # Generate connectivity matrix
+            self.connmat_generator = ExInCMG(
+                self.num_ex, self.num_in,
+                self.p_ee, self.p_ei, self.p_ie, self.p_ii,
+                self.mu, self.sigma
+            )
+            self._cmg_set = True  # bookkeeeping

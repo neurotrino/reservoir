@@ -6,14 +6,12 @@ import tensorflow as tf
 
 # internal modules
 from models.neurons.base import ExIn, Neuron
-from utils.connmat import ConnectivityMatrixGenerator as CMG
-from utils.connmat import ExInConnectivityMatrixGenerator as ExInCMG
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Leaky Integrate-and-Fire (LIF) Neuron                                     │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class _LIFCore(Neuron):
+class LIF(Neuron):
     """Layer of leaky integrate-and-fire neurons.
 
     All other neurons in the lif.py module inherit from this class.
@@ -53,11 +51,6 @@ class _LIFCore(Neuron):
         self.EL = cell_cfg.EL
         self.tau = cell_cfg.tau
         self.thr = cell_cfg.thr
-        self.units = cell_cfg.units
-        self.mu = cell_cfg.mu # [?] check if all LIF should have this
-        self.sigma = cell_cfg.sigma # [?] check if all LIF should have this
-        self.freewiring = cell_cfg.freewiring
-        self.rewiring = cell_cfg.rewiring # [?] check if all cells should have this
 
         # self.p = cell_cfg.p  # [?] check if all LIF/cells should have this
         # TODO: move `p` to Neuron and inherit or keep as is below w/ p vs p_... ?
@@ -87,8 +80,7 @@ class _LIFCore(Neuron):
         Create layer weights the first time `.__call__()` is called.
         Layers weights for the LIF neuron {...docs...}
         """
-
-        connmat_generator = self.connmat_generator
+        Neuron.build(self, input_shape)
 
         # currently using uniform weight distribution for inputs
         self.input_weights = self.add_weight(
@@ -114,7 +106,7 @@ class _LIFCore(Neuron):
             name='recurrent_weights'
         )
 
-        initial_weights_mat = connmat_generator.run_generator()
+        initial_weights_mat = self.connmat_generator.run_generator()
         self.set_weights([self.input_weights.value(), initial_weights_mat])
 
         # Store neurons' signs
@@ -122,11 +114,9 @@ class _LIFCore(Neuron):
             # Store using +1 for excitatory, -1 for inhibitory
             wmat = -1 * np.ones([self.units, self.units])
             wmat[0:self.num_ex,:] = -1 * wmat[0:self.num_ex,:]
-            self.rec_sign = tf.convert_to_tensor(wmat, dtype = tf.float32)
+            self.rec_sign = tf.convert_to_tensor(wmat, dtype=tf.float32)
         else:
-            # Store using 0 for
-            # zerosself.rec_sign = tf.sign(self.recurrent_weights)
-            #self.rec_sign = tf.sign(self.recurrent_weights)
+            # as above but 0 for zeros
             self.rec_sign = tf.sign(self.recurrent_weights)
 
 
@@ -232,60 +222,27 @@ class _LIFCore(Neuron):
         z_buf0 = tf.zeros((batch_size, self.units), tf.float32)
         return v0, r0, z_buf0  # voltage, refractory, spike
 
-
-class LIF(_LIFCore):
-    def __init__(self, cfg):
-        super().__init__(cfg)
-        self.p = cfg['cell'].p
-        # [!] TODO: figure out a way to improve the CMG integration w/
-        #           inheritence
-        self.connmat_generator = CMG(self.units, self.p, self.mu, self.sigma)
-
-    def build(self, input_shape):
-        super().build(input_shape)
-
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Excitatory/Inhibitory LIF Neuron                                          │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class ExInLIF(ExIn, _LIFCore):  # TODO: try and replace _LIFCore with LIF
-    """TODO: docs, emphasizing difference from _LIFCore"""
-
-    # base template from October 16th, 2020 version of LIFCell
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Special Methods                                                       │
-    #┴───────────────────────────────────────────────────────────────────────╯
+class ExInLIF(ExIn, LIF):
+    """LIF neuron with both excitatory and inhibitory synapses."""
 
     def __init__(self, cfg):
-        """ExInLIF layers are initialized to track the number of
-        excitatory and inhibitory cells in the layer, in addition to
-        the core initialization properties inherent to a LIF cell.
-        """
-        _LIFCore.__init__(self, cfg)
+        LIF.__init__(self, cfg)
         ExIn.__init__(self, cfg)
 
-        # For use in .build()
-        self.connmat_generator = ExInCMG(
-            self.num_ex, self.num_in,
-            self.p_ee, self.p_ei, self.p_ie, self.p_ii,
-            self.mu, self.sigma
-        )
-
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Reserved Methods                                                      │
-    #┴───────────────────────────────────────────────────────────────────────╯
-
     def build(self, input_shape):
-        """TODO: docs"""
-        super().build(input_shape)
+        ExIn.build(self, cfg)
+        LIF.build(self, cfg)
+
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Excitatory/Inhibitory Adaptive LIF (ALIF) Neuron                          │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class ExInALIF(_LIFCore):
+class ExInALIF(ExIn, LIF):
     """Layer of adaptive leaky integrate-and-fire neurons containing
     both excitatory and inhibitory connections.
 
@@ -309,85 +266,36 @@ class ExInALIF(_LIFCore):
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def __init__(self, cfg):
-        """
-        TODO: method docs
-        """
-        _LIFCore.__init__(self, cfg)
+        """Initializes like ExInLIF, but with adaptation parameters."""
+        LIF.__init__(self, cfg)
         ExIn.__init__(self, cfg)
 
-        self.beta = cfg['cell'].beta
-
         # Adaptation parameters
-        self.decay_b = tf.exp(-cfg['misc'].dt / self.cfg['cell'].tau_adaptation)
+        self.beta = cfg['cell'].beta
+        self.decay_b = tf.exp(
+            -cfg['misc'].dt / self.cfg['cell'].tau_adaptation
+        )
 
         # voltage, refractory, adaptation, prior spikes
         self.state_size = tuple([self.units] * 4)
 
-        # For use in .build()
-        self.connmat_generator = ExInCMG(
-            self.num_ex, self.num_in,
-            self.p_ee, self.p_ei, self.p_ie, self.p_ii,
-            self.mu, self.sigma
-        )
 
     #┬───────────────────────────────────────────────────────────────────────╮
     #┤ Reserved Methods                                                      │
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def build(self, input_shape):
-        self.input_weights = self.add_weight(
-            shape=(input_shape[-1], self.units),
-            initializer=tf.keras.initializers.RandomUniform(
-                minval=0.0,
-                maxval=0.4
-            ),
-            trainable=True,
-            name='input_weights'
-        )
-
-        # disconnect self-recurrent weights
-        self.disconnect_mask = tf.cast(
-            np.diag(np.ones(self.units, dtype=np.bool)),
-            tf.bool
-        )
-
-        # weights set here do not matter
-        self.recurrent_weights = self.add_weight(
-            shape=(self.units, self.units),
-            initializer=tf.keras.initializers.Orthogonal(gain=0.7),
-            trainable=True,
-            name='recurrent_weights'
-        )
-
-        # weights are lognormal
-        connmat_generator = ExInCMG(
-            self.num_ex,
-            self.num_in,
-            self.p_ee,
-            self.p_ei,
-            self.p_ie,
-            self.p_ii,
-            self.mu,
-            self.sigma
-        )
-        initial_weights_mat = connmat_generator.run_generator()
-        self.set_weights([self.input_weights.value(), initial_weights_mat])
-
-        # Store neurons' signs
-        if self.freewiring:
-            # +1 for excitatory and -1 for inhibitory
-            wmat = -1 * np.ones([self.units, self.units])
-            wmat[0:self.num_ex,:] = -1 * wmat[0:self.num_ex,:]
-            self.rec_sign = tf.convert_to_tensor(wmat, dtype=tf.float32)
-        else:
-            # as above but 0 for zeros
-            self.rec_sign = tf.sign(self.recurrent_weights)
-
-        super().build(input_shape)
+        """Built like LIF, but with an ExInCMG instead of a CMG."""
+        ExIn.build(self, input_shape)
+        LIF.build(self, input_shape)
 
 
     def call(self, inputs, state):
-        """TODO: docs"""
+        """TODO: docs.
+
+        This method is the primary area of distinction between the
+        ExInALIF class and the LIF/ExInLIF classes.
+        """
         [old_v, old_r, old_b, old_z] = state[:4]
 
         if self.freewiring:
@@ -457,7 +365,7 @@ class ExInALIF(_LIFCore):
 
     def zero_state(self, batch_size, dtype=tf.float32):
         """TODO: docs."""
-        v0, r0, z_buf0 = super().zero_state(batch_size, dtype)
+        v0, r0, z_buf0 = LIF.zero_state(self, batch_size, dtype)
         b0 = tf.zeros((batch_size, self.units), tf.float32)
 
         # voltage, refractory, spike, adaptive thr
