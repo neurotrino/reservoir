@@ -226,7 +226,7 @@ class ExIn(object):
             # [!] Will use the in_mask I worked so obnoxiously long on
             #     instead of this (slightly) inefficient loop
             for i in range(len(zero_indices)):
-                if zero_indices[i][0] >= self.n_excite:
+                if zero_indices[i][0] >= self.num_ex:
                     new_weights[i] *= -10
 
             # Update recurrent weights
