@@ -8,7 +8,7 @@ import tensorflow as tf
 # local
 from models.common import BaseModel, SpikeRegularization, exp_convolve
 from models.neurons.lif import *
-from models.neurons.adex import *
+#from models.neurons.adex import *
 from utils.config import subconfig
 
 
