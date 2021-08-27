@@ -18,6 +18,7 @@ class ExInALIF(ExIn, Neuron):
 from utils.connmat import ConnectivityMatrixGenerator as CMG
 from utils.connmat import ExInConnectivityMatrixGenerator as ExInCMG
 
+import logging
 import numpy as np
 import tensorflow as tf
 
