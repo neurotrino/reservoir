@@ -237,7 +237,7 @@ class Trainer(BaseTrainer):
         )
 
         #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Sparsity Application                                              │
+        #┤ Sparsity Enforcement                                              │
         #┴───────────────────────────────────────────────────────────────────╯
 
         # if freewiring is permitted (i.e. sparsity of any kind is NOT enforced),
@@ -265,93 +265,11 @@ class Trainer(BaseTrainer):
             0
         ))
 
-        if self.cfg['model'].cell.rewiring:  # TODO: document in HJSON
-            #self.model.cell.rewire()  # [!] end goal is to have this method
-
-            logging.debug(
-                f'{pre_zeros.shape[0]} zeros before applying gradients'
-            )
-            logging.debug(
-                f'{tf.math.count_nonzero(self.model.cell.recurrent_weights)}'
-                + ' non-zeroes after applying gradients'
-            )
-
-            # Determine how many weights went to zero in this step
-            self.model.cell.recurrent_weights.assign(tf.where(
-                self.model.cell.disconnect_mask,
-                tf.ones_like(self.model.cell.recurrent_weights),
-                self.model.cell.recurrent_weights
-            ))
-            # so what I'm doing here is basically just setting the
-            # diagonal to non-zero for a second so that it doesn't get
-            # put into the "draw pile" and then we set it back. Not
-            # sure if this is an efficient or unproblematic solution
-            # but it's easy
-            #
-            # if there are side effects, an option would be to make a
-            # deep copy of the recurrent weights and use *that* to
-            # generate the indices we need
-            zero_indices = tf.where(self.model.cell.recurrent_weights == 0)
-            new_zeros_ct = tf.shape(zero_indices)[0] - tf.shape(pre_zeros)[0]
-            logging.debug(
-                f'found {tf.math.count_nonzero(self.model.cell.recurrent_weights)}'
-                + ' non-zeroes'
-            )
-            logging.debug(f'calculated {new_zeros_ct} new zeroes')
-            self.model.cell.recurrent_weights.assign(tf.where(  # undo the thing
-                self.model.cell.disconnect_mask,
-                tf.zeros_like(self.model.cell.recurrent_weights),
-                self.model.cell.recurrent_weights
-            ))
-
-            # Replace any new zeros (not necessarily in the same spot)
-            if new_zeros_ct > 0:
-                # Generate a list of non-zero replacement weights
-                new_weights = np.random.lognormal(
-                    self.model.cell.mu,
-                    self.model.cell.sigma,
-                    new_zeros_ct
-                )
-                new_weights[np.where(new_weights == 0)] += 0.01
-
-                # Randomly select zero-weight indices (without replacement)
-                # [?] use tf instead of np
-                meta_indices = np.random.choice(len(zero_indices), new_zeros_ct, False)
-                zero_indices = tf.gather(zero_indices, meta_indices)
-
-                # Invert and scale inhibitory neurons
-                # [!] should have a method in .cell abstracting this or
-                #     an attribute cell.eneuron_indices
-                # update weights after .assign()
-                # >> take a slice of all neurons after the excitatory
-                #    then run a .where(> 0) *= -10
-                #ex_idxs = np.where(zero_indices[0] >= self.model.cell.n_excite)
-                #zero_indices[ex_idxs] *= -10  #[!] add back in
-                #
-                # Where zero(meta?)_indices are above value, weights *=
-
-                # Update recurrent weights
-                # [*] in-place version of tensor_scatter_nd_update()
-                #     not implemented as of TensorFlow 2.6.0
-                for i in range(len(zero_indices)):  # [?] do without loop?
-                    if zero_indices[i][0] >= self.model.cell.n_excite:
-                        new_weights[i] *= -10
-                x = tf.tensor_scatter_nd_update(
-                    tf.zeros(self.model.cell.recurrent_weights.shape),
-                    zero_indices,
-                    new_weights
-                )
-                logging.debug(f'{tf.math.count_nonzero(x)} non-zero values generated in recurrent weight patch')
-
-                # as of version 2.6.0, tensorflow does not support in-place
-                # operation of tf.tensor_scatter_nd_update(), so we just
-                # add it to our recurrent weights, which works because
-                # scatter_nd_update, only has values in places where
-                # recurrent weights are zero
-                self.model.cell.recurrent_weights.assign_add(x)
-                logging.debug(
-                    f'{tf.math.count_nonzero(self.model.cell.recurrent_weights)} non-zeroes in recurrent layer after adjustments'
-                )
+        # [!] prefer to have something like "for cell in model.cells,
+        #     if cell.rewiring then cell.rewire" to better generalize;
+        #     would involve adding a 'cells' attribute to model
+        if self.model.cell.rewiring:
+            self.model.cell.rewire()
 
         # In a similar way, one could use CMG to create sparse initial
         # input weights, then capture the signs so as to enforce

@@ -14,7 +14,6 @@ class ExInALIF(ExIn, Neuron):
         ExIn.__init__(self, cfg)
 ```
 """
-
 from utils.connmat import ConnectivityMatrixGenerator as CMG
 from utils.connmat import ExInConnectivityMatrixGenerator as ExInCMG
 
@@ -27,6 +26,10 @@ import tensorflow as tf
 
 class Neuron(tf.keras.layers.Layer):
     """Parent class for all neuron variants."""
+
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Keras Layer Methods                                                   │
+    #┴───────────────────────────────────────────────────────────────────────╯
 
     def __init__(self, cfg):
         super().__init__()
@@ -48,9 +51,12 @@ class Neuron(tf.keras.layers.Layer):
         self.mu = cell_cfg.mu
         self.sigma = cell_cfg.sigma
 
+        # Number of zeros to try to maintain if rewiring is enabled
+        self._target_zcount = None
+
 
     def build(self, input_shape):
-        """DOCS"""
+        """Setup  connectivity parameters and CMG."""
 
         # [!] Current solution to issues abstracting CMG was to have
         #     an internal flag in each Neuron object tracking whether
@@ -76,8 +82,12 @@ class Neuron(tf.keras.layers.Layer):
             self._cmg_set = True  # bookkeeeping
 
 
+    #┬───────────────────────────────────────────────────────────────────────╮
+    #┤ Additional Methods                                                    │
+    #┴───────────────────────────────────────────────────────────────────────╯
+
     def pseudo_derivative(self, v_scaled, dampening_factor):
-        """TODO: docs"""
+        """Calculate the pseudo-derivative."""
         return dampening_factor * tf.maximum(1 - tf.abs(v_scaled), 0)
 
 
@@ -144,7 +154,7 @@ class ExIn(object):
 
 
     def build(self, input_shape):
-        """DOCS"""
+        """Setup ExIn connectivity parameters and ExInCMG."""
 
         if not self._cmg_set:
             # Read connectivity parameters
@@ -160,3 +170,80 @@ class ExIn(object):
                 self.mu, self.sigma
             )
             self._cmg_set = True  # bookkeeeping
+
+
+#=============================================================================
+    def rewire(self):
+        if self._target_zcount is None:
+            # When no target number of zeros is recorded, count how
+            # many zeros there currently are, save that for future
+            # comparison, and return
+            self._target_zcount = len(tf.where(self.recurrent_weights == 0))
+            logging.debug(f'cell will maintain {self._target_zcount} zeros')
+            return
+
+        # Determine how many weights went to zero in this step
+        #
+        # ...so what I'm doing here is basically just setting the
+        # diagonal to non-zero for a second so that it doesn't get
+        # put into the "draw pile" and then we set it back. Not
+        # sure if this is an efficient or unproblematic solution
+        # but it's easy
+        #
+        # if there are side effects, an option would be to make a
+        # deep copy of the recurrent weights and use *that* to
+        # generate the indices we need...
+        self.recurrent_weights.assign(tf.where(
+            self.disconnect_mask,
+            tf.ones_like(self.recurrent_weights),
+            self.recurrent_weights
+        ))
+        zero_indices = tf.where(self.recurrent_weights == 0)
+        num_new_zeros = tf.shape(zero_indices)[0] - tf.shape(pre_zeros)[0]
+        self.recurrent_weights.assign(tf.where(  # undo the thing
+            self.disconnect_mask,
+            tf.zeros_like(self.recurrent_weights),
+            self.recurrent_weights
+        ))
+
+        # Replace any new zeros (not necessarily in the same spot)
+        if num_new_zeros > 0:
+            logging.debug(f'found {num_new_zeros} new zeros')
+            # Generate a list of non-zero replacement weights
+            new_weights = np.random.lognormal(
+                self.mu,
+                self.sigma,
+                num_new_zeros
+            )
+            new_weights[np.where(new_weights == 0)] += 0.01
+
+            # Randomly select zero-weight indices (without replacement)
+            # [?] use tf instead of np
+            meta_indices = np.random.choice(len(zero_indices), num_new_zeros, False)
+            zero_indices = tf.gather(zero_indices, meta_indices)
+
+            # Invert and scale inhibitory neurons
+            # [!] Will use the in_mask I worked so obnoxiously long on
+            #     instead of this (slightly) inefficient loop
+            for i in range(len(zero_indices)):
+                if zero_indices[i][0] >= self.n_excite:
+                    new_weights[i] *= -10
+
+            # Update recurrent weights
+            x = tf.tensor_scatter_nd_update(
+                tf.zeros(self.recurrent_weights.shape),
+                zero_indices,
+                new_weights
+            )
+            logging.debug(f'{tf.math.count_nonzero(x)} non-zero values generated in recurrent weight patch')
+
+            # as of version 2.6.0, tensorflow does not support in-place
+            # operation of tf.tensor_scatter_nd_update(), so we just
+            # add it to our recurrent weights, which works because
+            # scatter_nd_update, only has values in places where
+            # recurrent weights are zero
+            self.recurrent_weights.assign_add(x)
+            logging.debug(
+                f'{tf.math.count_nonzero(self.recurrent_weights)} non-zeroes in recurrent layer after adjustments'
+            )
+#=============================================================================

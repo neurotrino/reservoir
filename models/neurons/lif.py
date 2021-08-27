@@ -262,7 +262,7 @@ class ExInALIF(ExIn, LIF):
     # base template from October 22nd, 2020 version of LIF_EI
 
     #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Special Methods                                                       │
+    #┤ Keras Layer Methods                                                   │
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def __init__(self, cfg):
@@ -279,10 +279,6 @@ class ExInALIF(ExIn, LIF):
         # voltage, refractory, adaptation, prior spikes
         self.state_size = tuple([self.units] * 4)
 
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Reserved Methods                                                      │
-    #┴───────────────────────────────────────────────────────────────────────╯
 
     def build(self, input_shape):
         """Built like LIF, but with an ExInCMG instead of a CMG."""
