@@ -221,12 +221,7 @@
         // Unlike the logvar lists, these values will still be stored in the
         // logger, they just won't be written to disk. This is useful if you
         // want to generate plots but not keep the underlying data.
-        todisk_whitelist: [
-            step_loss
-            epoch_loss
-            tv0.postweights
-            tv1.postweights
-        ]
+        todisk_whitelist: null
         todisk_blacklist: null
 
         // Save npz files or not
