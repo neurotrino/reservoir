@@ -180,6 +180,7 @@ class ExIn(object):
             # many zeros there currently are, save that for future
             # comparison, and return
             self._target_zcount = len(tf.where(self.recurrent_weights == 0))
+            self._target_zcount -= self.units  # adjust for diagonal
             logging.debug(f'cell will maintain {self._target_zcount} zeros')
             return
 
