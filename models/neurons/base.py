@@ -229,7 +229,6 @@ class ExIn(object):
             # Invert and scale inhibitory neurons
             # [!] Will use the in_mask I worked so obnoxiously long on
             #     instead of this (slightly) inefficient loop
-            tf.where([x and y for (x, y) in zip(self.ex_mask, self.recurrent_weights > 0)])
             for i in range(len(zero_indices)):
                 if zero_indices[i][0] >= self.num_ex:
                     new_weights[i] *= -10
