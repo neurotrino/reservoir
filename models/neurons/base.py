@@ -148,10 +148,10 @@ class ExIn(object):
 
         if not self._cmg_set:
             # Read connectivity parameters
-            self.p_ee = self.cfg['cell'].exin_p.ee
-            self.p_ei = self.cfg['cell'].exin_p.ei
-            self.p_ie = self.cfg['cell'].exin_p.ie
-            self.p_ii = self.cfg['cell'].exin_p.ii
+            self.p_ee = self.cfg['cell'].p_ee
+            self.p_ei = self.cfg['cell'].p_ei
+            self.p_ie = self.cfg['cell'].p_ie
+            self.p_ii = self.cfg['cell'].p_ii
 
             # Generate connectivity matrix
             self.connmat_generator = ExInCMG(
