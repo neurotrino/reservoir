@@ -42,7 +42,7 @@ class LIF(Neuron):
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def __init__(self, cfg):
-        super().__init__(self, cfg)
+        Neuron.__init__(self, cfg)
 
         self.cfg = cfg
         cell_cfg = cfg['cell']
