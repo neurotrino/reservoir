@@ -234,8 +234,8 @@ class ExInLIF(ExIn, LIF):
         ExIn.__init__(self, cfg)
 
     def build(self, input_shape):
-        ExIn.build(self, cfg)
-        LIF.build(self, cfg)
+        ExIn.build(self, input_shape)
+        LIF.build(self, input_shape)
 
 
 #┬───────────────────────────────────────────────────────────────────────────╮
