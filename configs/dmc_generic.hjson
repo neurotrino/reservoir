@@ -153,9 +153,6 @@
             beta: 0.16
             tau_adaptation: 100
 
-            //
-            rewiring: false
-
             // μ for normal distribution (exponentiated for lognormal weights)
             mu: -0.64
 
@@ -235,7 +232,7 @@
         todisk_blacklist: null
 
         // Save npz files or not
-        log_npz: false
+        log_npz: true
 
         // Save logging values to disk every n epochs
         post_every: 16

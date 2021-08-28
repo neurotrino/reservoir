@@ -42,6 +42,8 @@ class DataGenerator(BaseDataGenerator):
             count=1
         ).batch(cfg['train'].batch_size)
 
+        print(self.dataset.shape)
+
 
         # Iterator
         self.iterator = None

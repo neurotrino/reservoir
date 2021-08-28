@@ -453,7 +453,6 @@ class Trainer(BaseTrainer):
         #┤ Epochwise Training                                                │
         #┴───────────────────────────────────────────────────────────────────╯
 
-        dataset = self.data.get()
         pb = Progbar(train_cfg.n_batch, stateful_metrics=None)
 
         # Iterate over training steps
