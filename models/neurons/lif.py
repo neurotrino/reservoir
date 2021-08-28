@@ -179,14 +179,8 @@ class LIF(Neuron):
         # must subtract the difference between thr and EL
         i_reset = -(self.thr - self.EL) * old_z
         # ^ approx driving the voltage 20 mV more negative
-        print()
-        print()
-        print(i_in.shape)
-        print(i_rec.shape)
-        print(i_reset.shape)
-        print()
-        print()
-        input_current = i_in + i_rec + i_reset #+ self.bias_currents[None]
+
+        input_current = i_in + i_rec + #i_reset #+ self.bias_currents[None]
 
         # previously, whether old_v was below or above 0, you would
         # still decay gradually back to 0 decay was dependent on the
