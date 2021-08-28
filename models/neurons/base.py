@@ -227,8 +227,6 @@ class ExIn(object):
 
             # Invert and scale inhibitory neurons
             # [!] Eventually prefer to use .in_mask instead of a loop
-            # [!] Have not explicitly checked that excitatory and
-            #     inhibitory neuonrs stay that way
             for i in range(len(zero_indices)):
                 if zero_indices[i][0] >= self.num_ex:
                     new_weights[i] *= -10
