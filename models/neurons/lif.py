@@ -3,6 +3,7 @@
 # external modules
 import numpy as np
 import tensorflow as tf
+import sys
 
 # internal modules
 from models.neurons.base import ExIn, Neuron
@@ -351,7 +352,10 @@ class ExInALIF(ExIn, LIF):
             0,
             self.cfg['cell'].n_refrac
         )
-        logging.debug(new_z.shape)
+        tf.print(f"new_v: {new_v.shape}", output_stream=sys.stdout)
+        tf.print(f"new_r: {new_r.shape}", output_stream=sys.stdout)
+        tf.print(f"new_b: {new_b.shape}", output_stream=sys.stdout)
+        tf.print(f"new_z: {new_z.shape}", output_stream=sys.stdout)
 
         new_state = (new_v, new_r, new_b, new_z)
         output = (new_v, new_z)
