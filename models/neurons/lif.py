@@ -167,7 +167,6 @@ class LIF(Neuron):
                     self.recurrent_weights.assign(post_zeros[new_pos_idx], new_w)
         """
 
-
         i_in = tf.matmul(inputs, self.input_weights)
         i_rec = tf.matmul(old_z, self.recurrent_weights)
 
@@ -209,6 +208,11 @@ class LIF(Neuron):
 
         new_state = (new_v, new_r, new_z)
         output = (new_v, new_z)
+
+        tf.print(f"new_v: {new_v.shape}", output_stream=sys.stdout)
+        tf.print(f"new_r: {new_r.shape}", output_stream=sys.stdout)
+        tf.print(f"new_b: {new_b.shape}", output_stream=sys.stdout)
+        tf.print(f"new_z: {new_z.shape}", output_stream=sys.stdout)
 
         return output, new_state
 
@@ -352,10 +356,6 @@ class ExInALIF(ExIn, LIF):
             0,
             self.cfg['cell'].n_refrac
         )
-        tf.print(f"new_v: {new_v.shape}", output_stream=sys.stderr)
-        tf.print(f"new_r: {new_r.shape}", output_stream=sys.stderr)
-        tf.print(f"new_b: {new_b.shape}", output_stream=sys.stderr)
-        tf.print(f"new_z: {new_z.shape}", output_stream=sys.stderr)
 
         new_state = (new_v, new_r, new_b, new_z)
         output = (new_v, new_z)
