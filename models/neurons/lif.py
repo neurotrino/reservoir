@@ -211,7 +211,6 @@ class LIF(Neuron):
 
         tf.print(f"new_v: {new_v.shape}", output_stream=sys.stdout)
         tf.print(f"new_r: {new_r.shape}", output_stream=sys.stdout)
-        tf.print(f"new_b: {new_b.shape}", output_stream=sys.stdout)
         tf.print(f"new_z: {new_z.shape}", output_stream=sys.stdout)
 
         return output, new_state
