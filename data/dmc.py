@@ -42,9 +42,6 @@ class DataGenerator(BaseDataGenerator):
             count=1
         ).batch(cfg['train'].batch_size)
 
-        print(self.dataset.shape)
-
-
         # Iterator
         self.iterator = None
 
@@ -57,7 +54,9 @@ class DataGenerator(BaseDataGenerator):
         if self.iterator is None:
             self.iterator = iter(self.dataset)
         try:
-            return self.iterator.get_next()
+            x=self.iterator.get_next()
+            print(x.shape)
+            return x
         except tf.errors.OutOfRangeError:
             self.iterator = None
             return self.next()
