@@ -127,6 +127,10 @@ class LIF(Neuron):
         """
         [old_v, old_r, old_z] = state[:3]
 
+        tf.print(f"\nold_v: {old_v.shape}", output_stream=sys.stdout)
+        tf.print(f"old_r: {old_r.shape}", output_stream=sys.stdout)
+        tf.print(f"old_z: {old_z.shape}", output_stream=sys.stdout)
+
         if self.freewiring:
             # Make sure all self-connections remain 0
             self.recurrent_weights.assign(tf.where(
@@ -180,6 +184,10 @@ class LIF(Neuron):
         i_reset = -(self.thr - self.EL) * old_z
         # ^ approx driving the voltage 20 mV more negative
 
+        tf.print(f"i_in: {i_in.shape}", output_stream=sys.stdout)
+        tf.print(f"i_rec: {i_rec.shape}", output_stream=sys.stdout)
+        tf.print(f"i_reset: {i_reset.shape}", output_stream=sys.stdout)
+
         input_current = i_in + i_rec + i_reset #+ self.bias_currents[None]
 
         # previously, whether old_v was below or above 0, you would
@@ -208,10 +216,6 @@ class LIF(Neuron):
 
         new_state = (new_v, new_r, new_z)
         output = (new_v, new_z)
-
-        tf.print(f"new_v: {new_v.shape}", output_stream=sys.stdout)
-        tf.print(f"new_r: {new_r.shape}", output_stream=sys.stdout)
-        tf.print(f"new_z: {new_z.shape}", output_stream=sys.stdout)
 
         return output, new_state
 
