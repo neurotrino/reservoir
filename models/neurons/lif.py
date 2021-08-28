@@ -349,7 +349,9 @@ class ExInALIF(ExIn, LIF):
         new_r = tf.clip_by_value(
             old_r - 1 + tf.cast(new_z * self.cfg['cell'].n_refrac, tf.int32),
             0,
-            self.cfg['cell'].n_refrac)
+            self.cfg['cell'].n_refrac
+        )
+        logging.debug(new_z.shape)
 
         new_state = (new_v, new_r, new_b, new_z)
         output = (new_v, new_z)
