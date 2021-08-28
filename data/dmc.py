@@ -32,9 +32,9 @@ class DataGenerator(BaseDataGenerator):
         #match_labels_ms = np.repeat(match_labels_frames, int(MS_PER_TRIAL/FRAMES_PER_TRIAL)+1, axis=1)
 
         x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
+        y = matches.reshape((-1,seq_len))[:,:,None]
         #y = np.array(matches.todense().reshape((-1, seq_len)))[:,:,None]
         #y = match_labels_ms.reshape((-1,seq_len))[:,:,None]
-        y = matches.reshape((-1,seq_len))[:,:,None]
 
         self.dataset = tf.data.Dataset.from_tensor_slices(
             (x, y)
@@ -54,9 +54,12 @@ class DataGenerator(BaseDataGenerator):
         if self.iterator is None:
             self.iterator = iter(self.dataset)
         try:
-            x=self.iterator.get_next()
-            print(x)
-            return x
+            nxt = self.iterator.get_next()
+            if nxt[1].shape[0] != self.cfg.n_input:
+                # [!] this shouldn't be enforced here but elsewhere;
+                #     move soon
+                nxt = self.next()
+            return nxt
         except tf.errors.OutOfRangeError:
             self.iterator = None
             return self.next()
