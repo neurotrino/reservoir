@@ -3,7 +3,6 @@
 # external modules
 import numpy as np
 import tensorflow as tf
-import sys
 
 # internal modules
 from models.neurons.base import ExIn, Neuron
@@ -127,10 +126,6 @@ class LIF(Neuron):
         """
         [old_v, old_r, old_z] = state[:3]
 
-        tf.print(f"\nold_v: {old_v.shape}", output_stream=sys.stdout, end=', ')
-        tf.print(f"old_r: {old_r.shape}", output_stream=sys.stdout, end=', ')
-        tf.print(f"old_z: {old_z.shape}", output_stream=sys.stdout, end=', ')
-
         if self.freewiring:
             # Make sure all self-connections remain 0
             self.recurrent_weights.assign(tf.where(
@@ -184,12 +179,7 @@ class LIF(Neuron):
         i_reset = -(self.thr - self.EL) * old_z
         # ^ approx driving the voltage 20 mV more negative
 
-        tf.print(f"i_in: {i_in.shape}", output_stream=sys.stdout, end=', ')
-        tf.print(f"i_rec: {i_rec.shape}", output_stream=sys.stdout, end=', ')
-        tf.print(f"i_reset: {i_reset.shape}", output_stream=sys.stdout, end=', ')
-
-        #{correct}input_current = i_in + i_rec + i_reset #+ self.bias_currents[None]
-        input_current = i_reset #+ self.bias_currents[None]
+        input_current = i_in + i_rec + i_reset #+ self.bias_currents[None]
 
         # previously, whether old_v was below or above 0, you would
         # still decay gradually back to 0 decay was dependent on the
