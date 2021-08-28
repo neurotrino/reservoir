@@ -55,7 +55,7 @@ class DataGenerator(BaseDataGenerator):
             self.iterator = iter(self.dataset)
         try:
             x=self.iterator.get_next()
-            print(x.shape)
+            print(x)
             return x
         except tf.errors.OutOfRangeError:
             self.iterator = None
