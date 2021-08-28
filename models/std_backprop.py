@@ -36,7 +36,7 @@ class Model(BaseModel):
         logging.info(f"cell type set to {cell_type.__name__}")
 
         # Layer definitions
-        self.rnn1 = tf.keras.layers.RNN(self.cell, return_sequences=True)
+        self.rnn1 = tf.keras.layers.RNN(self.cell, return_sequences=True, stateful=True)
         self.dense1 = tf.keras.layers.Dense(1)
 
         self.layers = [  # gather in a list for later convenience
