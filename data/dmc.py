@@ -55,7 +55,7 @@ class DataGenerator(BaseDataGenerator):
             self.iterator = iter(self.dataset)
         try:
             nxt = self.iterator.get_next()
-            if nxt[1].shape[0] != self.cfg.n_input:
+            if nxt[1].shape[0] != self.cfg['data'].n_input:
                 # [!] this shouldn't be enforced here but elsewhere;
                 #     move soon
                 nxt = self.next()
