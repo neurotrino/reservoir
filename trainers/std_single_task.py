@@ -316,7 +316,7 @@ class Trainer(BaseTrainer):
             # Weights after applying gradients
             try:
                 self.logger.log(
-                    data_label=f"tv{i}-{tvar.name}.postweights",
+                    data_label=f"tv{i}.postweights",
                     data=tvar.numpy(),
                     meta={
                         'stride': 'step',
