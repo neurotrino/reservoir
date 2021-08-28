@@ -235,7 +235,7 @@
         log_npz: true
 
         // Save logging values to disk every n epochs
-        post_every: 1
+        post_every: 16
 
         // Toggle the TensorBoard profiler
         run_profiler: false
