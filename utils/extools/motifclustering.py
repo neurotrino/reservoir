@@ -17,7 +17,7 @@ for k in data.files:
 """
 #experiment = 'ccd_with_dot_trained_cnn_alif_3'
 #experiment = 'ccd_with_dot_trained_cnn_alif_2'
-experiment = 'ccd_test_rewiring_alif_8'
+experiment = 'new_rewiring_test_lif'
 
 def test_local():
 	sims = 10
@@ -121,8 +121,8 @@ def test_local():
 def plot_density(experiment): # July 20, 2021: for sake of testing rewiring
     dens = []
     loss = []
-    epoch_end = [9,19,29,39,49,59,69]
-    epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70']
+    epoch_end = [9,19,29,39,49,59,69,79,89,99,109,119,129,139,149,159,169,179,189,199]
+    epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100','101-110','111-120','121-130','131-140','141-150','151-160','161-170','171-180','181-190','191-200']
     nfiles = len(epoch_groups)
     for i in range(nfiles):
         fname = '../../../experiments/' + experiment + '/npz-data/' + epoch_groups[i] + '.npz'

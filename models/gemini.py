@@ -5,7 +5,7 @@ import tensorflow as tf
 
 from models.common import exp_convolve
 
-from models.neurons.adex import *
+#from models.neurons.adex import *
 from models.neurons.lif import *
 
 class Gemini(tf.keras.Model):

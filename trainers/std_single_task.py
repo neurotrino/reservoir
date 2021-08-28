@@ -156,7 +156,10 @@ class Trainer(BaseTrainer):
         #┤ Gradient Calculation                                              │
         #┴───────────────────────────────────────────────────────────────────╯
 
-        voltage, spikes, prediction, loss, grads = self.grad(batch_x, batch_y)
+        voltage, spikes, prediction, loss, grads = self.grad(
+            batch_x,
+            batch_y
+        )
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Mid-Step Logging                                                  │
@@ -209,6 +212,7 @@ class Trainer(BaseTrainer):
             }
         )
 
+
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Gradient Application                                              │
         #┴───────────────────────────────────────────────────────────────────╯
@@ -218,14 +222,14 @@ class Trainer(BaseTrainer):
         )
 
         #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Sparsity Application                                              │
+        #┤ Sparsity Enforcement                                              │
         #┴───────────────────────────────────────────────────────────────────╯
 
-        # if rewiring is permitted (i.e. sparsity is NOT enforced),
+        # if freewiring is permitted (i.e. sparsity of any kind is NOT enforced),
         # this step is needed to explicitly ensure self-recurrent
         # connections remain zero otherwise (if sparsity IS enforced)
         # that is taken care of through the rec_sign application below
-        if self.cfg['model'].cell.rewiring:
+        if self.cfg['model'].cell.freewiring:  # TODO: document in HJSON
             # Make sure all self-connections remain 0
             self.model.cell.recurrent_weights.assign(tf.where(
                 self.model.cell.disconnect_mask,
@@ -244,6 +248,12 @@ class Trainer(BaseTrainer):
             self.model.cell.recurrent_weights,
             0
         ))
+
+        # [!] prefer to have something like "for cell in model.cells,
+        #     if cell.rewiring then cell.rewire" to better generalize;
+        #     would involve adding a 'cells' attribute to model
+        if self.model.cell.rewiring:
+            self.model.cell.rewire()
 
         # In a similar way, one could use CMG to create sparse initial
         # input weights, then capture the signs so as to enforce

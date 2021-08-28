@@ -10,7 +10,7 @@ import logging
 import numpy as np
 
 # local
-from models.neurons.base import BaseNeuron
+from models.neurons.base import Neuron
 from utils.connmat import ConnectivityMatrixGenerator as CMG
 from utils.connmat import ExInConnectivityMatrixGenerator as ExInCMG
 
@@ -18,7 +18,7 @@ from utils.connmat import ExInConnectivityMatrixGenerator as ExInCMG
 #┤ Core Properties                                                           │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class _AdExCore(BaseNeuron):
+class _AdExCore(Neuron):
     """TODO: docs"""
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -170,7 +170,7 @@ class _AdExCore(BaseNeuron):
     #┤ Additional Methods                                                    │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def zero_state(self, batch_size, dtype=tf.float32):  # is this not in BaseNeuron? does it differ from LIF?
+    def zero_state(self, batch_size, dtype=tf.float32):  # is this not in Neuron? does it differ from LIF?
         # Voltage (all at EL)
         v0 = tf.zeros((batch_size, self.units), dtype) + self.EL  # Do we want to start with random V?
         # Refractory (all 0)
@@ -229,7 +229,7 @@ class ExInAdEx(_AdExCore):
         )
 
 
-class _EligAdExCore(BaseNeuron):  # how is this different than _AdexCore
+class _EligAdExCore(Neuron):  # how is this different than _AdexCore
     """TODO: docs"""
 
     #┬───────────────────────────────────────────────────────────────────────╮

@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: ../experiments/sinusoid_sparse_alif
+        exp_dir: ../experiments/new_rewiring_test_lif
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -121,9 +121,11 @@
 
         cell:
         {
-            type: ExInALIF
+            type: ExInLIF
 
-            rewiring: false
+            freewiring: false // now the term for our original unprincipled use of "rewiring"
+
+            rewiring: true // now the term for permitting a new connection to grow if/when an existing connection disappears
 
             units: 100   // number of units in the layer
 
@@ -150,9 +152,6 @@
 
             beta: 0.16
             tau_adaptation: 100
-
-            //
-            rewiring: false
 
             // μ for normal distribution (exponentiated for lognormal weights)
             mu: -0.64
@@ -222,12 +221,7 @@
         // Unlike the logvar lists, these values will still be stored in the
         // logger, they just won't be written to disk. This is useful if you
         // want to generate plots but not keep the underlying data.
-        todisk_whitelist: [
-            step_loss
-            epoch_loss
-            tv0.postweights
-            tv1.postweights
-        ]
+        todisk_whitelist: null
         todisk_blacklist: null
 
         // Save npz files or not

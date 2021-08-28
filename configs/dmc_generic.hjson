@@ -123,7 +123,9 @@
         {
             type: ExInLIF
 
-            rewiring: false
+
+            freewiring: false // now the term for our original unprincipled use of "rewiring"
+            rewiring: true // now the term for permitting a new connection to grow if/when an existing connection disappears
 
             units: 100   // number of units in the layer
 
@@ -229,19 +231,14 @@
         // Unlike the logvar lists, these values will still be stored in the
         // logger, they just won't be written to disk. This is useful if you
         // want to generate plots but not keep the underlying data.
-        todisk_whitelist: [
-            step_loss
-            epoch_loss
-            tv0.postweights
-            tv1.postweights
-        ]
+        todisk_whitelist: null
         todisk_blacklist: null
 
         // Save npz files or not
         log_npz: false
 
         // Save logging values to disk every n epochs
-        post_every: 2
+        post_every: 16
 
         // Toggle the TensorBoard profiler
         run_profiler: false
@@ -296,13 +293,13 @@
         learning_rate: 0.01
 
         // number of trials in batch
-        batch_size: 10
+        batch_size: 16
 
         // number of batches in an epoch
-        n_batch: 10
+        n_batch: 32
 
         // number of epochs the model is fit over
-        n_epochs: 200
+        n_epochs: 256
 
         target_rate: 0.02
 
