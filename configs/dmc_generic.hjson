@@ -121,7 +121,7 @@
 
         cell:
         {
-            type: ExInALIF
+            type: ExInLIF
 
 
             freewiring: false // now the term for our original unprincipled use of "rewiring"
@@ -246,11 +246,6 @@
         // If enabled, the profiler will run on each epoch in the list below
         profiler_epochs: [
             4
-        ]
-
-        // Filter for a subset of the logging procedures in the training loop
-        layer_whitelist: [
-            rnn
         ]
 
         // Floating point precision of numpy arrays saved to disk (fewer bits
