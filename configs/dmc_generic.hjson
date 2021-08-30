@@ -127,7 +127,7 @@
             freewiring: false // now the term for our original unprincipled use of "rewiring"
             rewiring: true // now the term for permitting a new connection to grow if/when an existing connection disappears
 
-            units: 100   // number of units in the layer
+            units: 250   // number of units in the layer
 
             thr: -50.4   // threshold [mV]
             EL: -70.6    // [mV]
@@ -230,9 +230,6 @@
         // want to generate plots but not keep the underlying data.
         todisk_whitelist: null
         todisk_blacklist: null
-
-        // Save npz files or not
-        log_npz: true
 
         // Save logging values to disk every n epochs
         post_every: 4
