@@ -43,7 +43,7 @@ class DataGenerator(BaseDataGenerator):
         ).batch(
             cfg['train'].batch_size
         ).shuffle(
-            shape(x)[0]
+            x.shape[0]
         )
 
         # Iterator
