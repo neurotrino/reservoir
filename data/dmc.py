@@ -40,7 +40,11 @@ class DataGenerator(BaseDataGenerator):
             (x, y)
         ).repeat(
             count=1
-        ).batch(cfg['train'].batch_size)
+        ).batch(
+            cfg['train'].batch_size
+        ).shuffle(
+            shape(x)[0]
+        )
 
         # Iterator
         self.iterator = None
