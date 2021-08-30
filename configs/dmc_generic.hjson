@@ -121,7 +121,7 @@
 
         cell:
         {
-            type: ExInLIF
+            type: ExInALIF
 
 
             freewiring: false // now the term for our original unprincipled use of "rewiring"
@@ -288,7 +288,7 @@
         n_batch: 32
 
         // number of epochs the model is fit over
-        n_epochs: 1024
+        n_epochs: 512
 
         target_rate: 0.02
 
