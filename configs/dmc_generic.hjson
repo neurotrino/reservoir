@@ -282,13 +282,13 @@
         learning_rate: 0.01
 
         // number of trials in batch
-        batch_size: 16
+        batch_size: 32
 
         // number of batches in an epoch
         n_batch: 32
 
         // number of epochs the model is fit over
-        n_epochs: 256
+        n_epochs: 1024
 
         target_rate: 0.02
 
