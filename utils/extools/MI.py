@@ -50,10 +50,10 @@ def confMI_mat(raster):
     alpha = 0
     neurons = np.shape(raster)[0]
     mat = np.zeros([neurons,neurons])
-    for post in range(0,neurons):
-        for pre in range(0,neurons):
-            if post != pre:
-                mat[post,pre] = confMI(raster[pre,:],raster[post,:],lag,alpha)
+    for pre in range(0,neurons):
+        for post in range(0,neurons):
+            if pre != post:
+                mat[pre,post] = confMI(raster[pre,:],raster[post,:],lag,alpha)
     return mat
 
 def confMI(train_1,train_2,lag,alpha):
@@ -81,14 +81,14 @@ def confMI(train_1,train_2,lag,alpha):
 def signed_MI(graph,raster):
     neurons = np.shape(graph)[0]
     signed_graph = np.copy(graph)
-    for post in range(0,neurons):
-        for pre in range ((post+1),neurons):
+    for pre in range(0,neurons):
+        for post in range ((post+1),neurons):
             corr_mat = np.corrcoef(raster[pre,:],raster[post,:])
             #factor = sign(corr_mat[1,2])
             factor = np.sign(corr_mat[0,1])
             if ~np.isnan(factor):
-                signed_graph[post,pre] *= factor
                 signed_graph[pre,post] *= factor
+                signed_graph[post,pre] *= factor
     return signed_graph
 
 def pos(graph):
@@ -106,11 +106,11 @@ def reexpress_param(graph):
     data = data[data > 0]
     upper_exp=10
     lower_exp=0.00000000000001
-    upper_skew = scipy.stats.skewness(data**upper_exp)
-    lower_skew = scipy.stats.skewness(data**lower_exp)
+    upper_skew = scipy.stats.skew(data**upper_exp)
+    lower_skew = scipy.stats.skew(data**lower_exp)
     for i in range(0,steps):
         new_exp = (upper_exp + lower_exp)/2
-        new_skew = scipy.stats.skewness(data**new_exp)
+        new_skew = scipy.stats.skew(data**new_exp)
         if new_skew<0:
             lower_exp=new_exp;
             lower_skew=new_skew;
@@ -128,11 +128,11 @@ def reexpress_param(graph):
 def background(graph):
     #takes reexpress graph returns background graph
     background = np.copy(graph)
-    neurons = np.shape(graph)[0]
-    for pre in range(0,neurons):
-        for post in range(0,neurons):
-            if post != pre:
-                background[post,pre] = np.mean(graph[post,0:neurons[neurons != pre]])*np.mean(graph[0:neurons[(neurons != post) & (neurons != pre)]])
+    neurons = np.arange(0,np.shape(graph)[0])
+    for pre in neurons:
+        for post in neurons:
+            if pre != post:
+                background[pre,post] = np.mean(graph[pre,neurons[neurons != post]])*np.mean(graph[neurons[(neurons != post) & (neurons != pre)]])
     return background
 
 def residual(background_graph,graph):
@@ -148,13 +148,14 @@ def residual(background_graph,graph):
 
 def normed_residual(graph):
     norm_residual = np.copy(graph)
-    neurons = np.shape(graph)[0]
-    for pre in range(0,neurons):
-        for post in range(0,neurons):
-            if post != pre:
-                norm_residual[post,pre] = np.std(graph[post,0:neurons[neurons != pre]])*np.std(graph[0:neurons[(neurons != post) & (neurons != pre)]])
+    neurons = np.arange(0,np.shape(graph)[0])
+    for pre in neurons:
+        for post in neurons:
+            if pre != post:
+                norm_residual[pre,post] = np.std(graph[pre,neurons[neurons != post]])*np.std(graph[neurons[(neurons != post) & (neurons != pre)]])
     cutoff = np.median(norm_residual)
-    norm_residual = 1/(np.sqrt(np.maximum(norm_residual,np.ones(neurons,neurons)*cutoff)))
+    neurons = np.shape(graph)[0]
+    norm_residual = 1/(np.sqrt(np.maximum(norm_residual,np.ones([neurons,neurons])*cutoff)))
     return norm_residual*graph
 
 
