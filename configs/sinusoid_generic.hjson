@@ -121,7 +121,7 @@
 
         cell:
         {
-            type: ExInLIF
+            type: ExInALIF
 
             freewiring: false // now the term for our original unprincipled use of "rewiring"
 
@@ -224,8 +224,8 @@
         todisk_whitelist: [
             step_loss
             epoch_loss
-            tv0.postweights
-            tv1.postweights
+            tv1.preweights
+            spikes
         ]
         todisk_blacklist: null
 
