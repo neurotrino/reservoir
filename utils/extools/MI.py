@@ -89,6 +89,7 @@ def signed_MI(graph,raster):
             if ~np.isnan(factor):
                 signed_graph[post,pre] *= factor
                 signed_graph[pre,post] *= factor
+    return signed_graph
 
 def pos(graph):
     #takes signed_MI MI graph, returns positive version
