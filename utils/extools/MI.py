@@ -85,7 +85,7 @@ def signed_MI(graph,raster):
         for pre in range ((post+1),neurons):
             corr_mat = np.corrcoef(raster[pre,:],raster[post,:])
             #factor = sign(corr_mat[1,2])
-            factor = sign(corr_mat[0,1])
+            factor = np.sign(corr_mat[0,1])
             if ~np.isnan(factor):
                 signed_graph[post,pre] *= factor
                 signed_graph[pre,post] *= factor
