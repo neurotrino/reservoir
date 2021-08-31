@@ -149,7 +149,7 @@ class Trainer(BaseTrainer):
         # [!] besides the first time, this is just postweights of the
         #     last batch, so we want to have a `static` save of the
         #     first time, but not this
-        preweights = [x.numpy() for x in self.model.trainable_variables]
+        #preweights = [x.numpy() for x in self.model.trainable_variables]
 
 
         #┬───────────────────────────────────────────────────────────────────╮
@@ -312,11 +312,11 @@ class Trainer(BaseTrainer):
                 }
             )
 
-
+            """
             # Weights before applying gradients
             self.logger.log(
                 data_label=tvar.name + '.preweights',
-                data=preweights[i],
+                data=preweights[i].numpy(),
                 meta={
                     'stride': 'step',
                     'description':
@@ -325,6 +325,7 @@ class Trainer(BaseTrainer):
                         + ' before applying the gradients'
                 }
             )
+            """
 
 
             # Weights after applying gradients
