@@ -61,16 +61,13 @@ def confMI(train_1,train_2,lag,alpha):
 	states = [0,1]
 	for i in range(0,np.size(states)):
         i_inds = np.argwhere(train_1 == states[i])
-		#i_inds = find(x->x==states[i],train_1)
 		p_i = np.shape(i_inds)[0]/np.shape(train_1)[0]
 		if np.shape(i_inds)[0] > 0:
 			for j in range(0,np.size(states)):
                 j_inds = np.argwhere(train_2 == states[j])
-				#j_inds = find(x->x==states[j],train_2)
 				j_inds_lagged = j_inds + lag
                 j_inds_lagged = j_inds_lagged[j_inds_lagged < run_dur]
 				if np.shape(j_inds)[0] > 0:
-					#j_inds_lagged = j_inds_lagged[j_inds_lagged.>0]
                     j_inds_lagged = j_inds_lagged[j_inds_lagged>0]
 					j_inds = np.union1d(j_inds,j_inds_lagged)
 					p_j = np.shape(j_inds)[0]/(np.shape(train_2)[0])
