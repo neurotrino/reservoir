@@ -68,10 +68,22 @@ def plot_heatmap(weights, filename, show_value_bounds=True):
 if __name__ == "__main__":
     """Generate plots using npz files.
 
-    When invoked directly, the script requires a file name and a key
-    specifying the values to plot. An optional argument may also be
-    passed specifying which steps should be plotted. By default, only
-    the first and last synaptic states will generate plots.
+    When invoked directly, the script takes the following commandline
+    arguments:
+
+        Mandatory:
+        > input: file or directory to read synapse weights from
+        > output: name of output directory (can create new directories)
+
+        Optional:
+        > var (-v, --var): dictionary key indexing synapse weights in
+          the target file(s)
+        > granularity (-g, --granularity): granularity of plot
+          generation (STEP, EPOCH)
+        > epoch size (-e, --epoch-size): number of steps per epoch in
+          the specified data
+        > show-bounds (-b, --show-bounds): whether or not to show
+          numeric values for min/max weights on the colorbar
     """
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -158,6 +170,7 @@ if __name__ == "__main__":
 
     cur_step = 1
     cur_epoch = 1
+
     for npz_file in npz_files:
         npz_data = np.load(npz_file)[args.var]
         num_steps = npz_data.shape[0]
