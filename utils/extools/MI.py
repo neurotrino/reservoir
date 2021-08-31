@@ -74,7 +74,7 @@ def confMI(train_1,train_2,lag,alpha):
                     p_i_and_j = np.shape(np.intersect1d(i_inds,j_inds))[0]/(np.shape(train_1)[0])
                     if alpha > 0:
                         MI = MI + alpha + (1-alpha) * p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
-                    elseif p_i_and_j > 0:
+                    elif p_i_and_j > 0:
                         MI += p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
     return MI
 
