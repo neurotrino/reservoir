@@ -20,7 +20,7 @@ batch_size = 10
 def main(experiment,dt):
     # loop through and load all experiment npz files
     dir = '/home/macleanlab/experiments/' + experiment + '/npz-data/'
-    files = glob.glob('*.npz')
+    files = glob.glob(dir+'*.npz')
     files_sorted = sorted(files, key=lambda x: int(x.split('-')[0]))
     mi_graphs = []
     for f in files_sorted:
@@ -64,6 +64,28 @@ def confMI_mat(raster):
             if pre != post:
                 mat[pre,post] = confMI(raster[pre,:],raster[post,:],lag,alpha)
     return mat
+
+def confMI_logical(train_1,train_2,lag,alpha):
+    MI = 0
+    num_bins = np.shape(train_1)[0]
+    train_1 = bool(train_1)
+    train_2 = bool(train_2)
+    #train_1 = train_2[0:end-lag] or train_2[1+lag:end]
+    p_i = zeros(2)
+    p_i[0] = sum(train_1)/num_bins
+    p_i[1] = 1 - p_i[0]
+
+    train_1 = train_1[0:end-lag]
+
+    p_j = zeros(2)
+    p_j[0] = sum(train_2[0:end])/(num_bins)
+    p_j[2] = 1 - p_j[0]
+
+    p_i_and_j = zeros(2,2)
+    p_i_and_j[0,0] = sum(train_1 and train_2)/(num_bins-lag)
+    p_i_and_j[0,1] = sum(train_1 and not(train_2))/(num_bins-lag)
+    p_i_and_j[1,0] = sum(not(train_1) and train_2)/(num_bins-lag)
+    p_i_and_j[1,1] = 1-sum(p_i_and_j)
 
 def confMI(train_1,train_2,lag,alpha):
     MI = 0
