@@ -179,20 +179,13 @@
     {
         type: dmc
 
-        // file containing spike data for CCD or DMC
+        // file containing spike data
         spike_npz:
         /home/macleanlab/stim/dmc/2021-09-03/CNN_outputs/spike_train.npz
-
-        //spike_npz:
-        ///home/macleanlab/CNN_outputs/spike_train_mixed_limlifetime_abs.npz
 
         // file containing sample match/non-match data
         match_npy:
         /home/macleanlab/stim/dmc/2021-09-03/CNN_outputs/cat_time_series_polarized.npy
-
-        // file containing coherence change data (CCD)
-        coh_npz:
-        /home/macleanlab/CNN_outputs/coherences_mixed_limlifetime_abs.npz
 
         //
         seq_len: 4080
