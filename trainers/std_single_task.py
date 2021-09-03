@@ -101,6 +101,7 @@ class Trainer(BaseTrainer):
         return voltage, spikes, prediction, loss_val, grads
 
 
+    #@tf.function  # [!] might need this
     def train_step(self, batch_x, batch_y, batch_idx=None):
         """Train on the next batch."""
 
@@ -326,7 +327,7 @@ class Trainer(BaseTrainer):
                             + ' after applying the gradients'
                     }
                 )
-            except:
+            except:  # [!] prefer not to have try/except
                 pass
 
         # [*] Stepwise logging for *all* layers; might have redundancy
