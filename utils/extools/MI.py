@@ -76,23 +76,24 @@ def confMI(train_1,train_2,lag,alpha):
             for j in range(0,np.size(states)):
                 j_inds = []
                 trial_ends = np.arange(run_dur-1,np.shape(train_1)[0],run_dur)
-                for idx in i_inds:
-                    # for all t where neuron i is in states[i]
-                    if not(idx in trial_ends): # if we are not at the end of a trial (a discontinuity)
-                        if (train_2[idx] == states[j]) or (train_2[idx+lag] == states[j]):
-                            # check if postsynaptic neuron j was in states[j] at time t or t+1
-                            j_inds.append(idx) # if so, add this t index to the time points that neuron j is confluent with i
-                    else: # if we are at the end of a trial, only check time point t
-                        if (train_2[idx] == states[j]):
-                            j_inds.append(idx)
-                p_j = np.shape(j_inds)[0]/(np.shape(train_2)[0])
-                numer = np.shape(np.intersect1d(i_inds,j_inds))[0]
-                denom = (np.shape(train_1)[0])
-                p_i_and_j = numer/denom
-                if alpha > 0:
-                    MI = MI + alpha + (1-alpha) * p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
-                elif p_i_and_j > 0:
-                    MI += p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
+                if np.shape(np.argwhere(train_2 == states[j]))[0] > 0: # if neuron j is ever in states[j], proceed
+                    for idx in i_inds:
+                        # for all t where neuron i is in states[i]
+                        if not(idx in trial_ends): # if we are not at the end of a trial (a discontinuity)
+                            if (train_2[idx] == states[j]) or (train_2[idx+lag] == states[j]):
+                                # check if postsynaptic neuron j was in states[j] at time t or t+1
+                                j_inds.append(idx) # if so, add this t index to the time points that neuron j is confluent with i
+                        else: # if we are at the end of a trial, only check time point t
+                            if (train_2[idx] == states[j]):
+                                j_inds.append(idx)
+                    p_j = np.shape(j_inds)[0]/(np.shape(train_2)[0])
+                    numer = np.shape(np.intersect1d(i_inds,j_inds))[0]
+                    denom = (np.shape(train_1)[0])
+                    p_i_and_j = numer/denom
+                    if alpha > 0:
+                        MI = MI + alpha + (1-alpha) * p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
+                    elif p_i_and_j > 0:
+                        MI += p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
     return MI
 
 def signed_MI(graph,raster):
