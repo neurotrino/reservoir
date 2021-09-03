@@ -5,6 +5,7 @@ import sys
 
 import numpy as np
 import scipy
+import glob
 from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 import os
@@ -18,21 +19,29 @@ batch_size = 10
 
 def main(experiment,dt):
     # loop through and load all experiment npz files
-    data = np.load('11-20.npz')
-    spikes = data['spikes']
+    dir = '/home/macleanlab/experiments/' + experiment + '/npz-data/'
+    files = glob.glob('*.npz')
+    files_sorted = sorted(files, key=lambda x: int(x.split('-')[0]))
+    mi_graphs = []
+    for f in files_sorted:
+        data = np.load(dir + files_sorted[f])
+        spikes = data['spikes']
+        for batch in spikes:
+            batch_spikes = np.reshape(spikes[batch], [run_dur*np.shape(spikes[batch])[0],np.shape(spikes[batch])[2]])
+            batch_raster = np.transpose(batch_spikes)
+            batch_mi_graph = generate_mi_graph(batch_raster,dt)
+    mi_graphs.append(batch_mi_graph)
+    # well, then we can do anything we want
+    savedir = '/home/macleanlab/experiments/' + experiment + '/analysis/'
+    np.save(savedir + 'mi.npy', mi_graphs)
 
-    # 10 epochs each file, 10 batches each epoch, 10 trials each batch
-    # dimensions of 100 x 10 x 4080 x 100
-    # arbitrarily choosing [0,0] for now, then transpose to get neurons x run_dur
-    raster = np.transpose(spikes[0][0])
-    mi_graph = generate_mi_graph(raster,dt)
-    # can do processing to create final functional graph
-    # such as taking only the top 25% of the mi graph or other such actions
-    functional_graph = mi_graph
-
-    w_rec = data['tv1.preweights']
+    """
+    # for now using postweights but ultimately we'd like to have preweights
+    # because those are the weights that actually led to the activity in these trials
+    w_rec = data['tv1.postweights']
     # note that we are using pre-update weights, since these are the ones actually generating the spikes
     recruitment_graph = intersect_functional_and_synaptic(functional_graph,w_rec)
+    """
 
 def generate_mi_graph(raster,dt):
     #raster = binary_raster_gen(spikes,dt)
@@ -60,22 +69,30 @@ def confMI(train_1,train_2,lag,alpha):
     MI = 0
     states = [0,1]
     for i in range(0,np.size(states)):
+        # find all indices (timepoints) where presynaptic neuron i is in states[i]
         i_inds = np.argwhere(train_1 == states[i])
         p_i = np.shape(i_inds)[0]/np.shape(train_1)[0]
         if np.shape(i_inds)[0] > 0:
             for j in range(0,np.size(states)):
-                j_inds = np.argwhere(train_2 == states[j])
-                j_inds_lagged = j_inds + lag
-                j_inds_lagged = j_inds_lagged[j_inds_lagged < run_dur]
-                if np.shape(j_inds)[0] > 0:
-                    j_inds_lagged = j_inds_lagged[j_inds_lagged>0]
-                    j_inds = np.union1d(j_inds,j_inds_lagged)
-                    p_j = np.shape(j_inds)[0]/(np.shape(train_2)[0])
-                    p_i_and_j = np.shape(np.intersect1d(i_inds,j_inds))[0]/(np.shape(train_1)[0])
-                    if alpha > 0:
-                        MI = MI + alpha + (1-alpha) * p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
-                    elif p_i_and_j > 0:
-                        MI += p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
+                j_inds = []
+                trial_ends = np.arange(run_dur-1,np.shape(train_1)[0],run_dur)
+                for idx in i_inds:
+                    # for all t where neuron i is in states[i]
+                    if not(idx in trial_ends): # if we are not at the end of a trial (a discontinuity)
+                        if (train_2[idx] == states[j]) or (train_2[idx+lag] == states[j]):
+                            # check if postsynaptic neuron j was in states[j] at time t or t+1
+                            j_inds.append(idx) # if so, add this t index to the time points that neuron j is confluent with i
+                    else: # if we are at the end of a trial, only check time point t
+                        if (train_2[idx] == states[j]):
+                            j_inds.append(idx)
+                p_j = np.shape(j_inds)[0]/(np.shape(train_2)[0])
+                numer = np.shape(np.intersect1d(i_inds,j_inds))[0]
+                denom = (np.shape(train_1)[0])
+                p_i_and_j = numer/denom
+                if alpha > 0:
+                    MI = MI + alpha + (1-alpha) * p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
+                elif p_i_and_j > 0:
+                    MI += p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
     return MI
 
 def signed_MI(graph,raster):
@@ -132,7 +149,7 @@ def background(graph):
     for pre in neurons:
         for post in neurons:
             if pre != post:
-                background[pre,post] = np.mean(graph[pre,neurons[neurons != post]])*np.mean(graph[neurons[(neurons != post) & (neurons != pre)]])
+                background[pre,post] = np.mean(graph[pre,neurons[neurons != post]])*np.mean(graph[neurons[(neurons != post) and (neurons != pre)]])
     return background
 
 def residual(background_graph,graph):
@@ -152,7 +169,7 @@ def normed_residual(graph):
     for pre in neurons:
         for post in neurons:
             if pre != post:
-                norm_residual[pre,post] = np.std(graph[pre,neurons[neurons != post]])*np.std(graph[neurons[(neurons != post) & (neurons != pre)]])
+                norm_residual[pre,post] = np.std(graph[pre,neurons[neurons != post]])*np.std(graph[neurons[(neurons != post) and (neurons != pre)]])
     cutoff = np.median(norm_residual)
     neurons = np.shape(graph)[0]
     norm_residual = 1/(np.sqrt(np.maximum(norm_residual,np.ones([neurons,neurons])*cutoff)))
