@@ -188,7 +188,7 @@
 
         // file containing sample match/non-match data
         match_npy:
-        /home/macleanlab/stim/dmc/2021-09-03/CNN_outputs/cat_time_series.npy
+        /home/macleanlab/stim/dmc/2021-08-05-1225/CNN_outputs/cat_time_series_polarized.npy
 
         // file containing coherence change data (CCD)
         coh_npz:
