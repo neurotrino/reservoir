@@ -125,7 +125,7 @@ def formerly_confMI(train_1,train_2,lag,alpha):
             for j in range(0,np.size(states)):
                 j_inds = np.argwhere(train_2 == states[j])
                 j_inds_lagged = j_inds - lag
-                if np.shape(j_inds)[0] > 0):
+                if np.shape(j_inds)[0] > 0:
                     j_inds_lagged = j_inds_lagged[j_inds_lagged > 0]
                     j_inds = np.union1d(j_inds,j_inds_lagged)
                     if np.shape(j_inds)[0] < np.shape(train_2)[0]:
