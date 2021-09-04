@@ -54,6 +54,29 @@ def generate_mi_graph(raster,dt):
     normed_MI_graph = normed_residual(residual_graph)
     return normed_MI_graph
 
+def test_confMI_methods():
+    file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/101-110.npz'
+    data = np.load(file)
+    spikes = data['spikes']
+    raster = np.transpose(spikes[0][0])
+    former_method_mat = formerly_confMI_mat(raster)
+    new_method_mat = confMI_mat(raster)
+    if former_method_mat == new_method_mat:
+        print('methods match')
+    else:
+        print('methods do not match')
+
+def formerly_confMI_mat(raster):
+    lag = 1
+    alpha = 0
+    neurons = np.shape(raster)[0]
+    mat = np.zeros([neurons,neurons])
+    for pre in range(0,neurons):
+        for post in range(0,neurons):
+            if pre != post:
+                mat[pre,post] = formerly_confMI(raster[pre,:],raster[post,:],lag,alpha)
+    return mat
+
 def confMI_mat(raster):
     lag = 1
     alpha = 0
@@ -65,6 +88,7 @@ def confMI_mat(raster):
                 mat[pre,post] = confMI(raster[pre,:],raster[post,:],lag,alpha)
     return mat
 
+"""
 def confMI_logical(train_1,train_2,lag,alpha):
     MI = 0
     num_bins = np.shape(train_1)[0]
@@ -86,6 +110,36 @@ def confMI_logical(train_1,train_2,lag,alpha):
     p_i_and_j[0,1] = sum(train_1 and not(train_2))/(num_bins-lag)
     p_i_and_j[1,0] = sum(not(train_1) and train_2)/(num_bins-lag)
     p_i_and_j[1,1] = 1-sum(p_i_and_j)
+"""
+
+def formerly_confMI(train_1,train_2,lag,alpha):
+    MI = 0
+    states = [0,1]
+    #mat[post,pre] = confMI(raster[pre,:],raster[post,:],lag,alpha)
+    # meaning train_1 is definitely for pre and train_2 is for post
+    # former matrix convention was j,i rather than i,j is all
+    for i in 1:length(states):
+        i_inds = np.argwhere(train_1 == states[i])
+        p_i = np.shape(i_inds)[0]/np.shape(train_1)[0]
+        if np.shape(i_inds)[0] > 0:
+            for j in 1:length(states):
+                j_inds = np.argwhere(train_2 == states[j])
+                j_inds_lagged = j_inds - lag
+                if np.shape(j_inds)[0] > 0):
+                    j_inds_lagged = j_inds_lagged[j_inds_lagged > 0]
+                    j_inds = np.union1d(j_inds,j_inds_lagged)
+                    if np.shape(j_inds)[0] < np.shape(train_2)[0]:
+                    # because if they are equal in size, we will have p > 1 when subtracting lag
+                        p_j = np.shape(j_inds)[0]/(np.shape(train_2)[0]-lag)
+                        p_i_and_j = np.shape(np.intersect1d(i_inds,j_inds))[0]/(np.shape(train_1)[0]-lag)
+                    else:
+                        p_j = np.shape(j_inds)[0]/np.shape(train_2)[0]
+                        p_i_and_j = np.shape(np.intersect1d(i_inds,j_inds))[0]/np.shape(train_1)[0]
+                    if alpha > 0:
+                        MI = MI + alpha + (1-alpha) * p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
+                    elif p_i_and_j > 0:
+                        MI += p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
+    return MI
 
 def confMI(train_1,train_2,lag,alpha):
     MI = 0
