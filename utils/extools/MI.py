@@ -118,7 +118,7 @@ def formerly_confMI(train_1,train_2,lag,alpha):
     #mat[post,pre] = confMI(raster[pre,:],raster[post,:],lag,alpha)
     # meaning train_1 is definitely for pre and train_2 is for post
     # former matrix convention was j,i rather than i,j is all
-    for i in 1:length(states):
+    for i in range(0,np.size(states)):
         i_inds = np.argwhere(train_1 == states[i])
         p_i = np.shape(i_inds)[0]/np.shape(train_1)[0]
         if np.shape(i_inds)[0] > 0:
