@@ -232,7 +232,7 @@ def background(graph):
     for pre in neurons:
         for post in neurons:
             if pre != post:
-                background[pre,post] = np.mean(graph[pre,neurons[neurons != post]])*np.mean(graph[neurons[(neurons != post) and (neurons != pre)]])
+                background[pre,post] = np.mean(graph[pre,neurons[neurons != post]])*np.mean(np.graph[neurons[np.logical_and((neurons != post), (neurons != pre))]])
     return background
 
 def residual(background_graph,graph):
@@ -252,7 +252,7 @@ def normed_residual(graph):
     for pre in neurons:
         for post in neurons:
             if pre != post:
-                norm_residual[pre,post] = np.std(graph[pre,neurons[neurons != post]])*np.std(graph[neurons[(neurons != post) and (neurons != pre)]])
+                norm_residual[pre,post] = np.std(graph[pre,neurons[neurons != post]])*np.std(graph[neurons[np.logical_and((neurons != post), (neurons != pre))]])
     cutoff = np.median(norm_residual)
     neurons = np.shape(graph)[0]
     norm_residual = 1/(np.sqrt(np.maximum(norm_residual,np.ones([neurons,neurons])*cutoff)))
