@@ -45,7 +45,6 @@ def debug(experiment,dt):
     dir = '/home/macleanlab/experiments/' + experiment + '/npz-data/'
     begin_file = dir + '1-10.npz'
     data = np.load(begin_file)
-    mi_graphs = []
     spikes = data['spikes']
     batch = 0
     batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
@@ -256,8 +255,8 @@ def residual(background_graph,graph):
     lm = LinearRegression()
     #b,m = linreg(background_graph[:],graph[:])
     model = lm.fit(background_graph[:],graph[:])
-    b = {model.intercept_}
-    m = {model.coef_}
+    b = model.intercept_
+    m = model.coef_
     residual = graph - (m*background_graph + b)
     return residual
 
