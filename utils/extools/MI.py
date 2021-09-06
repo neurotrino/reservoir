@@ -11,11 +11,9 @@ import matplotlib.pyplot as plt
 import os
 
 dt = 1
-experiment = ''
+experiment = 'sinusoid_save_spikes'
 run_dur = 4080
-# OR should be strung together for all trials in a batch
 batch_size = 10
-#run_total = run_dur * batch_size
 
 def main(experiment,dt):
     # loop through and load all experiment npz files
@@ -43,6 +41,23 @@ def main(experiment,dt):
     recruitment_graph = intersect_functional_and_synaptic(functional_graph,w_rec)
     """
 
+def debug(experiment,dt):
+    dir = '/home/macleanlab/experiments/' + experiment + '/npz-data/'
+    begin_file = dir + '1-10.npz'
+    data = np.load(begin_file)
+    mi_graphs = []
+    spikes = data['spikes']
+    batch = 0
+    batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
+    raster = np.transpose(batch_spikes)
+    MI_graph = confMI_mat(raster)
+    signed_graph = signed_MI(MI_graph,raster)
+    pos_graph = pos(signed_graph)
+    reexpress_graph = reexpress_param(pos_graph)
+    background_graph = background(reexpress_graph)
+    return background_graph
+
+
 def mi_beginning_end(experiment,dt):
     dir = '/home/macleanlab/experiments/' + experiment + '/npz-data/'
     begin_file = dir + '1-10.npz'
@@ -53,10 +68,10 @@ def mi_beginning_end(experiment,dt):
     mi_graphs = []
     spikes = data['spikes']
     for batch in range(0,np.shape(spikes)[0]):
-            batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
-            batch_raster = np.transpose(batch_spikes)
-            batch_mi_graph = generate_mi_graph(batch_raster,dt)
-            mi_graphs.append(batch_mi_graph)
+        batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
+        batch_raster = np.transpose(batch_spikes)
+        batch_mi_graph = generate_mi_graph(batch_raster,dt)
+        mi_graphs.append(batch_mi_graph)
     save_dir = '/home/macleanlab/experiments/' + experiment + '/analysis/'
     np.save(save_dir + 'start_mi.npy', mi_graphs)
 
@@ -64,10 +79,10 @@ def mi_beginning_end(experiment,dt):
     mi_graphs = []
     spikes = data['spikes']
     for batch in spikes:
-            batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
-            batch_raster = np.transpose(batch_spikes)
-            batch_mi_graph = generate_mi_graph(batch_raster,dt)
-            mi_graphs.append(batch_mi_graph)
+        batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
+        batch_raster = np.transpose(batch_spikes)
+        batch_mi_graph = generate_mi_graph(batch_raster,dt)
+        mi_graphs.append(batch_mi_graph)
     end_save_file = '/home/macleanlab/experiments/' + experiment + '/analysis/'
     np.save(save_dir + 'end_mi.npy', mi_graphs)
 
