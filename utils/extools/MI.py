@@ -52,7 +52,7 @@ def mi_beginning_end(experiment,dt):
     data = np.load(begin_file)
     mi_graphs = []
     spikes = data['spikes']
-    for batch in spikes:
+    for batch in range(0,np.shape(spikes)[0]):
             batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
             batch_raster = np.transpose(batch_spikes)
             batch_mi_graph = generate_mi_graph(batch_raster,dt)
@@ -125,11 +125,11 @@ def confMI(train_1,train_2,lag,alpha):
             for j in range(0,np.size(states)):
                 j_inds = np.argwhere(train_2 == states[j])
                 j_inds_lagged = j_inds - lag
-                # none of the lagged indices (t-1) can be equal to the end of a trial,
-                # since that steps over a causal discontinuity
-                j_inds_lagged = j_inds_lagged[j_inds_lagged != trial_ends]
                 if np.shape(j_inds)[0] > 0:
                     j_inds_lagged = j_inds_lagged[j_inds_lagged >= 0]
+                    # none of the lagged indices (t-1) can be equal to the end of a trial,
+                    # since that steps over a causal discontinuity
+                    j_inds_lagged = j_inds_lagged[~np.isin(j_inds_lagged,trial_ends)]
                     j_inds = np.union1d(j_inds,j_inds_lagged)
                     if np.shape(j_inds)[0] < np.shape(train_2)[0]:
                     # because if they are equal in size, we will have p > 1 when subtracting lag
