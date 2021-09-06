@@ -43,6 +43,35 @@ def main(experiment,dt):
     recruitment_graph = intersect_functional_and_synaptic(functional_graph,w_rec)
     """
 
+def mi_beginning_end(experiment,dt):
+    dir = '/home/macleanlab/experiments/' + experiment + '/npz-data/'
+    begin_file = dir + '1-10.npz'
+    end_file = dir + '111-120.npz'
+    # save mi graphs from beginning 10 epochs and ending 10 epochs in separate files
+
+    data = np.load(begin_file)
+    mi_graphs = []
+    spikes = data['spikes']
+    for batch in spikes:
+            batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
+            batch_raster = np.transpose(batch_spikes)
+            batch_mi_graph = generate_mi_graph(batch_raster,dt)
+            mi_graphs.append(batch_mi_graph)
+    save_dir = '/home/macleanlab/experiments/' + experiment + '/analysis/'
+    np.save(save_dir + 'start_mi.npy', mi_graphs)
+
+    data = np.load(end_file)
+    mi_graphs = []
+    spikes = data['spikes']
+    for batch in spikes:
+            batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
+            batch_raster = np.transpose(batch_spikes)
+            batch_mi_graph = generate_mi_graph(batch_raster,dt)
+            mi_graphs.append(batch_mi_graph)
+    end_save_file = '/home/macleanlab/experiments/' + experiment + '/analysis/'
+    np.save(save_dir + 'end_mi.npy', mi_graphs)
+
+
 def generate_mi_graph(raster,dt):
     #raster = binary_raster_gen(spikes,dt)
     MI_graph = confMI_mat(raster)
@@ -54,28 +83,22 @@ def generate_mi_graph(raster,dt):
     normed_MI_graph = normed_residual(residual_graph)
     return normed_MI_graph
 
+"""
 def test_confMI_methods():
+    """
     file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/101-110.npz'
     data = np.load(file)
     spikes = data['spikes']
     raster = np.transpose(spikes[0][0])
-    former_method_mat = formerly_confMI_mat(raster)
-    new_method_mat = confMI_mat(raster)
+    """
+    toy_raster = np.array([[0,1,1,0,0,1,0],[0,0,0,0,1,1,1],[0,1,1,0,0,0,1],[0,0,1,1,0,0,0]]) # four neurons, seven timesteps
+    former_method_mat = formerly_confMI_mat(toy_raster)
+    new_method_mat = confMI_mat(toy_raster)
     if former_method_mat == new_method_mat:
         print('methods match')
     else:
         print('methods do not match')
-
-def formerly_confMI_mat(raster):
-    lag = 1
-    alpha = 0
-    neurons = np.shape(raster)[0]
-    mat = np.zeros([neurons,neurons])
-    for pre in range(0,neurons):
-        for post in range(0,neurons):
-            if pre != post:
-                mat[pre,post] = formerly_confMI(raster[pre,:],raster[post,:],lag,alpha)
-    return mat
+"""
 
 def confMI_mat(raster):
     lag = 1
@@ -88,36 +111,15 @@ def confMI_mat(raster):
                 mat[pre,post] = confMI(raster[pre,:],raster[post,:],lag,alpha)
     return mat
 
-"""
-def confMI_logical(train_1,train_2,lag,alpha):
-    MI = 0
-    num_bins = np.shape(train_1)[0]
-    train_1 = bool(train_1)
-    train_2 = bool(train_2)
-    #train_1 = train_2[0:end-lag] or train_2[1+lag:end]
-    p_i = zeros(2)
-    p_i[0] = sum(train_1)/num_bins
-    p_i[1] = 1 - p_i[0]
-
-    train_1 = train_1[0:end-lag]
-
-    p_j = zeros(2)
-    p_j[0] = sum(train_2[0:end])/(num_bins)
-    p_j[2] = 1 - p_j[0]
-
-    p_i_and_j = zeros(2,2)
-    p_i_and_j[0,0] = sum(train_1 and train_2)/(num_bins-lag)
-    p_i_and_j[0,1] = sum(train_1 and not(train_2))/(num_bins-lag)
-    p_i_and_j[1,0] = sum(not(train_1) and train_2)/(num_bins-lag)
-    p_i_and_j[1,1] = 1-sum(p_i_and_j)
-"""
-
-def formerly_confMI(train_1,train_2,lag,alpha):
+def confMI(train_1,train_2,lag,alpha):
     MI = 0
     states = [0,1]
     #mat[post,pre] = confMI(raster[pre,:],raster[post,:],lag,alpha)
     # meaning train_1 is definitely for pre and train_2 is for post
     # former matrix convention was j,i rather than i,j is all
+
+    trial_ends = np.arange(run_dur-1,np.shape(train_1)[0],run_dur)
+
     for i in range(0,np.size(states)):
         i_inds = np.argwhere(train_1 == states[i])
         p_i = np.shape(i_inds)[0]/np.shape(train_1)[0]
@@ -125,8 +127,11 @@ def formerly_confMI(train_1,train_2,lag,alpha):
             for j in range(0,np.size(states)):
                 j_inds = np.argwhere(train_2 == states[j])
                 j_inds_lagged = j_inds - lag
+                # none of the lagged indices (t-1) can be equal to the end of a trial,
+                # since that steps over a causal discontinuity
+                j_inds_lagged = j_inds_lagged[j_inds_lagged != trial_ends]
                 if np.shape(j_inds)[0] > 0:
-                    j_inds_lagged = j_inds_lagged[j_inds_lagged > 0]
+                    j_inds_lagged = j_inds_lagged[j_inds_lagged >= 0]
                     j_inds = np.union1d(j_inds,j_inds_lagged)
                     if np.shape(j_inds)[0] < np.shape(train_2)[0]:
                     # because if they are equal in size, we will have p > 1 when subtracting lag
@@ -141,7 +146,8 @@ def formerly_confMI(train_1,train_2,lag,alpha):
                         MI += p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
     return MI
 
-def confMI(train_1,train_2,lag,alpha):
+"""
+def null_confMI(train_1,train_2,lag,alpha):
     MI = 0
     states = [0,1]
     for i in range(0,np.size(states)):
@@ -151,7 +157,8 @@ def confMI(train_1,train_2,lag,alpha):
         if np.shape(i_inds)[0] > 0:
             for j in range(0,np.size(states)):
                 j_inds = []
-                trial_ends = np.arange(run_dur-1,np.shape(train_1)[0],run_dur)
+                #trial_ends = np.arange(run_dur-1,np.shape(train_1)[0],run_dur)
+                trial_ends = np.shape(train_1)[0]
                 if np.shape(np.argwhere(train_2 == states[j]))[0] > 0: # if neuron j is ever in states[j], proceed
                     for idx in i_inds:
                         # for all t where neuron i is in states[i]
@@ -171,6 +178,7 @@ def confMI(train_1,train_2,lag,alpha):
                     elif p_i_and_j > 0:
                         MI += p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
     return MI
+"""
 
 def signed_MI(graph,raster):
     neurons = np.shape(graph)[0]
