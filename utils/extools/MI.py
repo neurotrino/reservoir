@@ -182,7 +182,7 @@ def signed_MI(graph,raster):
     neurons = np.shape(graph)[0]
     signed_graph = np.copy(graph)
     for pre in range(0,neurons):
-        for post in range ((post+1),neurons):
+        for post in range ((pre+1),neurons):
             corr_mat = np.corrcoef(raster[pre,:],raster[post,:])
             #factor = sign(corr_mat[1,2])
             factor = np.sign(corr_mat[0,1])
