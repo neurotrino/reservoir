@@ -85,12 +85,10 @@ def generate_mi_graph(raster,dt):
 
 """
 def test_confMI_methods():
-    """
     file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/101-110.npz'
     data = np.load(file)
     spikes = data['spikes']
     raster = np.transpose(spikes[0][0])
-    """
     toy_raster = np.array([[0,1,1,0,0,1,0],[0,0,0,0,1,1,1],[0,1,1,0,0,0,1],[0,0,1,1,0,0,0]]) # four neurons, seven timesteps
     former_method_mat = formerly_confMI_mat(toy_raster)
     new_method_mat = confMI_mat(toy_raster)
