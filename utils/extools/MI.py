@@ -232,7 +232,7 @@ def background(graph):
     for pre in neurons:
         for post in neurons:
             if pre != post:
-                background[pre,post] = np.mean(graph[pre,neurons[neurons != post]])*np.mean(np.graph[neurons[np.logical_and((neurons != post), (neurons != pre))]])
+                background[pre,post] = np.mean(graph[pre,neurons[neurons != post]])*np.mean(graph[neurons[np.logical_and((neurons != post), (neurons != pre))]])
     return background
 
 def residual(background_graph,graph):
