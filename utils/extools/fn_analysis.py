@@ -13,7 +13,7 @@ from MI import *
 
 start_file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/1-10.npz'
 end_file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/111-120.npz'
-start_batch = 10
+start_batch = 99
 end_batch = 99
 
 def compare_begin_end(start_file,start_batch,end_file,end_batch):
@@ -31,27 +31,29 @@ def plot_quad_compare(infile,batch,savefile):
     density = calc_density(syn_w)
     fig, ax = plt.subplots(2,2)
     # plot synaptic heatmap
-    syn_heatmap = gen_heatmap(syn_w, 'Synaptic Graph; density = ' + str(density), axis=ax[0,0])
+    syn_heatmap = gen_heatmap(syn_w, 'Synaptic Graph', axis=ax[0,0])
 
     # calculate fn
     spikes = data['spikes']
     batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
     batch_raster = np.transpose(batch_spikes)
     mi_graph = generate_mi_graph(batch_raster,dt)
+    # make all self-connections 0
+    np.fill_diagonal(mi_graph,0)
     density = calc_density(mi_graph)
     # plot full mi graph
-    mi_heatmap = gen_heatmap(mi_graph, 'Full FN; density = ' + str(density), axis=ax[0,1])
+    mi_heatmap = gen_heatmap(mi_graph, 'Full FN', axis=ax[0,1])
 
     # calculate top quartile based on abs + weights
     thresh = np.quantile(np.abs(mi_graph[mi_graph>0]),0.75)
     top_quartile_mi = np.copy(mi_graph)
     for i in range(0,units):
         for j in range(0,units):
-            if abs(top_quartile_mi[i,j]) < thresh:
+            if np.abs(top_quartile_mi[i,j]) < thresh:
                  top_quartile_mi[i,j] = 0
     density = calc_density(top_quartile_mi)
     # plot top quartile
-    top_quartile_heatmap = gen_heatmap(top_quartile_mi, 'Top quartile FN; density = ' + str(density), axis=ax[1,0])
+    top_quartile_heatmap = gen_heatmap(top_quartile_mi, 'Top quartile FN', axis=ax[1,0])
 
     # separate e and i
     e_units = int(0.8*units)
@@ -66,9 +68,10 @@ def plot_quad_compare(infile,batch,savefile):
                 mi_e_i[i,j] = 0
     density = calc_density(mi_e_i)
     # plot separate/enforced e and i
-    e_i_heatmap = gen_heatmap(mi_e_i, 'FN enforcing + and -; density = ' + str(density), axis=ax[1,1])
+    e_i_heatmap = gen_heatmap(mi_e_i, 'FN enforcing + and -', axis=ax[1,1])
 
-    plt.savefig(savefile)
+    plt.set_size_inches(13,13, forward=True)
+    plt.savefig(savefile, dpi=100)
     plt.clf()
 
 def calc_density(graph):
@@ -97,7 +100,7 @@ def gen_heatmap(weights, title, axis, show_value_bounds=True):
         cmap = 'seismic', vmin=-1, vmax=1,
         cbar_kws={
             'ticks': [-1, 0, 1],
-            'label': 'synapse strength'
+            #'label': 'synapse strength'
         },
         xticklabels=[], yticklabels=[],
         ax=axis
