@@ -70,8 +70,7 @@ def plot_quad_compare(infile,batch,savefile):
     # plot separate/enforced e and i
     e_i_heatmap = gen_heatmap(mi_e_i, 'FN enforcing + and -', axis=ax[1,1])
 
-    plt.set_size_inches(13,13, forward=True)
-    plt.savefig(savefile, dpi=100)
+    plt.savefig(savefile, dpi=300)
     plt.clf()
 
 def calc_density(graph):
