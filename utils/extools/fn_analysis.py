@@ -72,7 +72,7 @@ def plot_quad_compare(infile,batch,savefile):
     plt.clf()
 
 def calc_density(graph):
-    ct_nonzero = np.size(graph[graph]!=0)
+    ct_nonzero = np.size(graph[graph!=0])
     ct_total = np.size(graph) - np.shape(graph)[0]
     density = ct_nonzero/ct_total
     return density
