@@ -27,6 +27,7 @@ def plot_quad_compare(infile,batch,savefile):
     dt = 1
     data = np.load(infile)
     syn_w = data['tv1.postweights'][batch-1]
+    units = np.shape(syn_w)[0]
     density = calc_density(syn_w)
     fig,(ax1,ax2,ax3,ax4) = plt.subplots(2,2)
     # plot synaptic heatmap
@@ -44,8 +45,8 @@ def plot_quad_compare(infile,batch,savefile):
     # calculate top quartile based on abs + weights
     thresh_e = np.quantile(np.abs(mi_graph[mi_graph>0]),0.75)
     top_quartile_mi = np.copy(mi_graph)
-    for i in range(0,100):
-        for j in range(0,100):
+    for i in range(0,units):
+        for j in range(0,units):
             if abs(top_quartile_mi[i,j]) < thresh:
                  top_quartile_mi[i,j] = 0
     density = calc_density(top_quartile_mi)
@@ -53,13 +54,14 @@ def plot_quad_compare(infile,batch,savefile):
     top_quartile_heatmap = gen_heatmap(top_quartile_mi, 'Top quartile FN; density = ' + density, axis=ax3)
 
     # separate e and i
+    e_units = int(0.8*units)
     mi_e_i = np.copy(mi_graph)
-    for i in range(0,80):
-        for j in range(0,100):
+    for i in range(0,e_units):
+        for j in range(0,units):
             if mi_graph[i,j] < 0:
                 mi_e_i[i,j] = 0
-    for i in range(80,100):
-        for j in range(0,100):
+    for i in range(e_units,units):
+        for j in range(0,units):
             if mi_graph[i,j] > 0:
                 mi_e_i[i,j] = 0
     density = calc_density(mi_e_i)
@@ -71,7 +73,7 @@ def plot_quad_compare(infile,batch,savefile):
 
 def calc_density(graph):
     ct_nonzero = np.size(graph[graph]!=0)
-    ct_total = np.size(graph)
+    ct_total = np.size(graph) - np.shape(graph)[0]
     density = ct_nonzero/ct_total
     return density
 
@@ -109,3 +111,11 @@ def gen_heatmap(weights, title, axis, show_value_bounds=True):
     return heatmap
 
 def reciprocity(graph):
+    units = np.shape(graph)[0]
+    reciprocal_ct = 0
+    for i in range(0,units):
+        for j in range(0,units):
+            if i!=j and graph[i,j] !=0 and graph[j,i] !=0:
+                reciprocal_ct += 1
+    possible_reciprocal_ct = np.size(graph) - units
+    return reciprocal_ct
