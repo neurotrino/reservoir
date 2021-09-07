@@ -43,7 +43,7 @@ def plot_quad_compare(infile,batch,savefile):
     mi_heatmap = gen_heatmap(mi_graph, 'Full FN; density = ' + str(density), axis=ax[0,1])
 
     # calculate top quartile based on abs + weights
-    thresh_e = np.quantile(np.abs(mi_graph[mi_graph>0]),0.75)
+    thresh = np.quantile(np.abs(mi_graph[mi_graph>0]),0.75)
     top_quartile_mi = np.copy(mi_graph)
     for i in range(0,units):
         for j in range(0,units):
