@@ -31,7 +31,7 @@ def plot_quad_compare(infile,batch,savefile):
     density = calc_density(syn_w)
     fig, ax = plt.subplots(2,2)
     # plot synaptic heatmap
-    syn_heatmap = gen_heatmap(syn_w, 'Synaptic Graph; density = ' + density, axis=ax[0])
+    syn_heatmap = gen_heatmap(syn_w, 'Synaptic Graph; density = ' + str(density), axis=ax[0])
 
     # calculate fn
     spikes = data['spikes']
@@ -40,7 +40,7 @@ def plot_quad_compare(infile,batch,savefile):
     mi_graph = generate_mi_graph(batch_raster,dt)
     density = calc_density(mi_graph)
     # plot full mi graph
-    mi_heatmap = gen_heatmap(mi_graph, 'Full FN; density = ' + density, axis=ax[1])
+    mi_heatmap = gen_heatmap(mi_graph, 'Full FN; density = ' + str(density), axis=ax[1])
 
     # calculate top quartile based on abs + weights
     thresh_e = np.quantile(np.abs(mi_graph[mi_graph>0]),0.75)
@@ -51,7 +51,7 @@ def plot_quad_compare(infile,batch,savefile):
                  top_quartile_mi[i,j] = 0
     density = calc_density(top_quartile_mi)
     # plot top quartile
-    top_quartile_heatmap = gen_heatmap(top_quartile_mi, 'Top quartile FN; density = ' + density, axis=ax[2])
+    top_quartile_heatmap = gen_heatmap(top_quartile_mi, 'Top quartile FN; density = ' + str(density), axis=ax[2])
 
     # separate e and i
     e_units = int(0.8*units)
@@ -66,7 +66,7 @@ def plot_quad_compare(infile,batch,savefile):
                 mi_e_i[i,j] = 0
     density = calc_density(mi_e_i)
     # plot separate/enforced e and i
-    e_i_heatmap = gen_heatmap(mi_e_i, 'FN enforcing + and -; density = ' + density, axis=ax[3])
+    e_i_heatmap = gen_heatmap(mi_e_i, 'FN enforcing + and -; density = ' + str(density), axis=ax[3])
 
     plt.savefig(savefile)
     plt.clf()
