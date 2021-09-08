@@ -43,6 +43,8 @@ def compare_syn_fn(data_dir, batch):
         mi_graph = generate_mi_graph(batch_raster,dt)
         # make all mi self-connections 0
         np.fill_diagonal(mi_graph,0)
+        # save mi_graph
+        np.save(savedir + 'mi_graph_' + group + '.npy', mi_graph)
         # calculate element-wise correlation between syn_w and mi_graph - no constraints
         unconstrained_corr = np.corrcoef(np.reshape(syn_w,-1),np.reshape(mi_graph,-1))[0,1]
         syn_fn_corr.append(unconstrained_corr)
