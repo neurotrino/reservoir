@@ -32,7 +32,7 @@ def compare_syn_fn(data_dir, batch):
     sign_constrained_corr = []
     abs_value_corr = []
     for group in epoch_groups:
-        data = np.load(data_dir + epoch_groups[group] + '.npz')
+        data = np.load(data_dir + group + '.npz')
         # get synaptic graph
         syn_w = data['tv1.postweights'][batch-1]
         units = np.shape(syn_w)[0]
