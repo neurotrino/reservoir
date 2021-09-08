@@ -104,7 +104,7 @@ def gen_heatmap(weights, title, axis, show_value_bounds=True):
 
     heatmap = sns.heatmap(
         weights,
-        cmap = 'spectral', vmin=-1, vmax=1,
+        cmap = 'Spectral', vmin=-1, vmax=1,
         cbar_kws={
             'ticks': [-1, 0, 1],
             #'label': 'synapse strength'
