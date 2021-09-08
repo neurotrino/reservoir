@@ -10,20 +10,71 @@ import numpy as np
 import pickle
 import seaborn as sns
 from MI import *
+from scipy.stats.stats import pearsonr
 
-start_file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/1-10.npz'
-mid_file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/61-70.npz'
-end_file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/111-120.npz'
+data_dir = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/'
+start_file = data_dir + '1-10.npz'
+mid_file = data_dir + '61-70.npz'
+end_file = data_dir + '111-120.npz'
 start_batch = 99
 mid_batch = 99
 end_batch = 99
-mi_file = '/home/macleanlab/experiments/analysis/'
+batch = 99
+run_dur = 4080
+dt = 1
+savedir = '/home/macleanlab/experiments/sinusoid_save_spikes/analysis/'
 
-#def compare_syn_fn(mi_file):
+def compare_syn_fn(mi_file, batch):
+    epochs = np.arange(10,121,10)
+    epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100','101-110','111-120']
+    # only keeping final batch from each epoch group
+    syn_fn_corr = []
+    sign_constrained_corr = []
+    abs_value_corr = []
+    for group in epoch_groups:
+        data = np.load(data_dir + epoch_groups[group] + '.npz')
+        # get synaptic graph
+        syn_w = data['tv1.postweights'][batch-1]
+        units = np.shape(syn_w)[0]
+        # calculate mi graph
+        spikes = data['spikes']
+        batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
+        batch_raster = np.transpose(batch_spikes)
+        mi_graph = generate_mi_graph(batch_raster,dt)
+        # make all mi self-connections 0
+        np.fill_diagonal(mi_graph,0)
+        # calculate element-wise correlation between syn_w and mi_graph - no constraints
+        unconstrained_corr = np.corrcoef(np.reshape(syn_w,-1),np.reshape(mi_graph,-1))[0,1]
+        syn_fn_corr.append(unconstrained_corr)
+        # calculate corr only considering mi_graph values that align with +/- according to projecting neuron
+        e_units = int(0.8*units)
+        mi_e_i = np.copy(mi_graph)
+        for i in range(0,e_units):
+            for j in range(0,units):
+                if mi_graph[i,j] < 0:
+                    mi_e_i[i,j] = 0
+        for i in range(e_units,units):
+            for j in range(0,units):
+                if mi_graph[i,j] > 0:
+                    mi_e_i[i,j] = 0
+        signed_corr = np.corrcoef(np.reshape(syn_w,-1),np.reshape(mi_e_i,-1))[0,1]
+        sign_constrained_corr.append(signed_corr)
+        # calculate corr considering absolute values of each synapse
+        abs_corr = np.corrcoef(np.reshape(np.abs(syn_w),-1),np.reshape(np.abs(mi_graph),-1))[0,1]
+        abs_value_corr.append(abs_corr)
+    # plot correlations over epochs
+    labels = ['all conns as they are', 'only +/- matching functional conns', 'absolute values of all conns']
+    plt.plot(epochs,syn_fn_corr, label=labels[0])
+    plt.plot(epochs,sign_contrained_corr, label=labels[1])
+    plt.plot(epochs,abs_value_corr, label=labels[2])
+    plt.title('Correlation between Synaptic and Functional Weights')
+    plt.legend()
+    plot.draw()
+    plt.savefig(savedir + 'syn_fn_corr.png', dpi = 300)
 
 
-def compare_begin_end(start_file,start_batch,mid_file,mid_batch,end_file,end_batch):
-    savedir = '/home/macleanlab/experiments/sinusoid_save_spikes/analysis/'
+
+def compare_begin_end(savedir, start_file,start_batch,mid_file,mid_batch,end_file,end_batch):
     plot_quad_compare(start_file,start_batch,savedir + 'fn_quad_epoch_10.png')
     plot_quad_compare(mid_file,mid_batch,savedir + 'fn_quad_epoch_70.png')
     plot_quad_compare(end_file,end_batch,savedir + 'fn_quad_epoch_120.png')
