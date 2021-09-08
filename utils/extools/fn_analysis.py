@@ -87,8 +87,6 @@ def presaved_compare_syn_fn(data_dir, batch):
         syn_w = data['tv1.postweights'][batch-1]
         units = np.shape(syn_w)[0]
         # load pre-calculated mi graph
-        batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
-        batch_raster = np.transpose(batch_spikes)
         mi_data = np.load(savedir + 'mi_graph' + group + '.npy')
         mi_graph = mi_data['mi_data']
         # calculate element-wise correlation between syn_w and mi_graph - no constraints
