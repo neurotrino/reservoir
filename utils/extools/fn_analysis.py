@@ -114,7 +114,7 @@ def presaved_compare_syn_fn(data_dir, batch):
     plt.plot(epochs,abs_value_corr, label=labels[2])
     plt.title('Correlation between Synaptic and Functional Weights')
     plt.legend()
-    plot.draw()
+    plt.draw()
     plt.savefig(savedir + 'syn_fn_corr.png', dpi = 300)
 
 
