@@ -9,7 +9,7 @@ import logging
 import numpy as np
 import pickle
 import seaborn as sns
-#from MI import *
+from MI import *
 from scipy.stats.stats import pearsonr
 
 data_dir = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/'
