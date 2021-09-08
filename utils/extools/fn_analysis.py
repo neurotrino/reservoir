@@ -12,7 +12,7 @@ import seaborn as sns
 from MI import *
 
 start_file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/1-10.npz'
-mid_file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/61-70'
+mid_file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/61-70.npz'
 end_file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/111-120.npz'
 start_batch = 99
 mid_batch = 99
