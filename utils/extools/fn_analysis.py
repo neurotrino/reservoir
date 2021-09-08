@@ -74,7 +74,7 @@ def compare_syn_fn(data_dir, batch):
     plot.draw()
     plt.savefig(savedir + 'syn_fn_corr.png', dpi = 300)
 
-def presaved_compare_syn_fn(data_dir, batch)
+def presaved_compare_syn_fn(data_dir, batch):
     epochs = np.arange(10,121,10)
     epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100','101-110','111-120']
     # only keeping final batch from each epoch group
