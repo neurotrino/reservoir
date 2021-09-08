@@ -87,7 +87,7 @@ def presaved_compare_syn_fn(data_dir, batch):
         syn_w = data['tv1.postweights'][batch-1]
         units = np.shape(syn_w)[0]
         # load pre-calculated mi graph
-        mi_data = np.load(savedir + 'mi_graph' + group + '.npy')
+        mi_data = np.load(savedir + 'mi_graph_' + group + '.npy')
         mi_graph = mi_data['mi_data']
         # calculate element-wise correlation between syn_w and mi_graph - no constraints
         unconstrained_corr = np.corrcoef(np.reshape(syn_w,-1),np.reshape(mi_graph,-1))[0,1]
