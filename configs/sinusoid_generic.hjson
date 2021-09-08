@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: ../experiments/sinusoid_save_spikes
+        exp_dir: ../experiments/sinusoid_save_spikes_lif
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -121,7 +121,7 @@
 
         cell:
         {
-            type: ExInALIF
+            type: ExInLIF
 
             freewiring: false // now the term for our original unprincipled use of "rewiring"
 
