@@ -22,7 +22,7 @@ mi_file = '/home/macleanlab/experiments/analysis/'
 #def compare_syn_fn(mi_file):
 
 
-def compare_begin_end(start_file,start_batch,end_file,end_batch):
+def compare_begin_end(start_file,start_batch,mid_file,mid_batch,end_file,end_batch):
     savedir = '/home/macleanlab/experiments/sinusoid_save_spikes/analysis/'
     plot_quad_compare(start_file,start_batch,savedir + 'fn_quad_epoch_10.png')
     plot_quad_compare(mid_file,mid_batch,savedir + 'fn_quad_epoch_70.png')
