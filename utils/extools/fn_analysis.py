@@ -12,13 +12,20 @@ import seaborn as sns
 from MI import *
 
 start_file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/1-10.npz'
+mid_file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/61-70'
 end_file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/111-120.npz'
 start_batch = 99
+mid_batch = 99
 end_batch = 99
+mi_file = '/home/macleanlab/experiments/analysis/'
+
+#def compare_syn_fn(mi_file):
+
 
 def compare_begin_end(start_file,start_batch,end_file,end_batch):
     savedir = '/home/macleanlab/experiments/sinusoid_save_spikes/analysis/'
-    plot_quad_compare(start_file,start_batch,savedir + 'fn_quad_epoch_1.png')
+    plot_quad_compare(start_file,start_batch,savedir + 'fn_quad_epoch_10.png')
+    plot_quad_compare(mid_file,mid_batch,savedir + 'fn_quad_epoch_70.png')
     plot_quad_compare(end_file,end_batch,savedir + 'fn_quad_epoch_120.png')
 
 
@@ -97,7 +104,7 @@ def gen_heatmap(weights, title, axis, show_value_bounds=True):
 
     heatmap = sns.heatmap(
         weights,
-        cmap = 'seismic', vmin=-1, vmax=1,
+        cmap = 'viridis', vmin=-1, vmax=1,
         cbar_kws={
             'ticks': [-1, 0, 1],
             #'label': 'synapse strength'
