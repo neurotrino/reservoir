@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import os
 
 dt = 1
-experiment = 'sinusoid_save_spikes'
+experiment = 'sinusoid_save_spikes_lif'
 run_dur = 4080
 batch_size = 10
 

@@ -12,21 +12,21 @@ import seaborn as sns
 from MI import *
 from scipy.stats.stats import pearsonr
 
-data_dir = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/'
+data_dir = '/home/macleanlab/experiments/sinusoid_save_spikes_lif/npz-data/'
 start_file = data_dir + '1-10.npz'
-mid_file = data_dir + '61-70.npz'
-end_file = data_dir + '111-120.npz'
+mid_file = data_dir + '91-100.npz'
+end_file = data_dir + '191-200.npz'
 start_batch = 99
 mid_batch = 99
 end_batch = 99
 batch = 99
 run_dur = 4080
 dt = 1
-savedir = '/home/macleanlab/experiments/sinusoid_save_spikes/analysis/'
+savedir = '/home/macleanlab/experiments/sinusoid_save_spikes_lif/analysis/'
 
 def compare_syn_fn(data_dir, batch):
     epochs = np.arange(10,121,10)
-    epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100','101-110','111-120']
+    epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100','101-110','111-120','121-130','131-140','141-150','151-160','161-170','171-180','181-190','191-200']
     # only keeping final batch from each epoch group
     syn_fn_corr = []
     sign_constrained_corr = []
