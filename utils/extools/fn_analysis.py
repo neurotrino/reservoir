@@ -70,6 +70,8 @@ def compare_syn_fn(data_dir, batch):
     plt.plot(epochs,sign_constrained_corr, label=labels[1])
     plt.plot(epochs,abs_value_corr, label=labels[2])
     plt.title('Correlation between Synaptic and Functional Weights')
+    plt.xlabel('training epoch')
+    plt.ylabel("pearson's r")
     plt.legend()
     plot.draw()
     plt.savefig(savedir + 'syn_fn_corr.png', dpi = 300)
