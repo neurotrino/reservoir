@@ -124,8 +124,8 @@ def presaved_compare_syn_fn(data_dir, batch):
 
 def compare_begin_end(savedir, start_file,start_batch,mid_file,mid_batch,end_file,end_batch):
     plot_quad_compare(start_file,start_batch,savedir + 'fn_quad_epoch_10.png')
-    plot_quad_compare(mid_file,mid_batch,savedir + 'fn_quad_epoch_70.png')
-    plot_quad_compare(end_file,end_batch,savedir + 'fn_quad_epoch_120.png')
+    plot_quad_compare(mid_file,mid_batch,savedir + 'fn_quad_epoch_100.png')
+    plot_quad_compare(end_file,end_batch,savedir + 'fn_quad_epoch_200.png')
 
 
 def plot_quad_compare(infile,batch,savefile):
@@ -203,7 +203,7 @@ def gen_heatmap(weights, title, axis, show_value_bounds=True):
 
     heatmap = sns.heatmap(
         weights,
-        cmap = 'Spectral', vmin=-1, vmax=1,
+        cmap = 'seismic', vmin=-1, vmax=1,
         cbar_kws={
             'ticks': [-1, 0, 1],
             #'label': 'synapse strength'
