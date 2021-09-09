@@ -25,7 +25,7 @@ dt = 1
 savedir = '/home/macleanlab/experiments/sinusoid_save_spikes_lif/analysis/'
 
 def compare_syn_fn(data_dir, batch):
-    epochs = np.arange(10,121,10)
+    epochs = np.arange(10,201,10)
     epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100','101-110','111-120','121-130','131-140','141-150','151-160','161-170','171-180','181-190','191-200']
     # only keeping final batch from each epoch group
     syn_fn_corr = []
@@ -77,8 +77,8 @@ def compare_syn_fn(data_dir, batch):
     plt.savefig(savedir + 'syn_fn_corr.png', dpi = 300)
 
 def presaved_compare_syn_fn(data_dir, batch):
-    epochs = np.arange(10,121,10)
-    epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100','101-110','111-120']
+    epochs = np.arange(10,201,10)
+    epoch_groups = ['1-10','11-20','21-30','31-40','41-50','51-60','61-70','71-80','81-90','91-100','101-110','111-120','121-130','131-140','141-150','151-160','161-170','171-180','181-190','191-200']
     # only keeping final batch from each epoch group
     syn_fn_corr = []
     sign_constrained_corr = []

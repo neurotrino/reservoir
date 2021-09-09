@@ -5,13 +5,14 @@ import sys
 
 import numpy as np
 import scipy
+from scipy.sparse import load_npz
 import glob
 from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 import os
 
 dt = 1
-experiment = 'sinusoid_save_spikes_lif'
+experiment = 'ccd_save_spikes'
 run_dur = 4080
 batch_size = 10
 
@@ -56,7 +57,6 @@ def debug(experiment,dt):
     background_graph = background(reexpress_graph)
     return background_graph
 
-
 def mi_beginning_end(experiment,dt):
     dir = '/home/macleanlab/experiments/' + experiment + '/npz-data/'
     begin_file = dir + '1-10.npz'
@@ -85,8 +85,44 @@ def mi_beginning_end(experiment,dt):
     end_save_file = '/home/macleanlab/experiments/' + experiment + '/analysis/'
     np.save(save_dir + 'end_mi.npy', mi_graphs)
 
+"""
+def ccd_skeleton(experiment):
+    # for every batch
+    batch = 99 # collapsing epoch and batch
+    dir = '/home/macleanlab/experiments/' + experiment + '/npz-data/'
+    data_file = dir + '1-10.npz'
+    spikes = np.load(data_file)['spikes']
+    batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
+    batch_raster = np.transpose(batch_spikes)
 
-def generate_mi_graph(raster,dt):
+    coh_data_file = '/home/macleanlab/CNN_outputs/coherences_mixed_limlifetime_abs.npz'
+    coherences = load_npz(coh_data_file)
+    y = np.array(coherences.todense().reshape((-1, run_dur)))[:, :, None] # shaped as [600, run_dur]
+    y_epoch = np.repeat(y[0:100],10)
+    # since we have 10 batches x 10 trials, we actually only need the first 100 of these
+    # and we repeat 10 times to match the epochs
+    reshaped_y = np.reshape(y_epoch,[np.shape(batch_raster)[1],100])
+    batch_y = reshaped_y[batch]
+    # now their indices should correspond precisely with batch_raster
+    # determine timepts where coh = 100 (1) and coh = 15 (0)
+    index_100 = np.argwhere(batch_y == 1)
+    index_15 = np.argwhere(batch_y==0)
+    coh_data_15.append(index_15)
+    raster_15.append(spikes[y[trial],coh_data_15])
+    mi_graph_low = generate_mi_graph_ccd(raster_15, coh_data_15, dt)
+    mi_graph_high = generate_mi_graph_ccd(raster_100, coh_data_100, dt)
+
+def generate_mi_graph_ccd(raster, coh_data, dt):
+    MI_graph = confMI_mat_ccd(raster, coh_data)
+    signed_graph = signed_MI(MI_graph,raster)
+    pos_graph = pos(signed_graph)
+    reexpress_graph = reexpress_param(pos_graph)
+    background_graph = background(reexpress_graph)
+    residual_graph = residual(background_graph,MI_graph)
+    normed_MI_graph = normed_residual(residual_graph)
+    return normed_MI_graph
+"""
+def generate_mi_graph_generic(raster,dt):
     #raster = binary_raster_gen(spikes,dt)
     MI_graph = confMI_mat(raster)
     signed_graph = signed_MI(MI_graph,raster)
@@ -112,10 +148,11 @@ def test_confMI_methods():
         print('methods do not match')
 """
 
-def confMI_mat(raster):
+def confMI_mat_ccd(raster, coh_data): # using all spikes during a particular coherence level for a batch's trials
     lag = 1
     alpha = 0
     neurons = np.shape(raster)[0]
+    trial_ends = np.arange(run_dur-1, np.shape(raster)[0],run_dur)
     mat = np.zeros([neurons,neurons])
     for pre in range(0,neurons):
         for post in range(0,neurons):
@@ -123,14 +160,24 @@ def confMI_mat(raster):
                 mat[pre,post] = confMI(raster[pre,:],raster[post,:],lag,alpha)
     return mat
 
-def confMI(train_1,train_2,lag,alpha):
+def confMI_mat_sinusoid(raster):
+    lag = 1
+    alpha = 0
+    neurons = np.shape(raster)[0]
+    trial_ends = np.arange(run_dur-1, np.shape(raster)[0],run_dur)
+    mat = np.zeros([neurons,neurons])
+    for pre in range(0,neurons):
+        for post in range(0,neurons):
+            if pre != post:
+                mat[pre,post] = confMI(raster[pre,:],raster[post,:],lag,alpha)
+    return mat
+
+def confMI(train_1,train_2,lag,alpha,trial_ends):
     MI = 0
     states = [0,1]
     #mat[post,pre] = confMI(raster[pre,:],raster[post,:],lag,alpha)
     # meaning train_1 is definitely for pre and train_2 is for post
     # former matrix convention was j,i rather than i,j is all
-
-    trial_ends = np.arange(run_dur-1,np.shape(train_1)[0],run_dur)
 
     for i in range(0,np.size(states)):
         i_inds = np.argwhere(train_1 == states[i])
