@@ -114,7 +114,9 @@ def ccd_skeleton(batch_raster, batch, coh_lvl):
         indices = np.argwhere(batch_y == 1)
     else:
         indices = np.argwhere(batch_y == 0)
-    mi_graph = generate_mi_graph_ccd(np.squeeze(batch_raster[:,indices]), indices)
+    coh_lvl_raster = np.squeeze(batch_raster[:,indices])
+    mi_graph = generate_mi_graph_ccd(coh_lvl_raster, indices)
+    return mi_graph
 
 def generate_mi_graph_ccd(raster, indices):
     MI_graph = confMI_mat_ccd(raster, indices)
