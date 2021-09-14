@@ -12,7 +12,7 @@ import seaborn as sns
 from MI import *
 from scipy.stats.stats import pearsonr
 
-data_dir = '/home/macleanlab/experiments/sinusoid_save_spikes_lif/npz-data/'
+data_dir = '/home/macleanlab/experiments/ccd_save_spikes/npz-data/'
 start_file = data_dir + '1-10.npz'
 mid_file = data_dir + '91-100.npz'
 end_file = data_dir + '191-200.npz'
@@ -22,7 +22,7 @@ end_batch = 99
 batch = 99
 run_dur = 4080
 dt = 1
-savedir = '/home/macleanlab/experiments/sinusoid_save_spikes_lif/analysis/'
+savedir = '/home/macleanlab/experiments/ccd_save_spikes/analysis/'
 
 def compare_syn_fn(data_dir, batch):
     epochs = np.arange(10,201,10)
@@ -143,7 +143,7 @@ def plot_quad_compare(infile,batch,savefile):
     spikes = data['spikes']
     batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
     batch_raster = np.transpose(batch_spikes)
-    mi_graph = generate_mi_graph(batch_raster,dt)
+    mi_graph = ccd_skeleton(batch_raster,batch,coh_lvl=100)
     # make all self-connections 0
     np.fill_diagonal(mi_graph,0)
     density = calc_density(mi_graph)
@@ -177,6 +177,7 @@ def plot_quad_compare(infile,batch,savefile):
     e_i_heatmap = gen_heatmap(mi_e_i, 'FN enforcing + and -; '+f'{density*100:.1f}'+'% conn', axis=ax[1,1])
 
     plt.subplots_adjust(wspace=0.3, hspace=0.3)
+    plt.suptitle('CCD task - 100% coherence')
     plt.savefig(savefile, dpi=300)
     plt.clf()
 

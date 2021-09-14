@@ -85,12 +85,12 @@ def mi_beginning_end(experiment,dt):
     end_save_file = '/home/macleanlab/experiments/' + experiment + '/analysis/'
     np.save(save_dir + 'end_mi.npy', mi_graphs)
 
-def ccd_skeleton(experiment):
+def ccd_skeleton(batch_raster, batch, coh_lvl):
     # for every batch (in each npz file there are 100)
     # collapsing epoch and batch
-    dir = '/home/macleanlab/experiments/' + experiment + '/npz-data/'
-    data_file = dir + '11-20.npz'
-    spikes = np.load(data_file)['spikes']
+    #dir = '/home/macleanlab/experiments/' + experiment + '/npz-data/'
+    #data_file = dir + '11-20.npz'
+    #spikes = np.load(data_file)['spikes']
 
     # handle coherences for whole epoch first
     coh_data_file = '/home/macleanlab/CNN_outputs/coherences_mixed_limlifetime_abs.npz'
@@ -104,29 +104,19 @@ def ccd_skeleton(experiment):
     # now their indices should correspond precisely with batch_raster
 
     #for batch in range(0,99):
-    batch = 99
-    batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
-    batch_raster = np.transpose(batch_spikes)
+    #batch = 99
+    #batch_spikes = np.reshape(spikes[batch], [run_dur * np.shape(spikes[batch])[0], np.shape(spikes[batch])[2]])
+    #batch_raster = np.transpose(batch_spikes)
     batch_y = y_epoch[batch]
 
     # determine timepts where coh = 100 (1) and coh = 15 (0)
-    index_100 = np.argwhere(batch_y == 1)
-    '''trial_end_100 = []
-    for i in range(0, np.size(index_100)-1):
-        if index_100[i] + 1 != index_100[i+1]:
-            trial_end_100.append(index_100[i])'''
-    index_15 = np.argwhere(batch_y==0)
-    '''trial_end_15 = []
-    for i in range(0, np.size(index_15)-1):
-        if index_15[i] + 1 != index_100[i+1]:
-            trial_end_15.append(index_15[i])
-    raster_15 = batch_raster[:,index_15]
-    raster_100 = batch_raster[:,index_100]'''
+    if coh_lvl == 100:
+        indices = np.argwhere(batch_y == 1)
+    else:
+        indices = np.argwhere(batch_y == 0)
+    mi_graph = generate_mi_graph_ccd(np.squeeze(batch_raster[:,indices]), indices)
 
-    mi_graph_low = generate_mi_graph_ccd(batch_raster, index_15)
-    mi_graph_high = generate_mi_graph_ccd(batch_raster, index_100)
-
-def generate_mi_graph_ccd(raster, coh_data):
+def generate_mi_graph_ccd(raster, indices):
     MI_graph = confMI_mat_ccd(raster, indices)
     signed_graph = signed_MI(MI_graph,raster)
     pos_graph = pos(signed_graph)
@@ -136,7 +126,7 @@ def generate_mi_graph_ccd(raster, coh_data):
     normed_MI_graph = normed_residual(residual_graph)
     return normed_MI_graph
 
-def generate_mi_graph_generic(raster,dt):
+def generate_mi_graph(raster,dt):
     #raster = binary_raster_gen(spikes,dt)
     MI_graph = confMI_mat(raster)
     signed_graph = signed_MI(MI_graph,raster)
@@ -147,75 +137,38 @@ def generate_mi_graph_generic(raster,dt):
     normed_MI_graph = normed_residual(residual_graph)
     return normed_MI_graph
 
-"""
-def test_confMI_methods():
-    file = '/home/macleanlab/experiments/sinusoid_save_spikes/npz-data/101-110.npz'
-    data = np.load(file)
-    spikes = data['spikes']
-    raster = np.transpose(spikes[0][0])
-    toy_raster = np.array([[0,1,1,0,0,1,0],[0,0,0,0,1,1,1],[0,1,1,0,0,0,1],[0,0,1,1,0,0,0]]) # four neurons, seven timesteps
-    former_method_mat = formerly_confMI_mat(toy_raster)
-    new_method_mat = confMI_mat(toy_raster)
-    if former_method_mat == new_method_mat:
-        print('methods match')
-    else:
-        print('methods do not match')
-"""
-
 def confMI_mat_ccd(raster, indices): # using all spikes during a particular coherence level for a batch's trials
     lag = 1
     alpha = 0
     neurons = np.shape(raster)[0]
-    trial_ends = np.arange(run_dur-1, np.shape(raster)[0],run_dur)
+    trial_ends = np.arange(run_dur-1, run_dur*10, run_dur) # in 40800 index
+    # transform trial ends into new indices
+    trial_ends_newidx = np.where(np.isin(indices,trial_ends))[0]
+    # to grab the rest of the discontinuities (where a coherence level ends mid-trial),
+    # check adjacent indices for whether they are increments in value
+    level_end = []
+    for i in range(0,np.size(indices)-1):
+        if indices[i]+1 != indices[i+1]:
+            level_end.append(i)
+    trial_ends = np.union1d(trial_ends_newidx,level_end)
     mat = np.zeros([neurons,neurons])
     for pre in range(0,neurons):
         for post in range(0,neurons):
             if pre != post:
-                mat[pre,post] = confMI_ccd(raster[pre,:],raster[post,:],lag,alpha,indices)
+                mat[pre,post] = confMI(raster[pre,:],raster[post,:],lag,alpha,trial_ends)
     return mat
 
 def confMI_mat_sinusoid(raster):
     lag = 1
     alpha = 0
     neurons = np.shape(raster)[0]
-    trial_ends = np.arange(run_dur-1, np.shape(raster)[0],run_dur)
+    trial_ends = np.arange(run_dur-1, np.shape(raster)[1],run_dur)
     mat = np.zeros([neurons,neurons])
     for pre in range(0,neurons):
         for post in range(0,neurons):
             if pre != post:
-                mat[pre,post] = confMI(raster[pre,:],raster[post,:],lag,alpha)
+                mat[pre,post] = confMI(raster[pre,:],raster[post,:],lag,alpha,trial_ends)
     return mat
-
-def confMI_ccd(train_1,train_2,lag,alpha,coh_indices):
-    MI = 0
-    states = [0,1]
-
-    for i in range(0,np.size(states)):
-        i_inds = np.argwhere(train_1[coh_indices] == states[i])
-        p_i = np.shape(i_inds)[0]/np.shape(train_1)[0]
-        if np.shape(i_inds)[0] > 0:
-            for j in range(0,np.size(states)):
-                j_inds = np.argwhere(train_2[coh_indices] == states[j])
-                j_inds_lagged = j_inds - lag
-                if np.shape(j_inds)[0] > 0:
-                    j_inds_lagged = j_inds_lagged[j_inds_lagged >= 0]
-                    # none of the lagged indices (t-1) can be equal to the end of a trial,
-                    # since that steps over a causal discontinuity
-                    j_inds_lagged = j_inds_lagged[~np.isin(j_inds_lagged,trial_ends)]
-                    j_inds = np.union1d(j_inds,j_inds_lagged)
-                    if np.shape(j_inds)[0] < np.shape(train_2)[0]:
-                    # because if they are equal in size, we will have p > 1 when subtracting lag
-                        p_j = np.shape(j_inds)[0]/(np.shape(train_2)[0]-lag)
-                        p_i_and_j = np.shape(np.intersect1d(i_inds,j_inds))[0]/(np.shape(train_1)[0]-lag)
-                    else:
-                        p_j = np.shape(j_inds)[0]/np.shape(train_2)[0]
-                        p_i_and_j = np.shape(np.intersect1d(i_inds,j_inds))[0]/np.shape(train_1)[0]
-                    if alpha > 0:
-                        MI = MI + alpha + (1-alpha) * p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
-                    elif p_i_and_j > 0:
-                        MI += p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
-    return MI
-
 
 def confMI(train_1,train_2,lag,alpha,trial_ends):
     MI = 0
