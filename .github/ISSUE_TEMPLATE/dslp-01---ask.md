@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 ***
-Familiarize yourself with the [DSLP](https://github.com/dslp/dslp)'s definition of an [ask issue](https://github.com/dslp/dslp/blob/main/issue-types/1-ask-issues.md) before proceeding.
+Please familiarize yourself with the [DSLP](https://github.com/dslp/dslp)'s definition of an [ask issue](https://github.com/dslp/dslp/blob/main/issue-types/1-ask-issues.md) before proceeding.
 ***
 
 ### Problem Statement
