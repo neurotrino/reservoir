@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 ***
-Familiarize yourself with the [DSLP](https://github.com/dslp/dslp)'s definition of an [experiment issue](https://github.com/dslp/dslp/blob/main/issue-types/4-experiment-issues.md) before proceeding.
+Please familiarize yourself with the [DSLP](https://github.com/dslp/dslp)'s definition of an [experiment issue](https://github.com/dslp/dslp/blob/main/issue-types/4-experiment-issues.md) before proceeding.
 ***
 
 **Parent:** [this issue must be associated with an "ask" issue]
