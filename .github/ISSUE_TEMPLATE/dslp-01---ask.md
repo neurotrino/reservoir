@@ -1,5 +1,5 @@
 ---
-name: Ask issue template
+name: DSLP 01 – Ask
 about: Capture and scope lines of inquiry
 title: ''
 labels: 'Type: Ask'
