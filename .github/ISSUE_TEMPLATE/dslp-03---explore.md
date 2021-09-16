@@ -1,7 +1,7 @@
 ---
 name: DSLP 03 – Explore
 about: Better understand the data
-title: ''
+title: Explore X dataset
 labels: 'Type: Explore'
 assignees: ''
 

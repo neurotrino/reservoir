@@ -1,7 +1,7 @@
 ---
 name: DSLP 05 – Model
 about: Productionalize successful experiments
-title: ''
+title: Productionalize X model
 labels: 'Type: Model'
 assignees: ''
 

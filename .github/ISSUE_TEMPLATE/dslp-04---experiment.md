@@ -1,7 +1,7 @@
 ---
 name: DSLP 04 – Experiment
 about: Track the various approaches taken to solve a problem
-title: ''
+title: Try X
 labels: 'Type: Experiment'
 assignees: ''
 

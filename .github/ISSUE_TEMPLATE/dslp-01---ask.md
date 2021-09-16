@@ -1,7 +1,7 @@
 ---
 name: DSLP 01 – Ask
 about: Capture and scope lines of inquiry
-title: ''
+title: How does X work?
 labels: 'Type: Ask'
 assignees: ''
 

@@ -1,7 +1,7 @@
 ---
 name: DSLP 02 – Data
 about: Gather and create datasets
-title: ''
+title: Gather/Create X dataset
 labels: 'Type: Data'
 assignees: ''
 
