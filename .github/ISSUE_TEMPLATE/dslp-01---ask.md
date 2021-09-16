@@ -14,17 +14,20 @@ Please familiarize yourself with the [DSLP](https://github.com/dslp/dslp)'s defi
 ### Problem Statement
 [communication motivation, background information, and desired outcome for/of your inquiry]
 
+**Constraints:** 
+- [list constraints on your final product and/or process]
+
+**Required data:**
+- [list the datasets you'll need; link issues here where appropriate]
+
 ### Envisioned Outcome
 **Impact:** [explain clearly and concisely the value of this inquiry]
 
 **Metrics:** 
 - [list any metrics which quantify your impact]
 
-**Constraints:** 
-- [list constraints on your final product and/or process]
-
-**Data:**
-- [list the datasets you'll need; link issues here where appropriate]
+### Current State
+- [ ] [include a progress checklist here]
 
 ### See Also
 **Issues:**
