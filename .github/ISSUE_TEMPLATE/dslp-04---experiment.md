@@ -21,6 +21,6 @@ Please familiarize yourself with the [DSLP](https://github.com/dslp/dslp)'s defi
 [summarize the experiment's approach; reserve detailed procedures and course corrections for the comments]
 
 ### Outcome
-[when the experiment concludes, write either "Experiment successful." or "Experiment failed." here]
+[when the experiment concludes, write either "Experiment successful (last git SHA of experiment branch)." or "Experiment failed (last git SHA of experiment branch)." here]
 
 [elaborate on what "success" and "failure" means here and discuss any insights received from conducting the experiment]
