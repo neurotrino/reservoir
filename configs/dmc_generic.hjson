@@ -181,11 +181,11 @@
 
         // file containing spike data
         spike_npz:
-        /home/macleanlab/stim/dmc/2021-09-07/CNN_outputs/spike_train.npz
+        /home/macleanlab/data/dmc/2021-09-27/CNN_outputs/spike_train.npz
 
         // file containing sample match/non-match data
         match_npy:
-        /home/macleanlab/stim/dmc/2021-09-07/CNN_outputs/cat_time_series_polarized.npy
+        /home/macleanlab/data/dmc/2021-09-27/CNN_outputs/cat_time_series_polarized.npy
 
         //
         seq_len: 4080
