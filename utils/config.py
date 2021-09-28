@@ -311,9 +311,6 @@ def boot():
     if cfg['save'].log_config:
         shutil.copyfile(args.config, cfg['save'].exp_dir + "/config.hjson")
 
-    # Log the git SHA of the commit in use by the virtual environment
-    logging.debug(f"venv running from commit SHA {os.environ['MSNN_GITSHA']}")
-
     # Check for a GPU
     device_name = tf.test.gpu_device_name()
 
