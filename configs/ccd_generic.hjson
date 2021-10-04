@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/ccd_500_lif_sparse
+        exp_dir: /data/experiments/ccd_200_lif_sparse
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -127,7 +127,7 @@
 
             rewiring: false   // now the term for permitting a new connection to grow if/when an existing connection disappears
 
-            units: 500   // number of units in the layer
+            units: 200   // number of units in the layer
 
             thr: -50.4   // threshold [mV]
             EL: -70.6    // [mV]
