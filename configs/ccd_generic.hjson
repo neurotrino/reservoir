@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: ../experiments/ccd_500_lif_freewiring
+        exp_dir: ../experiments/ccd_500_lif_sparsewiring
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -123,7 +123,7 @@
         {
             type: ExInLIF
 
-            freewiring: true   // now the term for our original unprincipled use of "rewiring"
+            freewiring: false   // now the term for our original unprincipled use of "rewiring"
 
             rewiring: false   // now the term for permitting a new connection to grow if/when an existing connection disappears
 
@@ -301,7 +301,7 @@
         n_batch: 10
 
         // number of epochs the model is fit over
-        n_epochs: 500
+        n_epochs: 200
 
         target_rate: 0.02
 
