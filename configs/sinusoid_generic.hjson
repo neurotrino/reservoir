@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: ../experiments/new_rewiring_test_lif
+        exp_dir: ../experiments/sinusoid_save_spikes_lif
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -221,7 +221,12 @@
         // Unlike the logvar lists, these values will still be stored in the
         // logger, they just won't be written to disk. This is useful if you
         // want to generate plots but not keep the underlying data.
-        todisk_whitelist: null
+        todisk_whitelist: [
+            step_loss
+            epoch_loss
+            tv1.postweights
+            spikes
+        ]
         todisk_blacklist: null
 
         // Save npz files or not
