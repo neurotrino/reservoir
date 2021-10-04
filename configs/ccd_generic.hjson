@@ -184,7 +184,7 @@
         ///home/macleanlab/stim/dmc/2021-08-05-1225/CNN_outputs/spike_train.npz
 
         spike_npz:
-        / data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz
+        /data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz
 
         // file containing sample match/non-match data
         match_npy:
