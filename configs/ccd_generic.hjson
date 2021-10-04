@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: ../experiments/ccd_500_save_spikes
+        exp_dir: ../experiments/ccd_500_lif_freewiring
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -121,11 +121,11 @@
 
         cell:
         {
-            type: ExInALIF
+            type: ExInLIF
 
-            freewiring: false   // now the term for our original unprincipled use of "rewiring"
+            freewiring: true   // now the term for our original unprincipled use of "rewiring"
 
-            rewiring: true    // now the term for permitting a new connection to grow if/when an existing connection disappears
+            rewiring: false   // now the term for permitting a new connection to grow if/when an existing connection disappears
 
             units: 500   // number of units in the layer
 
