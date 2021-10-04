@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: ../data/experiments/ccd_200_lif_rewiring
+        exp_dir: /data/experiments/ccd_200_lif_rewiring
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -184,7 +184,7 @@
         ///home/macleanlab/stim/dmc/2021-08-05-1225/CNN_outputs/spike_train.npz
 
         spike_npz:
-        /home/macleanlab/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz
+        / data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz
 
         // file containing sample match/non-match data
         match_npy:
@@ -192,7 +192,7 @@
 
         // file containing coherence change data (CCD)
         coh_npz:
-        /home/macleanlab/data/datasets/CNN_outputs/coherences_mixed_limlifetime_abs.npz
+        /data/datasets/CNN_outputs/coherences_mixed_limlifetime_abs.npz
 
         //
         seq_len: 4080
