@@ -8,6 +8,8 @@
 # Visual Studio
 .vscode/
 
+*.png
+
 
 # ==== ==== ==== ==== ====
 # TensorFlow

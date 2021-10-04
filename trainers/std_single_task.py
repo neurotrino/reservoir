@@ -101,6 +101,7 @@ class Trainer(BaseTrainer):
         return voltage, spikes, prediction, loss_val, grads
 
 
+    #@tf.function  # [!] might need this
     def train_step(self, batch_x, batch_y, batch_idx=None):
         """Train on the next batch."""
 
@@ -156,7 +157,10 @@ class Trainer(BaseTrainer):
         #┤ Gradient Calculation                                              │
         #┴───────────────────────────────────────────────────────────────────╯
 
-        voltage, spikes, prediction, loss, grads = self.grad(batch_x, batch_y)
+        voltage, spikes, prediction, loss, grads = self.grad(
+            batch_x,
+            batch_y
+        )
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Mid-Step Logging                                                  │
@@ -209,7 +213,6 @@ class Trainer(BaseTrainer):
             }
         )
 
-        pre_zeros = tf.where(tf.equal(self.model.cell.recurrent_weights, 0))
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Gradient Application                                              │
@@ -220,14 +223,14 @@ class Trainer(BaseTrainer):
         )
 
         #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Sparsity Application                                              │
+        #┤ Sparsity Enforcement                                              │
         #┴───────────────────────────────────────────────────────────────────╯
 
         # if freewiring is permitted (i.e. sparsity of any kind is NOT enforced),
         # this step is needed to explicitly ensure self-recurrent
         # connections remain zero otherwise (if sparsity IS enforced)
         # that is taken care of through the rec_sign application below
-        if self.cfg['model'].cell.freewiring:
+        if self.cfg['model'].cell.freewiring:  # TODO: document in HJSON
             # Make sure all self-connections remain 0
             self.model.cell.recurrent_weights.assign(tf.where(
                 self.model.cell.disconnect_mask,
@@ -247,27 +250,11 @@ class Trainer(BaseTrainer):
             0
         ))
 
-        if self.cfg['model'].cell.rewiring:
-            #pre_zeros_ct = tf.cast(tf.size(pre_zeros)/2, tf.int32)
-            post_zeros = tf.where(tf.equal(self.model.cell.recurrent_weights, 0))
-            #post_zeros_ct = tf.where(tf.size(post_zeros)/2, tf.int32)
-            #new_zeros_ct = tf.subtract(post_zeros_ct, pre_zeros_ct)
-            new_zeros_ct = tf.subtract(tf.shape(post_zeros)[0],tf.shape(pre_zeros)[0])
-            if new_zeros_ct > 0:
-                for i in range(0,new_zeros_ct): # for all new zeros
-                    # randomly select a position from post_zeros (total possible zeros)
-                    new_pos_idx = np.random.randint(0, tf.shape(post_zeros)[0])
-                    # draw a new weight
-                    new_w = np.random.lognormal(self.model.cell.mu, self.model.cell.sigma)
-                    if post_zeros[new_pos_idx][0] >= self.model.cell.n_excite:
-                        # if inhib, make weight -10x
-                        new_w = - new_w * 10
-                    # reassign to self.recurrent_weights
-                    #self.model.cell.recurrent_weights.assign(tf.where(
-                        #self.model.cell.recurrent_weights == self.model.cell.recurrent_weights[tf.cast(post_zeros[new_pos_idx], tf.int32)],
-                        #new_w,
-                        #self.model.cell.recurrent_weights))
-                    tf.tensor_scatter_nd_update(self.model.cell.recurrent_weights, [post_zeros[new_pos_idx]], [new_w])
+        # [!] prefer to have something like "for cell in model.cells,
+        #     if cell.rewiring then cell.rewire" to better generalize;
+        #     would involve adding a 'cells' attribute to model
+        if self.model.cell.rewiring:
+            self.model.cell.rewire()
 
         # In a similar way, one could use CMG to create sparse initial
         # input weights, then capture the signs so as to enforce
@@ -341,7 +328,7 @@ class Trainer(BaseTrainer):
                             + ' after applying the gradients'
                     }
                 )
-            except:
+            except:  # [!] prefer not to have try/except
                 pass
 
         # [*] Stepwise logging for *all* layers; might have redundancy
@@ -468,7 +455,6 @@ class Trainer(BaseTrainer):
         #┤ Epochwise Training                                                │
         #┴───────────────────────────────────────────────────────────────────╯
 
-        dataset = self.data.get()
         pb = Progbar(train_cfg.n_batch, stateful_metrics=None)
 
         # Iterate over training steps

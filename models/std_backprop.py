@@ -4,12 +4,13 @@ Backprop
 """
 
 # external
+import logging
 import tensorflow as tf
 import tensorflow_probability as tfp
 
 # internal
 from models.common import *
-from models.neurons.adex import *
+#from models.neurons.adex import *
 from models.neurons.lif import *
 from utils.config import subconfig
 

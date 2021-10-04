@@ -189,7 +189,7 @@ class ExInConnectivityMatrixGenerator(object):
                         self.weight_mat[i][j] = (numpy.random.lognormal(self.mu, self.sigma))
                         # Make all I 10 times stronger AND NEGATIVE
                         if self.n_neurons > i > (self.n_neurons - self.n_inhib):
-                            self.weight_mat[i][j] = - self.weight_mat[i][j] * 10
+                            self.weight_mat[i][j] *= -10
 
             return True
 

@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: ../experiments/dmc_sparse_lif_nosynch
+        exp_dir: ../experiments/dmc_250_sparse_lif_nosynch
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -121,11 +121,13 @@
 
         cell:
         {
-            type: ExInLIF
+            type: ExInALIF
 
-            rewiring: false
 
-            units: 100   // number of units in the layer
+            freewiring: false // now the term for our original unprincipled use of "rewiring"
+            rewiring: true // now the term for permitting a new connection to grow if/when an existing connection disappears
+
+            units: 250   // number of units in the layer
 
             thr: -50.4   // threshold [mV]
             EL: -70.6    // [mV]
@@ -150,9 +152,6 @@
 
             beta: 0.16
             tau_adaptation: 100
-
-            //
-            rewiring: false
 
             // μ for normal distribution (exponentiated for lognormal weights)
             mu: -0.64
@@ -180,20 +179,13 @@
     {
         type: dmc
 
-        // file containing spike data for CCD or DMC
+        // file containing spike data
         spike_npz:
-        /home/macleanlab/stim/dmc/2021-08-05-1225/CNN_outputs/spike_train.npz
-
-        //spike_npz:
-        ///home/macleanlab/CNN_outputs/spike_train_mixed_limlifetime_abs.npz
+        /home/macleanlab/datasets/dmc/2021-09-27-undampened/CNN_outputs/spike_train.npz
 
         // file containing sample match/non-match data
         match_npy:
-        /home/macleanlab/stim/dmc/2021-08-05-1225/CNN_outputs/cat_time_series.npy
-
-        // file containing coherence change data (CCD)
-        coh_npz:
-        /home/macleanlab/CNN_outputs/coherences_mixed_limlifetime_abs.npz
+        /home/macleanlab/datasets/dmc/2021-09-27-undampened/CNN_outputs/cat_time_series_polarized.npy
 
         //
         seq_len: 4080
@@ -229,19 +221,11 @@
         // Unlike the logvar lists, these values will still be stored in the
         // logger, they just won't be written to disk. This is useful if you
         // want to generate plots but not keep the underlying data.
-        todisk_whitelist: [
-            step_loss
-            epoch_loss
-            tv0.postweights
-            tv1.postweights
-        ]
+        todisk_whitelist: null
         todisk_blacklist: null
 
-        // Save npz files or not
-        log_npz: false
-
         // Save logging values to disk every n epochs
-        post_every: 2
+        post_every: 4
 
         // Toggle the TensorBoard profiler
         run_profiler: false
@@ -249,11 +233,6 @@
         // If enabled, the profiler will run on each epoch in the list below
         profiler_epochs: [
             4
-        ]
-
-        // Filter for a subset of the logging procedures in the training loop
-        layer_whitelist: [
-            rnn
         ]
 
         // Floating point precision of numpy arrays saved to disk (fewer bits
@@ -296,13 +275,13 @@
         learning_rate: 0.01
 
         // number of trials in batch
-        batch_size: 10
+        batch_size: 16
 
         // number of batches in an epoch
-        n_batch: 10
+        n_batch: 32
 
         // number of epochs the model is fit over
-        n_epochs: 200
+        n_epochs: 512
 
         target_rate: 0.02
 
