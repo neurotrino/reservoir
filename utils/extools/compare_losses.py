@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import h5py
 import os
 
-data_dir = /data/experiments/
+data_dir = '/data/experiments/'
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
 def compare_losses(experiments):
