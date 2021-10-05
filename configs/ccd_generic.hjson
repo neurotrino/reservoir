@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/ccd_200_lif_sparse
+        exp_dir: /data/experiments/ccd_200_alif_sparse
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -121,7 +121,7 @@
 
         cell:
         {
-            type: ExInLIF
+            type: ExInALIF
 
             freewiring: false   // now the term for our original unprincipled use of "rewiring"
 
