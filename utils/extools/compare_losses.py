@@ -20,7 +20,7 @@ def compare_losses(experiments):
             data = np.load(fname)
             for k in range(len(data['epoch_loss'])):
                 loss.append(data['epoch_loss'][k])
-        plt.plot(loss[0:198], label=experiments[i])
+        plt.plot(loss[0:190], label=experiments[i])
     plt.xlabel('epochs')
     plt.ylabel('loss')
     plt.legend()
