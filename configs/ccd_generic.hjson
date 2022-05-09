@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/ccd_500_alif_rewiring
+        exp_dir: /data/experiments/2021OCt5_ccd_300_alif_rewiring_gradients
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -127,7 +127,7 @@
 
             rewiring: true   // now the term for permitting a new connection to grow if/when an existing connection disappears
 
-            units: 500   // number of units in the layer
+            units: 300   // number of units in the layer
 
             thr: -50.4   // threshold [mV]
             EL: -70.6    // [mV]
@@ -231,7 +231,10 @@
         todisk_whitelist: [
             step_loss
             epoch_loss
+            tv0.postweights
             tv1.postweights
+            tv0.gradients
+            tv1.gradients
         ]
         todisk_blacklist: null
 
@@ -300,7 +303,7 @@
         n_batch: 10
 
         // number of epochs the model is fit over
-        n_epochs: 200
+        n_epochs: 300
 
         target_rate: 0.02
 

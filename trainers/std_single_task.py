@@ -290,7 +290,7 @@ class Trainer(BaseTrainer):
 
             # Calculated gradients
             self.logger.log(
-                data_label=tvar.name + '.gradients',
+                data_label=f"tv{i}.gradients",
                 data=grads[i].numpy(),
                 meta={
                     'stride': 'step',
