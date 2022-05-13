@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/2021OCt5_ccd_300_alif_rewiring_gradients
+        exp_dir: /data/experiments/fwd-input-img-15x-trainable
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -139,8 +139,14 @@
 
             frac_e: 0.8
 
-            // These parameters will only be used for non-ExIn neurons
-            p: 0.7
+            // These parameters are used for input-to-main layer
+            p_input: 0.55 // this is the one we have been using, which is to excitatory units only
+            // we would use the following if we have input to both e and i units
+            p_to_e: 0.2
+            p_to_i: 0.1
+
+            // Multiplier for input weights (to increase or decrease strengths generated from IMG)
+            input_multiplier: 15
 
             // These parameters will only be used for ExIn neurons
             p_ee: 0.160
@@ -293,6 +299,9 @@
     train:
     {
         type: std_single_task
+
+        input_trainable: true
+        //note that when false, this means tv0 is the recurrent weights instead of tv1
 
         learning_rate: 0.01
 
