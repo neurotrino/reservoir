@@ -37,6 +37,7 @@ class Neuron(tf.keras.layers.Layer):
         super().__init__()
 
         cell_cfg = cfg['cell']
+        self.cfg = cfg
 
         # Internal flag to see if CMG has been built already
         self._cmg_set = False
