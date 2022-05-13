@@ -11,42 +11,42 @@ import numpy
 import tensorflow as tf
 
 #┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Inumpyut Connectivity Matrix Generator                                             │
+#┤ Input Connectivity Matrix Generator                                             │
 #┴───────────────────────────────────────────────────────────────────────────╯
 
-class InumpyutMatrixGenerator(object):
-    def __init__(self, n_in, n_neurons, p_inumpyut, mu, sigma, inumpyut_multiplier):
+class InputMatrixGenerator(object):
+    def __init__(self, n_in, n_neurons, p_input, mu, sigma, input_multiplier):
 
         self.n_neurons = n_neurons
         self.n_in = n_in
         self.n_rec = n_neurons
 
         # # initialize connectivity matrix
-        self.inumpyut_mat = numpy.zeros((self.n_in, self.n_rec))
+        self.input_mat = numpy.zeros((self.n_in, self.n_rec))
 
         # initialize weight matrix
-        self.inumpyut_weight = numpy.zeros((self.n_in, self.n_rec))
+        self.input_weight = numpy.zeros((self.n_in, self.n_rec))
         self.mu = mu
         self.sigma = sigma
-        self.inumpyut_multiplier = inumpyut_multiplier
+        self.input_multiplier = input_multiplier
 
-        # calculate total number of connections per inumpyut unit
-        self.k = int(round(p_inumpyut * self.n_rec))
+        # calculate total number of connections per input unit
+        self.k = int(round(p_input * self.n_rec))
 
     def run_generator(self):
         try:
-            # Generate inumpyut matrix and check it's successful
+            # Generate input matrix and check it's successful
             if not self.generate_conn_mat():
-                raise Exception("failed to generate inumpyut connectivity matrix")
-            logging.info("inumpyut connectivity matrix generated")
+                raise Exception("failed to generate input connectivity matrix")
+            logging.info("input connectivity matrix generated")
 
             # Generate weight matrix and check that it's successful
             if not self.make_weighted():
-                raise Exception("failed to weight inumpyut connectivity matrix")
-            logging.info("inumpyut connectivity matrix weighted")
+                raise Exception("failed to weight input connectivity matrix")
+            logging.info("input connectivity matrix weighted")
 
             return (
-                self.inumpyut_weight
+                self.input_weight
             )
 
         except Exception as e:
@@ -59,9 +59,9 @@ class InumpyutMatrixGenerator(object):
             for n in range(0, self.n_in):
                 for a in range(0, self.k):
                     rand = numpyrandom.randint(0, self.n_rec)
-                    while self.inumpyut_mat[n][rand] == 1:
+                    while self.input_mat[n][rand] == 1:
                         rand = numpy.random.randint(0, self.n_rec)
-                    self.inumpyut_mat[n][rand] = 1
+                    self.input_mat[n][rand] = 1
 
             return True
 
@@ -76,11 +76,11 @@ class InumpyutMatrixGenerator(object):
             # Generate random weights and fill matrix
             for i in range(0, self.n_in):
                 for j in range(0, self.n_rec):
-                    if self.inumpyut_mat[i][j] == 1:
-                        self.inumpyut_weight[i][j] = numpy.random.lognormal(
+                    if self.input_mat[i][j] == 1:
+                        self.input_weight[i][j] = numpy.random.lognormal(
                             self.mu, self.sigma
                         )
-            self.inumpyut_weight*=(self.inumpyut_multiplier/10)
+            self.input_weight*=(self.input_multiplier/10)
 
             return True
 
