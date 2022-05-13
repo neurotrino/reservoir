@@ -241,6 +241,7 @@
             tv1.postweights
             tv0.gradients
             tv1.gradients
+            input_w
         ]
         todisk_blacklist: null
 
