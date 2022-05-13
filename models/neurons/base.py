@@ -268,3 +268,6 @@ class ExIn(object):
             logging.debug(
                 f'{tf.math.count_nonzero(self.recurrent_weights)} non-zeroes in recurrent layer after adjustments'
             )
+
+        # update rec_sign
+        self.rec_sign = tf.sign(self.recurrent_weights)
