@@ -37,7 +37,7 @@ class Neuron(tf.keras.layers.Layer):
         super().__init__()
 
         cell_cfg = cfg['cell']
-        self.cfg = cell_cfg
+        self.cfg = cfg
 
         # Internal flag to see if CMG has been built already
         self._cmg_set = False
@@ -81,7 +81,7 @@ class Neuron(tf.keras.layers.Layer):
 
             # Generate generic input connectivity
             self.input_connmat_generator = IMG(
-                self.n_in, self.units, self.p_input, self.mu, self.sigma
+                self.n_in, self.units, self.p_input, self.mu, self.sigma, self.cfg["cell"].input_multiplier
             )
 
             # Generate connectiviy matrix
@@ -148,7 +148,7 @@ class ExIn(object):
         self.num_ex = int(cfg['cell'].frac_e * self.cfg['cell'].units)
         self.num_in = self.cfg['cell'].units - self.num_ex
 
-        # number of input units
+        # Number of input units
         self.n_in = self.cfg["data"].n_input
 
         # Masks enabling easy selection of either all the excitatory
@@ -181,7 +181,7 @@ class ExIn(object):
 
             # Generate input connectivity
             self.input_connmat_generator = IMG(
-                self.n_in, self.units, self.p_input, self.mu, self.sigma
+                self.n_in, self.units, self.p_input, self.mu, self.sigma, self.cfg["cell"].input_multiplier
             )
 
             # Generate connectivity matrix
