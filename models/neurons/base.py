@@ -46,6 +46,9 @@ class Neuron(tf.keras.layers.Layer):
         self.freewiring = cell_cfg.freewiring
         self.rewiring = cell_cfg.rewiring
 
+        # Number of input units
+        self.n_in = self.cfg["data"].n_input
+
         # Layer shape
         self.units = cell_cfg.units
 
@@ -144,6 +147,9 @@ class ExIn(object):
         # Number of excitatory and inhibitory neurons in the layer
         self.num_ex = int(cfg['cell'].frac_e * self.cfg['cell'].units)
         self.num_in = self.cfg['cell'].units - self.num_ex
+
+        # number of input units
+        self.n_in = self.cfg["data"].n_input
 
         # Masks enabling easy selection of either all the excitatory
         # or all the inhibitory neurons in the layer.
