@@ -81,7 +81,7 @@ class Neuron(tf.keras.layers.Layer):
 
             # Generate generic input connectivity
             self.input_connmat_generator = IMG(
-                self.n_in, self.units, self.p_input, self.mu, self.sigma
+                self.n_in, self.units, self.p_input, self.mu, self.sigma, self.cfg["cell"].input_multiplier
             )
 
             # Generate connectiviy matrix
@@ -181,7 +181,7 @@ class ExIn(object):
 
             # Generate input connectivity
             self.input_connmat_generator = IMG(
-                self.n_in, self.units, self.p_input, self.mu, self.sigma
+                self.n_in, self.units, self.p_input, self.mu, self.sigma, self.cfg["cell"].input_multiplier
             )
 
             # Generate connectivity matrix
