@@ -138,6 +138,8 @@ class LIF(Neuron):
         """
         [old_v, old_r, old_z] = state[:3]
 
+        """
+        # now (correctly) implemented in trainers/std_single_task.py
         if self.freewiring:
             # Make sure all self-connections remain 0
             self.recurrent_weights.assign(tf.where(
@@ -154,6 +156,7 @@ class LIF(Neuron):
             self.recurrent_weights,
             0
         ))
+        """
 
         # If rewiring is permitted, then count new zeros
         # Create that same # of new connections (from post-update zero connections)
@@ -306,6 +309,8 @@ class ExInALIF(ExIn, LIF):
         """
         [old_v, old_r, old_b, old_z] = state[:4]
 
+        """
+        # Now correctly implemented in trainer
         if self.freewiring:
             # Make sure all self-connections remain 0
             self.recurrent_weights.assign(tf.where(
@@ -322,6 +327,7 @@ class ExInALIF(ExIn, LIF):
             self.recurrent_weights,
             0
         ))
+        """
 
         i_in = tf.matmul(inputs, self.input_weights)  # input current
         i_rec = tf.matmul(old_z, self.recurrent_weights)

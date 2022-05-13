@@ -255,12 +255,30 @@ class Trainer(BaseTrainer):
         #     would involve adding a 'cells' attribute to model
         if self.model.cell.rewiring:
             self.model.cell.rewire()
+            # correction to note as of Oct 8, 2021:
+            # else statement removed (reverted to original sequence of execution)
+            # all that needs to happen to circumvent the identified issue below
+            # is for input_sign and rec_sign to be updated according within rewire.
+            # the above (outside if statement) is to eliminate new weights (set to 0)
+            # the within (rewire) takes care of new zeros (true zeros and also sign flips).
+            # rec_sign and input_sign are updated to reflect new connections that
+            # replace the zeroed ones. this prevents overwriting new connections
+            # upon the next application of sparsity enforcement (above outside if statement).
 
-        # In a similar way, one could use CMG to create sparse initial
-        # input weights, then capture the signs so as to enforce
-        # -1/+1/0's throughout training by doing
-        # self.model.trainable_variables[0].assign() etc.
-
+            # note as of Oct 8, 2021:
+            # the following has been moved inside a new else statement
+            # meaning it only executes if rewiring = false
+            # i believe previously, when placed outside an if/else statement
+            # and in front of the if rewiring statement, the execution of
+            # the application of rec_sign (according to initial zeros) meant
+            # that rewiring was still not occuring. all changed / rewired zeros
+            # get immediately changed back in the next update, even if they are
+            # filled in here. the steps would've been:
+            # 1. update weights (may include new values and new zeros)
+            # 2. all new values in initial zero spots go to zero according to below script
+            # 3. all new zeros get a value in rewire()
+            # 4. loops through again in next update, thus canceling out all new zeros
+            # Thus this script now ONLY happens if rewiring = false (initial zeros must stay zero)
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Post-Step Logging                                                 │
