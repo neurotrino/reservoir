@@ -425,6 +425,33 @@ class Trainer(BaseTrainer):
         )
         self.logger.on_step_end()
 
+
+        # Log the target zeros and signs for input and recurrent layers
+        self.logger.log(
+            data_label="target_zcount",
+            data=self.model.cell._target_zcount,
+            meta={
+                "stride": "step",
+                "description": "target count of zeros for recurrent layer",
+            },
+        )
+
+        self.logger.log(
+            data_label="rec_sign",
+            data=self.model.cell.rec_sign.numpy(),
+            meta={
+                "stride": "step",
+                "description": "signs (pos/neg/zero) of recurrent layer",
+            },
+        )
+
+        # logging input weights
+        self.logger.log(
+            data_label="input_w",
+            data=self.model.cell.input_weights.numpy(),
+            meta={"stride": "step", "description": "input layer weights"},
+        )
+
         return loss  # in classification tasks, also return accuracy
 
 

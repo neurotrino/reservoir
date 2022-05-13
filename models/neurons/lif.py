@@ -82,6 +82,7 @@ class LIF(Neuron):
         """
         Neuron.build(self, input_shape)
 
+        """
         # currently using uniform weight distribution for inputs
         self.input_weights = self.add_weight(
             shape=(input_shape[-1], self.units),
@@ -91,7 +92,17 @@ class LIF(Neuron):
             ),
             trainable=True,
             name='input_weights'
+        )"""
+
+        self.input_weights = self.add_weight(
+            shape=(self.cfg["data"].n_input, self.units),
+            initializer=tf.keras.initializers.Orthogonal(gain=0.7),
+            trainable=self.cfg["train"].input_trainable,
+            name="input_weights",
         )
+
+        input_weights_mat = self.input_connmat_generator.run_generator()
+        self.input_weights.assign(input_weights_mat)
 
         # Disconnect self-recurrent weights
         self.disconnect_mask = tf.cast(
@@ -105,9 +116,10 @@ class LIF(Neuron):
             trainable=True,
             name='recurrent_weights'
         )
-
         initial_weights_mat = self.connmat_generator.run_generator()
-        self.set_weights([self.input_weights.value(), initial_weights_mat])
+        self.recurrent_weights.assign_add(initial_weights_mat)
+
+        #self.set_weights([self.input_weights.value(), initial_weights_mat])
 
         # Store neurons' signs
         if self.freewiring:
