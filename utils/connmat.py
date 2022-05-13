@@ -55,10 +55,9 @@ class InputMatrixGenerator(object):
 
     def generate_conn_mat(self):
 
-        try:
             for n in range(0, self.n_in):
                 for a in range(0, self.k):
-                    rand = numpyrandom.randint(0, self.n_rec)
+                    rand = np.random.randint(0, self.n_rec)
                     while self.input_mat[n][rand] == 1:
                         rand = np.random.randint(0, self.n_rec)
                     self.input_mat[n][rand] = 1
