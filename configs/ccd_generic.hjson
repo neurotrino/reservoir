@@ -301,7 +301,7 @@
     {
         type: std_single_task
 
-        input_trainable: true
+        input_trainable: false
         //note that when false, this means tv0 is the recurrent weights instead of tv1
 
         learning_rate: 0.01
