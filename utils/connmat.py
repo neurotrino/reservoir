@@ -7,7 +7,7 @@ from os import makedirs, path
 
 import csv
 import logging
-import numpy
+import numpy as np
 import tensorflow as tf
 
 #┬───────────────────────────────────────────────────────────────────────────╮
