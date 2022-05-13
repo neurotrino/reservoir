@@ -37,7 +37,6 @@ class Neuron(tf.keras.layers.Layer):
         super().__init__()
 
         cell_cfg = cfg['cell']
-        self.cfg = cell_cfg
 
         # Internal flag to see if CMG has been built already
         self._cmg_set = False
@@ -148,7 +147,7 @@ class ExIn(object):
         self.num_ex = int(cfg['cell'].frac_e * self.cfg['cell'].units)
         self.num_in = self.cfg['cell'].units - self.num_ex
 
-        # number of input units
+        # Number of input units
         self.n_in = self.cfg["data"].n_input
 
         # Masks enabling easy selection of either all the excitatory
