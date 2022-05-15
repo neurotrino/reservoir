@@ -36,11 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-<<<<<<< HEAD
         exp_dir: /data/experiments/fwd-main-rewire-img-15x-fixed-run2
-=======
-        exp_dir: /data/experiments/fwd-main-rewire-img-15x-fixed
->>>>>>> eea291f7efa596c3290b88c40917b605f8dbbd56
 
         // Collection of directories which will be placed inside exp_dir
         //
