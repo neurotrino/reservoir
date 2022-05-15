@@ -11,8 +11,8 @@ num_epochs = 300
 epochs_per_file = 10
 
 fwd_experiments = [
-    "fwd-input-img-15x-fixed",
     "fwd-input-img-15x-trainable",
+    "fwd-input-img-15x-fixed",
     "fwd-main-rewire-img-15x-fixed"
 ]
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
