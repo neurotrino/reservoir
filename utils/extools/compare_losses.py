@@ -73,9 +73,9 @@ def compare_losses(
         plt.plot(losses[0 : num_epochs - epochs_per_file])
 
     # Label everything
-    plt.title(kwargs["title"])
-    plt.xlabel(kwargs["xlabel"])
-    plt.ylabel(kwargs["ylabel"])
+    plt.title("Fwd Implementation")
+    plt.xlabel("epochs")
+    plt.ylabel("loss")
     plt.legend(["new input trainable","new input fixed","new input fixed with correct main rewiring"])
 
     # Create and save the final figure
