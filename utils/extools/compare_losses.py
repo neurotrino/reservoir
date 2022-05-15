@@ -45,6 +45,7 @@ def compare_losses(
         "new input trainable",
         "new input fixed",
         "new input fixed with correct main rewiring"
+    ]
 ):
     """Generate plots comparing losses from multiple experiments.
     Args:
