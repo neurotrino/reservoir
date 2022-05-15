@@ -11,13 +11,8 @@ num_epochs = 300
 epochs_per_file = 10
 
 fwd_experiments = [
-<<<<<<< HEAD
     "fwd-input-img-15x-trainable",
     "fwd-input-img-15x-fixed",
-=======
-    "fwd-input-img-15x-fixed",
-    "fwd-input-img-15x-trainable",
->>>>>>> eea291f7efa596c3290b88c40917b605f8dbbd56
     "fwd-main-rewire-img-15x-fixed"
 ]
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
@@ -43,9 +38,6 @@ def compare_losses(
     num_epochs=300,
     epochs_per_file=10,
     loss_of_interest="epoch_loss",
-<<<<<<< HEAD
-    **kwargs,
-=======
     title="Fwd Implementation",
     xlabel="epochs",
     ylabel="loss",
@@ -53,8 +45,6 @@ def compare_losses(
         "new input trainable",
         "new input fixed",
         "new input fixed with correct main rewiring"
-    ]
->>>>>>> eea291f7efa596c3290b88c40917b605f8dbbd56
 ):
     """Generate plots comparing losses from multiple experiments.
     Args:
@@ -89,17 +79,10 @@ def compare_losses(
         plt.plot(losses[0 : num_epochs - epochs_per_file])
 
     # Label everything
-<<<<<<< HEAD
     plt.title("Fwd Implementation")
     plt.xlabel("epochs")
     plt.ylabel("loss")
     plt.legend(["new input trainable","new input fixed","new input fixed with correct main rewiring"])
-=======
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.legend(legend)
->>>>>>> eea291f7efa596c3290b88c40917b605f8dbbd56
 
     # Create and save the final figure
     plt.draw()
