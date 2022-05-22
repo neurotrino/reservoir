@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-main-rewire-old-input-run2
+        exp_dir: /data/experiments/fwd-main-rewire-old-input-lr0.005
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -241,8 +241,10 @@
             epoch_loss
             tv0.postweights
             tv1.postweights
+            tv2.postweights
             tv0.gradients
             tv1.gradients
+            tv2.gradients
             input_w
         ]
         todisk_blacklist: null
@@ -306,7 +308,7 @@
         input_trainable: true
         //note that when false, this means tv0 is the recurrent weights instead of tv1
 
-        learning_rate: 0.01
+        learning_rate: 0.005
 
         // number of trials in batch
         batch_size: 10
@@ -315,7 +317,7 @@
         n_batch: 10
 
         // number of epochs the model is fit over
-        n_epochs: 300
+        n_epochs: 500
 
         target_rate: 0.02
 
