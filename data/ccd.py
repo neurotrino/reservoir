@@ -30,15 +30,17 @@ class DataGenerator(BaseDataGenerator):
         x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
         y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None] # shape 600 x 4080 x 1
 
-        self.dataset = tf.data.Dataset.from_tensor_slices(
-            (x, y)
-        ).repeat(
-            count=1
-        ).batch(cfg['train'].batch_size)
+        self.dataset = (
+            tf.data.Dataset.from_tensor_slices((x, y))
+            .repeat(count=1)
+            .batch(cfg["train"].batch_size)
+            .shuffle(x.shape[0], reshuffle_each_iteration=True)
+        )
+
         # this creates a dataset by batches of size 10 trials, with a total upper limit of 600 trials
         # however, we only ever iterate (in trainer std_single_task) n_batch (10) times for each epoch,
         # so only the first 100 trials are ever used.
-        # e.g. the first 10 x 40800 in coherences, and the first 100 x 4080 in y 
+        # e.g. the first 10 x 40800 in coherences, and the first 100 x 4080 in y
 
         # Declare data iterator
         self.iterator = None
