@@ -470,6 +470,14 @@ class Trainer(BaseTrainer):
             meta={"stride": "step", "description": "input layer weights"},
         )
 
+        # logging output weights
+        self.logger.log(
+            data_label="output_w",
+            data=self.model.dense1.get_weights().numpy(),
+            meta={"stride": "step", "description": "output layer weights"},
+            )
+        )
+
         return loss  # in classification tasks, also return accuracy
 
 
