@@ -473,7 +473,7 @@ class Trainer(BaseTrainer):
         # logging output weights
         self.logger.log(
             data_label="output_w",
-            data=self.model.dense1.get_weights().numpy(),
+            data=np.array(self.model.dense1.get_weights()),
             meta={"stride": "step", "description": "output layer weights"},
         )
 
