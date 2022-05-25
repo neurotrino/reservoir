@@ -26,8 +26,16 @@ class Trainer(BaseTrainer):
         train_cfg = cfg['train']
 
         try:
+            """
             self.optimizer = tf.keras.optimizers.Adam(
                 learning_rate=train_cfg.learning_rate
+            )
+            """
+            self.main_optimizer = tf.keras.optimizers.Adam(
+                learning_rate = train_cfg.learning_rate
+            )
+            self.output_optimizer = tf.keras.optimizers.Adam(
+                learning_rate = train_cfg.output_learning_rate
             )
         except Exception as e:
             logging.warning(f"learning rate not set: {e}")
@@ -162,6 +170,12 @@ class Trainer(BaseTrainer):
             batch_y
         )
 
+        # declare layer-wise vars and grads so that layer-wise optimization can occur
+        self.var_list1 = self.model.rnn1.trainable_variables
+        self.var_list2 = self.model.dense1.trainable_variables
+        grads1 = grads[: len(self.var_list1)]
+        grads2 = grads[len(self.var_list1) :]
+
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Mid-Step Logging                                                  │
         #┴───────────────────────────────────────────────────────────────────╯
@@ -217,9 +231,16 @@ class Trainer(BaseTrainer):
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Gradient Application                                              │
         #┴───────────────────────────────────────────────────────────────────╯
-
+        """
         self.optimizer.apply_gradients(
             zip(grads, self.model.trainable_variables)
+        )
+        """
+        self.main_optimizer.apply_gradients(
+            zip(grads1, self.model.rnn1.trainable_variables)
+        )
+        self.output_optimizer.apply_gradients(
+            zip(grads2, self.model.dense1.trainable_variables)
         )
 
         #┬───────────────────────────────────────────────────────────────────╮

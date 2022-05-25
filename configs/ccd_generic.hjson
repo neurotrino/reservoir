@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-main-rewire-old-input-lr0.001-fixed-output
+        exp_dir: /data/experiments/fwd-main-rewire-lowlroutput
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -245,8 +245,6 @@
             tv0.gradients
             tv1.gradients
             tv2.gradients
-            input_w
-            output_w
         ]
         todisk_blacklist: null
 
@@ -309,10 +307,12 @@
         input_trainable: true
         //note that when false, this means tv0 is the recurrent weights instead of tv1
 
-        output_trainable: false
+        output_trainable: true
         //note that when false, this means there is no tv associated with the output layer
 
-        learning_rate: 0.001
+        learning_rate: 0.005
+
+        output_learning_rate: 0.0001
 
         // number of trials in batch
         batch_size: 10
