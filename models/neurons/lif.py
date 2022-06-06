@@ -82,16 +82,25 @@ class LIF(Neuron):
         """
         Neuron.build(self, input_shape)
 
-        # currently using uniform weight distribution for inputs
-        self.input_weights = self.add_weight(
-            shape=(input_shape[-1], self.units),
-            initializer=tf.keras.initializers.RandomUniform(
-                minval=0.0,
-                maxval=0.4
-            ),
-            trainable=True,
-            name='input_weights'
-        )
+        if self.cfg["cell"].specify_input:
+            self.input_weights = self.add_weight(
+                shape=(self.cfg["data"].n_input, self.units),
+                initializer=tf.keras.initializers.Orthogonal(gain=0.7),
+                trainable=self.cfg["train"].input_trainable,
+                name="input_weights",
+            )
+            input_weights_mat = self.input_connmat_generator.run_generator()
+            self.input_weights.assign(input_weights_mat)
+        else:
+            self.input_weights = self.add_weight(
+                shape=(input_shape[-1], self.units),
+                initializer=tf.keras.initializers.RandomUniform(
+                    minval=0.0,
+                    maxval=0.4
+                ),
+                trainable=True,
+                name='input_weights'
+            )
 
         # Disconnect self-recurrent weights
         self.disconnect_mask = tf.cast(
@@ -105,9 +114,14 @@ class LIF(Neuron):
             trainable=True,
             name='recurrent_weights'
         )
-
         initial_weights_mat = self.connmat_generator.run_generator()
-        self.set_weights([self.input_weights.value(), initial_weights_mat])
+        
+        if self.cfg["cell"].specify_input:
+            # just set main weights, as input weights were set earlier
+            self.recurrent_weights.assign_add(initial_weights_mat)
+        else:
+            # set both input and main layer weights
+            self.set_weights([self.input_weights.value(), initial_weights_mat])
 
         # Store neurons' signs
         if self.freewiring:
@@ -126,6 +140,8 @@ class LIF(Neuron):
         """
         [old_v, old_r, old_z] = state[:3]
 
+        """
+        # now (correctly) implemented in trainers/std_single_task.py
         if self.freewiring:
             # Make sure all self-connections remain 0
             self.recurrent_weights.assign(tf.where(
@@ -142,6 +158,7 @@ class LIF(Neuron):
             self.recurrent_weights,
             0
         ))
+        """
 
         # If rewiring is permitted, then count new zeros
         # Create that same # of new connections (from post-update zero connections)
@@ -294,6 +311,8 @@ class ExInALIF(ExIn, LIF):
         """
         [old_v, old_r, old_b, old_z] = state[:4]
 
+        """
+        # Now correctly implemented in trainer
         if self.freewiring:
             # Make sure all self-connections remain 0
             self.recurrent_weights.assign(tf.where(
@@ -310,6 +329,7 @@ class ExInALIF(ExIn, LIF):
             self.recurrent_weights,
             0
         ))
+        """
 
         i_in = tf.matmul(inputs, self.input_weights)  # input current
         i_rec = tf.matmul(old_z, self.recurrent_weights)

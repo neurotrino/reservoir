@@ -16,6 +16,7 @@ class ExInALIF(ExIn, Neuron):
 """
 from utils.connmat import ConnectivityMatrixGenerator as CMG
 from utils.connmat import ExInConnectivityMatrixGenerator as ExInCMG
+from utils.connmat import InputMatrixGenerator as IMG
 
 import logging
 import numpy as np
@@ -36,7 +37,7 @@ class Neuron(tf.keras.layers.Layer):
         super().__init__()
 
         cell_cfg = cfg['cell']
-        self.cfg = cell_cfg
+        self.cfg = cfg
 
         # Internal flag to see if CMG has been built already
         self._cmg_set = False
@@ -44,6 +45,9 @@ class Neuron(tf.keras.layers.Layer):
         # Rewiring behavior
         self.freewiring = cell_cfg.freewiring
         self.rewiring = cell_cfg.rewiring
+
+        # Number of input units
+        self.n_in = self.cfg["data"].n_input
 
         # Layer shape
         self.units = cell_cfg.units
@@ -57,7 +61,7 @@ class Neuron(tf.keras.layers.Layer):
 
 
     def build(self, input_shape):
-        """Setup  connectivity parameters and CMG."""
+        """Setup  connectivity parameters and IMG and CMG."""
 
         # [!] Current solution to issues abstracting CMG was to have
         #     an internal flag in each Neuron object tracking whether
@@ -73,6 +77,12 @@ class Neuron(tf.keras.layers.Layer):
         if not self._cmg_set:
             # Read connectivity parameters
             self.p = cell_cfg.p
+            self.p_input = self.cfg["cell"].p_input
+
+            # Generate generic input connectivity
+            self.input_connmat_generator = IMG(
+                self.n_in, self.units, self.p_input, self.mu, self.sigma, self.cfg["cell"].input_multiplier
+            )
 
             # Generate connectiviy matrix
             self.connmat_generator = CMG(
@@ -138,6 +148,9 @@ class ExIn(object):
         self.num_ex = int(cfg['cell'].frac_e * self.cfg['cell'].units)
         self.num_in = self.cfg['cell'].units - self.num_ex
 
+        # Number of input units
+        self.n_in = self.cfg["data"].n_input
+
         # Masks enabling easy selection of either all the excitatory
         # or all the inhibitory neurons in the layer.
         #
@@ -163,6 +176,13 @@ class ExIn(object):
             self.p_ei = self.cfg['cell'].p_ei
             self.p_ie = self.cfg['cell'].p_ie
             self.p_ii = self.cfg['cell'].p_ii
+            # Read input connectivity parameters
+            self.p_input = self.cfg["cell"].p_input
+
+            # Generate input connectivity
+            self.input_connmat_generator = IMG(
+                self.n_in, self.units, self.p_input, self.mu, self.sigma, self.cfg["cell"].input_multiplier
+            )
 
             # Generate connectivity matrix
             self.connmat_generator = ExInCMG(
@@ -248,3 +268,6 @@ class ExIn(object):
             logging.debug(
                 f'{tf.math.count_nonzero(self.recurrent_weights)} non-zeroes in recurrent layer after adjustments'
             )
+
+        # update rec_sign
+        self.rec_sign = tf.sign(self.recurrent_weights)

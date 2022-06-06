@@ -26,8 +26,16 @@ class Trainer(BaseTrainer):
         train_cfg = cfg['train']
 
         try:
+            """
             self.optimizer = tf.keras.optimizers.Adam(
                 learning_rate=train_cfg.learning_rate
+            )
+            """
+            self.main_optimizer = tf.keras.optimizers.Adam(
+                learning_rate = train_cfg.learning_rate
+            )
+            self.output_optimizer = tf.keras.optimizers.Adam(
+                learning_rate = train_cfg.output_learning_rate
             )
         except Exception as e:
             logging.warning(f"learning rate not set: {e}")
@@ -162,6 +170,12 @@ class Trainer(BaseTrainer):
             batch_y
         )
 
+        # declare layer-wise vars and grads so that layer-wise optimization can occur
+        self.var_list1 = self.model.rnn1.trainable_variables
+        self.var_list2 = self.model.dense1.trainable_variables
+        grads1 = grads[: len(self.var_list1)]
+        grads2 = grads[len(self.var_list1) :]
+
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Mid-Step Logging                                                  │
         #┴───────────────────────────────────────────────────────────────────╯
@@ -217,9 +231,16 @@ class Trainer(BaseTrainer):
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Gradient Application                                              │
         #┴───────────────────────────────────────────────────────────────────╯
-
+        """
         self.optimizer.apply_gradients(
             zip(grads, self.model.trainable_variables)
+        )
+        """
+        self.main_optimizer.apply_gradients(
+            zip(grads1, self.model.rnn1.trainable_variables)
+        )
+        self.output_optimizer.apply_gradients(
+            zip(grads2, self.model.dense1.trainable_variables)
         )
 
         #┬───────────────────────────────────────────────────────────────────╮
@@ -255,12 +276,30 @@ class Trainer(BaseTrainer):
         #     would involve adding a 'cells' attribute to model
         if self.model.cell.rewiring:
             self.model.cell.rewire()
+            # correction to note as of Oct 8, 2021:
+            # else statement removed (reverted to original sequence of execution)
+            # all that needs to happen to circumvent the identified issue below
+            # is for input_sign and rec_sign to be updated according within rewire.
+            # the above (outside if statement) is to eliminate new weights (set to 0)
+            # the within (rewire) takes care of new zeros (true zeros and also sign flips).
+            # rec_sign and input_sign are updated to reflect new connections that
+            # replace the zeroed ones. this prevents overwriting new connections
+            # upon the next application of sparsity enforcement (above outside if statement).
 
-        # In a similar way, one could use CMG to create sparse initial
-        # input weights, then capture the signs so as to enforce
-        # -1/+1/0's throughout training by doing
-        # self.model.trainable_variables[0].assign() etc.
-
+            # note as of Oct 8, 2021:
+            # the following has been moved inside a new else statement
+            # meaning it only executes if rewiring = false
+            # i believe previously, when placed outside an if/else statement
+            # and in front of the if rewiring statement, the execution of
+            # the application of rec_sign (according to initial zeros) meant
+            # that rewiring was still not occuring. all changed / rewired zeros
+            # get immediately changed back in the next update, even if they are
+            # filled in here. the steps would've been:
+            # 1. update weights (may include new values and new zeros)
+            # 2. all new values in initial zero spots go to zero according to below script
+            # 3. all new zeros get a value in rewire()
+            # 4. loops through again in next update, thus canceling out all new zeros
+            # Thus this script now ONLY happens if rewiring = false (initial zeros must stay zero)
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Post-Step Logging                                                 │
@@ -425,6 +464,40 @@ class Trainer(BaseTrainer):
         )
         self.logger.on_step_end()
 
+
+        # Log the target zeros and signs for input and recurrent layers
+        self.logger.log(
+            data_label="target_zcount",
+            data=self.model.cell._target_zcount,
+            meta={
+                "stride": "step",
+                "description": "target count of zeros for recurrent layer",
+            },
+        )
+
+        self.logger.log(
+            data_label="rec_sign",
+            data=self.model.cell.rec_sign.numpy(),
+            meta={
+                "stride": "step",
+                "description": "signs (pos/neg/zero) of recurrent layer",
+            },
+        )
+
+        # logging input weights
+        self.logger.log(
+            data_label="input_w",
+            data=self.model.cell.input_weights.numpy(),
+            meta={"stride": "step", "description": "input layer weights"},
+        )
+
+        # logging output weights
+        self.logger.log(
+            data_label="output_w",
+            data=np.array(self.model.dense1.get_weights()),
+            meta={"stride": "step", "description": "output layer weights"},
+        )
+
         return loss  # in classification tasks, also return accuracy
 
 
@@ -527,6 +600,7 @@ class Trainer(BaseTrainer):
         self.logger.on_train_begin();
 
         # Create checkpoint manager  # [?] move to logger?
+        """
         ckpt = tf.train.Checkpoint(
             step=tf.Variable(1),
             optimizer=self.optimizer,
@@ -536,7 +610,7 @@ class Trainer(BaseTrainer):
             ckpt,
             self.cfg['save'].checkpoint_dir,
             max_to_keep=3
-        )
+        )"""
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Training                                                          │
