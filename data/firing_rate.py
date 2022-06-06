@@ -20,11 +20,12 @@ MOVIE_PATH = '/home/macleanlab/stim/processed/'
 
 parser = argparse.ArgumentParser(description='Args for generating the spikes')
 parser.add_argument('model_name', type=str, help='Name of the model')
-parser.add_argument('num_dot_movies', type=int, help='Number of dot movies to check')
+parser.add_argument('num_dot_movies', type=int, help='Number of dot movies to check') # all of them??
+# readme says "The maximum number of dot coh change movies is 60", though likely there are more tfrecords on .226
 parser.add_argument('make_positive', type=str, help='How do you want to make firing rates positive, rec or abs')
 parser.add_argument('--num_natural_movies', default=20, type=int, help='Number of natural movies to check')
 args = parser.parse_args()
-model_name = args.model_name
+model_name = args.model_name # ch_model8 is the desired one
 num_dot_movies = args.num_dot_movies
 num_natural_movies = args.num_natural_movies
 makepositive = args.make_positive
@@ -189,6 +190,11 @@ def plot_dot_predictions():
     plot_pred_dots(model)
 
 def spike_generation(all_movies, makepositive):
+    # except, since we want, we will want to shuffle and regenerate a TON more of these
+    # in total, we have 10 trials x 10 batches x 500 epochs = 50000 unique trials (spike trains) per full experiment
+    # though we do not want ALL data sampled for every experiment / batch / epoch whatever.
+    # so this is less of a pipeline thing and more of a generating a lot more data thing.
+    # the crucial thing is to disentangle the precise firing rates from exact (static) spike trains each time.
     """
 
     Generate spikes based on firing rates
