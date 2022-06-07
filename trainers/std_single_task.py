@@ -16,6 +16,12 @@ import tensorflow.profiler as profiler
 from models.common import fano_factor
 from regularizers import RateRegularizer
 from trainers.base import BaseTrainer
+from utils.misc import SwitchedDecorator
+
+DEBUG_MODE = False
+
+switched_tf_function = SwitchedDecorator(tf.function)
+switched_tf_function.enabled = not DEBUG_MODE
 
 class Trainer(BaseTrainer):
     """TODO: docs  | note how `optimizer` isn't in the parent"""
@@ -51,7 +57,7 @@ class Trainer(BaseTrainer):
     #┤ Training Loop (step level)                                            │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    @tf.function
+    @switched_tf_function
     def loss(self, x, y):
         """Calculate the loss on data x labeled y."""
 
@@ -83,7 +89,7 @@ class Trainer(BaseTrainer):
         return (model_output, losses)
 
 
-    @tf.function
+    @switched_tf_function
     def grad(self, inputs, targets):
         """Gradient calculation(s)"""
         with tf.GradientTape() as tape:
@@ -100,7 +106,7 @@ class Trainer(BaseTrainer):
         return (model_output, losses, grads)
 
 
-    #@tf.function  # [!] might need this
+    #@switched_tf_function  # [!] might need this
     def train_step(self, batch_x, batch_y, batch_idx=None):
         """Train on the next batch."""
 
@@ -609,7 +615,7 @@ class Trainer(BaseTrainer):
     #┤ Training Loop                                                         │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    # [?] Should we be using @tf.function somewhere?
+    # [?] Should we be using @switched_tf_function somewhere?
     # [!] Annoying how plt logging shows up
     def train(self):
         """TODO: docs"""

@@ -1,16 +1,21 @@
 """TODO: module docs"""
 
-# external
+# external ----
 from typing import Any
 
 import tensorflow as tf
 
-# local
+# internal ----
 from models.common import BaseModel, SpikeRegularization, exp_convolve
 from models.neurons.lif import *
 #from models.neurons.adex import *
 from utils.config import subconfig
+from utils.misc import SwitchedDecorator
 
+DEBUG_MODE = False
+
+switched_tf_function = SwitchedDecorator(tf.function)
+switched_tf_function.enabled = not DEBUG_MODE
 
 @tf.custom_gradient  # Taken from Bellec et al. (2020) code
 def matmul_random_feedback(filtered_z, W_out_arg, B_out_arg):
@@ -59,7 +64,7 @@ class Model(BaseModel):
         ]
 
 
-    @tf.function
+    @switched_tf_function
     def call(self, inputs, training=False):
         """ ... """
 

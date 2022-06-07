@@ -1,6 +1,15 @@
 """Regularizers to enforce biologically-plausible behaviors."""
 
+# external ----
 import tensorflow as tf
+
+# internal ----
+from utils.misc import SwitchedDecorator
+
+DEBUG_MODE = False
+
+switched_tf_function = SwitchedDecorator(tf.function)
+switched_tf_function.enabled = not DEBUG_MODE
 
 class RateRegularizer(tf.keras.regularizers.Regularizer):
     """Regularizes firing rate.
@@ -19,7 +28,7 @@ class RateRegularizer(tf.keras.regularizers.Regularizer):
         self.weight = weight  # scaling of loss value
 
 
-    @tf.function
+    @switched_tf_function
     def __call__(self, model_output):
         """Calculate the rate regularization loss of a given input.
 

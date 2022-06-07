@@ -1,6 +1,15 @@
 """TODO: Docs"""
 
+# external ----
 import tensorflow as tf
+
+# internal ----
+from utils.misc import SwitchedDecorator
+
+DEBUG_MODE = False
+
+switched_tf_function = SwitchedDecorator(tf.function)
+switched_tf_function.enabled = not DEBUG_MODE
 
 class BaseTrainer(object):
     """TODO: docs"""
@@ -38,7 +47,7 @@ class BaseTrainer(object):
         """TODO: docs"""
         raise NotImplementedError("Trainer missing method: grad")
 
-    @tf.function
+    @switched_tf_function
     def train_step(self, x=None, y=None, pb=None):
         """TODO: docs"""
         raise NotImplementedError("Trainer missing method: train_step")
