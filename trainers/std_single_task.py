@@ -3,19 +3,19 @@
 tensorflow.org/tutorials/customization/custom_training_walkthrough
 """
 
+# external ----
 from tensorflow.keras.utils import Progbar
 
 import logging
 import numpy as np
 import os
 import tensorflow as tf
-import tensorflow.keras.backend as K
-import tensorflow.profiler.experimental as profiler
+import tensorflow.profiler as profiler
 
-# local
-from trainers.base import BaseTrainer
-
+# internal ----
 from models.common import fano_factor
+from regularizers import RateRegularizer
+from trainers.base import BaseTrainer
 
 class Trainer(BaseTrainer):
     """TODO: docs  | note how `optimizer` isn't in the parent"""
@@ -24,6 +24,12 @@ class Trainer(BaseTrainer):
         super().__init__(cfg, model, data, logger)
 
         train_cfg = cfg['train']
+
+        # [!] replace with proper implementation later
+        self.rate_loss_fn = RateRegularizer(
+            cfg["train"].target_rate,
+            cfg["train"].rate_cost
+        )
 
         try:
             """
@@ -48,55 +54,40 @@ class Trainer(BaseTrainer):
     @tf.function
     def loss(self, x, y):
         """Calculate the loss on data x labeled y."""
+
+        # Model output
+        model_output = self.model(x) # tripartite output
+        voltage, spikes, prediction = model_output
+
+        # Penalty for performance
         loss_object = tf.keras.losses.MeanSquaredError()
-
-        # [*] If you want per-trial logging values when using batches,
-        # you'll have to iterate over the x and y values, instead of
-        # just calling model with them once. Another option is to
-        # implement `.call()` in you model such that, when performing
-        # these operations, it returns a list of values, which would be
-        # trial values, plus the end values; or `.call()` could take a
-        # logger as an optional argument.
-
-        voltage, spikes, prediction = self.model(x) # tripartite output
         task_loss = loss_object(y_true=y, y_pred=prediction)
+        net_loss = task_loss
 
-        unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
-        rate_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['train'].target_rate)) * self.cfg['train'].rate_cost
-        #interm_loss_val_0 = tf.math.add(task_loss,rate_loss)
+        # Penalty for unrealistic firing rates
+        # [!] need to add metric or something else for real-time
+        #     reporting of loss components (could store all losses in
+        #     a model attribute and add to our loading bar plus write
+        #     to disk then flush)
+        rate_loss = self.rate_loss_fn(model_output)
+        net_loss += rate_loss
 
-        #synchrony = fano_factor(self, self.cfg['data'].seq_len, spikes)
-        #synch_loss = tf.reduce_sum(tf.square(synchrony - self.cfg['train'].target_synch)) * self.cfg['train'].synch_cost
-        #interm_loss_val_1 = tf.math.add(interm_loss_val_0,synch_loss)
-        #total_loss_val = tf.math.add(interm_loss_val_0,synch_loss)
-        #total_loss_val = tf.math.add(task_loss, synch_loss)
-        total_loss_val = tf.math.add(task_loss, rate_loss)
-
-        #w_rec = np.array(self.model.cell.recurrent_weights)
-
-        #total_ct = np.size(w_rec)
-        #zero_ct = w_rec[w_rec==0].shape[0]
-        #dens = (total_ct - zero_ct)/float(total_ct)
-
-        #conn_loss = tf.reduce_sum(tf.square(dens - self.cfg['train'].target_conn)) * self.cfg['train'].conn_cost
-        #total_loss_val = tf.math.add(interm_loss_val_1,conn_loss)
-
-        # [*] Because this is a tf.function, we can't collapse tensors
-        # to numpy arrays for logging, so we need to return the tensors
-        # then call `.numpy()` in `.train_step()`.
-
-        # training=training is needed only if there are layers with
-        # different behavior during training versus inference
-        # (e.g. Dropout).
-
-        return voltage, spikes, prediction, total_loss_val
+        # Feed model output and losses back up the stack
+        # [!] would like to make loss scalars a Keras `metric` but we
+        #     can't do that unless we refactor layers as in branch 68
+        losses = (
+            task_loss,
+            rate_loss,
+            net_loss,
+        )
+        return (model_output, losses)
 
 
     @tf.function
     def grad(self, inputs, targets):
         """Gradient calculation(s)"""
         with tf.GradientTape() as tape:
-            voltage, spikes, prediction, loss_val = self.loss(inputs, targets)
+            (model_output, losses) = self.loss(inputs, targets)
 
         # Calculate the gradient of the loss with respect to each
         # layer's trainable variables. In this example, calculates the
@@ -105,15 +96,13 @@ class Trainer(BaseTrainer):
         # > `rnn/ex_in_lif/recurrent_weights:0`
         # > `dense/kernel:0`
         # > `dense/bias:0`
-        grads = tape.gradient(loss_val, self.model.trainable_variables)
-        return voltage, spikes, prediction, loss_val, grads
+        grads = tape.gradient(losses[-1], self.model.trainable_variables)
+        return (model_output, losses, grads)
 
 
     #@tf.function  # [!] might need this
     def train_step(self, batch_x, batch_y, batch_idx=None):
         """Train on the next batch."""
-
-        # [?] Are we saying that each batch steps with dt?
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Pre-Step Logging                                                  │
@@ -165,10 +154,10 @@ class Trainer(BaseTrainer):
         #┤ Gradient Calculation                                              │
         #┴───────────────────────────────────────────────────────────────────╯
 
-        voltage, spikes, prediction, loss, grads = self.grad(
-            batch_x,
-            batch_y
-        )
+        (model_output, losses, grads) = self.grad(batch_x, batch_y)
+        voltage, spikes, prediction = model_output
+
+        (task_loss, rate_loss, net_loss) = losses
 
         # declare layer-wise vars and grads so that layer-wise optimization can occur
         self.var_list1 = self.model.rnn1.trainable_variables
@@ -429,32 +418,31 @@ class Trainer(BaseTrainer):
                 }
             )
 
-            # [*] This is how you calculate layer outputs for
-            # layers your network isn't directly reporting. This is
-            # very expensive, so if you can have your network
-            # report directly, or access this data anywhere besides
-            # the training loop, that's preferable. Nevertheless,
-            # should you wish to partake in the dark arts, here you
-            # go:
-            #
-            # ```
-            # kf = K.function([self.model.input], [layer.output])
-            # self.logger.log(
-            #     data_label=layer.name + '.outputs',
-            #     data=kf([batch_x]),
-            #     meta={
-            #         'stride': 'step',
-            #
-            #         'description':
-            #             'outputs for ' + layer.name
-            #     }
-            # )
-            # ```
 
         # Log the calculated step loss
         self.logger.log(
+            data_label='step_task_loss',
+            data=float(task_loss),
+            meta={
+                'stride': 'step',
+
+                'description':
+                    'calculated step loss (task)'
+            }
+        )
+        self.logger.log(
+            data_label='step_rate_loss',
+            data=float(rate_loss),
+            meta={
+                'stride': 'step',
+
+                'description':
+                    'calculated step loss (rate)'
+            }
+        )
+        self.logger.log(
             data_label='step_loss',
-            data=float(loss),
+            data=float(net_loss),
             meta={
                 'stride': 'step',
 
@@ -498,7 +486,7 @@ class Trainer(BaseTrainer):
             meta={"stride": "step", "description": "output layer weights"},
         )
 
-        return loss  # in classification tasks, also return accuracy
+        return losses  # in classification tasks, also return accuracy
 
 
     #┬───────────────────────────────────────────────────────────────────────╮
@@ -522,7 +510,9 @@ class Trainer(BaseTrainer):
         #┴───────────────────────────────────────────────────────────────────╯
 
         # [*] Declare epoch-level log variables (logged after training)
-        losses = []
+        net_losses = []
+        task_losses = []
+        rate_losses = []
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Epochwise Training                                                │
@@ -537,7 +527,9 @@ class Trainer(BaseTrainer):
             with profiler.Trace('train', step_num=step_idx, _r=1):
                 # [!] implement range (i.e. just 1-10 batches)
                 (batch_x, batch_y) = self.data.next()
-                loss = self.train_step(batch_x, batch_y, step_idx)
+                (task_loss, rate_loss, net_loss) = self.train_step(
+                    batch_x, batch_y, step_idx
+                )
 
             # Update progress bar
             pb.add(
@@ -546,19 +538,23 @@ class Trainer(BaseTrainer):
                     # [*] Register real-time epoch-level log variables.
                     # These are what show up to the right of the
                     # progress bar during training.
-                    ('loss', loss),
+                    ('net loss', net_loss),
+                    ('task loss', task_loss),
+                    ('rate loss', rate_loss),
                 ]
             )
 
             # [*] Update epoch-level log variables
-            losses.append(loss)
+            net_losses.append(net_loss)
+            task_losses.append(task_loss)
+            rate_losses.append(rate_loss)
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Epochwise Logging (post-epoch)                                    │
         #┴───────────────────────────────────────────────────────────────────╯
 
         # [*] Post-training operations on epoch-level log variables
-        epoch_loss = np.mean(losses)
+        epoch_loss = np.mean(net_losses)
         # [*] Log any epoch-wise variables.
         self.logger.log(
             data_label='epoch_loss',
@@ -570,6 +566,30 @@ class Trainer(BaseTrainer):
                     'mean step loss within an epoch'
             }
         )
+        epoch_rate_loss = np.mean(rate_losses)
+        # [*] Log any epoch-wise variables.
+        self.logger.log(
+            data_label='epoch_rate_loss',
+            data=epoch_rate_loss,
+            meta={
+                'stride': 'epoch',
+
+                'description':
+                    'mean step loss within an epoch (rate)'
+            }
+        )
+        epoch_task_loss = np.mean(task_losses)
+        # [*] Log any epoch-wise variables.
+        self.logger.log(
+            data_label='epoch_task_loss',
+            data=epoch_task_loss,
+            meta={
+                'stride': 'epoch',
+
+                'description':
+                    'mean step loss within an epoch (task)'
+            }
+        )
 
         # [*] Summarize epoch-level log variables here
         # [?] Register epoch-level log variables here
@@ -577,6 +597,8 @@ class Trainer(BaseTrainer):
             epoch_idx,
             summary_items={
                 ("epoch_loss", epoch_loss),
+                ("epoch_task_loss", epoch_task_loss),
+                ("epoch_rate_loss", epoch_rate_loss),
             }
         )
 
