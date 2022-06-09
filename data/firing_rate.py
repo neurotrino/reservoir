@@ -3,8 +3,6 @@ import tensorflow as tf
 import os
 import argparse
 import numpy as np
-import matplotlib.pyplot as plt
-from plotting import plot_pred_dots
 import scipy.sparse
 
 # current working directory
@@ -13,19 +11,21 @@ if(os.getcwd()[-1] == '/'):
 else:
     cwd = os.getcwd() + '/'
 
-MODEL_PATH = cwd + 'models/'
-IMG_PATH = cwd + 'plots/'
+#MODEL_PATH = cwd + 'models/'
+MODEL_PATH = '/home/macleanlab/front-end-CNN/models/'
+#IMG_PATH = cwd + 'plots/'
 #MOVIE_PATH = '/home/macleanlab/mufeng/tfrecord_data_processing/'
-MOVIE_PATH = '/home/macleanlab/stim/processed/'
+MOVIE_PATH = '/home/macleanlab/stim/processed/' # where all the tfrecords are located
+# in total there are processed_data_299.tfrecord files
 
 parser = argparse.ArgumentParser(description='Args for generating the spikes')
-parser.add_argument('model_name', type=str, help='Name of the model')
-parser.add_argument('num_dot_movies', type=int, help='Number of dot movies to check') # all of them??
+parser.add_argument('model_name', default='ch_model8', type=str, help='Name of the model')
+parser.add_argument('num_dot_movies', default=60, type=int, help='Number of dot movies to check') # all of them??
 # readme says "The maximum number of dot coh change movies is 60", though likely there are more tfrecords on .226
-parser.add_argument('make_positive', type=str, help='How do you want to make firing rates positive, rec or abs')
+parser.add_argument('make_positive', default='abs', type=str, help='How do you want to make firing rates positive, rec or abs')
 parser.add_argument('--num_natural_movies', default=20, type=int, help='Number of natural movies to check')
 args = parser.parse_args()
-model_name = args.model_name # ch_model8 is the desired one
+model_name = args.model_name
 num_dot_movies = args.num_dot_movies
 num_natural_movies = args.num_natural_movies
 makepositive = args.make_positive
@@ -122,74 +122,7 @@ def read_dot(num_movies):
 
     return all_movies, all_trial_cohs, all_coh_labels, all_is_changes
 
-def read_natural(num_natural_movies):
-    """
-    Read in natural motion movies
-    num_natural_movies: number of natural movies (length=240 frames) to select
-    """
-    data = np.load('natural_data.npz', mmap_mode='r+')
-    x = data['x']
-    y = data['y']
-
-    r = np.random.RandomState(4) # fix a random set of movies
-    idx = r.randint(x.shape[0], size=num_natural_movies)
-    return x[idx], y[idx]
-
-def plot_firing_rates(all_movies, makepositive, plot_grey=True, stim='natural'):
-    """
-    Plot the 16 neurons' firing rates to drifting dots or natural movies, rectified
-    all_movies: input
-    stim: 'natural' or 'dots'
-    """
-    intermediate_layer_model = tf.keras.Model(inputs=model.input,
-                                           outputs=model.layers[12].output)
-    # responses given one movie
-    batch_size = 2
-    dataset = tf.data.Dataset.from_tensor_slices(all_movies).batch(batch_size)
-    batch_rates = []
-    for d in dataset:
-        output = intermediate_layer_model(d) # batch_size, 60, 16
-        if makepositive == 'rec':
-            batch_rate = tf.nn.relu(output).numpy() # batch_size, 60, 16
-        elif makepositive == 'abs':
-            batch_rate = tf.math.abs(output).numpy() # batch_size, 60, 16
-        else:
-            batch_rate = output.numpy()
-        batch_rates.append(batch_rate)
-    f_rates = np.concatenate(batch_rates, axis=0) # 20, 60, 16
-    if plot_grey == False:
-        f_rates = f_rates[::2] # 10, 60, 16
-    print("(num movies, compressed seq len, num cells): ", f_rates.shape)
-    num_neurons = f_rates.shape[2]
-
-    rec_res = np.reshape(f_rates, (-1, num_neurons)) # 600, 16
-
-    NUM_COLORS = rec_res.shape[1]
-    cm = plt.get_cmap('nipy_spectral')
-    cmap = [cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)]
-    fig = plt.figure(figsize=(12,12))
-    for i in range(rec_res.shape[1]):
-        ax = plt.subplot(rec_res.shape[1], 1, i+1)
-        ax.set_ylim([0, 1])
-        ax.plot(rec_res[:, i], alpha=1, c=cmap[i])
-    fig.text(0.5, 0.06, 'time', ha='center')
-    fig.text(0.06, 0.5, 'avg. firing rates over 4 frames', va='center', rotation='vertical')
-    plt.savefig(IMG_PATH+f'responses_{stim}_{model_name}_{makepositive}', dpi=300)
-
-    if False: # plot all neurons in one frame
-        plt.figure(figsize=(12, 1))
-        for i in range(rec_res.shape[1]):
-            plt.plot(rec_res[:, i], alpha=0.6)
-        plt.xlabel('time')
-        plt.savefig(IMG_PATH+'responses_all.png', dpi=200)
-
-def plot_dot_predictions():
-    """
-    Plot true optic flow vs predicted optic flow by the model
-    """
-    plot_pred_dots(model)
-
-def spike_generation(all_movies, makepositive):
+def generate_mean_firingrates(all_movies, makepositive):
     # except, since we want, we will want to shuffle and regenerate a TON more of these
     # in total, we have 10 trials x 10 batches x 500 epochs = 50000 unique trials (spike trains) per full experiment
     # though we do not want ALL data sampled for every experiment / batch / epoch whatever.
@@ -220,28 +153,19 @@ def spike_generation(all_movies, makepositive):
     num_neurons = f_rates.shape[2]
 
     f_rates_r = np.repeat(f_rates, int(MS_PER_TRIAL/f_rates.shape[1])+2, axis=1) # 10*num_dot_movies, 4080, 16
+    return f_rates_r
 
-    # random matrix between [0,1] for Poisson process
-    # this step is stochastic, may need to introduce a seed
+    # best way to do this is to shuffle & repeat for the size of the trials that we will need
+    # and generate at the start of the experiment
+
+def generate_spikes(f_rates_r):
+    #f_rates_r = np.load('/home/macleanlab/stim/rates/ch8_abs_ccd_rates.npy')
     random_matrix = np.random.rand(f_rates_r.shape[0], f_rates_r.shape[1], num_neurons)
     spikes = (f_rates_r - random_matrix > 0)*1.
-    return spikes
+    spikes_sparse = scipy.sparse.csc_matrix(spikes.reshape((-1, spikes.shape[2])))
+    return spikes_sparse
 
-def raster_plot(all_movies):
-    """
-    Generate raster plot of one trial
-    """
-    spikes = spike_generation(all_movies, makepositive)[0]
-    example = np.reshape(spikes, (-1, 16)) # 4080, 16
-
-    plt.figure(figsize=(6,3))
-    plt.pcolormesh(example.T, cmap='cividis')
-    plt.title(f'{makepositive} natural')
-    plt.xlabel('Time (frames)')
-    plt.ylabel('Neurons')
-    plt.savefig(IMG_PATH+f'raster_plot_{makepositive}.png', dpi=200)
-
-def main(num_dot_movies, num_natural_movies):
+def main(num_dot_movies):
     """
     Difference between two inputs:
 
@@ -254,59 +178,26 @@ def main(num_dot_movies, num_natural_movies):
     """
     print("Reading movies...")
     dot_movies, all_trial_cohs, all_coh_labels, all_is_changes = read_dot(num_dot_movies)
+
     trial_coh_labels = all_coh_labels.reshape((-1, 20, FRAMES_PER_TRIAL))[:, ::2] # num_dot_movies, 10, 240
     trial_coh_labels = trial_coh_labels.reshape((-1, 10*FRAMES_PER_TRIAL)) # num_dot_movies, 2400
-    # natural_movies, natural_y = read_natural(num_natural_movies)
+    coh_labels_ms = np.repeat(trial_coh_labels, int(MS_PER_TRIAL/FRAMES_PER_TRIAL)+1, axis=1)
+    coh_labels_sparse = scipy.sparse.csc_matrix(coh_labels_ms) # num_dot _movies, 40800
 
-    if True: # generate spikes
-        print(f'Generating spikes using {makepositive}')
-        spikes = spike_generation(dot_movies, makepositive)
-        print("Shape of spike train: ", spikes.shape)
-        print(f"Reshaping the spike train to a matrix with shape ({spikes.shape[0]}x{spikes.shape[1]}, {spikes.shape[2]})...")
-        spikes_sparse = scipy.sparse.csc_matrix(spikes.reshape((-1, spikes.shape[2])))
+    f_rates_r = generate_mean_firingrates(dot_movies, makepositive)
+    #generate_spikes(f_rates_r)
 
-        # dilate the coherence vectors from frames to ms
-        # sanity check: 2400*17 = 10*4080 = 40800ms per movie
-        coh_labels_ms = np.repeat(trial_coh_labels, int(MS_PER_TRIAL/FRAMES_PER_TRIAL)+1, axis=1)
-        print("Shape of ms-by-ms coherence levels: ", coh_labels_ms.shape)
-        coh_labels_sparse = scipy.sparse.csc_matrix(coh_labels_ms) # num_dot _movies, 40800
+    #save_path = '/home/macleanlab/CNN_outputs/rates/'
+    np.save(save_path+f'/ch8_abs_ccd_rates.npy', f_rates_r)
 
-        save_path = '/home/macleanlab/CNN_outputs'
-        if not os.path.exists(save_path):
-            os.mkdir(save_path)
+    # spikes, [num_dot_movies*10*4080, 16]
+    #scipy.sparse.save_npz(save_path+f'/spike_train_{training_mode}_{makepositive}.npz', spikes_sparse)
 
-        if model_name == 'ch_model4':
-            training_mode = 'natural'
-        elif model_name == 'ch_model6':
-            training_mode = 'mixed'
-        elif model_name == 'ch_model8':
-            training_mode = 'mixed_limlifetime'
+    # frame-by-frame coherence of each movie, [num_dot_movies, 40800], sparsified
+    scipy.sparse.save_npz(save_path+f'/ch8_abs_ccd_coherences.npz', coh_labels_sparse)
 
-        # spikes, [num_dot_movies*10*4080, 16]
-        scipy.sparse.save_npz(save_path+f'/spike_train_{training_mode}_{makepositive}.npz', spikes_sparse)
-
-        # frame-by-frame coherence of each movie, [num_dot_movies, 40800], sparsified
-        scipy.sparse.save_npz(save_path+f'/coherences_{training_mode}_{makepositive}.npz', coh_labels_sparse)
-
-        # trial-by-trial coherence changes (0 or 1), [num_dot_movies, 10]
-        np.save(save_path+f'/changes_{training_mode}_{makepositive}.npy', all_is_changes)
-
-        plot_firing_rates(dot_movies[0:20], makepositive=makepositive, plot_grey=True, stim='dot')
-
-
-    if False: # generate plots
-        # plot using the first drifting dots movie
-        # plot_firing_rates(natural_movies, rectify=False, plot_grey=True, stim='natural')
-
-        # plot using the first drifting dots movie
-        # plot_firing_rates(dot_movies[0:20], rectify=False, plot_grey=True, stim='dot')
-        raster_plot(dot_movies[0:20])
-
-        # natural_movies, natural_directions = read_natural('x_all.npy', 'y_all.npy', num_natural_movies)
-        # plot_firing_rates(natural_movies, stim='natural')
-        # plot_dot_predictions()
-        # angles = np.arctan2(natural_directions[:,1], natural_directions[:,0]) * 180 / np.pi
-        # distance = np.sqrt(natural_directions[:,0]**2 + natural_directions[:,1]**2)
+    # trial-by-trial coherence changes (0 or 1), [num_dot_movies, 10]
+    np.save(save_path+f'/ch8_abs_ccd_changes.npy', all_is_changes)
 
 if __name__ == '__main__':
-    main(num_dot_movies, num_natural_movies)
+    main(num_dot_movies)
