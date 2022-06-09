@@ -10,6 +10,8 @@ Resources:
 """
 
 # external ----
+from matplotlib.colors import LinearSegmentedColormap
+
 import logging
 import math
 import matplotlib.pyplot as plt
@@ -19,8 +21,184 @@ import pickle
 import tensorflow as tf
 import time
 
-# local -------
+# internal ----
 from loggers.base import BaseLogger
+
+WHITE_COLORMAP = LinearSegmentedColormap(
+    "white_cmap",
+    {
+        "red": (
+            (0.0, 1.0, 1.0),
+            (1.0, 1.0, 1.0),
+        ),
+        "green": (
+            (0.0, 1.0, 1.0),
+            (1.0, 1.0, 1.0),
+        ),
+        "blue": (
+            (0.0, 1.0, 1.0),
+            (1.0, 1.0, 1.0),
+        )
+    }
+)
+
+# ┬──────────────────────────────────────────────────────────────────────────╮
+# │ Plotting Functions                                                       │
+# ┴──────────────────────────────────────────────────────────────────────────╯
+
+def save_weight_hist(filename, weights, title="Recurrent Layer Weights"):
+    """Plot a histogram of recurrent weights."""
+
+    # Plot
+    plt.hist(weights)
+    plt.ylabel("count")
+    plt.xlabel("weight strength (recurrent layer)")
+    plt.title(title)
+    plt.savefig(filename)
+
+    # Teardown
+    plt.clf()
+    plt.close()
+
+
+def save_io_plot(
+    filename,
+    inps,
+    voltages,
+    spikes,
+    pred_y,
+    true_y,
+    title="Model I/O",
+    input_cmap_kwargs={},
+    voltage_cmap_kwargs={},
+):
+    """Plot model input and output (voltage, spiking, performance)."""
+
+
+    def plot_input(inp, fig, axes, ax_idx=0):
+        ax = axes[ax_idx]
+
+        im = ax.pcolormesh(inp.T, **input_cmap_kwargs)
+        ax.set_ylabel("input")
+
+        ax.set_title("Model I/O\n(epoch=17)")
+
+        return fig.colorbar(im, ax=axes[0])
+
+
+    def plot_voltage(voltage, fig, axes, ax_idx=1):
+        ax = axes[ax_idx]
+
+        im = ax.pcolormesh(voltage.T, **voltage_cmap_kwargs)
+        ax.set_ylabel("voltage [mV]")
+
+        return fig.colorbar(im, ax=ax)
+
+
+    def plot_spikes(spikes, fig, axes, ax_idx=2):
+        ax = axes[ax_idx]
+
+        im = ax.pcolormesh(spikes.T, vmin=0, vmax=1, cmap="binary")
+        axes[2].set_ylabel("spike")
+
+        return fig.colorbar(im, ax=ax)
+
+
+    def plot_performance(true_y, pred_y, axes, ax_idx=3):
+        ax = axes[ax_idx]
+
+        ax.plot(true_y, "k--", lw=2, alpha=0.7, label="target")
+        ax.plot(pred_y, "b", lw=2, alpha=0.7, label="prediction")
+        ax.set_ylabel("output")
+        ax.legend(frameon=False)
+
+        # All these extra steps (creating an invisible colorbar) are to
+        # align the plots
+        max_val = np.max(true_y)
+        im = ax.pcolormesh(
+            true_y,
+            vmin=(max_val + 1),
+            vmax=(max_val + 2),
+            cmap=WHITE_COLORMAP
+        )
+        cb = fig.colorbar(im)
+        cb.set_ticks([])
+        cb.outline.set_visible(False)
+        return cb
+
+
+    # Because matplotlib infringes on our logger, we quiet it here,
+    # then unquiet it when we actually need to use it
+    logger = logging.getLogger()
+    true_level = logger.level
+    logger.setLevel(max(true_level, logging.WARN))
+
+    # last_trial_idx = self.cfg['train'].batch_size - 1
+    last_trial_idx = 0
+
+    # Input
+    inp = inps[last_trial_idx]
+
+    # Outputs
+    pred_y = pred_y[last_trial_idx]
+    true_y = true_y[last_trial_idx]
+    voltage = voltages[last_trial_idx]
+    spikes = spikes[last_trial_idx]
+
+    # Initialize plot
+    fig, axes = plt.subplots(4, figsize=(6, 8), sharex=True)
+
+    [ax.clear() for ax in axes]
+
+    # Create subplots
+    colorbar_objects = [
+        plot_input(inp, fig, axes),
+        plot_voltage(voltage, fig, axes),
+        plot_spikes(spikes, fig, axes),
+    ]
+    plot_performance(true_y, pred_y, axes)
+
+    # Label, title
+    plt.xlabel("timestep")
+    plt.title(title)
+
+    # Bodge
+    r1 = Rectangle(
+        xy=(0.75, 0.25),
+        width=0.15,
+        height=0.25,
+        fc='white',
+        zorder=2
+    )
+    r2 = Rectangle(
+        xy=(0.75, 0.7),
+        width=0.15,
+        height=0.25,
+        fc='white',
+        zorder=2
+    )
+    fig.add_artist(r1)
+    fig.add_artist(r2)
+
+    # Label, title
+    plt.xlabel("timestep")
+
+    # Export
+    plt.draw()
+    plt.savefig(filename)
+
+    # Teardown
+    [cb.remove() for cb in colorbar_objects]
+    plt.clf()
+    plt.close()
+
+    # Restore logger status
+    logger.setLevel(true_level)
+
+
+# ┬──────────────────────────────────────────────────────────────────────────╮
+# │ Logger                                                                   │
+# ┴──────────────────────────────────────────────────────────────────────────╯
 
 class Logger(BaseLogger):
     """Standard timeseries logger.
@@ -71,7 +249,7 @@ class Logger(BaseLogger):
         hi_epoch = self.cur_epoch
         for epoch_idx in range(self.cfg['log'].post_every):
             step_idx = epoch_idx * self.cfg['train'].n_batch
-            self.plot_everything(f"{lo_epoch + epoch_idx}.png", step_idx)
+            self.plot_everything(f"{lo_epoch + epoch_idx}", step_idx)
 
         # Write to disk, free RAM, and perform bookkeeping
         super().post()
@@ -163,77 +341,39 @@ class Logger(BaseLogger):
     #┤ Other Logging Methods                                                 │
     #┴───────────────────────────────────────────────────────────────────────╯
 
-    def plot_everything(self, filename, idx=-1):
-        # Because matplotlib infringes on our logger, we quiet it here,
-        # then unquiet it when we actually need to use it
-        logger = logging.getLogger()
-        true_level = logger.level
-        logger.setLevel(max(true_level, logging.WARN))
+    def plot_everything(self, unique_id, idx=-1):
+        """Save all plots the logger is requested to create."""
 
-        # [?] should loggers have their model as an attribute?
-
-        # last_trial_idx = self.cfg['train'].batch_size - 1
-        last_trial_idx = 0
-
-        # Input
-        x = self.logvars['inputs'][idx][last_trial_idx]
-
-        # Outputs
-        pred_y = self.logvars['pred_y'][idx][last_trial_idx]
-        true_y = self.logvars['true_y'][idx][last_trial_idx]
-        voltage = self.logvars['voltage'][idx][last_trial_idx]
-        spikes = self.logvars['spikes'][idx][last_trial_idx]
-
-        # Initialize plot
-        fig, axes = plt.subplots(5, figsize=(6, 8), sharex=True)
-
-        [ax.clear() for ax in axes]
-
-        # Plot input
-        im = axes[0].pcolormesh(x.T, cmap='cividis')
-        cb1 = fig.colorbar(im, ax=axes[0])
-        axes[0].set_ylabel('input')
-
-        # Plot voltage
-        im = axes[1].pcolormesh(
-            voltage.T,
-            cmap='seismic',
-            vmin=self.cfg['model'].cell.EL - 15,
-            vmax=self.cfg['model'].cell.thr + 15
+        # Voltage, spike, and performance data for the model
+        model_output_filename = os.path.join(
+            self.cfg["save"].plot_dir, f"{unique_id}-model-output.png"
         )
-        cb2 = fig.colorbar(im, ax=axes[1])
-        axes[1].set_ylabel('voltage')
+        save_io_plot(
+            model_output_filename,
+            self.logvars["inps"][idx],
+            self.logvars["voltages"][idx],
+            self.logvars["spikes"][idx],
+            self.logvars["true_y"][idx],
+            self.logvars["pred_y"][idx],
+            title=f"Model I/O\n(epoch {self.cur_epoch})",
+            input_cmap_kwargs={
+                "cmap": "cividis"
+            },
+            voltage_cmap_kwargs={
+                "cmap": "seismic",
+                "vmin": self.cfg["model"].cell.EL - 15,
+                "vmax": self.cfg["model"].cell.thr + 15
+            },
+        )
 
-        # plot transpose of spike matrix
-        im = axes[2].pcolormesh(spikes.T, cmap='Greys', vmin=0, vmax=1)
-        cb3 = fig.colorbar(im, ax=axes[2])
-        axes[2].set_ylabel('spike')
-
-        # Plot prediction-vs-actual
-        axes[3].plot(true_y, 'k--', lw=2, alpha=0.7, label='target')
-        axes[3].plot(pred_y, 'b', lw=2, alpha=0.7, label='prediction')
-        axes[3].set_ylabel('output')
-        axes[3].legend(frameon=False)
-
-        # plot weight distribution after this epoch
-        # (n_input x n_recurrent) [?] do we need to flatten?
-        axes[4].hist(self.logvars['tv0.postweights'][idx])
-        axes[4].set_ylabel('count')
-        axes[4].set_xlabel('recurrent weights')
-
-        [ax.yaxis.set_label_coords(-0.05, 0.5) for ax in axes]
-
-        # Export
-        plt.draw()
-        plt.savefig(os.path.join(self.cfg['save'].plot_dir, filename))
-
-        # Teardown
-        cb1.remove()
-        cb2.remove()
-        cb3.remove()
-
-        plt.clf()
-        plt.close()
-
-        # Restore logger status
-        logger.setLevel(true_level)
+        # Weight distribution in the recurrent layer
+        weight_distr_filename = os.path.join(
+            self.cfg["save"].plot_dir, f"{unique_id}-weight-distr.png"
+        )
+        save_weight_hist(
+            weight_distr_filename,
+            self.logvars["tv0.postweights"][idx],
+            title=(
+                "Distribution of Weights in the Recurrent Layer\n" +
+                f"(epoch={self.cur_epoch})"
+        )
