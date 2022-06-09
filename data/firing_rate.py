@@ -187,7 +187,7 @@ def main(num_dot_movies):
     f_rates_r = generate_mean_firingrates(dot_movies, makepositive)
     #generate_spikes(f_rates_r)
 
-    #save_path = '/home/macleanlab/CNN_outputs/rates/'
+    save_path = '/home/macleanlab/CNN_outputs/rates/'
     np.save(save_path+f'/ch8_abs_ccd_rates.npy', f_rates_r)
 
     # spikes, [num_dot_movies*10*4080, 16]
