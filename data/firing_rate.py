@@ -17,7 +17,7 @@ MODEL_PATH = '/home/macleanlab/front-end-CNN/models/'
 #MOVIE_PATH = '/home/macleanlab/mufeng/tfrecord_data_processing/'
 MOVIE_PATH = '/home/macleanlab/stim/processed/' # where all the tfrecords are located
 # in total there are processed_data_299.tfrecord files
-
+"""
 parser = argparse.ArgumentParser(description='Args for generating the spikes')
 parser.add_argument('model_name', default='ch_model8', type=str, help='Name of the model')
 parser.add_argument('num_dot_movies', default=60, type=int, help='Number of dot movies to check') # all of them??
@@ -29,6 +29,7 @@ model_name = args.model_name
 num_dot_movies = args.num_dot_movies
 num_natural_movies = args.num_natural_movies
 makepositive = args.make_positive
+"""
 
 FRAMES_PER_TRIAL = 240
 FRAMERATE = 60
