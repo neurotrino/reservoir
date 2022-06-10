@@ -35,6 +35,10 @@ FRAMES_PER_TRIAL = 240
 FRAMERATE = 60
 MS_PER_TRIAL = (FRAMES_PER_TRIAL // FRAMERATE) * 1000
 
+model_name = 'ch_model8'
+num_dot_movies = 60
+make_positive = 'abs'
+
 model = tf.keras.models.load_model(MODEL_PATH+model_name)
 
 def create_dataset(paths, max_seq_len=4800, encoding='png', pool=None):
