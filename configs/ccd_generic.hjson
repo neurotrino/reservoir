@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen
+        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newallen-l23
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -152,9 +152,12 @@
 
             // These parameters will only be used for ExIn neurons
             p_ee: 0.160
-            p_ei: 0.244
-            p_ie: 0.318
-            p_ii: 0.343
+            //p_ei: 0.244
+            p_ei: 0.205
+            //p_ie: 0.318
+            p_ie: 0.252
+            //p_ii: 0.343
+            p_ii: 0.284
 
             // ...
 
