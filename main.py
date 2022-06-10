@@ -23,7 +23,7 @@ for filepath in Path('.').rglob('*.py'):
     """
     fp_str = str(filepath)
 
-    if fp_str not in [__file__, "__init__.py", "setup.py"]:
+    if fp_str not in [__file__, "__init__.py", "setup.py", "firing_rate.py"]:
         # Convert filepaths to module paths
         module_name = fp_str[:-3]
         module_name = module_name.replace('/', '.')
