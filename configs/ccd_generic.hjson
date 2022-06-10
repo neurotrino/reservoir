@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-inputspikes
+        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -187,20 +187,23 @@
     {
         type: ccd
 
+        // file containing firing rate data for CCD (to regenerate spikes)
+        rate_npy:
+        /data/datasets/CNN_outputs/ch8_abs_ccd_rates.npy
+
+        // file containing coherence change data (CCD) corresponding to the rates
+        coh_npz:
+        /data/datasets/CNN_outputs/ch8_abs_ccd_coherences.npz
+
         // file containing spike data for CCD or DMC
         //spike_npz:
         ///home/macleanlab/stim/dmc/2021-08-05-1225/CNN_outputs/spike_train.npz
-
         spike_npz:
         /data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz
 
         // file containing sample match/non-match data
         match_npy:
         /home/macleanlab/stim/dmc/2021-08-05-1225/CNN_outputs/cat_time_series.npy
-
-        // file containing coherence change data (CCD)
-        coh_npz:
-        /data/datasets/CNN_outputs/coherences_mixed_limlifetime_abs.npz
 
         //
         seq_len: 4080
