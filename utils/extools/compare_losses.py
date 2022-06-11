@@ -7,7 +7,7 @@ import h5py
 import os
 
 data_dir = '/data/experiments/'
-num_epochs = 300
+num_epochs = 500
 epochs_per_file = 10
 
 fwd_experiments = [
@@ -15,9 +15,15 @@ fwd_experiments = [
     "fwd-input-img-15x-fixed",
     "fwd-main-rewire-img-15x-fixed"
 ]
+regeninspikes_experiments = [
+    "fwd-main-rewire-lowlroutput-0.0001"
+    "fwd-main-rewire-lowlroutput-0.0001-newallen-l23"
+    "fwd-pipeline-inputspikeregen"
+    "fwd-pipeline-inputspikeregen-newallen-l23"
+]
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/input-main-rewire.png'
+savepath = '/data/results/fwd/regeninspikes.png'
 
 def filenames(num_epochs, epochs_per_file):
     """Get the filenames storing data for epoch ranges.
@@ -34,17 +40,18 @@ def filenames(num_epochs, epochs_per_file):
 def compare_losses(
     savepath=savepath,
     data_dir=data_dir,
-    experiments=fwd_experiments,
-    num_epochs=300,
-    epochs_per_file=10,
+    experiments=regeninspikes_experiments,
+    num_epochs=num_epochs,
+    epochs_per_file=epochs_per_file,
     loss_of_interest="epoch_loss",
-    title="Fwd Implementation",
+    title="Regenerating input spikes",
     xlabel="epochs",
-    ylabel="loss",
+    ylabel="total loss",
     legend=[
-        "new input trainable",
-        "new input fixed",
-        "new input fixed with correct main rewiring"
+        "fixed set input spikes, old connectivity",
+        "fixed set input spikes, new connectivity",
+        "regen input spikes, old connectivity"
+        "regen input spikes, new connectivity"
     ]
 ):
     """Generate plots comparing losses from multiple experiments.
@@ -80,10 +87,10 @@ def compare_losses(
         plt.plot(losses[0 : num_epochs - epochs_per_file])
 
     # Label everything
-    plt.title("Fwd Implementation")
-    plt.xlabel("epochs")
-    plt.ylabel("loss")
-    plt.legend(["new input trainable","new input fixed","new input fixed with correct main rewiring"])
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.legend(legend)
 
     # Create and save the final figure
     plt.draw()
