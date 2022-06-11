@@ -16,10 +16,10 @@ fwd_experiments = [
     "fwd-main-rewire-img-15x-fixed"
 ]
 regeninspikes_experiments = [
-    "fwd-main-rewire-lowlroutput-0.0001"
-    "fwd-main-rewire-lowlroutput-0.0001-newallen-l23"
-    "fwd-pipeline-inputspikeregen"
-    "fwd-pipeline-inputspikeregen-newallen-l23"
+    "fwd-main-rewire-lowlroutput-0.0001",
+    "fwd-main-rewire-lowlroutput-0.0001-newallen-l23",
+    "fwd-pipeline-inputspikeregen",
+    "fwd-pipeline-inputspikeregen-newallen-l23",
 ]
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
