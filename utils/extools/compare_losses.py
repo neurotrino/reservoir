@@ -50,8 +50,8 @@ def compare_losses(
     legend=[
         "fixed set input spikes, old connectivity",
         "fixed set input spikes, new connectivity",
-        "regen input spikes, old connectivity"
-        "regen input spikes, new connectivity"
+        "regen input spikes, old connectivity",
+        "regen input spikes, new connectivity",
     ]
 ):
     """Generate plots comparing losses from multiple experiments.
