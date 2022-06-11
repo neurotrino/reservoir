@@ -16,7 +16,7 @@ fwd_experiments = [
     "fwd-main-rewire-img-15x-fixed"
 ]
 regeninspikes_experiments = [
-    "fwd-main-rewire-lowlroutput-0.0001",
+    "fwd-main-rewire-lowlroutput",
     "fwd-main-rewire-lowlroutput-0.0001-newallen-l23",
     "fwd-pipeline-inputspikeregen",
     "fwd-pipeline-inputspikeregen-newallen-l23",
