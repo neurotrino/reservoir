@@ -21,9 +21,15 @@ regeninspikes_experiments = [
     "fwd-pipeline-inputspikeregen",
     "fwd-pipeline-inputspikeregen-newallen-l23",
 ]
+regen_lr_experiments = [
+    "fwd-pipeline-inputspikeregen-newallen-l23",
+    "fwd-pipeline-inputspikeregen-newl23-lowerlr",
+    "fwd-pipeline-inputspikeregen-newl23-evenlowerlr"
+]
+
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/regeninspikes.png'
+savepath = '/data/results/fwd/regenlr.png'
 
 def filenames(num_epochs, epochs_per_file):
     """Get the filenames storing data for epoch ranges.
@@ -40,18 +46,17 @@ def filenames(num_epochs, epochs_per_file):
 def compare_losses(
     savepath=savepath,
     data_dir=data_dir,
-    experiments=regeninspikes_experiments,
+    experiments=regen_lr_experiments,
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
     loss_of_interest="epoch_loss",
-    title="Regenerating input spikes",
+    title="Regenerated input spikes, new connectivity",
     xlabel="epochs",
     ylabel="total loss",
     legend=[
-        "fixed set input spikes, old connectivity",
-        "fixed set input spikes, new connectivity",
-        "regen input spikes, old connectivity",
-        "regen input spikes, new connectivity",
+        "main lr 0.005, output lr 0.0001",
+        "main lr 0.001, output lr 0.00001",
+        "main lr 0.0005, output lr 0.000005"
     ]
 ):
     """Generate plots comparing losses from multiple experiments.
