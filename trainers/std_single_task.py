@@ -232,7 +232,7 @@ class Trainer(BaseTrainer):
         )
         """
 
-        if self.cfg["train"].alternating_freeze:
+        if self.cfg["train"].noise_weights:
             freeze_mask = None
 
 
