@@ -232,10 +232,6 @@ class Trainer(BaseTrainer):
         )
         """
 
-        if self.cfg["train"].noise_weights:
-            freeze_mask = None
-
-
         self.main_optimizer.apply_gradients(
             zip(grads1, self.model.rnn1.trainable_variables)
         )

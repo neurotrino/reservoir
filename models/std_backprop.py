@@ -53,8 +53,12 @@ class Model(BaseModel):
 
 
     @switched_tf_function
-    def noise_weights(self):
-        self.rnn1.noise_weights()
+    def noise_weights(self, mean=1.0, stddev=0.1):
+        gain_matrix = tf.random.normal(
+            self.rnn1.get_weights().shape, mean, stddev
+        )
+        noised_weights = self.rnn1.get_weights() * gain_matrix
+        self.rnn1.set_weights(noised_weights)
 
 
     @switched_tf_function
