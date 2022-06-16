@@ -304,6 +304,8 @@
     {
         type: std_single_task
 
+        noise_weights: true
+
         input_trainable: true
         //note that when false, this means tv0 is the recurrent weights instead of tv1
 

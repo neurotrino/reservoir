@@ -231,12 +231,20 @@ class Trainer(BaseTrainer):
             zip(grads, self.model.trainable_variables)
         )
         """
+
+        if self.cfg["train"].alternating_freeze:
+            freeze_mask = None
+
+
         self.main_optimizer.apply_gradients(
             zip(grads1, self.model.rnn1.trainable_variables)
         )
         self.output_optimizer.apply_gradients(
             zip(grads2, self.model.dense1.trainable_variables)
         )
+
+        if self.cfg["train"].noise_weights:
+            self.model.noise_weights()
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sparsity Enforcement                                              │

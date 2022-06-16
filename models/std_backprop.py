@@ -53,6 +53,11 @@ class Model(BaseModel):
 
 
     @switched_tf_function
+    def noise_weights(self):
+        self.rnn1.noise_weights()
+
+
+    @switched_tf_function
     def call(self, inputs, training=False):
         """ ... """
 
