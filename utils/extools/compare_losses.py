@@ -7,7 +7,7 @@ import h5py
 import os
 
 data_dir = '/data/experiments/'
-num_epochs = 500
+num_epochs = 1000
 epochs_per_file = 10
 
 fwd_experiments = [
@@ -21,6 +21,12 @@ regeninspikes_experiments = [
     "fwd-pipeline-inputspikeregen",
     "fwd-pipeline-inputspikeregen-newallen-l23",
 ]
+runlonger_experiments=[
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger",
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-2",
+    "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower",
+    "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower-500units"
+]
 regen_lr_experiments = [
     "fwd-pipeline-inputspikeregen-newallen-l23",
     "fwd-pipeline-inputspikeregen-newl23-lowerlr",
@@ -29,7 +35,7 @@ regen_lr_experiments = [
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/regenlr.png'
+savepath = '/data/results/fwd/regenlr-longer.png'
 
 def filenames(num_epochs, epochs_per_file):
     """Get the filenames storing data for epoch ranges.
@@ -46,17 +52,18 @@ def filenames(num_epochs, epochs_per_file):
 def compare_losses(
     savepath=savepath,
     data_dir=data_dir,
-    experiments=regen_lr_experiments,
+    experiments=runlonger_experiments,
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
     loss_of_interest="epoch_loss",
-    title="Regenerated input spikes, new connectivity",
+    title="Regenerated input spikes, new Allen connectivity, 1000 epochs",
     xlabel="epochs",
     ylabel="total loss",
     legend=[
-        "main lr 0.005, output lr 0.0001",
-        "main lr 0.001, output lr 0.00001",
-        "main lr 0.0005, output lr 0.000005"
+        "main lr 0.001, output lr 0.00001 run 2",
+        "main lr 0.001, output lr 0.00001 run 1",
+        "main lr 0.005, output lr 0.00001"
+        "main lr 0.005, output lr 0.00001, 500 units"
     ]
 ):
     """Generate plots comparing losses from multiple experiments.
