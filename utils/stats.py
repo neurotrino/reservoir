@@ -1,6 +1,8 @@
 """Statistical tools."""
 
 # external ----
+from typing import tuple
+
 import tensorflow as tf
 
 # internal ----
