@@ -538,12 +538,14 @@ class Trainer(BaseTrainer):
         for step_idx in range(train_cfg.n_batch):
             # NOTE: trace events only created when profiler is enabled
             # (i.e. this isn't costly if the profiler is off)
+            """
             with profiler.Trace('train', step_num=step_idx, _r=1):
                 # [!] implement range (i.e. just 1-10 batches)
                 (batch_x, batch_y) = self.data.next()
                 (task_loss, rate_loss, net_loss) = self.train_step(
                     batch_x, batch_y, step_idx
                 )
+            """
 
             # Update progress bar
             pb.add(
