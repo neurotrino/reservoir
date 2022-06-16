@@ -1,8 +1,6 @@
 """Statistical tools."""
 
 # external ----
-from typing import tuple
-
 import tensorflow as tf
 
 # internal ----
@@ -32,7 +30,7 @@ class StatisticalDistribution:
 
 
     @switched_tf_function
-    def sample(self, shape: tuple[int, ...], **calltime_kwargs):
+    def sample(self, shape, **calltime_kwargs):
         """Sample from the configured distribution.
 
         Arguments:
