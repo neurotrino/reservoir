@@ -17,7 +17,7 @@ class StatisticalDistribution:
     def __init__(self, sampling_fn, **kwargs) -> None:
 
         @switched_tf_function
-        def wrapped_fn(shape: tuple[int, ...], **calltime_kwargs):
+        def wrapped_fn(shape, **calltime_kwargs):
             """
             Preconfigured sampling function capable of taking further
             arguments at calltime.
