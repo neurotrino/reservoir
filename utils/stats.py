@@ -22,7 +22,7 @@ class StatisticalDistribution:
             Preconfigured sampling function capable of taking further
             arguments at calltime.
             """
-            joint_kwargs = kwargs | calltime_kwargs
+            joint_kwargs = {**kwargs, **calltime_kwargs}
             return sampling_fn(shape, **joint_kwargs)
 
 
