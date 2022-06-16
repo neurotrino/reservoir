@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/noised_weights_2022_06_16
+        exp_dir: /data/experiments/noised_weights_2022_06_16_before_grad
 
         // Collection of directories which will be placed inside exp_dir
         //
