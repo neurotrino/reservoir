@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower-norewire
+        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-norewire
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -316,7 +316,7 @@
         output_trainable: true
         //note that when false, this means there is no tv associated with the output layer
 
-        learning_rate: 0.005
+        learning_rate: 0.001
 
         output_learning_rate: 0.00001
 
