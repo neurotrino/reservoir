@@ -25,7 +25,6 @@ runlonger_experiments=[
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-2",
     "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower",
-    "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower-500units"
 ]
 regen_lr_experiments = [
     "fwd-pipeline-inputspikeregen-newallen-l23",
@@ -63,7 +62,6 @@ def compare_losses(
         "main lr 0.001, output lr 0.00001 run 2",
         "main lr 0.001, output lr 0.00001 run 1",
         "main lr 0.005, output lr 0.00001"
-        "main lr 0.005, output lr 0.00001, 500 units"
     ]
 ):
     """Generate plots comparing losses from multiple experiments.
