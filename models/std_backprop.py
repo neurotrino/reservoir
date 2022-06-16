@@ -15,7 +15,7 @@ from models.neurons.lif import *
 from utils.config import subconfig
 from utils.misc import SwitchedDecorator
 
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 switched_tf_function = SwitchedDecorator(tf.function)
 switched_tf_function.enabled = not DEBUG_MODE
@@ -54,10 +54,11 @@ class Model(BaseModel):
 
     @switched_tf_function
     def noise_weights(self, mean=1.0, stddev=0.1):
+        print(len(self.rnn1.get_weights()))
         gain_matrix = tf.random.normal(
-            self.rnn1.get_weights().shape, mean, stddev
+            self.rnn1.get_weights()[0].shape, mean, stddev
         )
-        noised_weights = self.rnn1.get_weights() * gain_matrix
+        noised_weights = self.rnn1.get_weights()[0] * gain_matrix
         self.rnn1.set_weights(noised_weights)
 
 
