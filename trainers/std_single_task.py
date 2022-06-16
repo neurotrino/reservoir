@@ -18,7 +18,7 @@ from regularizers import RateRegularizer
 from trainers.base import BaseTrainer
 from utils.misc import SwitchedDecorator
 
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 switched_tf_function = SwitchedDecorator(tf.function)
 switched_tf_function.enabled = not DEBUG_MODE
@@ -102,6 +102,10 @@ class Trainer(BaseTrainer):
         # > `rnn/ex_in_lif/recurrent_weights:0`
         # > `dense/kernel:0`
         # > `dense/bias:0`
+
+        if self.cfg["train"].noise_weights_before_gradient:
+            self.model.noise_weights()
+
         grads = tape.gradient(losses[-1], self.model.trainable_variables)
         return (model_output, losses, grads)
 
@@ -239,7 +243,7 @@ class Trainer(BaseTrainer):
             zip(grads2, self.model.dense1.trainable_variables)
         )
 
-        if self.cfg["train"].noise_weights:
+        if self.cfg["train"].noise_weights_after_gradient:
             self.model.noise_weights()
 
         #┬───────────────────────────────────────────────────────────────────╮
