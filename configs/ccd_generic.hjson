@@ -306,6 +306,7 @@
 
         noise_weights_before_gradient: true
         noise_weights_after_gradient: false
+        lax_rate_loss: true
 
         input_trainable: true
         //note that when false, this means tv0 is the recurrent weights instead of tv1

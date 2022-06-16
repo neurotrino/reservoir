@@ -76,6 +76,9 @@ class Trainer(BaseTrainer):
         #     a model attribute and add to our loading bar plus write
         #     to disk then flush)
         rate_loss = self.rate_loss_fn(model_output)
+        if self.cfg["train"].lax_rate_loss:
+            if rate_loss < 0.5:
+                rate_loss = 0.0
         net_loss += rate_loss
 
         # Feed model output and losses back up the stack
