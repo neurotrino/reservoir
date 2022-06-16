@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-main-rewire-lowlroutput-0.001
+        exp_dir: /data/experiments/noised_weights_2022_06_16
 
         // Collection of directories which will be placed inside exp_dir
         //

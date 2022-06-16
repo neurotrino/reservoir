@@ -376,4 +376,5 @@ class Logger(BaseLogger):
             title=(
                 "Distribution of Weights in the Recurrent Layer\n" +
                 f"(epoch={self.cur_epoch})"
+            )
         )
