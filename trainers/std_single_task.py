@@ -31,10 +31,10 @@ class Trainer(BaseTrainer):
                 learning_rate=train_cfg.learning_rate
             )
             """
-            self.main_optimizer = tf.keras.optimizers.Adam(
+            self.main_optimizer = tf.keras.optimizers.SGD(
                 learning_rate = train_cfg.learning_rate
             )
-            self.output_optimizer = tf.keras.optimizers.Adam(
+            self.output_optimizer = tf.keras.optimizers.SGD(
                 learning_rate = train_cfg.output_learning_rate
             )
         except Exception as e:
