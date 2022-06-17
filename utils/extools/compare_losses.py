@@ -31,10 +31,17 @@ regen_lr_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-lowerlr",
     "fwd-pipeline-inputspikeregen-newl23-evenlowerlr"
 ]
+rewire_optimizer_experiments = [
+    "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower",
+    "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower-norewire",
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger",
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-norewire",
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-SGD"
+]
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/regenlr-longer.png'
+savepath = '/data/results/fwd/regenlr-longer-norewire-sgd.png'
 
 def filenames(num_epochs, epochs_per_file):
     """Get the filenames storing data for epoch ranges.
@@ -59,9 +66,11 @@ def compare_losses(
     xlabel="epochs",
     ylabel="total loss",
     legend=[
-        "main lr 0.001, output lr 0.00001 run 2",
-        "main lr 0.001, output lr 0.00001 run 1",
-        "main lr 0.005, output lr 0.00001"
+        "main lr 0.005, output lr 0.00001",
+        "the above, no rewiring",
+        "main lr 0.001, output lr 0.00001",
+        "the above, no rewiring",
+        "the above w stochastic grad descent instead of Adam",
     ]
 ):
     """Generate plots comparing losses from multiple experiments.
