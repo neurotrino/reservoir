@@ -11,6 +11,7 @@ Resources:
 
 # external ----
 from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.patches import Rectangle
 
 import logging
 import math
