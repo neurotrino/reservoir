@@ -351,7 +351,7 @@ class Logger(BaseLogger):
         save_io_plot(
             model_output_filename,
             self.logvars["inputs"][idx],
-            self.logvars["voltages"][idx],
+            self.logvars["voltage"][idx],
             self.logvars["spikes"][idx],
             self.logvars["true_y"][idx],
             self.logvars["pred_y"][idx],
