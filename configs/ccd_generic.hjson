@@ -304,8 +304,8 @@
     {
         type: std_single_task
 
-        noise_weights_before_gradient: true
-        noise_weights_after_gradient: false
+        noise_weights_before_gradient: false
+        noise_weights_after_gradient: true
         lax_rate_loss: true
 
         input_trainable: true
