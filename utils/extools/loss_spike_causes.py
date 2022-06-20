@@ -14,8 +14,8 @@ epochs_per_file = 10
 loss_of_interest="step_loss"
 
 # begin with main lr 0.005, output lr 0.00001
-experiment = "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower"
-#experiment = 'fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger'
+#experiment = "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower"
+experiment = 'fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger'
 savepath = '/data/results/fwd/loss_spike_causes_0.001.png'
 # move on to others as you desire
 
@@ -88,8 +88,8 @@ def scatter_reasons():
     ax4.set_xlabel('loss')
     ax4.set_ylabel('output e/i ratio')
     ax4.set_title('Output E/I Ratio and Loss')
-    fig.suptitle("main lr 0.005, output lr 0.00001")
-    plt.subplots_adjust(left=0.6,bottom=0.2,right=0.6,top=0.9,wspace=0.4,hspace=0.4)
+    fig.suptitle("main lr 0.001, output lr 0.00001")
+    plt.subplots_adjust(left=0.5,bottom=0.2,right=0.6,top=0.9,wspace=0.4,hspace=0.4)
     plt.draw()
     plt.savefig(savepath,dpi=300)
     plt.clf()
