@@ -14,8 +14,9 @@ epochs_per_file = 10
 loss_of_interest="step_loss"
 
 # begin with main lr 0.005, output lr 0.00001
-experiment = "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower"
-savepath = '/data/results/fwd/loss_spike_causes_0.005.png'
+# experiment = "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower"
+experiment = 'fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger'
+savepath = '/data/results/fwd/loss_spike_causes_0.001.png'
 # move on to others as you desire
 
 # create four subplots
@@ -71,19 +72,19 @@ def scatter_reasons():
             eiratio_out = np.append(eiratio_out, np.abs(np.sum(e)/np.sum(i)))
 
     # plot main e/i ratio (weighted)
-    ax1.scatter(losses[1:len(losses)],eiratio_in[0:len(eiratio_in)-1],s=2,marker='*')
+    ax1.scatter(losses[1:len(losses)],eiratio_in[0:len(eiratio_in)-1],s=1,marker='*')
     ax1.set_xlabel('loss')
     ax1.set_ylabel('input e/i ratio')
     ax1.set_title('Input Weighted E/I Ratio and Loss')
-    ax2.scatter(losses[1:len(losses)],eiratio_main[0:len(eiratio_main)-1],s=2,marker='*')
+    ax2.scatter(losses[1:len(losses)],eiratio_main[0:len(eiratio_main)-1],s=1,marker='*')
     ax2.set_xlabel('loss')
     ax2.set_ylabel('main e/i ratio')
     ax2.set_title('Main Weighted E/I Ratio and Loss')
-    ax3.scatter(losses[1:len(losses)],recip_main[0:len(recip_main)-1],s=2,marker='*')
+    ax3.scatter(losses[1:len(losses)],recip_main[0:len(recip_main)-1],s=1,marker='*')
     ax3.set_xlabel('loss')
     ax3.set_ylabel('main reciprocity')
     ax3.set_title('Main Reciprocity and Loss')
-    ax4.scatter(losses[1:len(losses)],eiratio_out[0:len(eiratio_out)-1],s=2,marker='*')
+    ax4.scatter(losses[1:len(losses)],eiratio_out[0:len(eiratio_out)-1],s=1,marker='*')
     ax4.set_xlabel('loss')
     ax4.set_ylabel('output e/i ratio')
     ax4.set_title('Output E/I Ratio and Loss')
