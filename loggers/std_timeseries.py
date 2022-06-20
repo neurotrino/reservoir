@@ -377,11 +377,16 @@ class Logger(BaseLogger):
         weight_distr_filename = os.path.join(
             self.cfg["save"].plot_dir, f"{unique_id}-weight-distr.png"
         )
-        save_weight_hist(
-            weight_distr_filename,
-            self.logvars["tv0.postweights"][idx],
-            title=(
-                "Distribution of Weights in the Recurrent Layer\n" +
-                f"(epoch={self.cur_epoch})"
+        try:
+            save_weight_hist(
+                weight_distr_filename,
+                self.logvars["tv0.postweights"][idx],
+                title=(
+                    "Distribution of Weights in the Recurrent Layer\n" +
+                    f"(epoch={self.cur_epoch})"
+                )
             )
-        )
+        except:
+            logging.warning(
+                f"could not save weight histogram on epoch {self.cur_epoch}"
+            )
