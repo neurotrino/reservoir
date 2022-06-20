@@ -219,14 +219,3 @@ def gen_heatmap(weights, title, axis, show_value_bounds=True):
     heatmap.set_ylabel('projecting neuron')
 
     return heatmap
-
-def reciprocity(graph):
-    units = np.shape(graph)[0]
-    reciprocal_ct = 0
-    for i in range(0,units):
-        for j in range(i+1,units):
-                if graph[i,j]!=0 and graph[j,i]!=0:
-                    reciprocal_ct += 1
-    possible_reciprocal_ct = np.size(graph) - units
-    recip_ratio = reciprocal_ct/possible_reciprocal_ct
-    return recip_ratio
