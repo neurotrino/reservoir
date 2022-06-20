@@ -16,15 +16,11 @@ loss_of_interest="step_loss"
 # begin with main lr 0.005, output lr 0.00001
 #experiment = "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower"
 experiment = 'fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger'
-savepath = '/data/results/fwd/loss_spike_causes_0.001.png'
+savepath = '/data/results/fwd/loss_causes_over_time_0.001.png'
 # move on to others as you desire
 
 # create four subplots
-fig = plt.figure()
-ax1 = fig.add_subplot(2, 2, 1)
-ax2 = fig.add_subplot(2, 2, 2)
-ax3 = fig.add_subplot(2, 2, 3)
-ax4 = fig.add_subplot(2, 2, 4)
+fig, axes = plt.subplots(5, figsize=(6, 8), sharex=True)
 
 def reciprocity(graph):
     units = np.shape(graph)[0]
@@ -71,6 +67,7 @@ def scatter_reasons():
             i = w[w<0]
             eiratio_out = np.append(eiratio_out, np.abs(np.sum(e)/np.sum(i)))
 
+    """
     # plot main e/i ratio (weighted)
     ax1.scatter(losses[1:len(losses)],eiratio_in[0:len(eiratio_in)-1],s=1,marker='*')
     ax1.set_xlabel('loss')
@@ -88,8 +85,29 @@ def scatter_reasons():
     ax4.set_xlabel('loss')
     ax4.set_ylabel('output e/i ratio')
     ax4.set_title('Output E/I Ratio and Loss')
+    """
+    axes[0].plot(losses[1:len(losses)])
+    axes[0].set_ylable('loss')
+    axes[0].set_xlabel('batch')
+
+    axes[1].plot(eiratio_in[0:len(eiratio_in)-1])
+    axes[1].set_ylable('input layer e/i ratio')
+    axes[1].set_xlabel('batch')
+
+    axes[2].plot(eiratio_main[0:len(eiratio_main)-1])
+    axes[2].set_ylabel('main layer e/i ratio')
+    axes[2].set_xlabel('batch')
+
+    axes[3].plot(recip_main[0:len(recip_main)-1])
+    axes[3].set_ylabel('main layer reciprocity')
+    axes[3].set_xlabel('batch')
+
+    axes[4].plot(eiratio_out[0:len(eiratio_out)-1])
+    axes[4].set_ylabel('output layer e/i ratio')
+    axes[4].set_xlabel('batch')
+
     fig.suptitle("main lr 0.001, output lr 0.00001")
-    plt.subplots_adjust(left=0.15,bottom=0.1,right=0.95,top=0.9,wspace=0.4,hspace=0.4)
+    #plt.subplots_adjust(left=0.15,bottom=0.1,right=0.95,top=0.9,wspace=0.4,hspace=0.4)
     plt.draw()
     plt.savefig(savepath,dpi=300)
     plt.clf()
