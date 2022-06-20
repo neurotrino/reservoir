@@ -225,7 +225,7 @@ def reciprocity(graph):
     reciprocal_ct = 0
     for i in range(0,units):
         for j in range(0,units):
-            if i!=j and graph[i,j] !=0 and graph[j,i] !=0:
+            if i!=j and graph[i,j]!=0 and graph[j,i]!=0:
                 reciprocal_ct += 1
     possible_reciprocal_ct = np.size(graph) - units
     return reciprocal_ct
