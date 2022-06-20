@@ -88,7 +88,7 @@ def scatter_reasons():
     ax4.set_xlabel('loss')
     ax4.set_ylabel('output e/i ratio')
     ax4.set_title('Output E/I Ratio and Loss')
-    fig.suptitle("main lr 0.005, output lr 0.00001")
+    fig.suptitle("main lr 0.001, output lr 0.00001")
     plt.subplots_adjust(left=0.6,bottom=0.2,right=0.6,top=0.9,wspace=0.4,hspace=0.4)
     plt.draw()
     plt.savefig(savepath,dpi=300)
