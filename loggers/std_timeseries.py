@@ -82,7 +82,7 @@ def save_io_plot(
         im = ax.pcolormesh(inp.T, **input_cmap_kwargs)
         ax.set_ylabel("input")
 
-        ax.set_title("Model I/O\n(epoch=17)")
+        ax.set_title(title)
 
         return fig.colorbar(im, ax=axes[0])
 
@@ -115,6 +115,9 @@ def save_io_plot(
 
         # All these extra steps (creating an invisible colorbar) are to
         # align the plots
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+
         max_val = np.max(true_y)
         im = ax.pcolormesh(
             true_y,
@@ -125,6 +128,10 @@ def save_io_plot(
         cb = fig.colorbar(im)
         cb.set_ticks([])
         cb.outline.set_visible(False)
+
+        ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
+
         return cb
 
 
@@ -159,9 +166,8 @@ def save_io_plot(
     ]
     plot_performance(true_y, pred_y, axes)
 
-    # Label, title
+    # Label
     plt.xlabel("timestep")
-    plt.title(title)
 
     # Bodge
     r1 = Rectangle(
