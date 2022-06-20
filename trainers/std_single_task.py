@@ -77,7 +77,7 @@ class Trainer(BaseTrainer):
         #     to disk then flush)
         rate_loss = self.rate_loss_fn(model_output)
         if self.cfg["train"].lax_rate_loss:
-            if rate_loss < 0.5:
+            if rate_loss < task_loss + task_loss:
                 rate_loss = 0.0
         net_loss += rate_loss
 

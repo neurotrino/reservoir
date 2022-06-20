@@ -60,7 +60,9 @@ class Model(BaseModel):
         iweights = weights[0]
         rweights = weights[1]
 
-        gain_matrix = tf.random.normal(rweights.shape, mean, stddev)
+        gain_matrix = tf.clip_by_value(
+            tf.random.normal(rweights.shape, mean, stddev), -1, 1
+        )
         noised_weights = rweights * gain_matrix
 
         self.rnn1.set_weights([iweights, noised_weights])
