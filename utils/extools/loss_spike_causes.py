@@ -47,7 +47,7 @@ for filename in data_files:
     w_main = data['tv1.postweights']
     for i in range(0,len(w_main)):
         w = w_main[i]
-        recip_main = np.append(recip_main, reciprocity(w).tolist())
+        recip_main = np.append(recip_main, reciprocity(w))
         e = w[w>0]
         i = w[w<0]
         eiratio_main = np.append(eiratio_main, np.abs(np.sum(e)/np.sum(i)))
