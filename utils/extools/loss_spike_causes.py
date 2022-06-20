@@ -25,14 +25,6 @@ ax2 = fig.add_subplot(2, 2, 2)
 ax3 = fig.add_subplot(2, 2, 3)
 ax4 = fig.add_subplot(2, 2, 4)
 
-# comparison is always for the previous epoch's postweights (current preweights) and current epoch total loss
-data_files = filenames(num_epochs, epochs_per_file)
-losses = []
-eiratio_in = []
-eiratio_main = []
-eiratio_out = []
-recip_main = []
-
 def reciprocity(graph):
     units = np.shape(graph)[0]
     reciprocal_ct = 0
@@ -45,6 +37,14 @@ def reciprocity(graph):
     return recip_ratio
 
 def scatter_reasons():
+    # comparison is always for the previous epoch's postweights (current preweights) and current epoch total loss
+    data_files = filenames(num_epochs, epochs_per_file)
+    losses = []
+    eiratio_in = []
+    eiratio_main = []
+    eiratio_out = []
+    recip_main = []
+    
     for filename in data_files:
         filepath = os.path.join(data_dir, experiment, "npz-data", filename)
         data = np.load(filepath)
