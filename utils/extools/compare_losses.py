@@ -58,7 +58,7 @@ def filenames(num_epochs, epochs_per_file):
 def compare_losses(
     savepath=savepath,
     data_dir=data_dir,
-    experiments=runlonger_experiments,
+    experiments=rewire_optimizer_experiments,
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
     loss_of_interest="epoch_loss",
