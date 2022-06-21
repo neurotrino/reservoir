@@ -538,11 +538,13 @@ class Trainer(BaseTrainer):
             # (i.e. this isn't costly if the profiler is off)
             """
             with profiler.Trace('train', step_num=step_idx, _r=1):
-            """
             # [!] implement range (i.e. just 1-10 batches)
-            (batch_x, batch_y) = self.data.next()
-            (task_loss, rate_loss, net_loss) = self.train_step(
-                batch_x, batch_y, step_idx
+                (batch_x, batch_y) = self.data.next()
+                # generate Poisson spikes from rates
+                random_matrix = np.random.rand(batch_x_rates.shape[0], batch_x_rates.shape[1], batch_x_rates.shape[2])
+                #batch_x_spikes = (batch_x_rates - random_matrix > 0)*1.
+                batch_x_spikes = tf.where((batch_x_rates - random_matrix > 0), 1., 0.)
+                (task_loss, rate_loss, net_loss) = self.train_step(batch_x_spikes, batch_y, step_idx)
             )
 
             # Update progress bar
