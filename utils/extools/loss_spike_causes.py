@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import h5py
 import os
 
-from compare_losses import filenames
+from utils.misc import filenames
 
 data_dir = '/data/experiments/'
 num_epochs = 1000
