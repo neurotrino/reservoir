@@ -538,7 +538,7 @@ class Trainer(BaseTrainer):
             # (i.e. this isn't costly if the profiler is off)
             """
             # [!] implement range (i.e. just 1-10 batches)
-            (batch_x, batch_y) = self.data.next()
+            (batch_x_rates, batch_y) = self.data.next()
             # generate Poisson spikes from rates
             random_matrix = np.random.rand(batch_x_rates.shape[0], batch_x_rates.shape[1], batch_x_rates.shape[2])
             #batch_x_spikes = (batch_x_rates - random_matrix > 0)*1.

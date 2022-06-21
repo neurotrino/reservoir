@@ -24,10 +24,10 @@ class DataGenerator(BaseDataGenerator):
         seq_len = cfg['data'].seq_len  # no. inputs
         n_input = cfg['data'].n_input  # dim of input
 
-        spikes = load_npz(cfg['data'].spike_npz)
+        rates = np.load(cfg['data'].rate_npy)
         coherences = load_npz(cfg['data'].coh_npz) # shape 60 x 40800
 
-        x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
+        x = rates
         y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None] # shape 600 x 4080 x 1
 
         self.dataset = (
