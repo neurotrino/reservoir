@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-norewire-vdist
+        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-noisew-vdist
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -304,7 +304,7 @@
         //alternative is SGD
 
         noise_weights_before_gradient: false
-        noise_weights_after_gradient: false
+        noise_weights_after_gradient: true
         lax_rate_loss: false
 
         input_trainable: true
