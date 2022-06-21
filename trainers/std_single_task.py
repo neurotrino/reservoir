@@ -68,7 +68,8 @@ class Trainer(BaseTrainer):
         #     reporting of loss components (could store all losses in
         #     a model attribute and add to our loading bar plus write
         #     to disk then flush)
-        rate_loss = self.rate_loss_fn(model_output)
+        unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
+        rate_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['train'].target_rate)) * self.cfg['train'].rate_cost
         if self.cfg["train"].lax_rate_loss:
             if rate_loss < task_loss + task_loss:
                 rate_loss = 0.0

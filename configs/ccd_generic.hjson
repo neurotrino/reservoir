@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-agg
+        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newl23-owerlr-vdist
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -302,8 +302,8 @@
 
         use_adam: true
         noise_weights_before_gradient: false
-        noise_weights_after_gradient: true
-        lax_rate_loss: true
+        noise_weights_after_gradient: false
+        lax_rate_loss: false
 
         input_trainable: true
         //note that when false, this means tv0 is the recurrent weights instead of tv1
@@ -313,9 +313,7 @@
 
         learning_rate: 0.001
 
-        learning_rate: 0.005
-
-        output_learning_rate: 0.001
+        output_learning_rate: 0.00001
 
         // number of trials in batch
         batch_size: 10
