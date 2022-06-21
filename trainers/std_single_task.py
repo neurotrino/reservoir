@@ -17,7 +17,7 @@ from models.common import fano_factor
 from trainers.base import BaseTrainer
 from utils.misc import SwitchedDecorator
 
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 switched_tf_function = SwitchedDecorator(tf.function)
 switched_tf_function.enabled = not DEBUG_MODE
@@ -68,9 +68,10 @@ class Trainer(BaseTrainer):
         #     reporting of loss components (could store all losses in
         #     a model attribute and add to our loading bar plus write
         #     to disk then flush)
-        unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
-        rate_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['train'].target_rate)) * self.cfg['train'].rate_cost
-
+        rate_loss = self.rate_loss_fn(model_output)
+        if self.cfg["train"].lax_rate_loss:
+            if rate_loss < task_loss + task_loss:
+                rate_loss = 0.0
         net_loss += rate_loss
 
         # Feed model output and losses back up the stack
@@ -97,6 +98,10 @@ class Trainer(BaseTrainer):
         # > `rnn/ex_in_lif/recurrent_weights:0`
         # > `dense/kernel:0`
         # > `dense/bias:0`
+
+        if self.cfg["train"].noise_weights_before_gradient:
+            self.model.noise_weights()
+
         grads = tape.gradient(losses[-1], self.model.trainable_variables)
         return (model_output, losses, grads)
 
@@ -232,12 +237,16 @@ class Trainer(BaseTrainer):
             zip(grads, self.model.trainable_variables)
         )
         """
+
         self.main_optimizer.apply_gradients(
             zip(grads1, self.model.rnn1.trainable_variables)
         )
         self.output_optimizer.apply_gradients(
             zip(grads2, self.model.dense1.trainable_variables)
         )
+
+        if self.cfg["train"].noise_weights_after_gradient:
+            self.model.noise_weights()
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Sparsity Enforcement                                              │
@@ -529,8 +538,10 @@ class Trainer(BaseTrainer):
 
         # Iterate over training steps
         for step_idx in range(train_cfg.n_batch):
+            """
             # NOTE: trace events only created when profiler is enabled
             # (i.e. this isn't costly if the profiler is off)
+            """
             with profiler.Trace('train', step_num=step_idx, _r=1):
                 # [!] implement range (i.e. just 1-10 batches)
                 (batch_x_rates, batch_y) = self.data.next()

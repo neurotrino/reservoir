@@ -11,6 +11,7 @@ Resources:
 
 # external ----
 from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.patches import Rectangle
 
 import logging
 import math
@@ -66,8 +67,8 @@ def save_io_plot(
     inps,
     voltages,
     spikes,
-    pred_y,
     true_y,
+    pred_y,
     title="Model I/O",
     input_cmap_kwargs={},
     voltage_cmap_kwargs={},
@@ -81,7 +82,7 @@ def save_io_plot(
         im = ax.pcolormesh(inp.T, **input_cmap_kwargs)
         ax.set_ylabel("input")
 
-        ax.set_title("Model I/O\n(epoch=17)")
+        ax.set_title(title)
 
         return fig.colorbar(im, ax=axes[0])
 
@@ -114,6 +115,9 @@ def save_io_plot(
 
         # All these extra steps (creating an invisible colorbar) are to
         # align the plots
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+
         max_val = np.max(true_y)
         im = ax.pcolormesh(
             true_y,
@@ -124,6 +128,10 @@ def save_io_plot(
         cb = fig.colorbar(im)
         cb.set_ticks([])
         cb.outline.set_visible(False)
+
+        ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
+
         return cb
 
 
@@ -158,9 +166,8 @@ def save_io_plot(
     ]
     plot_performance(true_y, pred_y, axes)
 
-    # Label, title
+    # Label
     plt.xlabel("timestep")
-    plt.title(title)
 
     # Bodge
     r1 = Rectangle(
@@ -350,8 +357,8 @@ class Logger(BaseLogger):
         )
         save_io_plot(
             model_output_filename,
-            self.logvars["inps"][idx],
-            self.logvars["voltages"][idx],
+            self.logvars["inputs"][idx],
+            self.logvars["voltage"][idx],
             self.logvars["spikes"][idx],
             self.logvars["true_y"][idx],
             self.logvars["pred_y"][idx],
@@ -370,10 +377,16 @@ class Logger(BaseLogger):
         weight_distr_filename = os.path.join(
             self.cfg["save"].plot_dir, f"{unique_id}-weight-distr.png"
         )
-        save_weight_hist(
-            weight_distr_filename,
-            self.logvars["tv0.postweights"][idx],
-            title=(
-                "Distribution of Weights in the Recurrent Layer\n" +
-                f"(epoch={self.cur_epoch})"
-        )
+        try:
+            save_weight_hist(
+                weight_distr_filename,
+                self.logvars["tv0.postweights"][idx],
+                title=(
+                    "Distribution of Weights in the Recurrent Layer\n" +
+                    f"(epoch={self.cur_epoch})"
+                )
+            )
+        except:
+            logging.warning(
+                f"could not save weight histogram on epoch {self.cur_epoch}"
+            )
