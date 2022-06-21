@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-SGD
+        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newl23-owerlr-vdist
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -152,11 +152,8 @@
 
             // These parameters will only be used for ExIn neurons
             p_ee: 0.160
-            //p_ei: 0.244
             p_ei: 0.205
-            //p_ie: 0.318
             p_ie: 0.252
-            //p_ii: 0.343
             p_ii: 0.284
 
             // ...
@@ -198,15 +195,9 @@
         coh_npz:
         /data/datasets/CNN_outputs/ch8_abs_ccd_coherences.npz
 
-        // file containing spike data for CCD or DMC
-        //spike_npz:
-        ///home/macleanlab/stim/dmc/2021-08-05-1225/CNN_outputs/spike_train.npz
+        // file containing spike data for CCD
         spike_npz:
         /data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz
-
-        // file containing sample match/non-match data
-        match_npy:
-        /home/macleanlab/stim/dmc/2021-08-05-1225/CNN_outputs/cat_time_series.npy
 
         //
         seq_len: 4080
@@ -243,8 +234,8 @@
         // logger, they just won't be written to disk. This is useful if you
         // want to generate plots but not keep the underlying data.
         todisk_whitelist: [
-            step_loss
-            epoch_loss
+            step_rate_loss
+            step_task_loss
             tv0.postweights
             tv1.postweights
             tv2.postweights
@@ -309,7 +300,7 @@
     train:
     {
         type: std_single_task
-        
+
         use_adam: true
 
         input_trainable: true
@@ -317,7 +308,7 @@
 
         output_trainable: true
         //note that when false, this means there is no tv associated with the output layer
-        
+
         learning_rate: 0.001
 
         output_learning_rate: 0.00001

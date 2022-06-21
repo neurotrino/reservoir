@@ -14,7 +14,6 @@ import tensorflow.profiler as profiler
 
 # internal ----
 from models.common import fano_factor
-from regularizers import RateRegularizer
 from trainers.base import BaseTrainer
 from utils.misc import SwitchedDecorator
 
@@ -30,12 +29,6 @@ class Trainer(BaseTrainer):
         super().__init__(cfg, model, data, logger)
 
         train_cfg = cfg['train']
-
-        # [!] replace with proper implementation later
-        self.rate_loss_fn = RateRegularizer(
-            cfg["train"].target_rate,
-            cfg["train"].rate_cost
-        )
 
         try:
             """
@@ -75,7 +68,9 @@ class Trainer(BaseTrainer):
         #     reporting of loss components (could store all losses in
         #     a model attribute and add to our loading bar plus write
         #     to disk then flush)
-        rate_loss = self.rate_loss_fn(model_output)
+        unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
+        rate_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['train'].target_rate)) * self.cfg['train'].rate_cost
+
         net_loss += rate_loss
 
         # Feed model output and losses back up the stack
