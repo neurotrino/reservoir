@@ -10,7 +10,8 @@ import logging
 import numpy as np
 import os
 import tensorflow as tf
-import tensorflow.profiler as profiler
+import tensorflow.keras.backend as K
+import tensorflow.profiler.experimental as profiler
 
 # internal ----
 from models.common import fano_factor
@@ -31,17 +32,20 @@ class Trainer(BaseTrainer):
         train_cfg = cfg['train']
 
         try:
-            """
-            self.optimizer = tf.keras.optimizers.Adam(
-                learning_rate=train_cfg.learning_rate
-            )
-            """
-            self.main_optimizer = tf.keras.optimizers.Adam(
-                learning_rate = train_cfg.learning_rate
-            )
-            self.output_optimizer = tf.keras.optimizers.Adam(
-                learning_rate = train_cfg.output_learning_rate
-            )
+            if train_cfg.use_adam:
+                self.main_optimizer = tf.keras.optimizers.Adam(
+                    learning_rate = train_cfg.learning_rate
+                )
+                self.output_optimizer = tf.keras.optimizers.Adam(
+                    learning_rate = train_cfg.output_learning_rate
+                )
+            else:
+                self.main_optimizer = tf.keras.optimizers.SGD(
+                    learning_rate = train_cfg.learning_rate
+                )
+                self.output_optimizer = tf.keras.optimizers.SGD(
+                    learning_rate = train_cfg.output_learning_rate
+                )
         except Exception as e:
             logging.warning(f"learning rate not set: {e}")
 
@@ -441,6 +445,7 @@ class Trainer(BaseTrainer):
                     'calculated step loss (task)'
             }
         )
+
         self.logger.log(
             data_label='step_rate_loss',
             data=float(rate_loss),
@@ -537,13 +542,15 @@ class Trainer(BaseTrainer):
             # NOTE: trace events only created when profiler is enabled
             # (i.e. this isn't costly if the profiler is off)
             """
-            # [!] implement range (i.e. just 1-10 batches)
-            (batch_x_rates, batch_y) = self.data.next()
-            # generate Poisson spikes from rates
-            random_matrix = np.random.rand(batch_x_rates.shape[0], batch_x_rates.shape[1], batch_x_rates.shape[2])
-            #batch_x_spikes = (batch_x_rates - random_matrix > 0)*1.
-            batch_x_spikes = tf.where((batch_x_rates - random_matrix > 0), 1., 0.)
-            (task_loss, rate_loss, net_loss) = self.train_step(batch_x_spikes, batch_y, step_idx)
+            with profiler.Trace('train', step_num=step_idx, _r=1):
+                # [!] implement range (i.e. just 1-10 batches)
+                (batch_x_rates, batch_y) = self.data.next()
+                # generate Poisson spikes from rates
+                random_matrix = np.random.rand(batch_x_rates.shape[0], batch_x_rates.shape[1], batch_x_rates.shape[2])
+                #batch_x_spikes = (batch_x_rates - random_matrix > 0)*1.
+                batch_x_spikes = tf.where((batch_x_rates - random_matrix > 0), 1., 0.)
+                (task_loss, rate_loss, net_loss) = self.train_step(batch_x_spikes, batch_y, step_idx)
+
             # Update progress bar
             pb.add(
                 1,
