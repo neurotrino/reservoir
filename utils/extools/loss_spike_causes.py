@@ -14,9 +14,10 @@ epochs_per_file = 10
 loss_of_interest="step_loss"
 
 # begin with main lr 0.005, output lr 0.00001
-experiment = "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower"
+#experiment = "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower"
+experiment = 'fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower-norewire'
 #experiment = 'fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger'
-savepath = '/data/results/fwd/loss_causes_over_time_0.005.png'
+savepath = '/data/results/fwd/loss_causes_over_time_0.005_norewire.png'
 # move on to others as you desire
 
 # create four subplots
@@ -106,7 +107,7 @@ def scatter_reasons():
     axes[4].set_ylabel('output layer e/i ratio')
     axes[4].set_xlabel('batch')
 
-    fig.suptitle("main lr 0.005, output lr 0.00001")
+    fig.suptitle("main lr 0.005, output lr 0.00001, no rewiring")
     #plt.subplots_adjust(left=0.15,bottom=0.1,right=0.95,top=0.9,wspace=0.4,hspace=0.4)
     plt.draw()
     plt.savefig(savepath,dpi=300)
