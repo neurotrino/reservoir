@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-main-rewire-lowlroutput-0.001
+        exp_dir: /data/experiments/noised_weights_2022_06_16_before_grad
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -303,6 +303,10 @@
     train:
     {
         type: std_single_task
+
+        noise_weights_before_gradient: false
+        noise_weights_after_gradient: true
+        lax_rate_loss: true
 
         input_trainable: true
         //note that when false, this means tv0 is the recurrent weights instead of tv1

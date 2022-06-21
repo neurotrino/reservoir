@@ -15,7 +15,7 @@ from models.neurons.lif import *
 from utils.config import subconfig
 from utils.misc import SwitchedDecorator
 
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 switched_tf_function = SwitchedDecorator(tf.function)
 switched_tf_function.enabled = not DEBUG_MODE
@@ -50,6 +50,22 @@ class Model(BaseModel):
             self.rnn1,
             self.dense1
         ]
+
+
+    @switched_tf_function
+    def noise_weights(self, mean=1.0, stddev=0.1):
+        """Add noise to the recurrent weights."""
+        weights = self.rnn1.get_weights()
+
+        iweights = weights[0]
+        rweights = weights[1]
+
+        gain_matrix = tf.clip_by_value(
+            tf.random.normal(rweights.shape, mean, stddev), -1, 1
+        )
+        noised_weights = rweights * gain_matrix
+
+        self.rnn1.set_weights([iweights, noised_weights])
 
 
     @switched_tf_function

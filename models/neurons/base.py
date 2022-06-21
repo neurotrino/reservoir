@@ -97,6 +97,14 @@ class Neuron(tf.keras.layers.Layer):
     #┤ Additional Methods                                                    │
     #┴───────────────────────────────────────────────────────────────────────╯
 
+    def noise_weights(self, mean=1.0, stddev=0.1):
+        gain_matrix = tf.random.normal(
+            self.recurrent_weights.shape, mean, stddev
+        )
+        noised_weights = self.recurrent_weights * gain_matrix
+        self.recurrent_weights.assign(noised_weights)
+
+
     def pseudo_derivative(self, v_scaled, dampening_factor):
         """Calculate the pseudo-derivative."""
         return dampening_factor * tf.maximum(1 - tf.abs(v_scaled), 0)
