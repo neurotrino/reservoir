@@ -6,6 +6,7 @@ import tensorflow as tf
 
 # internal modules
 from models.neurons.base import ExIn, Neuron
+from utils.stats import StatisticalDistribution
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Leaky Integrate-and-Fire (LIF) Neuron                                     │
@@ -52,8 +53,12 @@ class LIF(Neuron):
         self.tau = cell_cfg.tau
         self.thr = cell_cfg.thr
 
-        # self.p = cell_cfg.p  # [?] check if all LIF/cells should have this
-        # TODO: move `p` to Neuron and inherit or keep as is below w/ p vs p_... ?
+        # initial voltage distribution
+        self.v0_sdist = StatisticalDistribution(
+            tf.random.normal,
+            mean=-65.0,  # [mV]
+            stddev=5.0,  # [mV]
+        )
 
         # Derived attributes
         self._decay = tf.exp(-cfg['misc'].dt / self.tau)
@@ -115,7 +120,7 @@ class LIF(Neuron):
             name='recurrent_weights'
         )
         initial_weights_mat = self.connmat_generator.run_generator()
-        
+
         if self.cfg["cell"].specify_input:
             # just set main weights, as input weights were set earlier
             self.recurrent_weights.assign_add(initial_weights_mat)
@@ -233,9 +238,11 @@ class LIF(Neuron):
 
     def zero_state(self, batch_size, dtype=tf.dtypes.float32):
         """TODO: docs."""
-        v0 = tf.zeros((batch_size, self.units), dtype) + self.EL
-        r0 = tf.zeros((batch_size, self.units), tf.int32)
-        z_buf0 = tf.zeros((batch_size, self.units), tf.float32)
+        sz = (batch_size, self.units)
+        # initial voltage distribution
+        v0 = self.v0_sdist.sample(sz) + self.EL
+        r0 = tf.zeros(sz, tf.int32)
+        z_buf0 = tf.zeros(sz, tf.float32)
         return v0, r0, z_buf0  # voltage, refractory, spike
 
 #┬───────────────────────────────────────────────────────────────────────────╮

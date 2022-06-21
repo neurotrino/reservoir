@@ -3,16 +3,22 @@
 Backprop
 """
 
-# external
+# external ----
 import logging
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-# internal
+# internal ----
 from models.common import *
 #from models.neurons.adex import *
 from models.neurons.lif import *
 from utils.config import subconfig
+from utils.misc import SwitchedDecorator
+
+DEBUG_MODE = False
+
+switched_tf_function = SwitchedDecorator(tf.function)
+switched_tf_function.enabled = not DEBUG_MODE
 
 class Model(BaseModel):
     """Generic prototyping model designed to test new features and
@@ -46,7 +52,7 @@ class Model(BaseModel):
         ]
 
 
-    @tf.function
+    @switched_tf_function
     def call(self, inputs, training=False):
         """ ... """
 

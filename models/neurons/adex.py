@@ -13,6 +13,7 @@ import numpy as np
 from models.neurons.base import Neuron
 from utils.connmat import ConnectivityMatrixGenerator as CMG
 from utils.connmat import ExInConnectivityMatrixGenerator as ExInCMG
+from utils.stats import StatisticalDistribution
 
 #┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Core Properties                                                           │
@@ -29,6 +30,13 @@ class _AdExCore(Neuron):
         super().__init__(cfg)
 
         self.cfg = cfg
+
+        # initial voltage distribution
+        self.v0_sdist = StatisticalDistribution(
+            tf.random.normal,
+            mean=-65.0,  # [mV]
+            stddev=5.0,  # [mV]
+        )
 
         self.rewiring = cfg['cell'].rewiring
         self.units = cfg['cell'].units
@@ -171,14 +179,16 @@ class _AdExCore(Neuron):
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def zero_state(self, batch_size, dtype=tf.float32):  # is this not in Neuron? does it differ from LIF?
+        sz = (batch_size, self.units)
+
         # Voltage (all at EL)
-        v0 = tf.zeros((batch_size, self.units), dtype) + self.EL  # Do we want to start with random V?
+        v0 = self.v0_sdist.sample(sz) + self.EL  # Do we want to start with random V?
         # Refractory (all 0)
-        r0 = tf.zeros((batch_size, self.units), tf.int32)
+        r0 = tf.zeros(sz, tf.int32)
         # Adaptation (all 0)
-        w0 = tf.zeros((batch_size, self.units), tf.float32)
+        w0 = tf.zeros(sz, tf.float32)
         # Spike (all not spiking)
-        z_buf0 = tf.zeros((batch_size, self.units), tf.float32)
+        z_buf0 = tf.zeros(sz, tf.float32)
         return [v0, r0, w0, z_buf0]
 
 
@@ -388,14 +398,15 @@ class _EligAdExCore(Neuron):  # how is this different than _AdexCore
     #┴───────────────────────────────────────────────────────────────────────╯
 
     def zero_state(self, batch_size, dtype=tf.float32):
+        sz = (batch_size, self.units)
         # Voltage (all at EL)
-        v0 = tf.zeros((batch_size, self.units), dtype) + self.EL  # Do we want to start with random V?
+        v0 = self.v0_sdist.sample(sz) + self.EL
         # Refractory (all 0)
-        r0 = tf.zeros((batch_size, self.units), tf.int32)
+        r0 = tf.zeros(sz, tf.int32)
         # Adaptation (all 0)
-        w0 = tf.zeros((batch_size, self.units), tf.float32)
+        w0 = tf.zeros(sz, tf.float32)
         # Spike (all not spiking)
-        z_buf0 = tf.zeros((batch_size, self.units), tf.float32)
+        z_buf0 = tf.zeros(sz, tf.float32)
         return [v0, r0, w0, z_buf0]
 
 #┬───────────────────────────────────────────────────────────────────────────╮

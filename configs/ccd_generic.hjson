@@ -309,13 +309,15 @@
     train:
     {
         type: std_single_task
+        
+        use_adam: true
 
         input_trainable: true
         //note that when false, this means tv0 is the recurrent weights instead of tv1
 
         output_trainable: true
         //note that when false, this means there is no tv associated with the output layer
-
+        
         learning_rate: 0.001
 
         output_learning_rate: 0.00001
