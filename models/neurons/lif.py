@@ -239,6 +239,7 @@ class LIF(Neuron):
     def zero_state(self, batch_size, dtype=tf.dtypes.float32):
         """TODO: docs."""
         sz = (batch_size, self.units)
+        # initial voltage distribution
         v0 = self.v0_sdist.sample(sz) + self.EL
         r0 = tf.zeros(sz, tf.int32)
         z_buf0 = tf.zeros(sz, tf.float32)
