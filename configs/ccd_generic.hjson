@@ -198,7 +198,6 @@
         // file containing spike data for CCD
         spike_npz:
         /data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz
-
         //
         seq_len: 4080
 
@@ -314,7 +313,9 @@
 
         learning_rate: 0.001
 
-        output_learning_rate: 0.00001
+        learning_rate: 0.005
+
+        output_learning_rate: 0.001
 
         // number of trials in batch
         batch_size: 10
@@ -323,7 +324,7 @@
         n_batch: 10
 
         // number of epochs the model is fit over
-        n_epochs: 1000
+        n_epochs: 500
 
         target_rate: 0.02
 

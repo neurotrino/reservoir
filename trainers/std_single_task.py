@@ -36,12 +36,12 @@ class Trainer(BaseTrainer):
                 learning_rate=train_cfg.learning_rate
             )
             """
-            if cfg["train"].use_adam:
-                self.main_optimizer = tf.keras.optimizers.Adam(learning_rate = train_cfg.learning_rate)
-                self.output_optimizer = tf.keras.optimizers.Adam(learning_rate = train_cfg.output_learning_rate)
-            else:
-                self.main_optimizer = tf.keras.optimizers.SGD(learning_rate = train_cfg.learning_rate)
-                self.output_optimizer = tf.keras.optimizers.SGD(learning_rate = train_cfg.output_learning_rate)
+            self.main_optimizer = tf.keras.optimizers.Adam(
+                learning_rate = train_cfg.learning_rate
+            )
+            self.output_optimizer = tf.keras.optimizers.Adam(
+                learning_rate = train_cfg.output_learning_rate
+            )
         except Exception as e:
             logging.warning(f"learning rate not set: {e}")
 
@@ -164,12 +164,6 @@ class Trainer(BaseTrainer):
         voltage, spikes, prediction = model_output
 
         (task_loss, rate_loss, net_loss) = losses
-
-        # declare layer-wise vars and grads so that layer-wise optimization can occur
-        self.var_list1 = self.model.rnn1.trainable_variables
-        self.var_list2 = self.model.dense1.trainable_variables
-        grads1 = grads[: len(self.var_list1)]
-        grads2 = grads[len(self.var_list1) :]
 
         # declare layer-wise vars and grads so that layer-wise optimization can occur
         self.var_list1 = self.model.rnn1.trainable_variables
@@ -543,16 +537,12 @@ class Trainer(BaseTrainer):
             # (i.e. this isn't costly if the profiler is off)
             """
             with profiler.Trace('train', step_num=step_idx, _r=1):
-                # [!] implement range (i.e. just 1-10 batches)
-                (batch_x_rates, batch_y) = self.data.next()
-                # generate Poisson spikes from rates
-                random_matrix = np.random.rand(batch_x_rates.shape[0], batch_x_rates.shape[1], batch_x_rates.shape[2])
-                #batch_x_spikes = (batch_x_rates - random_matrix > 0)*1.
-                batch_x_spikes = tf.where((batch_x_rates - random_matrix > 0), 1., 0.)
-                (task_loss, rate_loss, net_loss) = self.train_step(batch_x_spikes, batch_y, step_idx)
-                #(batch_x, batch_y) = self.data.next()
-                #(task_loss, rate_loss, net_loss) = self.train_step(
-                   #batch_x, batch_y, step_idx
+            """
+            # [!] implement range (i.e. just 1-10 batches)
+            (batch_x, batch_y) = self.data.next()
+            (task_loss, rate_loss, net_loss) = self.train_step(
+                batch_x, batch_y, step_idx
+            )
 
             # Update progress bar
             pb.add(
