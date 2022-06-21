@@ -24,19 +24,10 @@ class DataGenerator(BaseDataGenerator):
         seq_len = cfg['data'].seq_len  # no. inputs
         n_input = cfg['data'].n_input  # dim of input
 
-        #spikes = load_npz(cfg['data'].spike_npz)
-        rates = np.load(cfg['data'].rate_npy)
+        spikes = load_npz(cfg['data'].spike_npz)
         coherences = load_npz(cfg['data'].coh_npz) # shape 60 x 40800
 
-        #x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
-
-        # rates are already dense in shape [600, 4080, 16]
-        # repeat and shuffle (?)
-        # generate spikes from x_rates
-        #random_matrix = np.random.rand(rates.shape[0], rates.shape[1], rates.shape[2])
-        #spikes = (rates - random_matrix > 0)*1.
-        #x = spikes # this step is actually quite rapid and COULD be done in real time as needed
-        x = rates
+        x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
         y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None] # shape 600 x 4080 x 1
 
         self.dataset = (

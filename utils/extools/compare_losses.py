@@ -7,7 +7,7 @@ import h5py
 import os
 
 data_dir = '/data/experiments/'
-num_epochs = 1000
+num_epochs = 300
 epochs_per_file = 10
 
 fwd_experiments = [
@@ -15,33 +15,9 @@ fwd_experiments = [
     "fwd-input-img-15x-fixed",
     "fwd-main-rewire-img-15x-fixed"
 ]
-regeninspikes_experiments = [
-    "fwd-main-rewire-lowlroutput",
-    "fwd-main-rewire-lowlroutput-0.0001-newallen-l23",
-    "fwd-pipeline-inputspikeregen",
-    "fwd-pipeline-inputspikeregen-newallen-l23",
-]
-runlonger_experiments=[
-    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger",
-    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-2",
-    "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower",
-]
-regen_lr_experiments = [
-    "fwd-pipeline-inputspikeregen-newallen-l23",
-    "fwd-pipeline-inputspikeregen-newl23-lowerlr",
-    "fwd-pipeline-inputspikeregen-newl23-evenlowerlr"
-]
-rewire_optimizer_experiments = [
-    "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower",
-    "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower-norewire",
-    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger",
-    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-norewire",
-    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-SGD"
-]
-
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/regenlr-longer-norewire-sgd.png'
+savepath = '/data/results/fwd/input-main-rewire.png'
 
 def filenames(num_epochs, epochs_per_file):
     """Get the filenames storing data for epoch ranges.
@@ -58,19 +34,17 @@ def filenames(num_epochs, epochs_per_file):
 def compare_losses(
     savepath=savepath,
     data_dir=data_dir,
-    experiments=rewire_optimizer_experiments,
-    num_epochs=num_epochs,
-    epochs_per_file=epochs_per_file,
+    experiments=fwd_experiments,
+    num_epochs=300,
+    epochs_per_file=10,
     loss_of_interest="epoch_loss",
-    title="Regenerated input spikes, new Allen connectivity, 1000 epochs",
+    title="Fwd Implementation",
     xlabel="epochs",
-    ylabel="total loss",
+    ylabel="loss",
     legend=[
-        "main lr 0.005, output lr 0.00001",
-        "the above, no rewiring",
-        "main lr 0.001, output lr 0.00001",
-        "the above, no rewiring",
-        "the above w stochastic grad descent instead of Adam",
+        "new input trainable",
+        "new input fixed",
+        "new input fixed with correct main rewiring"
     ]
 ):
     """Generate plots comparing losses from multiple experiments.
@@ -106,10 +80,10 @@ def compare_losses(
         plt.plot(losses[0 : num_epochs - epochs_per_file])
 
     # Label everything
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.legend(legend)
+    plt.title("Fwd Implementation")
+    plt.xlabel("epochs")
+    plt.ylabel("loss")
+    plt.legend(["new input trainable","new input fixed","new input fixed with correct main rewiring"])
 
     # Create and save the final figure
     plt.draw()
