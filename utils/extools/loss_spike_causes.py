@@ -87,11 +87,11 @@ def scatter_reasons():
     ax4.set_title('Output E/I Ratio and Loss')
     """
     axes[0].plot(losses[1:len(losses)])
-    axes[0].set_ylable('loss')
+    axes[0].set_ylabel('loss')
     axes[0].set_xlabel('batch')
 
     axes[1].plot(eiratio_in[0:len(eiratio_in)-1])
-    axes[1].set_ylable('input layer e/i ratio')
+    axes[1].set_ylabel('input layer e/i ratio')
     axes[1].set_xlabel('batch')
 
     axes[2].plot(eiratio_main[0:len(eiratio_main)-1])
