@@ -4,6 +4,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import sys
+
+sys.path.append('../')
+sys.path.append('../../')
 
 # internal ----
 from utils.misc import filenames
@@ -54,7 +58,7 @@ savepath = '/data/results/fwd/alltogethernow_taskloss.png'
 def compare_losses(
     savepath=savepath,
     data_dir=data_dir,
-    experiments=rewire_optimizer_experiments,
+    experiments=all_combined_experiments,
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
     loss_of_interest="step_task_loss",
