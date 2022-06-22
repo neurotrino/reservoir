@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-noisew-vdist
+        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-novdist
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -235,6 +235,7 @@
         todisk_whitelist: [
             step_rate_loss
             step_task_loss
+            epoch_loss
             tv0.postweights
             tv1.postweights
             tv2.postweights
@@ -304,7 +305,7 @@
         //alternative is SGD
 
         noise_weights_before_gradient: false
-        noise_weights_after_gradient: true
+        noise_weights_after_gradient: false
         lax_rate_loss: false
 
         input_trainable: true
