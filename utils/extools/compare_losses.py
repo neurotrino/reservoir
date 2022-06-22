@@ -45,7 +45,7 @@ rewire_optimizer_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-SGD"
 ]
 all_combined_experiments = [
-    "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower-runlonger-vdist"
+    "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower-runlonger-vdist",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-norewire-vdist",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-noisew-vdist"
