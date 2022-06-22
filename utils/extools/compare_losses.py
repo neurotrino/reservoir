@@ -49,7 +49,7 @@ all_combined_experiments = [
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/alltogethernow.png'
+savepath = '/data/results/fwd/alltogethernow_taskloss.png'
 
 def compare_losses(
     savepath=savepath,
@@ -57,10 +57,10 @@ def compare_losses(
     experiments=rewire_optimizer_experiments,
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
-    loss_of_interest="epoch_loss",
-    title="Aggregate features, 1000 epochs",
-    xlabel="epochs",
-    ylabel="total loss",
+    loss_of_interest="step_task_loss",
+    title="Task loss, aggregate features",
+    xlabel="batches",
+    ylabel="task loss",
     legend=[
         "main lr 0.005, output lr 0.00001, voltage dist",
         "main lr 0.001, output lr 0.00001, voltage dist",
