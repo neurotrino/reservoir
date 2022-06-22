@@ -110,7 +110,7 @@ class Trainer(BaseTrainer):
         if self.cfg["train"].include_rate_loss:
             grads = tape.gradient(losses[-1], self.model.trainable_variables)
         else:
-            grads = tape.gradient(losses[0]), self.model.trainable_variables)
+            grads = tape.gradient(losses[0], self.model.trainable_variables)
         return (model_output, losses, grads)
 
 
