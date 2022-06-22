@@ -53,7 +53,7 @@ all_combined_experiments = [
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/alltogethernow_taskloss.png'
+savepath = '/data/results/fwd/alltogethernow_rateloss.png'
 
 def compare_losses(
     savepath=savepath,
@@ -61,8 +61,8 @@ def compare_losses(
     experiments=all_combined_experiments,
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
-    loss_of_interest="step_task_loss",
-    title="Task loss, aggregate features",
+    loss_of_interest="step_rate_loss",
+    title="Rate loss, aggregate features",
     xlabel="batches",
     ylabel="task loss",
     legend=[
