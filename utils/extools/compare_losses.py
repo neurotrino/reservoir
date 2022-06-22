@@ -40,10 +40,16 @@ rewire_optimizer_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-norewire",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-SGD"
 ]
+all_combined_experiments = [
+    "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower-runlonger-vdist"
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist",
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-norewire-vdist",
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-noisew-vdist"
+]
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/regenlr-longer-norewire-sgd.png'
+savepath = '/data/results/fwd/alltogethernow.png'
 
 def compare_losses(
     savepath=savepath,
@@ -52,15 +58,14 @@ def compare_losses(
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
     loss_of_interest="epoch_loss",
-    title="Regenerated input spikes, new Allen connectivity, 1000 epochs",
+    title="Aggregate features, 1000 epochs",
     xlabel="epochs",
     ylabel="total loss",
     legend=[
-        "main lr 0.005, output lr 0.00001",
+        "main lr 0.005, output lr 0.00001, voltage dist",
+        "main lr 0.001, output lr 0.00001, voltage dist",
         "the above, no rewiring",
-        "main lr 0.001, output lr 0.00001",
-        "the above, no rewiring",
-        "the above w stochastic grad descent instead of Adam",
+        "the above, rewiring, post-gradient noise",
     ]
 ):
     """Generate plots comparing losses from multiple experiments.
