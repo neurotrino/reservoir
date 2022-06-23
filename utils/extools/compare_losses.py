@@ -13,7 +13,7 @@ sys.path.append('../../')
 from utils.misc import filenames
 
 data_dir = "/data/experiments/"
-num_epochs = 690
+num_epochs = 610
 epochs_per_file = 10
 
 fwd_experiments = [
@@ -50,26 +50,33 @@ all_combined_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-norewire-vdist",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-noisew-vdist"
 ]
+all_less_some_experiments = [
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger",
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist",
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-novdist",
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-novdist-tasklossonly",
+]
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/alltogethernow_rateloss.png'
+savepath = '/data/results/fwd/all_less_some.png'
+
+# remove loss_of_interest from arg
 
 def compare_losses(
     savepath=savepath,
     data_dir=data_dir,
-    experiments=all_combined_experiments,
+    experiments=all_less_some_experiments,
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
-    loss_of_interest="step_rate_loss",
-    title="Rate loss, aggregate features",
+    title="main lr 0.001, output lr 0.00001",
     xlabel="batches",
     ylabel="task loss",
     legend=[
-        "main lr 0.005, output lr 0.00001, voltage dist",
-        "main lr 0.001, output lr 0.00001, voltage dist",
-        "the above, no rewiring",
-        "the above, rewiring, post-gradient noise",
+        "pre-merge, no voltage dist",
+        "post-merge, voltage dist",
+        "post-merge, no voltage dist",
+        "post-merge, no voltage dist, only task loss",
     ]
 ):
     """Generate plots comparing losses from multiple experiments.
@@ -98,7 +105,15 @@ def compare_losses(
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
-            losses += data[loss_of_interest].tolist()
+            if xdir == 'fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger':
+                loss_of_interest = data['step_loss']
+            elif xdir == 'fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist':
+                loss_of_interest = np.add(data['step_task_loss'],data['step_rate_loss'])
+            elif xdir == 'fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-novdist':
+                loss_of_interest = np.add(data['step_task_loss'],data['step_rate_loss'])
+            elif xdir == 'fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-novdist-tasklossonly':
+                loss_of_interest = data['step_task_loss']
+            losses += loss_of_interest.tolist()
 
         # Plot losses for a single experiment
         plt.plot(losses[0 : num_epochs - epochs_per_file])
