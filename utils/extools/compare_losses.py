@@ -51,7 +51,6 @@ all_combined_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-noisew-vdist"
 ]
 all_less_some_experiments = [
-    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-novdist",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-novdist-tasklossonly",
@@ -59,7 +58,7 @@ all_less_some_experiments = [
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/all_less_some.png'
+savepath = '/data/results/fwd/all_less_some_taskloss.png'
 
 # remove loss_of_interest from arg
 
@@ -69,11 +68,10 @@ def compare_losses(
     experiments=all_less_some_experiments,
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
-    title="total loss, main lr 0.001, output lr 0.00001",
+    title="task loss only, main lr 0.001, output lr 0.00001",
     xlabel="batches",
-    ylabel="total loss",
+    ylabel="task loss",
     legend=[
-        "pre-merge, no voltage dist",
         "post-merge, voltage dist",
         "post-merge, no voltage dist",
         "post-merge, no voltage dist, only task loss",
@@ -105,14 +103,7 @@ def compare_losses(
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
-            if xdir == 'fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger':
-                loss_of_interest = data['step_loss']
-            elif xdir == 'fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist':
-                loss_of_interest = np.add(data['step_task_loss'],data['step_rate_loss'])
-            elif xdir == 'fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-novdist':
-                loss_of_interest = np.add(data['step_task_loss'],data['step_rate_loss'])
-            elif xdir == 'fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-novdist-tasklossonly':
-                loss_of_interest = data['step_task_loss']
+            loss_of_interest = data['step_task_loss']
             losses += loss_of_interest.tolist()
 
         # Plot losses for a single experiment
