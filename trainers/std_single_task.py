@@ -107,9 +107,11 @@ class Trainer(BaseTrainer):
         if self.cfg["train"].noise_weights_before_gradient:
             self.model.noise_weights()
 
-        if self.cfg["train"].include_rate_loss:
+        if self.cfg["train"].include_rate_loss and self.cfg["train"].include_task_loss:
             grads = tape.gradient(losses[-1], self.model.trainable_variables)
-        else:
+        elif self.cfg["train"].include_rate_loss and not self.cfg["train"].include_task_loss:
+            grads = tape.gradient(losses[1], self.model.trainable_variables)
+        elif self.cfg["train"].include_task_loss and not self.cfg["train"].include_rate_loss:
             grads = tape.gradient(losses[0], self.model.trainable_variables)
         return (model_output, losses, grads)
 

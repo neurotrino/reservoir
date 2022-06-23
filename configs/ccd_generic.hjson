@@ -234,6 +234,7 @@
         // want to generate plots but not keep the underlying data.
         todisk_whitelist: [
             step_task_loss
+            step_rate_loss
             epoch_loss
             tv0.postweights
             tv1.postweights
@@ -241,6 +242,7 @@
             tv0.gradients
             tv1.gradients
             tv2.gradients
+            spikes
         ]
         todisk_blacklist: null
 
@@ -325,6 +327,8 @@
 
         // number of epochs the model is fit over
         n_epochs: 1000
+
+        include_task_loss: true
 
         include_rate_loss: true
 
