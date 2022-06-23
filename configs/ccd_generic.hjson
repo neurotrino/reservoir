@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-laxrateloss1
+        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -133,6 +133,8 @@
             EL: -70.6    // [mV]
             n_refrac: 4  // number of refractory ms
             tau: 20.0    //
+
+            refrac_stop_grad: true
 
             dampening_factor: 0.3  // for LIF variants
             // dampening_factor: 0.2  // for AdEx variants
@@ -307,7 +309,7 @@
 
         noise_weights_before_gradient: false
         noise_weights_after_gradient: false
-        lax_rate_loss: true
+        lax_rate_loss: false
 
         input_trainable: true
         //note that when false, this means tv0 is the recurrent weights instead of tv1

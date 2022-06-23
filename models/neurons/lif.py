@@ -372,11 +372,20 @@ class ExInALIF(ExIn, LIF):
         new_b = self.decay_b * old_b + old_z
         new_z = self.spike_function(v_scaled, self.cfg['cell'].dampening_factor)
         new_z = tf.where(is_refractory, tf.zeros_like(new_z), new_z)
-        new_r = tf.clip_by_value(
-            old_r - 1 + tf.cast(new_z * self.cfg['cell'].n_refrac, tf.int32),
-            0,
-            self.cfg['cell'].n_refrac
-        )
+        if self.cfg['cell'].refrac_stop_grad:
+            new_r = tf.stop_gradient(
+                tf.clip_by_value(
+                    old_r - 1 + tf.cast(new_z * self.cfg['cell'].n_refrac, tf.int32),
+                    0,
+                    self.cfg['cell'].n_refrac
+                )
+            )
+        else:
+            new_r = tf.clip_by_value(
+                old_r - 1 + tf.cast(new_z * self.cfg['cell'].n_refrac, tf.int32),
+                0,
+                self.cfg['cell'].n_refrac
+            )
 
         new_state = (new_v, new_r, new_b, new_z)
         output = (new_v, new_z)
