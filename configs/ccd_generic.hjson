@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-novdist-tasklossonly
+        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -326,11 +326,11 @@
         // number of epochs the model is fit over
         n_epochs: 1000
 
-        include_rate_loss: false
+        include_rate_loss: true
 
         target_rate: 0.02
 
-        rate_cost: 10
+        rate_cost: 1
 
         target_synch: 2.0
 
