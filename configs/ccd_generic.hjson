@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad
+        exp_dir: /data/experiments/fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -322,7 +322,7 @@
         output_learning_rate: 0.00001
 
         // number of trials in batch
-        batch_size: 10
+        batch_size: 50
 
         // number of batches in an epoch
         n_batch: 10
