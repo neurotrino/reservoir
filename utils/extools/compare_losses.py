@@ -69,9 +69,9 @@ def compare_losses(
     experiments=all_less_some_experiments,
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
-    title="main lr 0.001, output lr 0.00001",
+    title="total loss, main lr 0.001, output lr 0.00001",
     xlabel="batches",
-    ylabel="task loss",
+    ylabel="total loss",
     legend=[
         "pre-merge, no voltage dist",
         "post-merge, voltage dist",
