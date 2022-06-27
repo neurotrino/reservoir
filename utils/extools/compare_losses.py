@@ -70,7 +70,7 @@ rateloss_legend = [
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/rateloss_rate.png'
+savepath = '/data/results/fwd/rateloss_total.png'
 
 # remove loss_of_interest from arg
 
@@ -82,7 +82,7 @@ def compare_losses(
     epochs_per_file=epochs_per_file,
     title="Rate cost reduced, initial V dist, main lr 0.001, output lr 0.00001",
     xlabel="batches",
-    ylabel="rate loss",
+    ylabel="total loss",
     legend=rateloss_legend
 ):
     """Generate plots comparing losses from multiple experiments.
@@ -111,7 +111,7 @@ def compare_losses(
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
-            loss_of_interest = data['step_rate_loss']
+            loss_of_interest = np.add(data['step_task_loss'],data['step_rate_loss'])
             losses += loss_of_interest.tolist()
 
         # Plot losses for a single experiment
