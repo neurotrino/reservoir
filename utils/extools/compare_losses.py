@@ -70,7 +70,7 @@ rateloss_legend = [
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/rateloss.png'
+savepath = '/data/results/fwd/rateloss_task.png'
 
 # remove loss_of_interest from arg
 
