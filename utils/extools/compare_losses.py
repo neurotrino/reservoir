@@ -55,10 +55,22 @@ all_less_some_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-novdist",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-novdist-tasklossonly",
 ]
+rateloss_experiments = [
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1"
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-laxrateloss1"
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad"
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50"
+]
+rateloss_legend = [
+    "rate cost 1",
+    "rate cost 1, lax rate loss inclusion",
+    "rate cost 1, refractory stop gradient",
+    "the above with batch size 50"
+]
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/all_less_some_taskloss.png'
+savepath = '/data/results/fwd/rateloss.png'
 
 # remove loss_of_interest from arg
 
@@ -68,14 +80,10 @@ def compare_losses(
     experiments=all_less_some_experiments,
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
-    title="task loss only, main lr 0.001, output lr 0.00001",
+    title="Rate cost reduced, initial V dist, main lr 0.001, output lr 0.00001",
     xlabel="batches",
     ylabel="task loss",
-    legend=[
-        "post-merge, voltage dist",
-        "post-merge, no voltage dist",
-        "post-merge, no voltage dist, only task loss",
-    ]
+    legend=rateloss_legend
 ):
     """Generate plots comparing losses from multiple experiments.
     Args:
