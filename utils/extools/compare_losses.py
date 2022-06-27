@@ -63,7 +63,7 @@ rateloss_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50"
 ]
 rateloss_legend = [
-    "rate cost 10"
+    "rate cost 10",
     "rate cost 1",
     "rate cost 1, lax rate loss inclusion",
     "rate cost 1, refractory stop gradient",
