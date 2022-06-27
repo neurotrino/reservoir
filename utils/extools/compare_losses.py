@@ -56,12 +56,14 @@ all_less_some_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-novdist-tasklossonly",
 ]
 rateloss_experiments = [
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-laxrateloss1",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50"
 ]
 rateloss_legend = [
+    "rate cost 10"
     "rate cost 1",
     "rate cost 1, lax rate loss inclusion",
     "rate cost 1, refractory stop gradient",
@@ -70,7 +72,7 @@ rateloss_legend = [
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/rateloss_total.png'
+savepath = '/data/results/fwd/rateloss_total_prev.png'
 
 # remove loss_of_interest from arg
 
