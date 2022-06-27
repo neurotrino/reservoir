@@ -77,7 +77,7 @@ savepath = '/data/results/fwd/rateloss_task.png'
 def compare_losses(
     savepath=savepath,
     data_dir=data_dir,
-    experiments=all_less_some_experiments,
+    experiments=rateloss_experiments,
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
     title="Rate cost reduced, initial V dist, main lr 0.001, output lr 0.00001",
