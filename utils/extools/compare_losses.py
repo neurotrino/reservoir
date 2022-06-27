@@ -56,9 +56,9 @@ all_less_some_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-novdist-tasklossonly",
 ]
 rateloss_experiments = [
-    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1"
-    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-laxrateloss1"
-    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad"
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1",
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-laxrateloss1",
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50"
 ]
 rateloss_legend = [
