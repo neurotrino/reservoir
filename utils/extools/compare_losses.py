@@ -13,7 +13,7 @@ sys.path.append('../../')
 from utils.misc import filenames
 
 data_dir = "/data/experiments/"
-num_epochs = 740
+num_epochs = 700
 epochs_per_file = 10
 
 fwd_experiments = [
