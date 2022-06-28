@@ -556,6 +556,7 @@ class Trainer(BaseTrainer):
         net_losses = []
         task_losses = []
         rate_losses = []
+        synch_losses = []
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Epochwise Training                                                │
