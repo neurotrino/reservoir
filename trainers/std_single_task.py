@@ -83,6 +83,9 @@ class Trainer(BaseTrainer):
         # Penalty for unrealistic synchrony
         synchrony = fano_factor(self, self.cfg['data'].seq_len, spikes)
         synch_loss = tf.reduce_sum(tf.square(synchrony - self.cfg['train'].target_synch)) * self.cfg['train'].synch_cost
+        if self.cfg["train"].lax_synch_loss:
+            if synch_loss < task_loss * self.cfg["train"].lax_synch_threshold:
+                synch_loss = 0.0
         if self.cfg["train"].include_synch_loss:
             net_loss += synch_loss
 
