@@ -75,7 +75,7 @@ class Trainer(BaseTrainer):
         unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
         rate_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['train'].target_rate)) * self.cfg['train'].rate_cost
         if self.cfg["train"].lax_rate_loss:
-            if rate_loss < task_loss + task_loss:
+            if rate_loss < task_loss * self.cfg["train"].lax_rate_threshold:
                 rate_loss = 0.0
         if self.cfg["train"].include_rate_loss:
             net_loss += rate_loss

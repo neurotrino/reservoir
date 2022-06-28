@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-batchsize30-synchcost0.1
+        exp_dir: /data/experiments/fwd-pipeline-batchsize30-laxrate0.5
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -310,6 +310,8 @@
         noise_weights_before_gradient: false
         noise_weights_after_gradient: false
         lax_rate_loss: false
+        lax_rate_threshold: 0.5
+        // if rate_loss < lax_rate_threshold*task_loss, do not include rate loss
 
         input_trainable: true
         //note that when false, this means tv0 is the recurrent weights instead of tv1
@@ -334,7 +336,7 @@
 
         include_rate_loss: true
 
-        include_synch_loss: true
+        include_synch_loss: false
 
         target_rate: 0.02
 
