@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-batchsize30-synchcost0.01
+        exp_dir: /data/experiments/fwd-pipeline-batchsize30-synchcost0.1
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -342,7 +342,7 @@
 
         target_synch: 2.0
 
-        synch_cost: 0.01
+        synch_cost: 0.1
 
         target_conn: 0.266
         // mean of initial p's, which is imprecise
