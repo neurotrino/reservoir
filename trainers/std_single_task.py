@@ -77,7 +77,14 @@ class Trainer(BaseTrainer):
         if self.cfg["train"].lax_rate_loss:
             if rate_loss < task_loss + task_loss:
                 rate_loss = 0.0
-        net_loss += rate_loss
+        if self.cfg["train"].include_rate_loss:
+            net_loss += rate_loss
+
+        # Penalty for unrealistic synchrony
+        synchrony = fano_factor(self, self.cfg['data'].seq_len, spikes)
+        synch_loss = tf.reduce_sum(tf.square(synchrony - self.cfg['train'].target_synch)) * self.cfg['train'].synch_cost
+        if self.cfg["train"].include_synch_loss:
+            net_loss += synch_loss
 
         # Feed model output and losses back up the stack
         # [!] would like to make loss scalars a Keras `metric` but we
@@ -85,6 +92,7 @@ class Trainer(BaseTrainer):
         losses = (
             task_loss,
             rate_loss,
+            synch_loss,
             net_loss,
         )
         return (model_output, losses)
@@ -107,12 +115,15 @@ class Trainer(BaseTrainer):
         if self.cfg["train"].noise_weights_before_gradient:
             self.model.noise_weights()
 
+        """
         if self.cfg["train"].include_rate_loss and self.cfg["train"].include_task_loss:
             grads = tape.gradient(losses[-1], self.model.trainable_variables)
         elif self.cfg["train"].include_rate_loss and not self.cfg["train"].include_task_loss:
             grads = tape.gradient(losses[1], self.model.trainable_variables)
         elif self.cfg["train"].include_task_loss and not self.cfg["train"].include_rate_loss:
             grads = tape.gradient(losses[0], self.model.trainable_variables)
+        """
+        grads = tape.gradient(losses[-1], self.model.trainable_variables)
         return (model_output, losses, grads)
 
 
@@ -173,7 +184,7 @@ class Trainer(BaseTrainer):
         (model_output, losses, grads) = self.grad(batch_x, batch_y)
         voltage, spikes, prediction = model_output
 
-        (task_loss, rate_loss, net_loss) = losses
+        (task_loss, rate_loss, synch_loss, net_loss) = losses
 
         # declare layer-wise vars and grads so that layer-wise optimization can occur
         self.var_list1 = self.model.rnn1.trainable_variables
@@ -462,6 +473,17 @@ class Trainer(BaseTrainer):
             }
         )
         self.logger.log(
+            data_label='step_synch_loss',
+            data=float(synch_loss),
+            meta={
+                'stride': 'step',
+
+                'description':
+                    'calculated step loss (synchrony)'
+            }
+        )
+
+        self.logger.log(
             data_label='step_loss',
             data=float(net_loss),
             meta={
@@ -554,7 +576,7 @@ class Trainer(BaseTrainer):
                 random_matrix = np.random.rand(batch_x_rates.shape[0], batch_x_rates.shape[1], batch_x_rates.shape[2])
                 #batch_x_spikes = (batch_x_rates - random_matrix > 0)*1.
                 batch_x_spikes = tf.where((batch_x_rates - random_matrix > 0), 1., 0.)
-                (task_loss, rate_loss, net_loss) = self.train_step(batch_x_spikes, batch_y, step_idx)
+                (task_loss, rate_loss, synch_loss, net_loss) = self.train_step(batch_x_spikes, batch_y, step_idx)
 
             # Update progress bar
             pb.add(
@@ -566,6 +588,7 @@ class Trainer(BaseTrainer):
                     ('net loss', net_loss),
                     ('task loss', task_loss),
                     ('rate loss', rate_loss),
+                    ('synch loss', synch_loss)
                 ]
             )
 
@@ -573,6 +596,7 @@ class Trainer(BaseTrainer):
             net_losses.append(net_loss)
             task_losses.append(task_loss)
             rate_losses.append(rate_loss)
+            synch_losses.append(synch_loss)
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Epochwise Logging (post-epoch)                                    │
@@ -601,6 +625,18 @@ class Trainer(BaseTrainer):
 
                 'description':
                     'mean step loss within an epoch (rate)'
+            }
+        )
+        epoch_synch_loss = np.mean(synch_losses)
+        # [*] Log any epoch-wise variables.
+        self.logger.log(
+            data_label='epoch_synch_loss',
+            data=epoch_synch_loss,
+            meta={
+                'stride': 'epoch',
+
+                'description':
+                    'mean step loss within an epoch (synchrony)'
             }
         )
         epoch_task_loss = np.mean(task_losses)
