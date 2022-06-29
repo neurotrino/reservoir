@@ -76,9 +76,9 @@ synchloss_experiments = [
     "fwd-pipeline-batchsize30-laxsynchrate0.25"
 ]
 synchloss_legend = [
-    "larger batch size, rate loss cost 1"
-    "the above with synch loss cost 0.01"
-    "the above with synch loss cost 0.1"
+    "larger batch size, rate loss cost 1",
+    "the above with synch loss cost 0.01",
+    "the above with synch loss cost 0.1",
     "the above with both lax rate and synch loss"
 ]
 
