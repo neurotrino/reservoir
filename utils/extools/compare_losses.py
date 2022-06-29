@@ -91,13 +91,13 @@ savepath = '/data/results/fwd/synchloss.png'
 def compare_losses(
     savepath=savepath,
     data_dir=data_dir,
-    experiments=rateloss_experiments,
+    experiments=synchloss_experiments,
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
     title="Initial V dist, main lr 0.001, output lr 0.00001, refractory stop grad",
     xlabel="batches",
     ylabel="total loss",
-    legend=rateloss_legend
+    legend=synchloss_legend
 ):
     """Generate plots comparing losses from multiple experiments.
     Args:
