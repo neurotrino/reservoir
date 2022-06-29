@@ -130,8 +130,7 @@ def compare_losses(
                 loss_of_interest = arr.sum(axis=0)
                 losses += loss_of_interest.tolist()
             else:
-                arr = np.array(data['step_task_loss'],data['step_rate_loss'])
-                loss_of_interest = arr.sum(axis=0)
+                loss_of_interest = np.add(data['step_task_loss'],data['step_rate_loss'])
                 losses += loss_of_interest.tolist()
         # Plot losses for a single experiment
         plt.plot(losses[0 : num_epochs - epochs_per_file])
