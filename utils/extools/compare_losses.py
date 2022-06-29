@@ -125,7 +125,8 @@ def compare_losses(
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
-            loss_of_interest = np.add(data['step_task_loss'],data['step_rate_loss'])
+            arr = np.arr(data['step_task_loss'],data['step_rate_loss'],data['step_synch_loss'])
+            loss_of_interest = arr.sum(axis=0)
             losses += loss_of_interest.tolist()
 
         # Plot losses for a single experiment
