@@ -13,7 +13,7 @@ sys.path.append('../../')
 from utils.misc import filenames
 
 data_dir = "/data/experiments/"
-num_epochs = 700
+num_epochs = 690
 epochs_per_file = 10
 
 fwd_experiments = [
@@ -69,10 +69,22 @@ rateloss_legend = [
     "rate cost 1, refractory stop gradient",
     "the above with batch size 50"
 ]
+synchloss_experiments = [
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50",
+    "fwd-pipeline-batchsize30-synchcost0.01",
+    "fwd-pipeline-batchsize30-synchcost0.1",
+    "fwd-pipeline-batchsize30-laxsynchrate0.25"
+]
+synchloss_legend = [
+    "larger batch size, rate loss cost 1"
+    "the above with synch loss cost 0.01"
+    "the above with synch loss cost 0.1"
+    "the above with both lax rate and synch loss"
+]
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/rateloss_total_prev.png'
+savepath = '/data/results/fwd/synchloss.png'
 
 # remove loss_of_interest from arg
 
@@ -82,7 +94,7 @@ def compare_losses(
     experiments=rateloss_experiments,
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
-    title="Rate cost reduced, initial V dist, main lr 0.001, output lr 0.00001",
+    title="Initial V dist, main lr 0.001, output lr 0.00001, refractory stop grad",
     xlabel="batches",
     ylabel="total loss",
     legend=rateloss_legend
