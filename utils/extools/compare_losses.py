@@ -125,10 +125,14 @@ def compare_losses(
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
-            arr = np.array(data['step_task_loss'],data['step_rate_loss'],data['step_synch_loss'])
-            loss_of_interest = arr.sum(axis=0)
-            losses += loss_of_interest.tolist()
-
+            if filename != "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50":
+                arr = np.array(data['step_task_loss'],data['step_rate_loss'],data['step_synch_loss'])
+                loss_of_interest = arr.sum(axis=0)
+                losses += loss_of_interest.tolist()
+            else:
+                arr = np.array(data['step_task_loss'],data['step_rate_loss'])
+                loss_of_interest = arr.sum(axis=0)
+                losses += loss_of_interest.tolist()
         # Plot losses for a single experiment
         plt.plot(losses[0 : num_epochs - epochs_per_file])
 
