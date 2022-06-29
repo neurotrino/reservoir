@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-batchsize30-laxsynchrate0.25
+        exp_dir: /data/experiments/fwd-pipeline-batchsize30-nosynch-likelihoodoutput
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -177,6 +177,10 @@
             C: 281
             deltaT: 2
             V_reset: -51
+
+            // output schemes
+            categorical_output: false
+            likelihood_output: true
         }
     }
 
@@ -237,8 +241,8 @@
         todisk_whitelist: [
             step_task_loss
             step_rate_loss
-            step_synch_loss
             epoch_loss
+            spikes
             tv0.postweights
             tv1.postweights
             tv2.postweights
@@ -309,10 +313,10 @@
 
         noise_weights_before_gradient: false
         noise_weights_after_gradient: false
-        lax_rate_loss: true
+        lax_rate_loss: false
         lax_rate_threshold: 0.25
         // if rate_loss < lax_rate_threshold*task_loss, do not include rate loss
-        lax_synch_loss: true
+        lax_synch_loss: false
         lax_synch_threshold: 0.25
 
         input_trainable: true
@@ -338,7 +342,7 @@
 
         include_rate_loss: true
 
-        include_synch_loss: true
+        include_synch_loss: false
 
         target_rate: 0.02
 

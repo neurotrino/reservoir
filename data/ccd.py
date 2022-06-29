@@ -30,6 +30,20 @@ class DataGenerator(BaseDataGenerator):
         x = rates
         y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None] # shape 600 x 4080 x 1
 
+        if cfg["model"].cell.likelihood_output:
+            # depending on y's value (0 or 1) at any seq_len point of each trial,
+            # create new 2-row output. first row copies y, second inverts it.
+            coh_1 = np.copy(y) # 100% coherence subset; bc when actual y=0, the
+            # likelihood of 100% coherence is 0, and when y=1, the likelihood of
+            # 100% coherence is 1.
+            coh_0 = np.zeros(np.shape(coh_1)) # 15% coherence subset; bc when
+            # actual y=0, the likelihood of 15% coherence is 1, and when y=1,
+            # the likeliihood of 15% coherence is 0.
+            # wherever coh_1 was 0, make coh_0 nonzero
+            coh_0[np.nonzero(coh_1==0)]=1
+            # combine outputs
+            y = np.concatenate([coh_0, coh_1],-1) # (600, 4080, 2)
+
         self.dataset = (
             tf.data.Dataset.from_tensor_slices((x, y))
             .repeat(count=1)

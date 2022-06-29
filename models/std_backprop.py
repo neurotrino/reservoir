@@ -41,9 +41,14 @@ class Model(BaseModel):
         ))
         logging.info(f"cell type set to {cell_type.__name__}")
 
+        if self.cfg["model"].likelihood_output:
+            n_out = 2
+        else:
+            n_out = 1
+
         # Layer definitions
         self.rnn1 = tf.keras.layers.RNN(self.cell, return_sequences=True)
-        self.dense1 = tf.keras.layers.Dense(1)
+        self.dense1 = tf.keras.layers.Dense(self.n_out)
         self.dense1.trainable = self.cfg['train'].output_trainable
 
         self.layers = [  # gather in a list for later convenience
