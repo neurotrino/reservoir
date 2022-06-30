@@ -41,7 +41,7 @@ class Model(BaseModel):
         ))
         logging.info(f"cell type set to {cell_type.__name__}")
 
-        if self.cfg["model"].likelihood_output:
+        if self.cell.likelihood_output:
             n_out = 2
         else:
             n_out = 1
