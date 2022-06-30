@@ -42,9 +42,9 @@ class Model(BaseModel):
         logging.info(f"cell type set to {cell_type.__name__}")
 
         if self.cfg['model'].cell.likelihood_output:
-            n_out = 2
+            self.n_out = 2
         else:
-            n_out = 1
+            self.n_out = 1
 
         # Layer definitions
         self.rnn1 = tf.keras.layers.RNN(self.cell, return_sequences=True)
