@@ -317,7 +317,7 @@
         lax_rate_loss: false
         lax_rate_threshold: 0.25
         // if rate_loss < lax_rate_threshold*task_loss, do not include rate loss
-        lax_synch_loss: true
+        lax_synch_loss: false
         lax_synch_threshold: 0.25
 
         input_trainable: true
