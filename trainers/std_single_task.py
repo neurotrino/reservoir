@@ -64,7 +64,7 @@ class Trainer(BaseTrainer):
 
         if self.cfg['model'].cell.categorical_output:
             cat_prediction = tf.math.divide_no_nan(prediction[:,:,0],prediction[:,:,1])
-            cat_prediction = tf.scatter_nd(tf.math.is_nan(cat_prediction), 0, tf.shape(cat_prediction))
+            #cat_prediction = tf.scatter_nd(tf.math.is_nan(cat_prediction), 0, tf.shape(cat_prediction))
         # turns into a ratio
         # if >1, then one output has more activity
         # if <1, then the other output has more activity
