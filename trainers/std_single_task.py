@@ -62,9 +62,19 @@ class Trainer(BaseTrainer):
         model_output = self.model(x) # tripartite output
         voltage, spikes, prediction = model_output
 
+        if self.cfg['model'].cell.categorical_output:
+            cat_prediction = tf.math.divide(prediction[:,:,0],prediction[:,:,1])
+        # turns into a ratio
+        # if >1, then one output has more activity
+        # if <1, then the other output has more activity
+        # targets are 0.5 (1/2) and 2.0 (2/1) for high and low coherences
+
         # Penalty for performance
         loss_object = tf.keras.losses.MeanSquaredError()
-        task_loss = loss_object(y_true=y, y_pred=prediction)
+        if self.cfg['model'].cell.categorical_output:
+            task_loss = loss_object(y_true=y, y_pred=cat_prediction)
+        else:
+            task_loss = loss_object(y_true=y, y_pred=prediction)
         net_loss = task_loss
 
         # Penalty for unrealistic firing rates

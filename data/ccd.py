@@ -44,6 +44,13 @@ class DataGenerator(BaseDataGenerator):
             # combine outputs
             y = np.concatenate([coh_0, coh_1],-1) # (600, 4080, 2)
 
+        if cfg["model"].cell.categorical_output:
+            cat = np.copy(y)*0.5 # zeros remain 0
+            cat[cat==0]=2.0 # zeros become 2
+            # even though these are target values, they are ratios
+            # therefore one coherence level does not create greater overall activity than the other
+            y = cat
+
         self.dataset = (
             tf.data.Dataset.from_tensor_slices((x, y))
             .repeat(count=1)
