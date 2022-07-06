@@ -63,7 +63,7 @@ class Trainer(BaseTrainer):
         voltage, spikes, prediction = model_output
 
         if self.cfg['model'].cell.categorical_output:
-            cat_prediction = tf.math.divide(prediction[:,:,0],prediction[:,:,1])
+            cat_prediction = tf.math.divide_no_nan(prediction[:,:,0],prediction[:,:,1])
         # turns into a ratio
         # if >1, then one output has more activity
         # if <1, then the other output has more activity
