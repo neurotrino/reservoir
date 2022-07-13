@@ -124,7 +124,6 @@ class ModifiedDense(tf.keras.layers.Layer):
                 f"output matrix will maintain "
                 + f"{self.output_target_zcount} zeros"
             )
-            return
 
         # Determine how many output weights went to zero (or flipped
         # sign) in this step
