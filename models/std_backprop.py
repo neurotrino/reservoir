@@ -134,12 +134,11 @@ class ModifiedDense(tf.keras.layers.Layer):
             0
         ))
         # signs not updated here (only if rewiring); maintains initial build values
-        zero_indices = tf.where(self.oweights == 0)
-        return zero_indices
 
     @tf.function
     def rewire(self):
-        zero_indices = self.maintain_sparsity()
+        self.maintain_sparsity()
+        zero_indices = tf.where(self.oweights == 0)
         num_new_zeros = tf.shape(zero_indices)[0] - self.output_target_zcount
 
         # Replace any new zeros (not necessarily in the same spot)
