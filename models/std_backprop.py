@@ -207,6 +207,7 @@ class Model(BaseModel):
 
         # Attribute assignments
         self.cfg = cfg
+        cell_cfg = self.cfg['model'].cell
 
         cell_type = eval(cfg['model'].cell.type)  # neuron (class)
         self.cell = cell_type(subconfig(          # neuron (object)
