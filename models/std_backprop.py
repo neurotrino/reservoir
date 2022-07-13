@@ -114,7 +114,7 @@ class ModifiedDense(tf.keras.layers.Layer):
         return tf.einsum("btj,jk->btk", inputs, self.oweights)
 
     @tf.function
-    def maintain_sparsity(self):
+    def rewire(self):
         if self.output_target_zcount is None:
             # When no target number of zeros is recorded, count how
             # many zeros there currently are, save that for future
@@ -124,6 +124,7 @@ class ModifiedDense(tf.keras.layers.Layer):
                 f"output matrix will maintain "
                 + f"{self.output_target_zcount} zeros"
             )
+            return
 
         # Determine how many output weights went to zero (or flipped
         # sign) in this step
@@ -132,12 +133,7 @@ class ModifiedDense(tf.keras.layers.Layer):
             self.oweights,
             0
         ))
-        # signs not updated here (only if rewiring); maintains initial build values
-        return self.oweights
 
-    @tf.function
-    def rewire(self):
-        self.oweights = self.maintain_sparsity()
         zero_indices = tf.where(self.oweights == 0)
         num_new_zeros = tf.shape(zero_indices)[0] - self.output_target_zcount
 

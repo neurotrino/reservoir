@@ -129,8 +129,6 @@
 
             output_rewiring: true
 
-            maintain_sparse_output: true
-
             units: 300   // number of units in the layer
 
             thr: -50.4   // threshold [mV]
