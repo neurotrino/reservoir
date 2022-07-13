@@ -75,7 +75,7 @@ class ModifiedDense(tf.keras.layers.Layer):
         #
         # [!] don't know why this was implemented per-layer; see #55
         #     for a unified implementation
-        self._output_target_zcount = None
+        self.output_target_zcount = None
 
     def build(self, input_shape):
 
@@ -115,14 +115,14 @@ class ModifiedDense(tf.keras.layers.Layer):
 
     @tf.function
     def maintain_sparsity(self):
-        if self._output_target_zcount is None:
+        if self.output_target_zcount is None:
             # When no target number of zeros is recorded, count how
             # many zeros there currently are, save that for future
             # comparison, and return
-            self._output_target_zcount = len(tf.where(self.oweights == 0))
+            self.output_target_zcount = len(tf.where(self.oweights == 0))
             logging.debug(
                 f"output matrix will maintain "
-                + f"{self._output_target_zcount} zeros"
+                + f"{self.output_target_zcount} zeros"
             )
             return
 
@@ -140,7 +140,7 @@ class ModifiedDense(tf.keras.layers.Layer):
     @tf.function
     def rewire(self):
         zero_indices = self.maintain_sparsity()
-        num_new_zeros = tf.shape(zero_indices)[0] - self._output_target_zcount
+        num_new_zeros = tf.shape(zero_indices)[0] - self.output_target_zcount
 
         # Replace any new zeros (not necessarily in the same spot)
         if num_new_zeros > 0:
