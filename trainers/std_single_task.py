@@ -340,12 +340,6 @@ class Trainer(BaseTrainer):
             and self.cfg["model"].cell.output_rewiring
         ):
             self.model.dense1.rewire()
-        elif (
-            self.cfg["train"].output_trainable
-            and self.cfg["model"].cell.maintain_sparse_output
-            and not self.cfg["model"].cell.output_rewiring
-        ):
-            self.model.dense1.maintain_sparsity()
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Post-Step Logging                                                 │
