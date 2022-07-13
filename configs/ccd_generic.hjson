@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-batchsize30-catratiooutput
+        exp_dir: /data/experiments/fwd-pipeline-batchsize30-definedout
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -127,6 +127,8 @@
 
             rewiring: true   // now the term for permitting a new connection to grow if/when an existing connection disappears
 
+            output_rewiring: false
+
             units: 300   // number of units in the layer
 
             thr: -50.4   // threshold [mV]
@@ -158,6 +160,12 @@
             p_ie: 0.252
             p_ii: 0.284
 
+            // Output layer is fully dense or sparse
+            // If sparse, uses the p_ee and p_ie values above from the e and i RSNN units
+            define_output_w: true
+            p_eo: 0.160
+            p_io: 0.252
+
             // ...
 
             beta: 0.16
@@ -179,7 +187,7 @@
             V_reset: -51
 
             // output schemes
-            categorical_output: true
+            categorical_output: false
             likelihood_output: false
         }
     }
@@ -241,15 +249,11 @@
         todisk_whitelist: [
             step_task_loss
             step_rate_loss
-            step_synch_loss
             epoch_loss
             spikes
             tv0.postweights
             tv1.postweights
             tv2.postweights
-            tv0.gradients
-            tv1.gradients
-            tv2.gradients
         ]
         todisk_blacklist: null
 

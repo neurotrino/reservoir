@@ -335,6 +335,12 @@ class Trainer(BaseTrainer):
             # 4. loops through again in next update, thus canceling out all new zeros
             # Thus this script now ONLY happens if rewiring = false (initial zeros must stay zero)
 
+        if (
+            self.cfg["train"].output_trainable
+            and self.cfg["model"].cell.output_rewiring
+        ):
+            self.model.dense1.rewire()
+
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Post-Step Logging                                                 │
         #┴───────────────────────────────────────────────────────────────────╯

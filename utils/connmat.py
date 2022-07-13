@@ -11,6 +11,102 @@ import numpy as np
 import tensorflow as tf
 
 #┬───────────────────────────────────────────────────────────────────────────╮
+#┤ Output Connectivity Matrix Generator                                             │
+#┴───────────────────────────────────────────────────────────────────────────╯
+
+class ExInOutputMatrixGenerator(object):
+    def __init__(
+        self,
+        n_excit,
+        n_inhib,
+        n_out,
+        p_from_e,
+        p_from_i,
+        mu,
+        sigma
+    ):
+
+        self.n_excit = n_excit
+        self.n_inhib = n_inhib
+        self.n_in = n_excit + n_inhib
+        self.n_out = n_out
+        self.p_from_e = p_from_e
+        self.p_from_i = p_from_i
+
+        self.output_mat = np.zeros((self.n_in, self.n_out))
+
+        self.output_weight = np.zeros((self.n_in, self.n_out))
+        self.mu = mu
+        self.sigma = sigma
+
+        # total count of output connections from inhib units
+        self.k_ie = int(round(p_from_i * self.n_inhib))
+        # total count of output connections from excit units
+        self.k_ee = int(round(p_from_e * self.n_excit))
+
+    def run_generator(self):
+
+        # Generate connectivity matrix and check it's successful
+        try:
+            if not self.generate_conn_mat():
+                raise Exception("failed to generate connectivity matrix")
+            logging.info("generated E/I connectivity matrix")
+
+            if not self.make_weighted():
+                raise Exception("failed to weight output connectivity matrix")
+            logging.info("output connectivity matrix weighted")
+
+            return self.output_weight * 0.1
+
+        except Exception as e:
+            logging.exception(e)
+            return False
+
+    def generate_conn_mat(self):
+
+        try:
+
+            # E to output connections
+            for n in range(0, self.n_out):
+                for a in range(0, self.k_ee):
+                    rand = np.random.randint(0, self.n_excit)
+                    while self.output_mat[rand][n] == 1:
+                        rand = np.random.randint(0, self.n_excit)
+                    self.output_mat[rand][n] = 1
+
+            # I to output connections
+            for n in range(0, self.n_out):
+                for a in range(0, self.k_ie):
+                    rand = np.random.randint(0, self.n_inhib)
+                    while self.output_mat[rand + self.n_excit][n] == 1:
+                        rand = np.random.randint(0, self.n_inhib)
+                    self.output_mat[rand + self.n_excit][n] = 1
+
+            return True
+
+        except Exception as e:
+            logging.exception(e)
+            return False
+
+    def make_weighted(self):
+
+        try:
+            # Generate random weights and fill connectivity matrix
+            for i in range(0, self.n_in):
+                for j in range(0, self.n_out):
+                    if self.output_mat[i][j] == 1:
+                        self.output_weight[i][j] = np.random.lognormal(
+                            self.mu, self.sigma
+                        )
+                        if self.n_in > i > (self.n_in - self.n_inhib):
+                            self.output_weight[i][j] *= -10
+            return True
+
+        except Exception as e:
+            logging.exception(e)
+            return False
+
+#┬───────────────────────────────────────────────────────────────────────────╮
 #┤ Input Connectivity Matrix Generator                                             │
 #┴───────────────────────────────────────────────────────────────────────────╯
 

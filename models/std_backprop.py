@@ -12,6 +12,9 @@ import tensorflow_probability as tfp
 from models.common import *
 #from models.neurons.adex import *
 from models.neurons.lif import *
+from utils.connmat import (
+    ExInOutputMatrixGenerator as OMG,
+)  # for generating output weights this time
 from utils.config import subconfig
 from utils.misc import SwitchedDecorator
 
@@ -19,6 +22,179 @@ DEBUG_MODE = True
 
 switched_tf_function = SwitchedDecorator(tf.function)
 switched_tf_function.enabled = not DEBUG_MODE
+
+class ModifiedDense(tf.keras.layers.Layer):
+    @tf.custom_gradient
+    def matmul_random_feedback(self, filtered_z, W_out_arg, B_out_arg):
+
+        logits = tf.einsum("btj,jk->btk", filtered_z, W_out_arg)
+
+        def grad(dy):
+            dloss_dW_out = tf.einsum("bij,bik->jk", filtered_z, dy)
+            dloss_dfiltered_z = tf.einsum("bik,jk->bij", dy, B_out_arg)
+            dloss_db_out = tf.zeros_like(B_out_arg)
+
+            return [dloss_dfiltered_z, dloss_dW_out, dloss_db_out]
+
+        return logits, grad
+
+    def __init__(
+        self,
+        cfg,
+        num_neurons,
+        p_eo,
+        p_io,
+        frac_e,  # architecture
+        mu,
+        sigma,  # weight distribution
+        *args,
+        **kwargs,  # parameters for keras.layers.Dense
+    ):
+        super(ModifiedDense, self).__init__(*args, **kwargs)
+
+        self.cfg = cfg
+        self.num_neurons = num_neurons  # [!] shouldn't need; Dense can
+        #     get d1, we should too
+        elif self.cfg["model"].cell.categorical_output:
+            self.n_out = 2
+        elif self.cfg["model"].cell.likelihood_output:
+            self.n_out = 2
+        else:
+            self.n_out = 1
+        self.p_eo = p_eo
+        self.p_io = p_io
+        self.frac_e = frac_e
+        self.mu = mu
+        self.sigma = sigma
+
+        self.ecount = round(self.frac_e * self.num_neurons)
+        self.icount = self.num_neurons - self.ecount
+
+        # Number of zeros in W_out to try to maintain if output
+        # rewiring is enabled
+        #
+        # [!] don't know why this was implemented per-layer; see #55
+        #     for a unified implementation
+        self._output_target_zcount = None
+
+    def build(self, input_shape):
+
+        # W
+        #
+        # [!] document
+
+        self.oweights = self.add_weight(
+            name="output",
+            initializer=tf.keras.initializers.Zeros(),
+            shape=(self.num_neurons, self.n_out),
+            trainable=self.trainable,
+        )
+        output_connmat_generator = OMG(
+            n_excit=self.ecount,
+            n_inhib=self.icount,
+            n_out=self.n_out,
+            p_from_e=self.p_eo,
+            p_from_i=self.p_io,
+            mu=self.mu,
+            sigma=self.sigma
+        )
+        initial_oweights = output_connmat_generator.run_generator()
+        self.oweights.assign_add(
+            initial_oweights * self.cfg["model"].cell.output_multiplier
+        )
+
+        # set output weights from generators
+        #
+        # [!] don't know why this was implemented per-layer; see #55
+        #     for a unified implementation
+        self.output_sign = tf.sign(self.oweights)
+
+    @tf.function
+    def call(self, inputs, *args, **kwargs):
+        return tf.einsum("btj,jk->btk", inputs, self.oweights)
+
+    @tf.function
+    def rewire(self):
+        # [!] lots of duplicate code from LIF/base neurons
+        if self._output_target_zcount is None:
+            # When no target number of zeros is recorded, count how
+            # many zeros there currently are, save that for future
+            # comparison, and return
+            self._output_target_zcount = len(tf.where(self.oweights == 0))
+            logging.debug(
+                f"output matrix will maintain "
+                + f"{self._output_target_zcount} zeros"
+            )
+            return
+
+        # Determine how many output weights went to zero (or flipped
+        # sign) in this step
+        zero_indices = tf.where(self.oweights == 0)
+        num_new_zeros = tf.shape(zero_indices)[0] - self._output_target_zcount
+
+        # Replace any new zeros (not necessarily in the same spot)
+        if num_new_zeros > 0:
+            logging.debug(
+                f"found {num_new_zeros} new zeros for a total of "
+                + f"{len(zero_indices)} zeros"
+            )
+
+            # Generate a list of non-zero replacement weights
+            new_weights = np.random.lognormal(
+                self.mu, self.sigma, num_new_zeros
+            )
+            new_weights[np.where(new_weights == 0)] += 0.01
+
+            # Randomly select zero-weight indices (without replacement)
+            # [?] use tf instead of np
+            meta_indices = np.random.choice(
+                len(zero_indices), num_new_zeros, False
+            )
+            zero_indices = tf.gather(zero_indices, meta_indices)
+
+            # Invert and scale inhibitory neurons
+            # [!] Eventually prefer to use .in_mask instead of a loop
+            for i in range(len(zero_indices)):
+                if zero_indices[i][0] >= self.ecount:
+                    new_weights[i] *= -10
+
+            # Update recurrent weights
+            x = tf.tensor_scatter_nd_update(
+                tf.zeros(self.oweights.shape), zero_indices, new_weights
+            )
+            logging.debug(
+                f"{tf.math.count_nonzero(x)} non-zero values generated in "
+                + "output weight patch"
+            )
+
+            # as of version 2.6.0, tensorflow does not support in-place
+            # operation of tf.tensor_scatter_nd_update(), so we just
+            # add it to our recurrent weights, which works because
+            # scatter_nd_update, only has values in places where
+            # recurrent weights are zero
+            self.oweights.assign_add(x)
+            logging.debug(
+                f"{tf.math.count_nonzero(self.oweights)} non-zeroes in "
+                + " recurrent layer after adjustments"
+            )
+
+        # update output_sign
+        self.output_sign = tf.sign(self.oweights)
+
+    def get_config(self):
+        #Return a JSON-serializable configuration of this object.
+        #The output of this method is the input to `.from_config()`.
+        parent_config = super(ModifiedDense, self).get_config()
+        self_config = {
+            "num_neurons": self.num_neurons,
+            "p_eo": self.p_eo,
+            "p_io": self.p_io,
+            "frac_e": self.frac_e,
+            "mu": self.mu,
+            "sigma": self.sigma
+        }
+        return {**parent_config, **self_config}  # '|' op in Python 3.9
+
 
 class Model(BaseModel):
     """Generic prototyping model designed to test new features and
@@ -48,8 +224,22 @@ class Model(BaseModel):
 
         # Layer definitions
         self.rnn1 = tf.keras.layers.RNN(self.cell, return_sequences=True)
-        self.dense1 = tf.keras.layers.Dense(self.n_out)
-        self.dense1.trainable = self.cfg['train'].output_trainable
+
+        if self.cfg['model'].cell.define_output_w:
+            self.dense1 = ModifiedDense(
+                self.cfg,
+                cell_cfg.units,
+                cell_cfg.p_eo,
+                cell_cfg.p_io,
+                cell_cfg.frac_e,
+                cell_cfg.mu,
+                cell_cfg.sigma,
+                trainable=train_cfg.output_trainable,
+                dtype=tf.float32,
+            )
+        else:
+            self.dense1 = tf.keras.layers.Dense(self.n_out)
+            self.dense1.trainable = self.cfg['train'].output_trainable
 
         self.layers = [  # gather in a list for later convenience
             self.rnn1,
