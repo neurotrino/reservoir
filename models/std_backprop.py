@@ -55,7 +55,7 @@ class ModifiedDense(tf.keras.layers.Layer):
         self.cfg = cfg
         self.num_neurons = num_neurons  # [!] shouldn't need; Dense can
         #     get d1, we should too
-        elif self.cfg["model"].cell.categorical_output:
+        if self.cfg["model"].cell.categorical_output:
             self.n_out = 2
         elif self.cfg["model"].cell.likelihood_output:
             self.n_out = 2
