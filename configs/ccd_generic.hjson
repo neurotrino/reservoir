@@ -127,7 +127,7 @@
 
             rewiring: true   // now the term for permitting a new connection to grow if/when an existing connection disappears
 
-            output_rewiring: false
+            output_rewiring: true
 
             units: 300   // number of units in the layer
 
