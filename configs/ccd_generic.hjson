@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-batchsize30-definedout-rewire
+        exp_dir: /data/experiments/fwd-pipeline-batchsize30-definedout-sparserewire
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -128,6 +128,8 @@
             rewiring: true   // now the term for permitting a new connection to grow if/when an existing connection disappears
 
             output_rewiring: true
+
+            maintain_sparse_output: true
 
             units: 300   // number of units in the layer
 

@@ -297,8 +297,8 @@ class Trainer(BaseTrainer):
         # weight (previously 0) is no longer 0, make the weight 0.
         #
         # Reminder that rec_sign contains 0's for initial 0's when
-        # rewiring = false whereas it contains +1's or -1's (for excit
-        # or inhib) for initial 0's when rewiring = true
+        # rewiring = true whereas it contains +1's or -1's (for excit
+        # or inhib) for initial 0's when rewiring = false (freewiring = true)
         self.model.cell.recurrent_weights.assign(tf.where(
             self.model.cell.rec_sign * self.model.cell.recurrent_weights > 0,
             self.model.cell.recurrent_weights,
@@ -340,6 +340,12 @@ class Trainer(BaseTrainer):
             and self.cfg["model"].cell.output_rewiring
         ):
             self.model.dense1.rewire()
+        elif (
+            self.cfg["train"].output_trainable
+            and self.cfg["model"].cell.maintain_sparse_output
+            and not self.cfg["model"].cell.output_rewiring
+        ):
+            self.model.dense1.maintain_sparsity()
 
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Post-Step Logging                                                 │
