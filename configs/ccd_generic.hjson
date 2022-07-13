@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-batchsize30-definedout
+        exp_dir: /data/experiments/fwd-pipeline-batchsize30-definedout-rewire
 
         // Collection of directories which will be placed inside exp_dir
         //
