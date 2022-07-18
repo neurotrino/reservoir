@@ -13,8 +13,15 @@ sys.path.append('../../')
 from utils.misc import filenames
 
 data_dir = "/data/experiments/"
-num_epochs = 660
+num_epochs = 1000
 epochs_per_file = 10
+
+spec_output_experiments = [
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50"
+    "fwd-pipeline-batchsize30-definedout",
+    "fwd-pipeline-batchsize30-definedout-rewire",
+    "fwd-pipeline-batchsize30-definedout-sparserewire"
+]
 
 fwd_experiments = [
     "fwd-input-img-15x-trainable",
@@ -81,23 +88,29 @@ synchloss_legend = [
     "the above with synch loss cost 0.1",
     "the above with both lax rate and synch loss"
 ]
+spec_output_legend = [
+    "dense, unspecified output",
+    "unenforced sparse lognormal output",
+    "enforced sparse lognormal rewiring output",
+    "sparse lognormal rewiring output"
+]
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/synchloss.png'
+savepath = '/data/results/fwd/specoutput.png'
 
 # remove loss_of_interest from arg
 
 def compare_losses(
     savepath=savepath,
     data_dir=data_dir,
-    experiments=synchloss_experiments,
+    experiments=spec_output_experiments,
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
-    title="Initial V dist, main lr 0.001, output lr 0.00001, refractory stop grad",
+    title="Reverting back to specified output layer",
     xlabel="batches",
     ylabel="total loss",
-    legend=synchloss_legend
+    legend=spec_output_legend
 ):
     """Generate plots comparing losses from multiple experiments.
     Args:
@@ -125,13 +138,15 @@ def compare_losses(
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
+            """
             if xdir != "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50":
                 arr = np.array([data['step_task_loss'],data['step_rate_loss'],data['step_synch_loss']])
                 loss_of_interest = arr.sum(axis=0)
                 losses += loss_of_interest.tolist()
             else:
-                loss_of_interest = np.add(data['step_task_loss'],data['step_rate_loss'])
-                losses += loss_of_interest.tolist()
+            """
+            loss_of_interest = np.add(data['step_task_loss'],data['step_rate_loss'])
+            losses += loss_of_interest.tolist()
         # Plot losses for a single experiment
         plt.plot(losses[0 : num_epochs - epochs_per_file])
 
