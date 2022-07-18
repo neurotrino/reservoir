@@ -17,7 +17,7 @@ num_epochs = 1000
 epochs_per_file = 10
 
 spec_output_experiments = [
-    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50"
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50",
     "fwd-pipeline-batchsize30-definedout",
     "fwd-pipeline-batchsize30-definedout-rewire",
     "fwd-pipeline-batchsize30-definedout-sparserewire"
