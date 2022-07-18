@@ -97,7 +97,7 @@ spec_output_legend = [
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/specoutput_rate.png'
+savepath = '/data/results/fwd/specoutput_task.png'
 
 # remove loss_of_interest from arg
 
@@ -109,7 +109,7 @@ def compare_losses(
     epochs_per_file=epochs_per_file,
     title="Reverting back to specified output layer",
     xlabel="batches",
-    ylabel="rate loss",
+    ylabel="task loss",
     legend=spec_output_legend
 ):
     """Generate plots comparing losses from multiple experiments.
@@ -146,7 +146,7 @@ def compare_losses(
             else:
             """
             #loss_of_interest = np.add(data['step_task_loss'],data['step_rate_loss'])
-            loss_of_interest = data['step_rate_loss']
+            loss_of_interest = data['step_task_loss']
             losses += loss_of_interest.tolist()
         # Plot losses for a single experiment
         plt.plot(losses[0 : num_epochs - epochs_per_file])
