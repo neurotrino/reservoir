@@ -305,6 +305,16 @@ class Trainer(BaseTrainer):
             0
         ))
 
+        # THIS SECTION parallels how sparsity is maintained for the RSNN even in the absence of rewiring
+        # If the sign of an output weight changed from the original (or updated from last step)
+        # or the weight is no longer 0, make the weight 0.
+        # output_sign contains 0's for former 0's, +1 for former positives, and -1 for former negatives. 
+        self.dense1.oweights.assign(tf.where(
+            self.dense1.output_sign * self.dense1.oweights > 0,
+            self.dense1.oweights,
+            0
+        ))
+
         # [!] prefer to have something like "for cell in model.cells,
         #     if cell.rewiring then cell.rewire" to better generalize;
         #     would involve adding a 'cells' attribute to model

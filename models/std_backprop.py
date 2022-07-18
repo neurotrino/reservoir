@@ -126,15 +126,6 @@ class ModifiedDense(tf.keras.layers.Layer):
             )
             return
 
-        # THIS SECTION can be moved out into the trainer, paralleling how sparsity is maintained for the RSNN even in the absence of rewiring
-        # Determine how many output weights went to zero (or flipped
-        # sign) in this step
-        self.oweights.assign(tf.where(
-            self.output_sign * self.oweights > 0,
-            self.oweights,
-            0
-        ))
-
         zero_indices = tf.where(self.oweights == 0)
         num_new_zeros = tf.shape(zero_indices)[0] - self.output_target_zcount
 
