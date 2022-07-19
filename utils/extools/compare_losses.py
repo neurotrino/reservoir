@@ -159,7 +159,7 @@ def compare_losses(
     plt.draw()
     plt.savefig(savepath)
 
-def plot_single_experiment_loss(exp_dir):
+def plot_single_experiment_loss(exp_dir,include_rate_loss):
     rate_losses = []
     task_losses = []
     total_losses = []
@@ -172,13 +172,13 @@ def plot_single_experiment_loss(exp_dir):
         data = np.load(filepath)
         task_loss = data['step_task_loss']
         task_losses += task_loss.tolist()
-        if self.cfg['train'].include_rate_loss:
+        if include_rate_loss:
             rate_loss = data['step_rate_loss']
             rate_losses += rate_loss.tolist()
             total_loss = task_loss + rate_loss
             total_losses += total_loss.tolist()
     plt.plot(task_losses[0 : num_epochs - epochs_per_file])
-    if self.cfg['train'].include_rate_loss:
+    if include_rate_loss:
         plt.plot(rate_losses[0 : num_epochs - epochs_per_file])
         plt.plot(total_losses[0 : num_epochs - epochs_per_file])
         legend = ['task loss','rate loss','total loss']
