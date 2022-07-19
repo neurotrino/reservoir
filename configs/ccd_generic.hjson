@@ -355,7 +355,7 @@
 
         target_rate: 0.02
 
-        rate_cost: 0.5
+        rate_cost: 0.1
 
         target_synch: 2.0
 
