@@ -24,6 +24,7 @@ import time
 
 # internal ----
 from loggers.base import BaseLogger
+from utils.extools.compare_losses import plot_single_experiment_loss
 
 WHITE_COLORMAP = LinearSegmentedColormap(
     "white_cmap",
@@ -297,6 +298,9 @@ class Logger(BaseLogger):
         )
         with open(fp, 'wb') as file:
             pickle.dump(self.meta, file)
+
+        # create loss over time plot
+        plot_single_experiment_loss(self.cfg['save'].exp_dir)
 
 
     def on_step_end(self):
