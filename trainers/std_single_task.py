@@ -83,11 +83,24 @@ class Trainer(BaseTrainer):
         #     reporting of loss components (could store all losses in
         #     a model attribute and add to our loading bar plus write
         #     to disk then flush)
-        unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
-        rate_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['train'].target_rate)) * self.cfg['train'].rate_cost
+        if self.cfg['train'].simple_rate_loss:
+            unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
+            rate_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['train'].target_rate)) * self.cfg['train'].rate_cost
+        else:
+        # replace simple average with online running average rate
+            shp = tf.shape(spikes)
+            z_single_agent = tf.concat(tf.unstack(spikes,axis=0),axis=0)
+            spike_count_single_agent = tf.cumsum(z_single_agent,axis=0)
+            timeline_single_agent = tf.cast(tf.range(shp[0] * shp[1]),tf.float32)
+            running_av = spike_count_single_agent / (timeline_single_agent + 1)[:,None]
+            running_av = tf.stack(tf.split(running_av,self.cfg['train'].batch_size),axis=0)
+            rate_loss = tf.square(running_av - self.cfg['train'].target_rate)
+            rate_loss = tf.reduce_sum(tf.reduce_mean(rate_loss,axis=1) * self.cfg['train'].rate_cost)
+
         if self.cfg["train"].lax_rate_loss:
             if rate_loss < task_loss * self.cfg["train"].lax_rate_threshold:
                 rate_loss = 0.0
+
         if self.cfg["train"].include_rate_loss:
             net_loss += rate_loss
 
@@ -309,7 +322,7 @@ class Trainer(BaseTrainer):
         # If the sign of an output weight changed from the original (or updated from last step)
         # or the weight is no longer 0, make the weight 0.
         # output_sign contains 0's for former 0's, +1 for former positives, and -1 for former negatives.
-        # 
+        #
         self.model.dense1.oweights.assign(tf.where(
             self.model.dense1.output_sign * self.model.dense1.oweights > 0,
             self.model.dense1.oweights,

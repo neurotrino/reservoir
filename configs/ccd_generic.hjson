@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-batchsize30-definedout-fixedsparserewire
+        exp_dir: /data/experiments/fwd-pipeline-batchsize30-definedout-fixedsparserewire-onlinerate
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -317,6 +317,8 @@
 
         use_adam: true
         //alternative is SGD
+
+        simple_rate_loss: false
 
         noise_weights_before_gradient: false
         noise_weights_after_gradient: false
