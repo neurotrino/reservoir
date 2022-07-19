@@ -13,14 +13,13 @@ sys.path.append('../../')
 from utils.misc import filenames
 
 data_dir = "/data/experiments/"
-num_epochs = 1000
+num_epochs = 540
 epochs_per_file = 10
 
 spec_output_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50",
     "fwd-pipeline-batchsize30-definedout",
-    "fwd-pipeline-batchsize30-definedout-rewire",
-    "fwd-pipeline-batchsize30-definedout-sparserewire"
+    "fwd-pipeline-batchsize30-definedout-fixedsparserewire"
 ]
 
 fwd_experiments = [
@@ -89,15 +88,14 @@ synchloss_legend = [
     "the above with both lax rate and synch loss"
 ]
 spec_output_legend = [
-    "dense, unspecified output",
-    "unenforced sparse lognormal output",
-    "enforced sparse lognormal rewiring output",
-    "sparse lognormal rewiring output"
+    "dense, unspecified output (previous)",
+    "specified lognormal sparse output init",
+    "specified output with enforced sparsity and rewiring"
 ]
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/specoutput_task.png'
+savepath = '/data/results/fwd/rewireoutput_task.png'
 
 # remove loss_of_interest from arg
 

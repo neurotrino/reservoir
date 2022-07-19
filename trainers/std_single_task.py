@@ -309,6 +309,7 @@ class Trainer(BaseTrainer):
         # If the sign of an output weight changed from the original (or updated from last step)
         # or the weight is no longer 0, make the weight 0.
         # output_sign contains 0's for former 0's, +1 for former positives, and -1 for former negatives.
+        # 
         self.model.dense1.oweights.assign(tf.where(
             self.model.dense1.output_sign * self.model.dense1.oweights > 0,
             self.model.dense1.oweights,
