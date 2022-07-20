@@ -13,8 +13,22 @@ sys.path.append('../../')
 from utils.misc import filenames
 
 data_dir = "/data/experiments/"
-num_epochs = 540
+num_epochs = 700
 epochs_per_file = 10
+
+onlinerate_experiments = [
+    "fwd-pipeline-batchsize30-definedout-fixedsparserewire",
+    "fwd-pipeline-batchsize30-definedout-fixedsparserewire-onlinerate",
+    "fwd-pipeline-batchsize30-definedout-fixedsparserewire-onlinerate0.5",
+    "fwd-pipeline-batchsize30-definedout-fixedsparserewire-onlinerate0.1-endplot"
+]
+
+onlinerate_legend = [
+    "realistic output with rewiring and global rate loss (1x)",
+    "above with online rate loss 1x",
+    "online rate loss 0.5x",
+    "online rate loss 0.1x"
+]
 
 spec_output_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50",
@@ -95,20 +109,20 @@ spec_output_legend = [
 
 experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
 
-savepath = '/data/results/fwd/rewireoutput_rate.png'
+savepath = '/data/results/fwd/onlinerate.png'
 
 # remove loss_of_interest from arg
 
 def compare_losses(
     savepath=savepath,
     data_dir=data_dir,
-    experiments=spec_output_experiments,
+    experiments=onlinerate_experiments,
     num_epochs=num_epochs,
     epochs_per_file=epochs_per_file,
-    title="Reverting back to specified output layer",
+    title="Specified output layer",
     xlabel="batches",
-    ylabel="rate loss",
-    legend=spec_output_legend
+    ylabel="total loss",
+    legend=onlinerate_legend
 ):
     """Generate plots comparing losses from multiple experiments.
     Args:
@@ -143,8 +157,8 @@ def compare_losses(
                 losses += loss_of_interest.tolist()
             else:
             """
-            #loss_of_interest = np.add(data['step_task_loss'],data['step_rate_loss'])
-            loss_of_interest = data['step_rate_loss']
+            loss_of_interest = np.add(data['step_task_loss'],data['step_rate_loss'])
+            #loss_of_interest = data['step_rate_loss']
             losses += loss_of_interest.tolist()
         # Plot losses for a single experiment
         plt.plot(losses[0 : num_epochs - epochs_per_file])
