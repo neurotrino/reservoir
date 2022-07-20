@@ -18,15 +18,13 @@ epochs_per_file = 10
 
 onlinerate_experiments = [
     "fwd-pipeline-batchsize30-definedout-fixedsparserewire",
-    "fwd-pipeline-batchsize30-definedout-fixedsparserewire-onlinerate",
     "fwd-pipeline-batchsize30-definedout-fixedsparserewire-onlinerate0.5",
     "fwd-pipeline-batchsize30-definedout-fixedsparserewire-onlinerate0.1-endplot"
 ]
 
 onlinerate_legend = [
     "realistic output with rewiring and global rate loss (1x)",
-    "above with online rate loss 1x",
-    "online rate loss 0.5x",
+    "above with online rate loss 0.5x",
     "online rate loss 0.1x"
 ]
 
