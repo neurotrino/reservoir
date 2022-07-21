@@ -13,7 +13,7 @@ sys.path.append('../../')
 from utils.misc import filenames
 
 data_dir = "/data/experiments/"
-num_epochs = 700
+num_epochs = 1000
 epochs_per_file = 10
 
 onlinerate_experiments = [
@@ -119,7 +119,7 @@ def compare_losses(
     epochs_per_file=epochs_per_file,
     title="Specified output layer",
     xlabel="batches",
-    ylabel="task loss",
+    ylabel="total loss",
     legend=onlinerate_legend
 ):
     """Generate plots comparing losses from multiple experiments.
