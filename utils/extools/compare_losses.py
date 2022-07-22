@@ -171,7 +171,7 @@ def compare_losses(
     plt.draw()
     plt.savefig(savepath)
 
-def plot_single_experiment_loss(exp_dir,include_rate_loss):
+def plot_single_experiment_loss(plot_dir,include_rate_loss):
     rate_losses = []
     task_losses = []
     total_losses = []
@@ -180,7 +180,7 @@ def plot_single_experiment_loss(exp_dir,include_rate_loss):
     data_files = filenames(num_epochs, epochs_per_file)
     plt.figure()
     for filename in data_files:
-        filepath = os.path.join(exp_dir, "npz-data", filename)
+        filepath = os.path.join(plot_dir, "../npz-data", filename)
         data = np.load(filepath)
         task_loss = data['step_task_loss']
         task_losses += task_loss.tolist()
@@ -201,4 +201,4 @@ def plot_single_experiment_loss(exp_dir,include_rate_loss):
     plt.ylabel('loss')
     plt.legend(legend)
     plt.draw()
-    plt.savefig(os.path.join(exp_dir, "plots/loss_over_time.png"))
+    plt.savefig(os.path.join(plot_dir, "loss_over_time.png"))
