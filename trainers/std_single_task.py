@@ -201,7 +201,7 @@ class Trainer(BaseTrainer):
         # [!] besides the first time, this is just postweights of the
         #     last batch, so we want to have a `static` save of the
         #     first time, but not this
-        preweights = [x for x in self.model.trainable_variables]
+        #preweights = [x for x in self.model.trainable_variables]
 
 
         #┬───────────────────────────────────────────────────────────────────╮
@@ -402,6 +402,7 @@ class Trainer(BaseTrainer):
                 }
             )
 
+            '''
             # Weights before applying gradients
             try:
                 self.logger.log(
@@ -416,7 +417,7 @@ class Trainer(BaseTrainer):
                     }
                 )
             except Exception as e:
-                logging.warning(f"issue logging preweights: {e}")
+                logging.warning(f"issue logging preweights: {e}")'''
 
 
             # Weights after applying gradients
