@@ -22,6 +22,8 @@ class BaseLogger:
         # (epoch, step) of last post. `(None, None)` if yet to post.
         self.last_post = {'epoch': None, 'step': None}
 
+        self.seen_statics = []
+
         #┬───────────────────────────────────────────────────────────────────╮
         #┤ Logging Buffer(s)                                                 │
         #┴───────────────────────────────────────────────────────────────────╯
@@ -122,16 +124,21 @@ class BaseLogger:
                 if (wl == None) or (data_label in wl):  # whitelisting
                     self.logvars[data_label] = [data]
         else:
-            self.logvars[data_label].append(data)
+            if 'stride' not in meta:
+                logging.warning('stride unspecified for ' + data_label)
+            elif meta["stride"] == "static":
+                # Make static variables only logged once
+                if data_label not in self.seen_statics:
+                    self.logvars[data_label].append(data)
+                    self.seen_statics.append(data_label)
+            else:
+                self.logvars[data_label].append(data)
+
 
         # Metadata
         if data_label not in self.meta:
             meta['dtype'] = type(data)
             self.meta[data_label] = meta
-
-            if 'stride' not in meta:
-                # TODO: add case for `static` stride
-                logging.warning('stride unspecified for ' + data_label)
 
 
     def post(self):
