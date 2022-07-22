@@ -402,20 +402,21 @@ class Trainer(BaseTrainer):
                 }
             )
 
-            """
             # Weights before applying gradients
-            self.logger.log(
-                data_label=tvar.name + '.preweights',
-                data=preweights[i].numpy(),
-                meta={
-                    'stride': 'step',
-                    'description':
-                        'layer weights for '
-                        + tvar.name
-                        + ' before applying the gradients'
-                }
-            )
-            """
+            try:
+                self.logger.log(
+                    data_label=tvar.name + '.preweights',
+                    data=preweights[i].numpy(),
+                    meta={
+                        'stride': 'step',
+                        'description':
+                            'layer weights for '
+                            + tvar.name
+                            + ' before applying the gradients'
+                    }
+                )
+            except:
+                logging.warning("issue logging preweights")
 
 
             # Weights after applying gradients

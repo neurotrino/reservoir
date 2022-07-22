@@ -81,7 +81,7 @@
 
         // When enabled, the exp_dir will have a number suffixed to avoid
         // overwriting saved data
-        avoid_overwrite: false
+        avoid_overwrite: true
 
         // If avoid_overwrite is set to false, and exp_dir overwrites a
         // directory, this will purge the contents of the old directory. This
@@ -89,7 +89,7 @@
         hard_overwrite: true
 
         // Experiment directories will be suffixed by a UNIX timestamp
-        timestamp: false
+        timestamp: true
 
         // Save a copy of this file to exp_dir, so there's a record of what
         // parameters the experiment was run with (won't save any indication
