@@ -3,6 +3,7 @@
 # external modules
 import numpy as np
 import tensorflow as tf
+import os
 
 # internal modules
 from models.neurons.base import ExIn, Neuron
