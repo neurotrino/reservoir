@@ -415,8 +415,8 @@ class Trainer(BaseTrainer):
                             + ' before applying the gradients'
                     }
                 )
-            except:
-                logging.warning("issue logging preweights")
+            except Exception as e:
+                logging.warning(f"issue logging preweights: {e}")
 
 
             # Weights after applying gradients
