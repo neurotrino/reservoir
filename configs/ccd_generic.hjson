@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/run-batch30-specout-onlinerate0.1
+        exp_dir: /data/experiments/run-batch30-specout-onlinerate0.1-singlepreweight
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -253,13 +253,10 @@
             step_rate_loss
             epoch_loss
             spikes
-            tv0.preweights
             tv0.postweights
             tv0.gradients
-            tv1.preweights
             tv1.postweights
             tv1.gradients
-            tv2.preweights
             tv2.postweights
             tv2.gradients
         ]

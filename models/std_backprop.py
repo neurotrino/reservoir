@@ -7,6 +7,7 @@ Backprop
 import logging
 import tensorflow as tf
 import tensorflow_probability as tfp
+import os
 
 # internal ----
 from models.common import *
@@ -102,6 +103,9 @@ class ModifiedDense(tf.keras.layers.Layer):
         self.oweights.assign_add(
             initial_oweights * self.cfg["model"].cell.output_multiplier
         )
+
+        # save initial output weights
+        np.save(os.path.join(self.cfg['save'].exp_dir, "npz-data/output_preweights.npy"), initial_oweights)
 
         # set output weights from generators
         #

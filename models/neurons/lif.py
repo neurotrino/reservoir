@@ -106,6 +106,8 @@ class LIF(Neuron):
                 trainable=True,
                 name='input_weights'
             )
+        # save initial input weights
+        np.save(os.path.join(self.cfg['save'].exp_dir, "npz-data/input_preweights.npy"), self.input_weights.numpy())
 
         # Disconnect self-recurrent weights
         self.disconnect_mask = tf.cast(
@@ -120,6 +122,8 @@ class LIF(Neuron):
             name='recurrent_weights'
         )
         initial_weights_mat = self.connmat_generator.run_generator()
+        # save initial recurrent weights
+        np.save(os.path.join(self.cfg['save'].exp_dir, "npz-data/main_preweights.npy"), initial_weights_mat)
 
         if self.cfg["cell"].specify_input:
             # just set main weights, as input weights were set earlier
