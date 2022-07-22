@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/fwd-pipeline-batchsize30-definedout-fixedsparserewire-onlinerate0.1-endplot
+        exp_dir: /data/experiments/run-batch30-specout-onlinerate0.1
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -86,7 +86,7 @@
         // If avoid_overwrite is set to false, and exp_dir overwrites a
         // directory, this will purge the contents of the old directory. This
         // is to avoid mixing data from different experiments, but be careful.
-        hard_overwrite: true
+        hard_overwrite: false
 
         // Experiment directories will be suffixed by a UNIX timestamp
         timestamp: true
@@ -253,9 +253,15 @@
             step_rate_loss
             epoch_loss
             spikes
+            tv0.preweights
             tv0.postweights
+            tv0.gradients
+            tv1.preweights
             tv1.postweights
+            tv1.gradients
+            tv2.preweights
             tv2.postweights
+            tv2.gradients
         ]
         todisk_blacklist: null
 
