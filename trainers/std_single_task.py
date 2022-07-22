@@ -408,7 +408,7 @@ class Trainer(BaseTrainer):
                     data_label=tvar.name + '.preweights',
                     data=preweights[i].numpy(),
                     meta={
-                        'stride': 'step',
+                        'stride': 'static',
                         'description':
                             'layer weights for '
                             + tvar.name
