@@ -64,6 +64,5 @@ def main():
         trainer.train()
         logging.info("training complete")
 
-
 if __name__ == '__main__':
     main()
