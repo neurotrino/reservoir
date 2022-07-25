@@ -38,32 +38,31 @@ def main():
     cfg = utils.config.boot()
     logging.info("experiment directory: " + abspath(cfg['save'].exp_dir))
 
+    model_module = eval(f"models.{cfg['model'].type}")
+    data_module = eval(f"data.{cfg['data'].type}")
+    logger_module = eval(f"loggers.{cfg['log'].type}")
+    trainer_module = eval(f"trainers.{cfg['train'].type}")
+
     # Build model
     while True:
-        model_module = eval(f"models.{cfg['model'].type}")
         model = model_module.Model(cfg)
         logging.info(f"instantiated {cfg['model'].type}.Model")
 
         # Load data
-        data_module = eval(f"data.{cfg['data'].type}")
         data = data_module.DataGenerator(cfg)
         logging.info(f"instantiated {cfg['data'].type}.DataGenerator")
 
         # Instantiate logger
-        logger_module = eval(f"loggers.{cfg['log'].type}")
         logger = logger_module.Logger(cfg)
         logging.info(f"instantiated {cfg['log'].type}.Logger")
 
         # Instantiate trainer
-        trainer_module = eval(f"trainers.{cfg['train'].type}")
         trainer = trainer_module.Trainer(cfg, model, data, logger)
         logging.info(f"instantiated {cfg['train'].type}.Trainer")
 
         # Train model
         trainer.train()
         logging.info("training complete")
-
-        print(cfg)
 
 
 if __name__ == '__main__':
