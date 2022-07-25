@@ -266,7 +266,7 @@
         log_npz: true
 
         // Save logging values to disk every n epochs
-        post_every: 2
+        post_every: 10
 
         // Toggle the TensorBoard profiler
         run_profiler: false
@@ -348,7 +348,7 @@
         n_batch: 10
 
         // number of epochs the model is fit over
-        n_epochs: 2
+        n_epochs: 10
 
         include_task_loss: true
 
