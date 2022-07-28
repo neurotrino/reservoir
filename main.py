@@ -35,14 +35,41 @@ for filepath in Path('.').rglob('*.py'):
 
 def main():
     # Use command line arguments to load data, create directories, etc.
-    cfg = utils.config.boot()
-    logging.info("experiment directory: " + abspath(cfg['save'].exp_dir))
 
-    # Build model
-    model_module = eval(f"models.{cfg['model'].type}")
-    data_module = eval(f"data.{cfg['data'].type}")
-    logger_module = eval(f"loggers.{cfg['log'].type}")
-    trainer_module = eval(f"trainers.{cfg['train'].type}")
+    # to handle the while loop, we do this piecemeal, so the part that
+    # needs to change per loop changes per loop (would normally be
+    #cfg = utils.config.boot()
+    # )
+    args = utils.config.get_args()
+
+    while True:
+        utils.config.boot(args)
+        logging.info("experiment directory: " + abspath(cfg['save'].exp_dir))
+
+        # Convert stringnames of component classes into component classes
+        model_module = eval(f"models.{cfg['model'].type}")
+        data_module = eval(f"data.{cfg['data'].type}")
+        logger_module = eval(f"loggers.{cfg['log'].type}")
+        trainer_module = eval(f"trainers.{cfg['train'].type}")
+
+        model = model_module.Model(cfg)
+        logging.info(f"instantiated {cfg['model'].type}.Model")
+
+        # Load data
+        data = data_module.DataGenerator(cfg)
+        logging.info(f"instantiated {cfg['data'].type}.DataGenerator")
+
+        # Instantiate logger
+        logger = logger_module.Logger(cfg)
+        logging.info(f"instantiated {cfg['log'].type}.Logger")
+
+        # Instantiate trainer
+        trainer = trainer_module.Trainer(cfg, model, data, logger)
+        logging.info(f"instantiated {cfg['train'].type}.Trainer")
+
+        # Train model
+        trainer.train()
+        logging.info("training complete")
 
     model = model_module.Model(cfg)
     logging.info(f"instantiated {cfg['model'].type}.Model")
