@@ -257,7 +257,7 @@ class Logger(BaseLogger):
         hi_epoch = self.cur_epoch
         for epoch_idx in range(self.cfg['log'].post_every):
             step_idx = epoch_idx * self.cfg['train'].n_batch
-            #self.plot_everything(f"{lo_epoch + epoch_idx}", step_idx)
+            self.plot_everything(f"{lo_epoch + epoch_idx}", step_idx)
 
         # Write to disk, free RAM, and perform bookkeeping
         super().post()
@@ -300,7 +300,7 @@ class Logger(BaseLogger):
             pickle.dump(self.meta, file)
 
         # create loss over time plot
-        #plot_single_experiment_loss(self.cfg['save'].plot_dir, self.cfg['train'].include_rate_loss)
+        plot_single_experiment_loss(self.cfg['save'].plot_dir, self.cfg['train'].include_rate_loss)
 
 
     def on_step_end(self):
