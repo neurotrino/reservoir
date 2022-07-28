@@ -56,7 +56,7 @@ def main():
         logging.info(f"instantiated {cfg['model'].type}.Model")
 
         # Load data
-        data = data_module.DataGenerator(cfg)
+        _data = data_module.DataGenerator(cfg)
         logging.info(f"instantiated {cfg['data'].type}.DataGenerator")
 
         # Instantiate logger
@@ -64,7 +64,7 @@ def main():
         logging.info(f"instantiated {cfg['log'].type}.Logger")
 
         # Instantiate trainer
-        trainer = trainer_module.Trainer(cfg, model, data, logger)
+        trainer = trainer_module.Trainer(cfg, model, _data, logger)
         logging.info(f"instantiated {cfg['train'].type}.Trainer")
 
         # Train model
