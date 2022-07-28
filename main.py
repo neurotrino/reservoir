@@ -71,24 +71,5 @@ def main():
         trainer.train()
         logging.info("training complete")
 
-    model = model_module.Model(cfg)
-    logging.info(f"instantiated {cfg['model'].type}.Model")
-
-    # Load data
-    data = data_module.DataGenerator(cfg)
-    logging.info(f"instantiated {cfg['data'].type}.DataGenerator")
-
-    # Instantiate logger
-    logger = logger_module.Logger(cfg)
-    logging.info(f"instantiated {cfg['log'].type}.Logger")
-
-    # Instantiate trainer
-    trainer = trainer_module.Trainer(cfg, model, data, logger)
-    logging.info(f"instantiated {cfg['train'].type}.Trainer")
-
-    # Train model
-    trainer.train()
-    logging.info("training complete")
-
 if __name__ == '__main__':
     main()
