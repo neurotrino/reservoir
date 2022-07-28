@@ -159,7 +159,7 @@ def compare_losses(
             loss_of_interest = data['step_task_loss']
             losses += loss_of_interest.tolist()
         # Plot losses for a single experiment
-        plt.plot(losses[0 : num_epochs - epochs_per_file])
+        plt.plot(losses)
 
     # Label everything
     plt.title(title)
@@ -171,10 +171,12 @@ def compare_losses(
     plt.draw()
     plt.savefig(savepath)
 
-def plot_single_experiment_loss(plot_dir,include_rate_loss, num_epochs, epochs_per_file):
+def plot_single_experiment_loss(plot_dir,include_rate_loss):
     rate_losses = []
     task_losses = []
     total_losses = []
+    num_epochs = 1000
+    epochs_per_file = 10
     data_files = filenames(num_epochs, epochs_per_file)
     plt.figure()
     for filename in data_files:
@@ -187,10 +189,10 @@ def plot_single_experiment_loss(plot_dir,include_rate_loss, num_epochs, epochs_p
             rate_losses += rate_loss.tolist()
             total_loss = task_loss + rate_loss
             total_losses += total_loss.tolist()
-    plt.plot(task_losses[0 : num_epochs - epochs_per_file])
+    plt.plot(task_losses)
     if include_rate_loss:
-        plt.plot(rate_losses[0 : num_epochs - epochs_per_file])
-        plt.plot(total_losses[0 : num_epochs - epochs_per_file])
+        plt.plot(rate_losses)
+        plt.plot(total_losses)
         legend = ['task loss','rate loss','total loss']
     else:
         legend = ['task loss']

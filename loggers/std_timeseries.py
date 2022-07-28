@@ -300,7 +300,7 @@ class Logger(BaseLogger):
             pickle.dump(self.meta, file)
 
         # create loss over time plot
-        plot_single_experiment_loss(self.cfg['save'].plot_dir, self.cfg['train'].include_rate_loss, self.cfg['train'].n_epochs, self.cfg['train'].n_batch)
+        #plot_single_experiment_loss(self.cfg['save'].plot_dir, self.cfg['train'].include_rate_loss)
 
 
     def on_step_end(self):
