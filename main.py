@@ -38,13 +38,15 @@ def main():
     cfg = utils.config.boot()
     logging.info("experiment directory: " + abspath(cfg['save'].exp_dir))
 
-    model_module = eval(f"models.{cfg['model'].type}")
     data_module = eval(f"data.{cfg['data'].type}")
-    logger_module = eval(f"loggers.{cfg['log'].type}")
-    trainer_module = eval(f"trainers.{cfg['train'].type}")
 
     # Build model
     while True:
+
+        model_module = eval(f"models.{cfg['model'].type}")
+        logger_module = eval(f"loggers.{cfg['log'].type}")
+        trainer_module = eval(f"trainers.{cfg['train'].type}")
+
         model = model_module.Model(cfg)
         logging.info(f"instantiated {cfg['model'].type}.Model")
 
