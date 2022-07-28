@@ -43,7 +43,7 @@ def main():
     args = utils.config.get_args()
 
     while True:
-        utils.config.boot(args)
+        cfg = utils.config.boot(args)
         logging.info("experiment directory: " + abspath(cfg['save'].exp_dir))
 
         # Convert stringnames of component classes into component classes
