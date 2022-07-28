@@ -171,12 +171,10 @@ def compare_losses(
     plt.draw()
     plt.savefig(savepath)
 
-def plot_single_experiment_loss(plot_dir,include_rate_loss):
+def plot_single_experiment_loss(plot_dir,include_rate_loss, num_epochs, epochs_per_file):
     rate_losses = []
     task_losses = []
     total_losses = []
-    num_epochs = 1000
-    epochs_per_file = 10
     data_files = filenames(num_epochs, epochs_per_file)
     plt.figure()
     for filename in data_files:
