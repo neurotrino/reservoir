@@ -317,6 +317,16 @@ def gen_heatmap(weights, title, axis, show_value_bounds=True):
 
     return heatmap
 
+def out_degree(graph, weighted): # input tranposed graph and you'll get in-degrees instead
+    pre_units = np.shape(graph)[0]
+    degrees = []
+    for i in range(0, pre_units):
+        if weighted:
+            degrees.append(np.sum(graph[i][graph[i]!=0]))
+        else:
+            degrees.append(np.size(graph[i][graph[i]!=0]))
+    return degrees # for each unit in the graph
+
 
 def reciprocity(graph, within_type):
     """[!] Document"""

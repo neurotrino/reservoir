@@ -14,6 +14,7 @@ from utils.misc import filenames
 from utils.misc import get_experiments
 from utils.extools.loss_spike_causes import reciprocity
 from utils.extools.fn_analysis import calc_density
+from utils.extools.fn_analysis import out_degree
 
 data_dir = '/data/experiments/'
 experiment_string = 'run-batch30-specout-onlinerate0.1-singlepreweight'
@@ -108,7 +109,7 @@ plot_aux_w_over_time(savepath):
     ax[1].set_title('main i to output')
 
     # Create and save the final figure
-    fig1.suptitle('experiment set 1 input output weights')
+    fig.suptitle('experiment set 1 input output weights')
     plt.draw()
     plt.savefig(os.path.join(savepath,"set_weights_aux.png"),dpi=300)
     plt.clf()
@@ -155,7 +156,7 @@ plot_main_w_over_time(savepath):
     ax[3].set_title('within i')
 
     # Create and save the final figure
-    fig1.suptitle('experiment set 1 main weights')
+    fig.suptitle('experiment set 1 main weights')
     plt.draw()
     plt.savefig(os.path.join(savepath,"set_weights_main.png"),dpi=300)
     plt.clf()
@@ -166,9 +167,63 @@ plot_main_w_over_time(savepath):
 # within i alone
 # whole graph
 # weighted and unweighted for all
+def plot_degree_over_time(savepath):
+    experiments = get_experiments(data_dir, experiment_string)
+    data_files = filenames(num_epochs, epochs_per_file)
+    fig, ax = plt.subplots(nrows=2, ncols=2)
 
+    for xdir in experiments: # loop through all experiments of this set
+        ee_ratio = []
+        ii_ratio = []
+        all_ratio = []
+        all_unweighted_ratio = []
+
+        for filename = data_files: # loop through all 1000 npz files
+            filepath = os.path.join(data_dir, xdir, 'npz-data', filename)
+            data = np.load(filepath)
+            w = data['tv1.postweights']
+
+            for i in np.shape(w)[0]:
+                ee_out = out_degree(w[i][0:e_end,0:e_end], weighted=True)
+                ee_in = out_degree(np.transpose(w[i][0:e_end,0:e_end]), weighted=True)
+                ee_ratio.append(ee_in/ee_out)
+
+                ii_out = out_degree(w[i][e_end:i_end,e_end:i_end], weighted=True)
+                ii_in = out_degree(np.transpose(w[i][e_end:i_end,e_end:i_end]), weighted=True)
+                ii_ratio.append(ii_in/ii_out)
+
+                all_out = out_degree(w[i], weighted=True)
+                all_in = out_degree(np.transpose(w[i]), weighted=True)
+                all_ratio.append(all_in/all_out)
+
+                all_out = out_degree(w[i], weighted=False)
+                all_in = out_degree(np.transpose(w[i]), weighted=False)
+                all_unweighted_ratio.append(all_in/all_out)
+
+        # plot each experiment over all training time
+        ax[0].plot(ee_ratio)
+        ax[1].plot(ii_ratio)
+        ax[2].plot(all_weighted_ratio)
+        ax[3].plot(all_ratio)
+
+    ax[0].set_title('within e only')
+    ax[1].set_title('within i only')
+    ax[2].set_title('whole graph')
+    ax[3].set_title('unweighted whole graph')
+
+    for i in ax:
+        ax[i].set_xlabel('batch')
+        ax[i].set_ylabel('in/out-degree ratio')
+
+    fig.suptitle('experiment set 1 weighted in/out degree ratios')
+    plt.draw()
+    plt.savefig(os.path.join(savepath,"set_degrees.png"),dpi=300)
+    plt.clf()
+    plt.close()
 
 # Naive distribution, epoch 10 distribution, epoch 100 distribution, epoch 1000 distribution
 # of in and out degree
+def plot_degree_dist():
 # of weights for in, main, out
-# separate for main and out e and i units and together
+def plot_aux_w_dist():
+def plot_main_w_dist():
