@@ -1,3 +1,9 @@
+# external ----
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import sys
+
 """Generic wrapper to make decorators switchable."""
 
 class SwitchedDecorator:
@@ -29,6 +35,13 @@ class SwitchedDecorator:
             )
         self._enabled = new_val
 
+def get_experiments(data_dir, experiment_string):
+    """Get a list of filenames for all experiments that contain a desired string"""
+    exp_dirs = []
+    for file in os.listdir(data_dir):
+        if file.startswith(experiment_string):
+            exp_dirs.append(os.path.join(data_dir,file))
+    return exp_dirs
 
 def filenames(num_epochs, epochs_per_file):
     """Get the filenames storing data for epoch ranges.

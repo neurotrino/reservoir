@@ -11,6 +11,7 @@ sys.path.append('../../')
 
 # internal ----
 from utils.misc import filenames
+from utils.misc import get_experiments
 
 data_dir = "/data/experiments/"
 num_epochs = 1000
@@ -111,6 +112,61 @@ savepath = '/data/results/fwd/onlinerate_task.png'
 
 # remove loss_of_interest from arg
 
+def compare_losses_within_experiment_set(
+    savepath = '/data/results/experiment1/set_loss.png',
+    data_dir = data_dir,
+    experiment_string = 'run-batch30-specout-onlinerate0.1-singlepreweight',
+    num_epochs = num_epochs,
+    epochs_per_file = epochs_per_file,
+    title = 'Experiment set 1',
+    xlabel = 'batches',
+):
+    experiments = get_experiments(data_dir, experiment_string)
+    data_files = filenames(num_epochs, epochs_per_file)
+
+    fig, ax = plt.subplots(nrows=2, ncols=2)
+    """create 2x2 subplot figure
+    subplot 0: total loss of all experiments individually
+    subplot 1: mean total loss with standard deviation across experiments
+    subplot 2: task loss of all experiments individually
+    subplot 3: rate loss of all experiments individually"""
+
+    loss_arr = []
+    for xdir in experiments:
+        losses = []
+        task_losses = []
+        rate_losses = []
+        for filename = data_files:
+            filepath = os.path.join(data_dir, xdir, 'npz-data', filename)
+            data = np.load(filepath)
+            losses += np.add(data['step_task_loss'],data['step_rate_loss']).tolist()
+            task_losses += data['step_task_loss'].tolist()
+            rate_losses += data['step_rate_loss'].tolist()
+        # Append to ongoing array of shape experiment x time
+        loss_arr = np.vstack([loss_arr, losses])
+        ax[0].plot(losses)
+        ax[2].plot(task_losses)
+        ax[3].plot(rate_losses)
+    ax[0].set_ylabel('total loss')
+    ax[1].set_ylabel('mean total loss')
+    ax[2].set_ylabel('task loss')
+    ax[3].set_ylabel('rate_loss')
+    for i in ax:
+        ax[i].set_xlabel(xlabel)
+
+    # Create mean total loss plot with standard deviation
+    loss_std = np.std(loss_arr, axis=0)
+    loss_mean = np.mean(loss_arr, axis=0)
+    ax[1].plot(loss_mean)
+    ax[1].fill_between(loss_mean-loss_std, loss_mean+loss_std, alpha=0.5)
+
+    # Create and save the final figure
+    fig.suptitle(title)
+    plt.draw()
+    plt.savefig(savepath,dpi=300)
+    plt.clf()
+    plt.close()
+
 def compare_losses(
     savepath=savepath,
     data_dir=data_dir,
@@ -121,16 +177,15 @@ def compare_losses(
     xlabel="batches",
     ylabel="total loss",
     legend=onlinerate_legend
-):
-    """Generate plots comparing losses from multiple experiments.
+):  """Generate plots comparing losses from multiple experiments.
     Args:
     - experiments: list of lists of strings indicating experiment
         directories. All experiments must at least have `num_epochs`
         and have the same number of epochs per file. Can also just be a
         list of strings.
     Options for loss of interest:
-    - 'step_loss'
-    - 'epoch_loss'
+    - `step_loss`
+    - `epoch_loss`
     """
     if type(experiments[0]) == list:
         # When passed a list of lists (i.e. when we're comparing the
@@ -148,13 +203,12 @@ def compare_losses(
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
-            """
-            if xdir != "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50":
-                arr = np.array([data['step_task_loss'],data['step_rate_loss'],data['step_synch_loss']])
-                loss_of_interest = arr.sum(axis=0)
-                losses += loss_of_interest.tolist()
-            else:
-            """
+
+            #if xdir != "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50":
+                #arr = np.array([data['step_task_loss'],data['step_rate_loss'],data['step_synch_loss']])
+                #loss_of_interest = arr.sum(axis=0)
+                #losses += loss_of_interest.tolist()
+            #else:
             #loss_of_interest = np.add(data['step_task_loss'],data['step_rate_loss'])
             loss_of_interest = data['step_task_loss']
             losses += loss_of_interest.tolist()
