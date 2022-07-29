@@ -318,13 +318,21 @@ def gen_heatmap(weights, title, axis, show_value_bounds=True):
     return heatmap
 
 
-def reciprocity(graph):
+def reciprocity(graph, within_type):
     """[!] Document"""
-    units = np.shape(graph)[0]
+    pre_units = np.shape(graph)[0]
+    post_units = np.shape(graph)[1]
     reciprocal_ct = 0
-    for i in range(0, units):
-        for j in range(0, units):
-            if i != j and graph[i, j] != 0 and graph[j, i] != 0:
-                reciprocal_ct += 1
-    possible_reciprocal_ct = np.size(graph) - units
-    return reciprocal_ct
+    for i in range(0, pre_units):
+        for j in range(0, post_units):
+            if within_type:
+                if i != j and graph[i, j] != 0 and graph[j, i] != 0:
+                    reciprocal_ct += 1
+            else:
+                if graph[i,j]!=0 and graph[j,i]!=0:
+                    reciprocal_ct += 1
+    if within_type:
+        possible_reciprocal_ct = np.size(graph) - pre_units
+    else:
+        possible_reciprocal_ct = np.size(graph)
+    return reciprocal_ct/possible_reciprocal_ct
