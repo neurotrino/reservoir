@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import sys
+import seaborn as sns
 
 sys.path.append('../')
 sys.path.append('../../')
@@ -162,12 +163,59 @@ plot_main_w_over_time(savepath):
     plt.clf()
     plt.close()
 
-# Calculate and plot in/out degree for main rsnn as they evolve over training time
+# Calculate and plot unweighted in/out degree difference for main nodes (Copeland score)
+def plot_main_copeland_score_over_time(savepath):
+    experiments = get_experiments(data_dir, experiment_string)
+    data_files = filenames(num_epochs, epochs_per_file)
+    fig, ax = plt.subplots(nrows=3, ncols=1)
+
+    for xdir in experiments: # loop through all experiments of this set
+        ee_score = []
+        ii_score = []
+        all_score = []
+
+        for filename = data_files: # loop through all 1000 npz files
+            filepath = os.path.join(data_dir, xdir, 'npz-data', filename)
+            data = np.load(filepath)
+            w = data['tv1.postweights']
+
+            for i in np.shape(w)[0]:
+                ee_out = np.mean(out_degree(w[i][0:e_end,0:e_end], weighted=False))
+                ee_in = np.mean(out_degree(np.transpose(w[i][0:e_end,0:e_end]), weighted=False))
+                ee_score.append(ee_out - ee_in)
+
+                ii_out = np.mean(out_degree(w[i][e_end:i_end,e_end:i_end], weighted=False))
+                ii_in = np.mean(out_degree(np.transpose(w[i][e_end:i_end,e_end:i_end]), weighted=False))
+                ii_score.append(ii_out - ii_in)
+
+                all_out = np.mean(out_degree(w[i], weighted=False))
+                all_in = np.mean(out_degree(np.transpose(w[i]), weighted=False))
+                all_ratio.append(all_out - all_in)
+
+        # plot each experiment over all training time
+        ax[0].plot(ee_score)
+        ax[1].plot(ii_score)
+        ax[2].plot(all_score)
+
+    ax[0].set_title('within e only')
+    ax[1].set_title('within i only')
+    ax[2].set_title('whole graph')
+
+    for i in ax:
+        ax[i].set_xlabel('batch')
+        ax[i].set_ylabel('Copeland score (out-degree minus in-degree)')
+
+    fig.suptitle('experiment set 1 weighted in/out degree ratios')
+    plt.draw()
+    plt.savefig(os.path.join(savepath,"set_copelands.png"),dpi=300)
+    plt.clf()
+    plt.close()
+
+# Calculate and plot weighted in/out degree ratio for main rsnn as they evolve over training time
 # within e alone
 # within i alone
 # whole graph
-# weighted and unweighted for all
-def plot_degree_over_time(savepath):
+def plot_main_degree_over_time(savepath):
     experiments = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
     fig, ax = plt.subplots(nrows=2, ncols=2)
@@ -183,21 +231,21 @@ def plot_degree_over_time(savepath):
             data = np.load(filepath)
             w = data['tv1.postweights']
 
-            for i in np.shape(w)[0]:
-                ee_out = out_degree(w[i][0:e_end,0:e_end], weighted=True)
-                ee_in = out_degree(np.transpose(w[i][0:e_end,0:e_end]), weighted=True)
+            for i in np.shape(w)[0]: # for each graph (1 graph each for 100 batches per file), get mean degrees across graph
+                ee_out = np.mean(out_degree(w[i][0:e_end,0:e_end], weighted=True))
+                ee_in = np.mean(out_degree(np.transpose(w[i][0:e_end,0:e_end]), weighted=True))
                 ee_ratio.append(ee_in/ee_out)
 
-                ii_out = out_degree(w[i][e_end:i_end,e_end:i_end], weighted=True)
-                ii_in = out_degree(np.transpose(w[i][e_end:i_end,e_end:i_end]), weighted=True)
+                ii_out = np.mean(out_degree(w[i][e_end:i_end,e_end:i_end], weighted=True))
+                ii_in = np.mean(out_degree(np.transpose(w[i][e_end:i_end,e_end:i_end]), weighted=True))
                 ii_ratio.append(ii_in/ii_out)
 
-                all_out = out_degree(w[i], weighted=True)
-                all_in = out_degree(np.transpose(w[i]), weighted=True)
+                all_out = np.mean(out_degree(w[i], weighted=True))
+                all_in = np.mean(out_degree(np.transpose(w[i]), weighted=True))
                 all_ratio.append(all_in/all_out)
 
-                all_out = out_degree(w[i], weighted=False)
-                all_in = out_degree(np.transpose(w[i]), weighted=False)
+                all_out = np.mean(out_degree(w[i], weighted=False))
+                all_in = np.mean(out_degree(np.transpose(w[i]), weighted=False))
                 all_unweighted_ratio.append(all_in/all_out)
 
         # plot each experiment over all training time
@@ -223,7 +271,177 @@ def plot_degree_over_time(savepath):
 
 # Naive distribution, epoch 10 distribution, epoch 100 distribution, epoch 1000 distribution
 # of in and out degree
-def plot_degree_dist():
+def plot_degree_dist_single_experiments():
+    # 4 subplots
+    experiment = get_experiments(data_dir, experiment_string)
+    fig, ax = plt.subplots(nrows=4, ncols=1)
+    # first for naive distribution
+    # second for epoch 10
+    # third for epoch 100
+    # fourth for epoch 1000
+
+    for xdir in experiments:
+        data_files = []
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/main_preweights.npy'))
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/1-10.npz'))
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/91-100.npz'))
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/991-1000.npz'))
+
+        w = []
+        # load naive weights
+        w.append(np.load(data_files[0]))
+        for i in range(1,4): # load other weights
+            data = np.load(data_files[i])
+            w.append(data['tv1.postweights'][99])
+
+        for i in range(4):
+            d_out = out_degree(w[i], weighted=True)
+            d_in = out_degree(np.transpose(w[i]), weighted=True)
+            # plot distribution of degree ratios for all units in the graph of that particular batch
+            ax[i] = sns.histplot(data=d_in/d_out, bins=30, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE')))
+
+        ax[0].set_title('naive')
+        ax[1].set_title('epoch 10')
+        ax[2].set_title('epoch 100')
+        ax[3].set_title('epoch 1000')
+
+        for i in ax:
+            ax[i].set_xlabel('in/out-degree ratio for main rsnn')
+            ax[i].set_ylabel('density')
+
+        fig.suptitle('experiment set 1 weighted in/out degree ratios')
+        plt.draw()
+        plt.savefig(os.path.join(savepath,"degree_dist_exp.png"),dpi=300) # index properly!
+        plt.clf()
+        plt.close()
+
 # of weights for in, main, out
-def plot_aux_w_dist():
-def plot_main_w_dist():
+def plot_output_w_dist_experiments():
+    # 4 subplots
+    experiment = get_experiments(data_dir, experiment_string)
+    fig, ax = plt.subplots(nrows=4, ncols=1)
+    # first for naive distribution
+    # second for epoch 10
+    # third for epoch 100
+    # fourth for epoch 1000
+
+    for xdir in experiments:
+        data_files = []
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/output_preweights.npy'))
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/1-10.npz'))
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/91-100.npz'))
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/991-1000.npz'))
+
+        w = []
+        # load naive weights
+        w.append(np.load(data_files[0]))
+        for i in range(1,4): # load other weights
+            data = np.load(data_files[i])
+            w.append(data['tv2.postweights'][99])
+
+        for i in range(4):
+            ax[i] = sns.histplot(data=w[i], bins=30, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE')))
+
+        ax[0].set_title('naive')
+        ax[1].set_title('epoch 10')
+        ax[2].set_title('epoch 100')
+        ax[3].set_title('epoch 1000')
+
+        for i in ax:
+            ax[i].set_xlabel('weights for output layer')
+            ax[i].set_ylabel('density')
+
+        fig.suptitle('experiment set 1 output weights')
+        plt.draw()
+        plt.savefig(os.path.join(savepath,"output_w_dist_exp.png"),dpi=300) # index properly!
+        plt.clf()
+        plt.close()
+
+def plot_input_w_dist_experiments():
+    # 4 subplots
+    experiment = get_experiments(data_dir, experiment_string)
+    fig, ax = plt.subplots(nrows=4, ncols=1)
+    # first for naive distribution
+    # second for epoch 10
+    # third for epoch 100
+    # fourth for epoch 1000
+
+    for xdir in experiments:
+        data_files = []
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/input_preweights.npy'))
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/1-10.npz'))
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/91-100.npz'))
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/991-1000.npz'))
+
+        w = []
+        # load naive weights
+        w.append(np.load(data_files[0]))
+        for i in range(1,4): # load other weights
+            data = np.load(data_files[i])
+            w.append(data['tv0.postweights'][99])
+
+        for i in range(4):
+            ax[i] = sns.histplot(data=w[i], bins=30, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE')))
+
+        ax[0].set_title('naive')
+        ax[1].set_title('epoch 10')
+        ax[2].set_title('epoch 100')
+        ax[3].set_title('epoch 1000')
+
+        for i in ax:
+            ax[i].set_xlabel('weights for input layer')
+            ax[i].set_ylabel('density')
+
+        fig.suptitle('experiment set 1 input weights')
+        plt.draw()
+        plt.savefig(os.path.join(savepath,"input_w_dist_exp.png"),dpi=300) # index properly!
+        plt.clf()
+        plt.close()
+
+def plot_main_w_dist_experiments():
+    # 4 subplots
+    experiment = get_experiments(data_dir, experiment_string)
+    fig, ax = plt.subplots(nrows=4, ncols=2)
+    # first for naive distribution
+    # second for epoch 10
+    # third for epoch 100
+    # fourth for epoch 1000
+
+    for xdir in experiments:
+        data_files = []
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/main_preweights.npy'))
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/1-10.npz'))
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/91-100.npz'))
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/991-1000.npz'))
+
+        w = []
+        # load naive weights
+        w.append(np.load(data_files[0]))
+        for i in range(1,4): # load other weights
+            data = np.load(data_files[i])
+            w.append(data['tv1.postweights'][99])
+
+        for i in range(4):
+            # plot distribution of excitatory (to e and i) weights
+            ax[i] = sns.histplot(data=w[i][0:e_end,:], bins=30, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE')))
+            # plot distribution of inhibitory (to e and i) weights
+            ax[i+4] = sns.histplot(data=w[i][e_end:i_end,:], bins=30, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE')))
+
+        ax[0].set_title('e naive')
+        ax[1].set_title('e epoch 10')
+        ax[2].set_title('e epoch 100')
+        ax[3].set_title('e epoch 1000')
+        ax[4].set_title('i naive')
+        ax[5].set_title('i epoch 10')
+        ax[6].set_title('i epoch 100')
+        ax[7].set_title('i epoch 1000')
+
+        for i in ax:
+            ax[i].set_xlabel('weights for recurrent layer')
+            ax[i].set_ylabel('density')
+
+        fig.suptitle('experiment set 1 main weights')
+        plt.draw()
+        plt.savefig(os.path.join(savepath,"main_w_dist_exp.png"),dpi=300) # index properly!
+        plt.clf()
+        plt.close()
