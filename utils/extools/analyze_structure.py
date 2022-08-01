@@ -32,6 +32,7 @@ def plot_reciprocity_over_time(savepath):
     experiments = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
     fig, ax = plt.subplots(nrows=2, ncols=2)
+    ax=ax.flatten()
     recip_arr = []
     for xdir in experiments: # loop through all experiments of this set
         recip_ee = []
@@ -70,6 +71,7 @@ def plot_reciprocity_over_time(savepath):
     # Create and save the final figure
     fig.suptitle('experiment set 1 reciprocity')
     plt.draw()
+    plt.subplots_adjust(hspace=1.0)
     plt.savefig(os.path.join(savepath,"set_reciprocity.png"),dpi=300)
     plt.clf()
     plt.close()
@@ -124,6 +126,7 @@ def plot_main_w_over_time(savepath):
     data_files = filenames(num_epochs, epochs_per_file)
     # main network e-e, e-i, i-e, and i-i (don't consider 0's)
     fig, ax = plt.subplots(nrows=2, ncols=2)
+    ax=ax.flatten()
 
     for xdir in experiments: # loop through all experiments of this set
         ee = []
@@ -222,6 +225,7 @@ def plot_main_degree_over_time(savepath):
     experiments = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
     fig, ax = plt.subplots(nrows=2, ncols=2)
+    ax=ax.flatten()
 
     for xdir in experiments: # loop through all experiments of this set
         ee_ratio = []
@@ -420,6 +424,7 @@ def plot_main_w_dist_experiments():
     # 4 subplots
     experiment = get_experiments(data_dir, experiment_string)
     fig, ax = plt.subplots(nrows=4, ncols=2)
+    ax=ax.flatten()
     # first for naive distribution
     # second for epoch 10
     # third for epoch 100
