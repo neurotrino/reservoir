@@ -37,7 +37,7 @@ def plot_reciprocity_over_time(savepath):
         recip_ei = [] # same as recip_ie
         recip_ii = []
         recip_all = []
-        for filename = data_files: # loop through all 1000 npz files
+        for filename in data_files: # loop through all 1000 npz files
             filepath = os.path.join(data_dir, xdir, 'npz-data', filename)
             data = np.load(filepath)
             w = data['tv1.postweights']
@@ -85,7 +85,7 @@ def plot_aux_w_over_time(savepath):
         input = []
         e_out = []
         i_out = []
-        for filename = data_files: # loop through all 1000 npz files
+        for filename in data_files: # loop through all 1000 npz files
             filepath = os.path.join(data_dir, xdir, 'npz-data', filename)
             data = np.load(filepath)
             in_w = data['tv0.postweights']
@@ -129,7 +129,7 @@ def plot_main_w_over_time(savepath):
         ie = []
         ii = []
 
-        for filename = data_files: # loop through all 1000 npz files
+        for filename in data_files: # loop through all 1000 npz files
             filepath = os.path.join(data_dir, xdir, 'npz-data', filename)
             data = np.load(filepath)
             w = data['tv1.postweights']
@@ -174,7 +174,7 @@ def plot_main_copeland_score_over_time(savepath):
         ii_score = []
         all_score = []
 
-        for filename = data_files: # loop through all 1000 npz files
+        for filename in data_files: # loop through all 1000 npz files
             filepath = os.path.join(data_dir, xdir, 'npz-data', filename)
             data = np.load(filepath)
             w = data['tv1.postweights']
@@ -226,7 +226,7 @@ def plot_main_degree_over_time(savepath):
         all_ratio = []
         all_unweighted_ratio = []
 
-        for filename = data_files: # loop through all 1000 npz files
+        for filename in data_files: # loop through all 1000 npz files
             filepath = os.path.join(data_dir, xdir, 'npz-data', filename)
             data = np.load(filepath)
             w = data['tv1.postweights']
