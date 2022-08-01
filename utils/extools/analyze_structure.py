@@ -33,7 +33,7 @@ def plot_reciprocity_over_time(savepath):
     data_files = filenames(num_epochs, epochs_per_file)
     fig, ax = plt.subplots(nrows=2, ncols=2)
     ax=ax.flatten()
-    recip_arr = []
+    #recip_arr = []
     for xdir in experiments: # loop through all experiments of this set
         recip_ee = []
         recip_ei = [] # same as recip_ie
@@ -54,7 +54,8 @@ def plot_reciprocity_over_time(savepath):
         ax[1].plot(recip_ei)
         ax[2].plot(recip_ii)
         # stack experiment (each over all training time) into rows for meaning later
-        recip_arr = np.vstack([recip_arr,recip_all])
+        #recip_arr = np.vstack([recip_arr,recip_all])
+        ax[3].plot(recip_all)
     for i in range(4):
         ax[i].set_xlabel('batch')
         ax[i].set_ylabel('reciprocity')
@@ -62,16 +63,17 @@ def plot_reciprocity_over_time(savepath):
     ax[1].set_title('between e and i')
     ax[2].set_title('within i')
     # plot whole-network mean reciprocity and std
-    ax[3].set_title('whole-network reciprocity and std')
-    recip_std = np.std(recip_arr, axis=0)
-    recip_mean = np.mean(recip_arr, axis=0)
-    ax[3].plot(recip_mean)
-    ax[3].fill_between(recip_mean-recip_std, recip_mean+recip_std, alpha=0.5)
+    #ax[3].set_title('whole-network reciprocity and std')
+    #recip_std = np.std(recip_arr, axis=0)
+    #recip_mean = np.mean(recip_arr, axis=0)
+    #ax[3].plot(recip_mean)
+    #ax[3].fill_between(recip_mean-recip_std, recip_mean+recip_std, alpha=0.5)
+    ax[3].set_title('whole network')
 
     # Create and save the final figure
     fig.suptitle('experiment set 1 reciprocity')
     plt.draw()
-    plt.subplots_adjust(hspace=1.0)
+    plt.subplots_adjust(wspace=0.5,hspace=0.5)
     plt.savefig(os.path.join(savepath,"set_reciprocity.png"),dpi=300)
     plt.clf()
     plt.close()
