@@ -42,7 +42,7 @@ def plot_reciprocity_over_time(savepath):
             data = np.load(filepath)
             w = data['tv1.postweights']
             # w is shaped 100 (batches x epochs) x 300 x 300
-            for i in np.shape(w)[0]: # loop through 100 batch updates within each npz file
+            for i in range(np.shape(w)[0]): # loop through 100 batch updates within each npz file
                 recip_ee.append(reciprocity(w[i][0:e_end,0:e_end], within_type = True))
                 recip_ei.append(reciprocity(w[i][0:e_end,e_end:i_end], within_type = False))
                 recip_ii.append(reciprocity(w[i][e_end:i_end,e_end:i_end], within_type = True))
@@ -92,7 +92,7 @@ def plot_aux_w_over_time(savepath):
             out_w = data['tv2.postweights']
             out_w[out_w==0] = np.nan # so we can ignore them in the mean
             # w is shaped 100 (batches x epochs) x 300 x 300
-            for i in np.shape(w)[0]: # loop through 100 batch updates within each npz file
+            for i in range(np.shape(w)[0]): # loop through 100 batch updates within each npz file
                 input.append(np.mean(in_w[i]))
                 e_out.append(np.nanmean(out_w[i][0:e_end,:]))
                 i_out.append(np.nanmean(out_w[i][e_end:i_end,:]))
@@ -135,7 +135,7 @@ def plot_main_w_over_time(savepath):
             w = data['tv1.postweights']
             w[w==0] = np.nan # so we can ignore them in the mean
             # w is shaped 100 (batches x epochs) x 300 x 300
-            for i in np.shape(w)[0]: # loop through 100 batch updates within each npz file
+            for i in range(np.shape(w)[0]): # loop through 100 batch updates within each npz file
                 ee.append(np.nanmean(w[i][0:e_end,0:e_end]))
                 ei.append(np.nanmean(w[i][0:e_end,e_end:i_end]))
                 ie.append(np.nanmean(w[i][e_end:i_end,0:e_end]))
@@ -179,7 +179,7 @@ def plot_main_copeland_score_over_time(savepath):
             data = np.load(filepath)
             w = data['tv1.postweights']
 
-            for i in np.shape(w)[0]:
+            for i in range(np.shape(w)[0]):
                 ee_out = np.mean(out_degree(w[i][0:e_end,0:e_end], weighted=False))
                 ee_in = np.mean(out_degree(np.transpose(w[i][0:e_end,0:e_end]), weighted=False))
                 ee_score.append(ee_out - ee_in)
@@ -231,7 +231,7 @@ def plot_main_degree_over_time(savepath):
             data = np.load(filepath)
             w = data['tv1.postweights']
 
-            for i in np.shape(w)[0]: # for each graph (1 graph each for 100 batches per file), get mean degrees across graph
+            for i in range(np.shape(w)[0]): # for each graph (1 graph each for 100 batches per file), get mean degrees across graph
                 ee_out = np.mean(out_degree(w[i][0:e_end,0:e_end], weighted=True))
                 ee_in = np.mean(out_degree(np.transpose(w[i][0:e_end,0:e_end]), weighted=True))
                 ee_ratio.append(ee_in/ee_out)
