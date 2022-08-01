@@ -318,7 +318,7 @@ def plot_degree_dist_single_experiments():
         ax[2].set_title('epoch 100')
         ax[3].set_title('epoch 1000')
 
-        for i in ax:
+        for i in range(4):
             ax[i].set_xlabel('in/out-degree ratio for main rsnn')
             ax[i].set_ylabel('density')
 
@@ -365,7 +365,7 @@ def plot_output_w_dist_experiments():
         ax[2].set_title('epoch 100')
         ax[3].set_title('epoch 1000')
 
-        for i in ax:
+        for i in range(4):
             ax[i].set_xlabel('weights for output layer')
             ax[i].set_ylabel('density')
 
@@ -411,7 +411,7 @@ def plot_input_w_dist_experiments():
         ax[2].set_title('epoch 100')
         ax[3].set_title('epoch 1000')
 
-        for i in ax:
+        for i in range(4):
             ax[i].set_xlabel('weights for input layer')
             ax[i].set_ylabel('density')
 
@@ -465,7 +465,7 @@ def plot_main_w_dist_experiments():
         ax[6].set_title('i epoch 100')
         ax[7].set_title('i epoch 1000')
 
-        for i in ax:
+        for i in range(4):
             ax[i].set_xlabel('weights for recurrent layer')
             ax[i].set_ylabel('density')
 
