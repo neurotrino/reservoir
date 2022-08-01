@@ -328,6 +328,8 @@ def plot_degree_dist_single_experiments():
 
         fig.suptitle('experiment set 1 weighted in/out degree ratios')
         plt.draw()
+        plt.subplots_adjust(hspace=0.5)
+
         plt.savefig(os.path.join(savepath,exp_path,"degree_dist_exp.png"),dpi=300) # saved in indiv exp folders
         plt.clf()
         plt.close()
