@@ -110,11 +110,10 @@ def plot_aux_w_over_time(savepath):
     ax[1].set_title('main e to output')
     ax[2].set_title('main i to output')
 
-    plt.subplots_adjust(hspace=0.8)
-
     # Create and save the final figure
     fig.suptitle('experiment set 1 input output weights')
     plt.draw()
+    plt.subplots_adjust(hspace=1.0)
     plt.savefig(os.path.join(savepath,"set_weights_aux.png"),dpi=300)
     plt.clf()
     plt.close()
