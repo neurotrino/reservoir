@@ -277,6 +277,58 @@ def plot_main_degree_over_time(savepath):
     plt.clf()
     plt.close()
 
+def plot_main_out_degree_over_time(savepath):
+    experiments = get_experiments(data_dir, experiment_string)
+    data_files = filenames(num_epochs, epochs_per_file)
+    fig, ax = plt.subplots(nrows=2, ncols=2)
+    ax=ax.flatten()
+
+    for xdir in experiments: # loop through all experiments of this set
+        ee_ratio = []
+        ii_ratio = []
+        all_ratio = []
+        all_unweighted_ratio = []
+
+        for filename in data_files: # loop through all 1000 npz files
+            filepath = os.path.join(data_dir, xdir, 'npz-data', filename)
+            data = np.load(filepath)
+            w = data['tv1.postweights']
+
+            for i in range(np.shape(w)[0]): # for each graph (1 graph each for 100 batches per file), get mean degrees across graph
+                ee_out = np.mean(out_degree(w[i][0:e_end,0:e_end], weighted=True))
+                ee_ratio.append(ee_out)
+
+                ii_out = np.mean(out_degree(w[i][e_end:i_end,e_end:i_end], weighted=True))
+                ii_ratio.append(ii_out)
+
+                all_out = np.mean(out_degree(w[i], weighted=True))
+                all_ratio.append(all_out)
+
+                all_out = np.mean(out_degree(w[i], weighted=False))
+                all_unweighted_ratio.append(all_out)
+
+        # plot each experiment over all training time
+        ax[0].plot(ee_ratio)
+        ax[1].plot(ii_ratio)
+        ax[2].plot(all_ratio)
+        ax[3].plot(all_unweighted_ratio)
+
+    ax[0].set_title('within e only')
+    ax[1].set_title('within i only')
+    ax[2].set_title('whole graph')
+    ax[3].set_title('unweighted whole graph')
+
+    for i in range(4):
+        ax[i].set_xlabel('batch')
+        ax[i].set_ylabel('out-degrees')
+
+    fig.suptitle('experiment set 1 weighted out degrees')
+    plt.draw()
+    plt.subplots_adjust(wspace=0.5,hspace=0.5)
+    plt.savefig(os.path.join(savepath,"set_out_degrees.png"),dpi=300)
+    plt.clf()
+    plt.close()
+
 # Naive distribution, epoch 10 distribution, epoch 100 distribution, epoch 1000 distribution
 # of in and out degree
 def plot_degree_dist_single_experiments():
