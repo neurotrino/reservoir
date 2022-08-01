@@ -24,6 +24,7 @@ savepath = '/data/results/fwd/loss_causes_over_time_0.001_norewire.png'
 # create four subplots
 fig, axes = plt.subplots(5, figsize=(6, 8), sharex=True)
 
+"""
 def reciprocity(graph):
     units = np.shape(graph)[0]
     reciprocal_ct = 0
@@ -33,7 +34,7 @@ def reciprocity(graph):
                     reciprocal_ct += 1
     possible_reciprocal_ct = np.size(graph) - units
     recip_ratio = reciprocal_ct/possible_reciprocal_ct
-    return recip_ratio
+    return recip_ratio"""
 
 def scatter_reasons():
     # comparison is always for the previous epoch's postweights (current preweights) and current epoch total loss

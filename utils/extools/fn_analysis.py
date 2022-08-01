@@ -329,7 +329,6 @@ def out_degree(graph, weighted): # input tranposed graph and you'll get in-degre
 
 
 def reciprocity(graph, within_type):
-    """[!] Document"""
     pre_units = np.shape(graph)[0]
     post_units = np.shape(graph)[1]
     reciprocal_ct = 0
