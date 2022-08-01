@@ -258,8 +258,8 @@ def plot_main_degree_over_time(savepath):
         # plot each experiment over all training time
         ax[0].plot(ee_ratio)
         ax[1].plot(ii_ratio)
-        ax[2].plot(all_weighted_ratio)
-        ax[3].plot(all_ratio)
+        ax[2].plot(all_ratio)
+        ax[3].plot(all_unweighted_ratio)
 
     ax[0].set_title('within e only')
     ax[1].set_title('within i only')
@@ -329,6 +329,7 @@ def plot_degree_dist_single_experiments():
         plt.close()
 
 # of weights for in, main, out
+# remove zeros for weight distributions, otherwise they take up too much of the density
 def plot_output_w_dist_experiments():
     # 4 subplots
     experiments = get_experiments(data_dir, experiment_string)
