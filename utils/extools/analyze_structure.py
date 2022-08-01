@@ -338,7 +338,8 @@ def plot_degree_dist_single_experiments():
 def plot_output_w_dist_experiments():
     # 4 subplots
     experiments = get_experiments(data_dir, experiment_string)
-    fig, ax = plt.subplots(nrows=4, ncols=1)
+    fig, axes = plt.subplots(nrows=4, ncols=1)
+    axes = axes.ravel()
     # first for naive distribution
     # second for epoch 10
     # third for epoch 100
@@ -363,17 +364,17 @@ def plot_output_w_dist_experiments():
             data = np.load(data_files[i])
             w.append(data['tv2.postweights'][99])
 
-        for i in range(4):
-            ax[i] = sns.histplot(data=w[i], bins=30, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE'))
+        for ax in axes:
+            sns.histplot(data=w[i], bins=30, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE'), ax=ax)
 
-        ax[0].set_title('naive')
-        ax[1].set_title('epoch 10')
-        ax[2].set_title('epoch 100')
-        ax[3].set_title('epoch 1000')
+        axes[0].set_title('naive')
+        axes[1].set_title('epoch 10')
+        axes[2].set_title('epoch 100')
+        axes[3].set_title('epoch 1000')
 
-        for i in range(4):
-            ax[i].set_xlabel('weights for output layer')
-            ax[i].set_ylabel('density')
+        for ax in axes:
+            ax.set_xlabel('weights for output layer')
+            ax.set_ylabel('density')
 
         fig.suptitle('experiment set 1 output weights')
         plt.draw()
