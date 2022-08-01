@@ -338,7 +338,7 @@ def plot_degree_dist_single_experiments():
 def plot_output_w_dist_experiments():
     # 4 subplots
     experiments = get_experiments(data_dir, experiment_string)
-    fig, axes = plt.subplots(nrows=4, ncols=1)
+    fig, axes = plt.subplots(4,1)
     axes = axes.ravel()
     # first for naive distribution
     # second for epoch 10
@@ -365,7 +365,7 @@ def plot_output_w_dist_experiments():
             w.append(data['tv2.postweights'][99])
 
         for ax in axes:
-            sns.histplot(data=w[i], bins=30, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE'), ax=ax)
+            sns.histplot(data=w[i], bins=30, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, ax=ax)
 
         axes[0].set_title('naive')
         axes[1].set_title('epoch 10')
@@ -377,7 +377,7 @@ def plot_output_w_dist_experiments():
             ax.set_ylabel('density')
 
         fig.suptitle('experiment set 1 output weights')
-        plt.draw()
+        plt.show()
         plt.savefig(os.path.join(savepath,exp_path,"output_w_dist_exp.png"),dpi=300) # saved in indiv exp folders
         plt.clf()
         plt.close()
