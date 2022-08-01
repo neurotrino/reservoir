@@ -108,7 +108,7 @@ def plot_aux_w_over_time(savepath):
 
     ax[0].set_title('input to main')
     ax[1].set_title('main e to output')
-    ax[1].set_title('main i to output')
+    ax[2].set_title('main i to output')
 
     # Create and save the final figure
     fig.suptitle('experiment set 1 input output weights')
