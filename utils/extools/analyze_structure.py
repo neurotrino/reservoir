@@ -377,7 +377,7 @@ def plot_output_w_dist_experiments():
             ax.set_ylabel('density')
 
         fig.suptitle('experiment set 1 output weights')
-        plt.show()
+        plt.show(sns)
         plt.savefig(os.path.join(savepath,exp_path,"output_w_dist_exp.png"),dpi=300) # saved in indiv exp folders
         plt.clf()
         plt.close()
