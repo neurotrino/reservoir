@@ -102,7 +102,7 @@ def plot_aux_w_over_time(savepath):
         ax[1].plot(e_out)
         ax[2].plot(i_out)
 
-    for i in range(4):
+    for i in range(3):
         ax[i].set_xlabel('batch')
         ax[i].set_ylabel('mean weights')
 
