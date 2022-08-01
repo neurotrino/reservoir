@@ -43,10 +43,10 @@ def plot_reciprocity_over_time(savepath):
             w = data['tv1.postweights']
             # w is shaped 100 (batches x epochs) x 300 x 300
             for i in range(np.shape(w)[0]): # loop through 100 batch updates within each npz file
-                recip_ee.append(reciprocity(w[i][0:e_end,0:e_end], within_type = True))
-                recip_ei.append(reciprocity(w[i][0:e_end,e_end:i_end], within_type = False))
-                recip_ii.append(reciprocity(w[i][e_end:i_end,e_end:i_end], within_type = True))
-                recip_all.append(reciprocity(w[i]), within_type = True)
+                recip_ee.append(reciprocity(w[i][0:e_end,0:e_end]))
+                recip_ei.append(reciprocity_ei(w[i][0:e_end,e_end:i_end]), w[i][e_end:i_end,0:e_end])
+                recip_ii.append(reciprocity(w[i][e_end:i_end,e_end:i_end]))
+                recip_all.append(reciprocity(w[i]))
         # plot each experiment over all training time
         ax[0].plot(recip_ee)
         ax[1].plot(recip_ei)

@@ -328,20 +328,24 @@ def out_degree(graph, weighted): # input tranposed graph and you'll get in-degre
     return degrees # for each unit in the graph
 
 
-def reciprocity(graph, within_type):
+def reciprocity(graph):
     pre_units = np.shape(graph)[0]
     post_units = np.shape(graph)[1]
     reciprocal_ct = 0
     for i in range(0, pre_units):
         for j in range(0, post_units):
-            if within_type:
-                if i != j and graph[i, j] != 0 and graph[j, i] != 0:
-                    reciprocal_ct += 1
-            else:
-                if graph[i,j]!=0 and graph[j,i]!=0:
-                    reciprocal_ct += 1
-    if within_type:
-        possible_reciprocal_ct = np.size(graph) - pre_units
-    else:
-        possible_reciprocal_ct = np.size(graph)
+            if i != j and graph[i, j] != 0 and graph[j, i] != 0:
+                reciprocal_ct += 1
+    possible_reciprocal_ct = np.size(graph) - pre_units
+    return reciprocal_ct/possible_reciprocal_ct
+
+def reciprocity_ei(e_graph, i_graph): # separate reciprocity calculation for e/i, since two matrices needed as args
+    e_units = np.shape(e_graph)[0]
+    i_units = np.shape(i_graph)[0]
+    reciprocal_ct = 0
+    for i in range(0, e_units):
+        for j in range(0, i_units):
+            if e_graph[i,j]!=0 and i_graph[j,i]!=0:
+                reciprocal_ct += 1
+    possible_reciprocal_ct = np.size(e_graph)
     return reciprocal_ct/possible_reciprocal_ct
