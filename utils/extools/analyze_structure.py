@@ -196,7 +196,7 @@ def plot_main_copeland_score_over_time(savepath):
 
                 all_out = np.mean(out_degree(w[i], weighted=False))
                 all_in = np.mean(out_degree(np.transpose(w[i]), weighted=False))
-                all_ratio.append(all_out - all_in)
+                all_score.append(all_out - all_in)
 
         # plot each experiment over all training time
         ax[0].plot(ee_score)
