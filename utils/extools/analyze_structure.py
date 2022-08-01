@@ -272,6 +272,7 @@ def plot_main_degree_over_time(savepath):
 
     fig.suptitle('experiment set 1 weighted in/out degree ratios')
     plt.draw()
+    plt.subplots_adjust(wspace=0.5,hspace=0.5)
     plt.savefig(os.path.join(savepath,"set_degrees.png"),dpi=300)
     plt.clf()
     plt.close()
@@ -280,7 +281,7 @@ def plot_main_degree_over_time(savepath):
 # of in and out degree
 def plot_degree_dist_single_experiments():
     # 4 subplots
-    experiment = get_experiments(data_dir, experiment_string)
+    experiments = get_experiments(data_dir, experiment_string)
     fig, ax = plt.subplots(nrows=4, ncols=1)
     # first for naive distribution
     # second for epoch 10
@@ -330,7 +331,7 @@ def plot_degree_dist_single_experiments():
 # of weights for in, main, out
 def plot_output_w_dist_experiments():
     # 4 subplots
-    experiment = get_experiments(data_dir, experiment_string)
+    experiments = get_experiments(data_dir, experiment_string)
     fig, ax = plt.subplots(nrows=4, ncols=1)
     # first for naive distribution
     # second for epoch 10
@@ -376,7 +377,7 @@ def plot_output_w_dist_experiments():
 
 def plot_input_w_dist_experiments():
     # 4 subplots
-    experiment = get_experiments(data_dir, experiment_string)
+    experiments = get_experiments(data_dir, experiment_string)
     fig, ax = plt.subplots(nrows=4, ncols=1)
     # first for naive distribution
     # second for epoch 10
@@ -422,7 +423,7 @@ def plot_input_w_dist_experiments():
 
 def plot_main_w_dist_experiments():
     # 4 subplots
-    experiment = get_experiments(data_dir, experiment_string)
+    experiments = get_experiments(data_dir, experiment_string)
     fig, ax = plt.subplots(nrows=4, ncols=2)
     ax=ax.flatten()
     # first for naive distribution
