@@ -281,6 +281,11 @@ def plot_degree_dist_single_experiments():
     # fourth for epoch 1000
 
     for xdir in experiments:
+        # create experiment-specific folder for saving if it doesn't exist yet
+        exp_path = xdir[-9:-1]
+        if not os.path.isdir(os.path.join(savepath,exp_path)):
+            os.makedirs(os.path.join(savepath,exp_path))
+
         data_files = []
         data_files.append(os.path.join(data_dir, xdir, 'npz-data/main_preweights.npy'))
         data_files.append(os.path.join(data_dir, xdir, 'npz-data/1-10.npz'))
@@ -298,7 +303,7 @@ def plot_degree_dist_single_experiments():
             d_out = out_degree(w[i], weighted=True)
             d_in = out_degree(np.transpose(w[i]), weighted=True)
             # plot distribution of degree ratios for all units in the graph of that particular batch
-            ax[i] = sns.histplot(data=d_in/d_out, bins=30, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE')))
+            ax[i] = sns.histplot(data=d_in/d_out, bins=20, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE')))
 
         ax[0].set_title('naive')
         ax[1].set_title('epoch 10')
@@ -311,7 +316,7 @@ def plot_degree_dist_single_experiments():
 
         fig.suptitle('experiment set 1 weighted in/out degree ratios')
         plt.draw()
-        plt.savefig(os.path.join(savepath,"degree_dist_exp.png"),dpi=300) # index properly!
+        plt.savefig(os.path.join(savepath,exp_path,"degree_dist_exp.png"),dpi=300) # saved in indiv exp folders
         plt.clf()
         plt.close()
 
@@ -326,6 +331,11 @@ def plot_output_w_dist_experiments():
     # fourth for epoch 1000
 
     for xdir in experiments:
+        # create experiment-specific folder for saving if it doesn't exist yet
+        exp_path = xdir[-9:-1]
+        if not os.path.isdir(os.path.join(savepath,exp_path)):
+            os.makedirs(os.path.join(savepath,exp_path))
+
         data_files = []
         data_files.append(os.path.join(data_dir, xdir, 'npz-data/output_preweights.npy'))
         data_files.append(os.path.join(data_dir, xdir, 'npz-data/1-10.npz'))
@@ -353,7 +363,7 @@ def plot_output_w_dist_experiments():
 
         fig.suptitle('experiment set 1 output weights')
         plt.draw()
-        plt.savefig(os.path.join(savepath,"output_w_dist_exp.png"),dpi=300) # index properly!
+        plt.savefig(os.path.join(savepath,exp_path,"output_w_dist_exp.png"),dpi=300) # saved in indiv exp folders
         plt.clf()
         plt.close()
 
@@ -367,6 +377,11 @@ def plot_input_w_dist_experiments():
     # fourth for epoch 1000
 
     for xdir in experiments:
+        # create experiment-specific folder for saving if it doesn't exist yet
+        exp_path = xdir[-9:-1]
+        if not os.path.isdir(os.path.join(savepath,exp_path)):
+            os.makedirs(os.path.join(savepath,exp_path))
+
         data_files = []
         data_files.append(os.path.join(data_dir, xdir, 'npz-data/input_preweights.npy'))
         data_files.append(os.path.join(data_dir, xdir, 'npz-data/1-10.npz'))
@@ -394,7 +409,7 @@ def plot_input_w_dist_experiments():
 
         fig.suptitle('experiment set 1 input weights')
         plt.draw()
-        plt.savefig(os.path.join(savepath,"input_w_dist_exp.png"),dpi=300) # index properly!
+        plt.savefig(os.path.join(savepath,exp_path,"input_w_dist_exp.png"),dpi=300) # saved in indiv exp folders
         plt.clf()
         plt.close()
 
@@ -408,6 +423,11 @@ def plot_main_w_dist_experiments():
     # fourth for epoch 1000
 
     for xdir in experiments:
+        # create experiment-specific folder for saving if it doesn't exist yet
+        exp_path = xdir[-9:-1]
+        if not os.path.isdir(os.path.join(savepath,exp_path)):
+            os.makedirs(os.path.join(savepath,exp_path))
+
         data_files = []
         data_files.append(os.path.join(data_dir, xdir, 'npz-data/main_preweights.npy'))
         data_files.append(os.path.join(data_dir, xdir, 'npz-data/1-10.npz'))
@@ -442,6 +462,6 @@ def plot_main_w_dist_experiments():
 
         fig.suptitle('experiment set 1 main weights')
         plt.draw()
-        plt.savefig(os.path.join(savepath,"main_w_dist_exp.png"),dpi=300) # index properly!
+        plt.savefig(os.path.join(savepath,exp_path,"main_w_dist_exp.png"),dpi=300) # saved in indiv exp folders
         plt.clf()
         plt.close()
