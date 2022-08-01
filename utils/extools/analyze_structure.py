@@ -93,7 +93,7 @@ def plot_aux_w_over_time(savepath):
             out_w = data['tv2.postweights']
             out_w[out_w==0] = np.nan # so we can ignore them in the mean
             # w is shaped 100 (batches x epochs) x 300 x 300
-            for i in range(np.shape(w)[0]): # loop through 100 batch updates within each npz file
+            for i in range(np.shape(in_w)[0]): # loop through 100 batch updates within each npz file
                 input.append(np.mean(in_w[i]))
                 e_out.append(np.nanmean(out_w[i][0:e_end,:]))
                 i_out.append(np.nanmean(out_w[i][e_end:i_end,:]))
