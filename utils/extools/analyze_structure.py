@@ -308,11 +308,15 @@ def plot_degree_dist_single_experiments():
             w.append(data['tv1.postweights'][99])
 
         for i in range(4):
-            d_out = out_degree(w[i], weighted=True)
-            d_in = out_degree(np.transpose(w[i]), weighted=True)
+            # plot for within e units
+            d_out = out_degree(w[i][0:e_end,0:e_end], weighted=True)
+            d_in = out_degree(np.transpose(w[i][0:e_end,0:e_end]), weighted=True)
             # plot distribution of degree ratios for all units in the graph of that particular batch
-            ax[i] = sns.histplot(data=d_in/d_out, bins=20, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE'))
-
+            ax[i].sns.histplot(data=np.divide(d_in,d_out), bins=30, stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='within e units'))
+            # plot for within i units
+            d_out = out_degree(w[i][e_end:i_end,e_end:i_end], weighted=True)
+            d_in = out_degree(np.transpose(w[i][e_end:i_end,e_end:i_end]), weighted=True)
+            ax[i].sns.histplot(data=np.divide(d_in,d_out), bins=30, stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='within i units'))
         ax[0].set_title('naive')
         ax[1].set_title('epoch 10')
         ax[2].set_title('epoch 100')
