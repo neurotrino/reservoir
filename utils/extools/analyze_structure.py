@@ -76,7 +76,7 @@ def plot_reciprocity_over_time(savepath):
 
 # Calculate and plot in and out mean connection strength as they evolve over training time
 def plot_aux_w_over_time(savepath):
-    xperiments = get_experiments(data_dir, experiment_string)
+    experiments = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
     # input to main
     # main e to output, main i to output (don't consider 0's)
