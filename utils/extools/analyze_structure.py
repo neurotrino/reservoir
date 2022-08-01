@@ -27,7 +27,7 @@ savepath = '/data/results/experiment1/'
 
 # Calculate and plot main rsnn reciprocity as it evolves over training time
 # subplots each for e-e, e-i, i-e, and i-i
-plot_reciprocity_over_time(savepath):
+def plot_reciprocity_over_time(savepath):
     experiments = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
     fig, ax = plt.subplots(nrows=2, ncols=2)
@@ -74,7 +74,7 @@ plot_reciprocity_over_time(savepath):
     plt.close()
 
 # Calculate and plot in and out mean connection strength as they evolve over training time
-plot_aux_w_over_time(savepath):
+def plot_aux_w_over_time(savepath):
     xperiments = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
     # input to main
@@ -117,7 +117,7 @@ plot_aux_w_over_time(savepath):
     plt.close()
 
 # Calculate and plot main mean connection strength as it evolves over training time
-plot_main_w_over_time(savepath):
+def plot_main_w_over_time(savepath):
     experiments = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
     # main network e-e, e-i, i-e, and i-i (don't consider 0's)
