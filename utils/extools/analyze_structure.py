@@ -14,6 +14,7 @@ sys.path.append('../../')
 from utils.misc import filenames
 from utils.misc import get_experiments
 from utils.extools.fn_analysis import reciprocity
+from utils.extools.fn_analysis import reciprocity_ei
 from utils.extools.fn_analysis import calc_density
 from utils.extools.fn_analysis import out_degree
 
