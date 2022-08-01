@@ -333,10 +333,9 @@ def reciprocity(graph):
     post_units = np.shape(graph)[1]
     reciprocal_ct = 0
     for i in range(0, pre_units):
-        for j in range(0, post_units):
-            if i != j:
-                if graph[i, j] != 0 and graph[j, i] != 0:
-                    reciprocal_ct += 1
+        for j in range(i+1, post_units):
+            if graph[i, j] != 0 and graph[j, i] != 0:
+                reciprocal_ct += 2
     possible_reciprocal_ct = np.size(graph) - pre_units
     return reciprocal_ct/possible_reciprocal_ct
 
