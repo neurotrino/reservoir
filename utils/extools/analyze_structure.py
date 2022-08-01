@@ -54,7 +54,7 @@ def plot_reciprocity_over_time(savepath):
         ax[2].plot(recip_ii)
         # stack experiment (each over all training time) into rows for meaning later
         recip_arr = np.vstack([recip_arr,recip_all])
-    for i in ax:
+    for i in range(4):
         ax[i].set_xlabel('batch')
         ax[i].set_ylabel('reciprocity')
     ax[0].set_title('within e')
@@ -102,7 +102,7 @@ def plot_aux_w_over_time(savepath):
         ax[1].plot(e_out)
         ax[2].plot(i_out)
 
-    for i in ax:
+    for i in range(4):
         ax[i].set_xlabel('batch')
         ax[i].set_ylabel('mean weights')
 
@@ -148,7 +148,7 @@ def plot_main_w_over_time(savepath):
         ax[2].plot(ie)
         ax[3].plot(ii)
 
-    for i in ax:
+    for i in range(4):
         ax[i].set_xlabel('batch')
         ax[i].set_ylabel('mean weights')
 
@@ -202,7 +202,7 @@ def plot_main_copeland_score_over_time(savepath):
     ax[1].set_title('within i only')
     ax[2].set_title('whole graph')
 
-    for i in ax:
+    for i in range(3):
         ax[i].set_xlabel('batch')
         ax[i].set_ylabel('Copeland score (out-degree minus in-degree)')
 
@@ -260,7 +260,7 @@ def plot_main_degree_over_time(savepath):
     ax[2].set_title('whole graph')
     ax[3].set_title('unweighted whole graph')
 
-    for i in ax:
+    for i in range(4):
         ax[i].set_xlabel('batch')
         ax[i].set_ylabel('in/out-degree ratio')
 
