@@ -161,6 +161,7 @@ def plot_main_w_over_time(savepath):
     # Create and save the final figure
     fig.suptitle('experiment set 1 main weights')
     plt.draw()
+    plt.subplots_adjust(hspace=1.0)
     plt.savefig(os.path.join(savepath,"set_weights_main.png"),dpi=300)
     plt.clf()
     plt.close()
