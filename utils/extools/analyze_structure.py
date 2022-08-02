@@ -377,7 +377,7 @@ def plot_degree_dist_single_experiments():
             plt.title(plt_string[i])
             plt.legend()
             plt.draw()
-            plt_name = plt_string[i]+"_degree_dist_exp"
+            plt_name = plt_string[i]+"_degree_dist_exp.png"
             plt.savefig(os.path.join(savepath,exp_path,plt_name),dpi=300) # saved in indiv exp folders
             plt.clf()
             plt.close()
@@ -387,8 +387,6 @@ def plot_degree_dist_single_experiments():
 def plot_output_w_dist_experiments():
     # 4 subplots
     experiments = get_experiments(data_dir, experiment_string)
-    fig, axes = plt.subplots(4,1)
-    axes = axes.ravel()
     # first for naive distribution
     # second for epoch 10
     # third for epoch 100
@@ -396,6 +394,8 @@ def plot_output_w_dist_experiments():
 
     for xdir in experiments:
         # create experiment-specific folder for saving if it doesn't exist yet
+        plt_string = ['epoch0','epoch10','epoch100','epoch1000']
+
         exp_path = xdir[-9:-1]
         if not os.path.isdir(os.path.join(savepath,exp_path)):
             os.makedirs(os.path.join(savepath,exp_path))
@@ -413,23 +413,21 @@ def plot_output_w_dist_experiments():
             data = np.load(data_files[i])
             w.append(data['tv2.postweights'][99])
 
-        for ax in axes:
-            sns.histplot(data=w[i], bins=30, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, ax=ax)
-
-        axes[0].set_title('naive')
-        axes[1].set_title('epoch 10')
-        axes[2].set_title('epoch 100')
-        axes[3].set_title('epoch 1000')
-
-        for ax in axes:
-            ax.set_xlabel('weights for output layer')
-            ax.set_ylabel('density')
-
-        fig.suptitle('experiment set 1 output weights')
-        fig.show()
-        plt.savefig(os.path.join(savepath,exp_path,"output_w_dist_exp.png"),dpi=300) # saved in indiv exp folders
-        plt.clf()
-        plt.close()
+        for i in range(4):
+            plt.figure()
+            # plot for e-to-output
+            sns.histplot(data=w[i][0:e_end,:], binwidth=0.5, color='blue', label='from e units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            # plot for i-to-output
+            sns.histplot(data=w[i][e_end:i_end,:], binwidth=0.5, color='red', label='from i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            plt.xlabel('output weight distribution')
+            plt.ylabel('density')
+            plt.title(plt_string[i])
+            plt.legend()
+            plt.draw()
+            plt_name = plt_string[i]+"_output_w_dist_exp.png"
+            plt.savefig(os.path.join(savepath,exp_path,plt_name"),dpi=300) # saved in indiv exp folders
+            plt.clf()
+            plt.close()
 
 def plot_input_w_dist_experiments():
     # 4 subplots
