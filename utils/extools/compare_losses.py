@@ -178,7 +178,8 @@ def compare_losses(
     xlabel="batches",
     ylabel="total loss",
     legend=onlinerate_legend
-):  """Generate plots comparing losses from multiple experiments.
+):
+    """Generate plots comparing losses from multiple experiments.
     Args:
     - experiments: list of lists of strings indicating experiment
         directories. All experiments must at least have `num_epochs`
