@@ -433,6 +433,7 @@ def plot_output_w_dist_experiments():
 
 def plot_input_w_dist_experiments():
     experiments = get_experiments(data_dir, experiment_string)
+    plt_string = ['epoch0','epoch10','epoch100','epoch1000']
     # first for naive distribution
     # second for epoch 10
     # third for epoch 100
@@ -449,8 +450,6 @@ def plot_input_w_dist_experiments():
         data_files.append(os.path.join(data_dir, xdir, 'npz-data/1-10.npz'))
         data_files.append(os.path.join(data_dir, xdir, 'npz-data/91-100.npz'))
         data_files.append(os.path.join(data_dir, xdir, 'npz-data/991-1000.npz'))
-
-        plt_string = ['epoch0','epoch10','epoch100','epoch1000']
 
         w = []
         # load naive weights
@@ -476,10 +475,8 @@ def plot_input_w_dist_experiments():
             plt.close()
 
 def plot_main_w_dist_experiments():
-    # 4 subplots
     experiments = get_experiments(data_dir, experiment_string)
-    fig, ax = plt.subplots(nrows=4, ncols=2)
-    ax=ax.flatten()
+    plt_string = ['epoch0','epoch10','epoch100','epoch1000']
     # first for naive distribution
     # second for epoch 10
     # third for epoch 100
@@ -505,26 +502,19 @@ def plot_main_w_dist_experiments():
             w.append(data['tv1.postweights'][99])
 
         for i in range(4):
+            plt.figure()
+            from_e = w[i][0:e_end,:]
+            from_i = w[i][e_end:i_end,:]
             # plot distribution of excitatory (to e and i) weights
-            ax[i] = sns.histplot(data=w[i][0:e_end,:], bins=30, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE'))
+            sns.histplot(data=np.ravel(from_e[from_e!=0]), bins=30, color='blue', label='from e units to all', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             # plot distribution of inhibitory (to e and i) weights
-            ax[i+4] = sns.histplot(data=w[i][e_end:i_end,:], bins=30, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE'))
-
-        ax[0].set_title('e naive')
-        ax[1].set_title('e epoch 10')
-        ax[2].set_title('e epoch 100')
-        ax[3].set_title('e epoch 1000')
-        ax[4].set_title('i naive')
-        ax[5].set_title('i epoch 10')
-        ax[6].set_title('i epoch 100')
-        ax[7].set_title('i epoch 1000')
-
-        for i in range(4):
-            ax[i].set_xlabel('weights for recurrent layer')
-            ax[i].set_ylabel('density')
-
-        fig.suptitle('experiment set 1 main weights')
-        plt.draw()
-        plt.savefig(os.path.join(savepath,exp_path,"main_w_dist_exp.png"),dpi=300) # saved in indiv exp folders
-        plt.clf()
-        plt.close()
+            sns.histplot(data=np.ravel(from_i[from_i!=0]), bins=30, color='red', label='from i units to all', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            plt.xlabel('nonzero weights for recurrent layer')
+            plt.ylabel('density')
+            plt.title(plt_string[i])
+            plt.legend()
+            plt.draw()
+            plt_name = plt_string[i]+"_main_w_dist_exp.png"
+            plt.savefig(os.path.join(savepath,exp_path,plt_name),dpi=300)
+            plt.clf()
+            plt.close()
