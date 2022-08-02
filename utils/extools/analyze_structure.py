@@ -336,7 +336,6 @@ def plot_main_out_degree_over_time(savepath):
 def plot_degree_dist_single_experiments():
     # 4 subplots
     experiments = get_experiments(data_dir, experiment_string)
-    fig, ax = plt.subplots(nrows=4, ncols=1)
     # first for naive distribution
     # second for epoch 10
     # third for epoch 100
@@ -360,32 +359,27 @@ def plot_degree_dist_single_experiments():
         for i in range(1,4): # load other weights
             data = np.load(data_files[i])
             w.append(data['tv1.postweights'][99])
+        plt_string = ['naive','epoch10','epoch100','epoch1000']
 
         for i in range(4):
+            plt.figure()
             # plot for within e units
             d_out = out_degree(w[i][0:e_end,0:e_end], weighted=True)
             d_in = out_degree(np.transpose(w[i][0:e_end,0:e_end]), weighted=True)
             # plot distribution of degree ratios for all units in the graph of that particular batch
-            sns.histplot(data=np.divide(d_in,d_out), bins=30, stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='within e units'), ax=ax[i])
+            sns.histplot(data=np.divide(d_in,d_out), bins=30, stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='within e units'))
             # plot for within i units
             d_out = out_degree(w[i][e_end:i_end,e_end:i_end], weighted=True)
             d_in = out_degree(np.transpose(w[i][e_end:i_end,e_end:i_end]), weighted=True)
-            sns.histplot(data=np.divide(d_in,d_out), bins=30, stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='within i units'), ax=ax[i])
-        ax[0].set_title('naive')
-        ax[1].set_title('epoch 10')
-        ax[2].set_title('epoch 100')
-        ax[3].set_title('epoch 1000')
-
-        for i in range(4):
-            ax[i].set_xlabel('in/out-degree ratio for main rsnn')
-            ax[i].set_ylabel('density')
-
-        fig.suptitle('experiment set 1 weighted in/out degree ratios')
-        plt.show()
-
-        plt.savefig(os.path.join(savepath,exp_path,"degree_dist_exp.png"),dpi=300) # saved in indiv exp folders
-        plt.clf()
-        plt.close()
+            sns.histplot(data=np.divide(d_in,d_out), bins=30, stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='within i units'))
+            plt.xlabel('in/out-degree ratio for main rsnn')
+            plt.ylabel('density')
+            plt.title(plt_string[i])
+            plt.draw()
+            plt_name = plt_string+"_degree_dist_exp"
+            plt.savefig(os.path.join(savepath,exp_path,plt_name),dpi=300) # saved in indiv exp folders
+            plt.clf()
+            plt.close()
 
 # of weights for in, main, out
 # remove zeros for weight distributions, otherwise they take up too much of the density
