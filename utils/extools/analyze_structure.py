@@ -367,11 +367,11 @@ def plot_degree_dist_single_experiments():
             d_out = out_degree(w[i][0:e_end,0:e_end], weighted=True)
             d_in = out_degree(np.transpose(w[i][0:e_end,0:e_end]), weighted=True)
             # plot distribution of degree ratios for all units in the graph of that particular batch
-            sns.histplot(data=np.divide(d_in,d_out), binwidth=0.5, color='blue', label='within e units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            sns.histplot(data=np.divide(d_in,d_out), binwidth=0.1, color='blue', label='within e units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             # plot for within i units
             d_out = out_degree(w[i][e_end:i_end,e_end:i_end], weighted=True)
             d_in = out_degree(np.transpose(w[i][e_end:i_end,e_end:i_end]), weighted=True)
-            sns.histplot(data=np.divide(d_in,d_out), binwidth=0.5, color='red', label='within i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            sns.histplot(data=np.divide(d_in,d_out), binwidth=0.1, color='red', label='within i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             plt.xlabel('weighted in/out-degree ratio for main rsnn')
             plt.ylabel('density')
             plt.title(plt_string[i])
