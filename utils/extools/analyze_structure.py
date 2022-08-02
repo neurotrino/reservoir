@@ -376,7 +376,7 @@ def plot_degree_dist_single_experiments():
             plt.ylabel('density')
             plt.title(plt_string[i])
             plt.draw()
-            plt_name = plt_string+"_degree_dist_exp"
+            plt_name = plt_string[i]+"_degree_dist_exp"
             plt.savefig(os.path.join(savepath,exp_path,plt_name),dpi=300) # saved in indiv exp folders
             plt.clf()
             plt.close()
