@@ -415,11 +415,13 @@ def plot_output_w_dist_experiments():
 
         for i in range(4):
             plt.figure()
-            # plot for e-to-output
-            sns.histplot(data=np.ravel(w[i][0:e_end,:]), binwidth=0.1, color='blue', label='from e units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
-            # plot for i-to-output
-            sns.histplot(data=np.ravel(w[i][e_end:i_end,:]), binwidth=0.1, color='red', label='from i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
-            plt.xlabel('output weight distribution')
+            e_to_out = w[i][0:e_end,:]
+            i_to_out = w[i][e_end:i_end,:]
+            # plot nonzero e-to-output
+            sns.histplot(data=np.ravel(e_to_out[e_to_out!=0]), binwidth=0.1, color='blue', label='from e units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            # plot nonzero i-to-output
+            sns.histplot(data=np.ravel(i_to_out[i_to_out!=0]), binwidth=0.1, color='red', label='from i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            plt.xlabel('nonzero output weight distribution')
             plt.ylabel('density')
             plt.title(plt_string[i])
             plt.legend()
