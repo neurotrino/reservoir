@@ -425,7 +425,7 @@ def plot_output_w_dist_experiments():
             plt.legend()
             plt.draw()
             plt_name = plt_string[i]+"_output_w_dist_exp.png"
-            plt.savefig(os.path.join(savepath,exp_path,plt_name"),dpi=300) # saved in indiv exp folders
+            plt.savefig(os.path.join(savepath,exp_path,plt_name),dpi=300)
             plt.clf()
             plt.close()
 
