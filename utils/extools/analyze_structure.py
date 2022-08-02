@@ -463,8 +463,8 @@ def plot_input_w_dist_experiments():
             plt.figure()
             in_to_e = w[i][:,0:e_end]
             in_to_i = w[i][:,e_end:i_end]
-            sns.histplot(data=np.ravel(in_to_e), binwidth=0.05, color='blue', label='to e units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE'))
-            sns.histplot(data=np.ravel(in_to_i), binwidth=0.05, color='red', label='to i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE'))
+            sns.histplot(data=np.ravel(in_to_e), bins=30, color='blue', label='to e units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            sns.histplot(data=np.ravel(in_to_i), bins=30, color='red', label='to i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             plt.xlabel('input weight distribution')
             plt.ylabel('density')
             plt.title(plt_string[i])
