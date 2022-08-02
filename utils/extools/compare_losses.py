@@ -112,6 +112,7 @@ savepath = '/data/results/fwd/onlinerate_task.png'
 
 # remove loss_of_interest from arg
 
+"""
 def compare_losses_within_experiment_set(
     savepath = '/data/results/experiment1/set_loss.png',
     data_dir = data_dir,
@@ -125,18 +126,18 @@ def compare_losses_within_experiment_set(
     data_files = filenames(num_epochs, epochs_per_file)
 
     fig, ax = plt.subplots(nrows=2, ncols=2)
-    """create 2x2 subplot figure
-    subplot 0: total loss of all experiments individually
-    subplot 1: mean total loss with standard deviation across experiments
-    subplot 2: task loss of all experiments individually
-    subplot 3: rate loss of all experiments individually"""
+    #create 2x2 subplot figure
+    #subplot 0: total loss of all experiments individually
+    #subplot 1: mean total loss with standard deviation across experiments
+    #subplot 2: task loss of all experiments individually
+    #subplot 3: rate loss of all experiments individually
 
     loss_arr = []
     for xdir in experiments:
         losses = []
         task_losses = []
         rate_losses = []
-        for filename = data_files:
+        for filename in data_files:
             filepath = os.path.join(data_dir, xdir, 'npz-data', filename)
             data = np.load(filepath)
             losses += np.add(data['step_task_loss'],data['step_rate_loss']).tolist()
@@ -165,7 +166,7 @@ def compare_losses_within_experiment_set(
     plt.draw()
     plt.savefig(savepath,dpi=300)
     plt.clf()
-    plt.close()
+    plt.close()"""
 
 def compare_losses(
     savepath=savepath,
