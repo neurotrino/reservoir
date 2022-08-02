@@ -506,9 +506,9 @@ def plot_main_w_dist_experiments():
             from_e = w[i][0:e_end,:]
             from_i = w[i][e_end:i_end,:]
             # plot distribution of excitatory (to e and i) weights
-            sns.histplot(data=np.ravel(from_e[from_e!=0]), bins=30, color='blue', label='from e units to all', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            sns.histplot(data=np.ravel(from_e[from_e!=0]), binwidth=0.5, color='blue', label='from e units to all', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             # plot distribution of inhibitory (to e and i) weights
-            sns.histplot(data=np.ravel(from_i[from_i!=0]), bins=30, color='red', label='from i units to all', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            sns.histplot(data=np.ravel(from_i[from_i!=0]), binwidth=0.5, color='red', label='from i units to all', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             plt.xlabel('nonzero weights for recurrent layer')
             plt.ylabel('density')
             plt.title(plt_string[i])
