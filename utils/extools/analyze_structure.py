@@ -432,9 +432,7 @@ def plot_output_w_dist_experiments():
             plt.close()
 
 def plot_input_w_dist_experiments():
-    # 4 subplots
     experiments = get_experiments(data_dir, experiment_string)
-    fig, ax = plt.subplots(nrows=4, ncols=1)
     # first for naive distribution
     # second for epoch 10
     # third for epoch 100
@@ -452,6 +450,8 @@ def plot_input_w_dist_experiments():
         data_files.append(os.path.join(data_dir, xdir, 'npz-data/91-100.npz'))
         data_files.append(os.path.join(data_dir, xdir, 'npz-data/991-1000.npz'))
 
+        plt_string = ['epoch0','epoch10','epoch100','epoch1000']
+
         w = []
         # load naive weights
         w.append(np.load(data_files[0]))
@@ -460,22 +460,20 @@ def plot_input_w_dist_experiments():
             w.append(data['tv0.postweights'][99])
 
         for i in range(4):
-            ax[i] = sns.histplot(data=w[i], bins=30, stat='density', alpha=1, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE'))
-
-        ax[0].set_title('naive')
-        ax[1].set_title('epoch 10')
-        ax[2].set_title('epoch 100')
-        ax[3].set_title('epoch 1000')
-
-        for i in range(4):
-            ax[i].set_xlabel('weights for input layer')
-            ax[i].set_ylabel('density')
-
-        fig.suptitle('experiment set 1 input weights')
-        plt.draw()
-        plt.savefig(os.path.join(savepath,exp_path,"input_w_dist_exp.png"),dpi=300) # saved in indiv exp folders
-        plt.clf()
-        plt.close()
+            plt.figure()
+            in_to_e = w[i][:,0:e_end]
+            in_to_i = w[i][:,e_end:i_end]
+            sns.histplot(data=np.ravel(in_to_e), binwidth=0.05, color='blue', label='to e units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE'))
+            sns.histplot(data=np.ravel(in_to_i), binwidth=0.05, color='red', label='to i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5, label='KDE'))
+            plt.xlabel('input weight distribution')
+            plt.ylabel('density')
+            plt.title(plt_string[i])
+            plt.legend()
+            plt.draw()
+            plt_name = plt_string[i]+"_input_w_dist_exp.png"
+            plt.savefig(os.path.join(savepath,exp_path,plt_name),dpi=300)
+            plt.clf()
+            plt.close()
 
 def plot_main_w_dist_experiments():
     # 4 subplots
