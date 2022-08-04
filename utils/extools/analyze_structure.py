@@ -27,6 +27,56 @@ e_end = 240
 i_end = 300
 savepath = '/data/results/experiment1/'
 
+def plot_recip_dist_experiments():
+    experiments = get_experiments(data_dir, experiment_string)
+    plt_string = ['epoch0','epoch10','epoch100','epoch1000']
+
+    for xdir in experiments:
+        # create experiment-specific folder for saving if it doesn't exist yet
+        exp_path = xdir[-9:-1]
+        if not os.path.isdir(os.path.join(savepath,exp_path)):
+            os.makedirs(os.path.join(savepath,exp_path))
+
+        data_files = []
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/main_preweights.npy'))
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/1-10.npz'))
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/91-100.npz'))
+        data_files.append(os.path.join(data_dir, xdir, 'npz-data/991-1000.npz'))
+
+        w = []
+        # load naive weights
+        w.append(np.load(data_files[0]))
+        for i in range(1,4): # load other weights
+            data = np.load(data_files[i])
+            w.append(data['tv1.postweights'][99])
+
+        for i in range(4):
+            plt.figure()
+            G = nx.from_numpy_array(w[i],create_using=nx.DiGraph)
+            Ge = nx.from_numpy_array(w[i][0:e_end,0:e_end],create_using=nx.DiGraph)
+            Gi = nx.from_numpy_array((w[i][e_end:i_end,e_end:i_end],create_using=nx.DiGraph)
+            # plot reciprocity between e units
+            result = list(nx.reciprocity(Ge,Ge.nodes).items())
+            e_recip = np.array(result)[:,1]
+            sns.histplot(data=np.ravel(e_recip), bins=30, color='blue', label='within e units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            # plot reciprocity between i units
+            result = list(nx.reciprocity(Gi,Gi.nodes).items())
+            i_recip = np.array(result)[:,1]
+            sns.histplot(data=np.ravel(i_recip), bins=30, color='red', label='within i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            # plot whole network reciprocity
+            result = list(nx.clustering(G,G.nodes).items())
+            recip = np.array(result)[:,1]
+            sns.histplot(data=np.ravel(recip), bins=30, color='black', label='whole network', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            plt.xlabel('node reciprocity for recurrent layer')
+            plt.ylabel('density')
+            plt.title(plt_string[i])
+            plt.legend()
+            plt.draw()
+            plt_name = plt_string[i]+"_recip_dist_exp.png"
+            plt.savefig(os.path.join(savepath,exp_path,plt_name),dpi=300)
+            plt.clf()
+            plt.close()
+
 def plot_eigvc_dist_experiments():
     experiments = get_experiments(data_dir, experiment_string)
     plt_string = ['epoch0','epoch10','epoch100','epoch1000']
@@ -56,23 +106,23 @@ def plot_eigvc_dist_experiments():
             Ge = nx.from_numpy_array(w[i][0:e_end,0:e_end],create_using=nx.DiGraph)
             Gi = nx.from_numpy_array(np.abs(w[i][e_end:i_end,e_end:i_end]),create_using=nx.DiGraph)
             # plot centrality between e units
-            result = list(nx.information_centrality(Ge,weight='weight').items())
+            result = list(nx.eigenvector_centrality_numpy(Ge,weight='weight').items())
             e_eigvc = np.array(result)[:,1]
             sns.histplot(data=np.ravel(e_eigvc), bins=30, color='blue', label='within e units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             # plot centrality between i units
-            result = list(nx.information_centrality(Gi,weight='weight').items())
+            result = list(nx.eigenvector_centrality_numpy(Gi,weight='weight').items())
             i_eigvc = np.array(result)[:,1]
             sns.histplot(data=np.ravel(i_eigvc), bins=30, color='red', label='within i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             # plot whole network clustering
             #result = list(nx.clustering(G,nodes=G.nodes,weight='weight').items())
             #cc = np.array(result)[:,1]
             #sns.histplot(data=np.ravel(cc), bins=30, color='black', label='whole network', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
-            plt.xlabel('absolute weighted information centrality for recurrent layer')
+            plt.xlabel('absolute weighted eigenvector centrality for recurrent layer')
             plt.ylabel('density')
             plt.title(plt_string[i])
             plt.legend()
             plt.draw()
-            plt_name = plt_string[i]+"_infc_dist_exp.png"
+            plt_name = plt_string[i]+"_eigvc_dist_exp.png"
             plt.savefig(os.path.join(savepath,exp_path,plt_name),dpi=300)
             plt.clf()
             plt.close()
