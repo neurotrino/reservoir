@@ -41,7 +41,7 @@ def nx_plot_clustering_over_time(savepath):
             filepath = os.path.join(data_dir, xdir, 'npz-data', filename)
             data = np.load(filepath)
             w = data['tv1.postweights']
-            loss.append(np.tolist(np.add(data['step_task_loss'],data['step_rate_loss'])))
+            loss.append(np.add(data['step_task_loss'],data['step_rate_loss']).tolist())
             for i in range(np.shape(w)[0]):
                 G = nx.from_numpy_array(w[i],create_using=nx.DiGraph)
                 cc_all.append(nx.average_clustering(G))
