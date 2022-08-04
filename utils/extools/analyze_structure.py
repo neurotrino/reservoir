@@ -47,7 +47,7 @@ def nx_plot_clustering_over_time(savepath):
                 cc_all.append(nx.average_clustering(G))
                 Ge = nx.from_numpy_array(w[i][0:e_end,0:e_end],create_using=nx.DiGraph)
                 cc_e.append(nx.average_clustering(Ge))
-                Gi = nx.from_numpy_array(w[i][e_end:i_end,e_end,i_end],create_using=nx.DiGraph)
+                Gi = nx.from_numpy_array(w[i][e_end:i_end,e_end:i_end],create_using=nx.DiGraph)
                 cc_i.append(nx.average_clustering(Gi))
         ax[0].plot(cc_all)
         ax[1].plot(cc_e)
