@@ -52,15 +52,21 @@ def plot_clustering_dist_experiments():
 
         for i in range(4):
             plt.figure()
-            G =  nx.from_numpy_array(w[i],create_using=nx.DiGraph)
+            G = nx.from_numpy_array(w[i],create_using=nx.DiGraph)
             Ge = nx.from_numpy_array(w[i][0:e_end,0:e_end],create_using=nx.DiGraph)
             Gi = nx.from_numpy_array(w[i][e_end:i_end,e_end:i_end],create_using=nx.DiGraph)
             # plot clustering between e units
-            sns.histplot(data=np.ravel(nx.clustering(Ge)), bins=30, color='blue', label='within e units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            result = list(nx.clustering(Ge).items())
+            e_cc = np.array(result)[:,1]
+            sns.histplot(data=np.ravel(e_cc), bins=30, color='blue', label='within e units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             # plot clustering between i units
-            sns.histplot(data=np.ravel(nx.clustering(Gi)), bins=30, color='red', label='within i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            result = list(nx.clustering(Gi).items())
+            i_cc = np.array(result)[:,1]
+            sns.histplot(data=np.ravel(i_cc), bins=30, color='red', label='within i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             # plot whole network clustering
-            sns.histplot(data=np.ravel(nx.clustering(G)), bins=30, color='black', label='whole network', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            result = list(nx.clustering(G).items())
+            cc = np.array(result)[:,1]
+            sns.histplot(data=np.ravel(cc), bins=30, color='black', label='whole network', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             plt.xlabel('clustering for recurrent layer')
             plt.ylabel('density')
             plt.title(plt_string[i])
