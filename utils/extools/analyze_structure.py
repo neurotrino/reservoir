@@ -60,7 +60,7 @@ def plot_clustering_dist_experiments():
             # plot clustering between i units
             sns.histplot(data=np.ravel(nx.clustering(Gi)), bins=30, color='red', label='within i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             # plot whole network clustering
-            sns.histplot(data=np.ravel(nx.clustering(G)), bins=30, color='black', label='whole network', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.e, linewidth=1.5))
+            sns.histplot(data=np.ravel(nx.clustering(G)), bins=30, color='black', label='whole network', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             plt.xlabel('clustering for recurrent layer')
             plt.ylabel('density')
             plt.title(plt_string[i])
