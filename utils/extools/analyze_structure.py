@@ -27,12 +27,46 @@ e_end = 240
 i_end = 300
 savepath = '/data/results/experiment1/'
 
-'''
 def nx_plot_clustering_over_time(savepath):
-G = nx.from_numpy_array(w[i],create_using=nx.DiGraph)
-Ge = nx.from_numpy_array(w[i][0:e_end,0:e_end],create_using=nx.DiGraph)
-Gi = nx.from_numpy_array(w[i][e_end:i_end,e_end,i_end],create_using=nx.DiGraph)
-'''
+    experiments = get_experiments(data_dir, experiment_string)
+    data_files = filenames(num_epochs, epochs_per_file)
+    fig, ax = plt.subplots(nrows=2, ncols=2)
+    ax=ax.flatten()
+    for xdir in experiments:
+        cc_e = []
+        cc_i = []
+        cc_all = []
+        loss = []
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, 'npz-data', filename)
+            data = np.load(filepath)
+            w = data['tv1.postweights']
+            loss.append(np.tolist(np.add(data['step_task_loss'],data['step_rate_loss'])))
+            for i in range(np.shape(w)[0]):
+                G = nx.from_numpy_array(w[i],create_using=nx.DiGraph)
+                cc_all.append(nx.average_clustering(G))
+                Ge = nx.from_numpy_array(w[i][0:e_end,0:e_end],create_using=nx.DiGraph)
+                cc_e.append(nx.average_clustering(Ge))
+                Gi = nx.from_numpy_array(w[i][e_end:i_end,e_end,i_end],create_using=nx.DiGraph)
+                cc_i.append(nx.average_clustering(Gi))
+        ax[0].plot(cc_all)
+        ax[1].plot(cc_e)
+        ax[2].plot(cc_i)
+        ax[3].plot(loss)
+    for i in range(4):
+        ax[i].set_xlabel('batch')
+        ax[i].set_ylabel('clustering coefficient')
+    ax[0].set_title('whole graph')
+    ax[1].set_title('within e')
+    ax[2].set_title('within i')
+    ax[3].set_title('loss')
+    ax[3].set_ylabel('total loss')
+    fig.suptitle('experiment set 1 synaptic clustering')
+    plt.draw()
+    plt.subplots_adjust(wspace=0.5,hspace=0.5)
+    plt.savefig(os.path.join(savepath,"set_clustering.png"),dpi=300)
+    plt.clf()
+    plt.close()
 
 def nx_plot_reciprocity_over_time(savepath):
     experiments = get_experiments(data_dir, experiment_string)
