@@ -56,11 +56,11 @@ def plot_eigvc_dist_experiments():
             Ge = nx.from_numpy_array(w[i][0:e_end,0:e_end],create_using=nx.DiGraph)
             Gi = nx.from_numpy_array(np.abs(w[i][e_end:i_end,e_end:i_end]),create_using=nx.DiGraph)
             # plot centrality between e units
-            result = list(nx.clustering(Ge,weight='weight').items())
+            result = list(nx.eigenvector_centrality_numpy(Ge,weight='weight').items())
             e_eigvc = np.array(result)[:,1]
             sns.histplot(data=np.ravel(e_eigvc), bins=30, color='blue', label='within e units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             # plot centrality between i units
-            result = list(nx.clustering(Gi,weight='weight').items())
+            result = list(nx.eigenvector_centrality_numpy(Gi,weight='weight').items())
             i_eigvc = np.array(result)[:,1]
             sns.histplot(data=np.ravel(i_eigvc), bins=30, color='red', label='within i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             # plot whole network clustering
