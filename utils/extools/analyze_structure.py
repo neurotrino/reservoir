@@ -64,7 +64,7 @@ def plot_recip_dist_experiments():
             i_recip = np.array(result)[:,1]
             sns.histplot(data=np.ravel(i_recip), bins=30, color='red', label='within i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             # plot whole network reciprocity
-            result = list(nx.clustering(G,G.nodes).items())
+            result = list(nx.reciprocity(G,G.nodes).items())
             recip = np.array(result)[:,1]
             sns.histplot(data=np.ravel(recip), bins=30, color='black', label='whole network', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             plt.xlabel('node reciprocity for recurrent layer')
