@@ -54,7 +54,7 @@ def plot_recip_dist_experiments():
             plt.figure()
             G = nx.from_numpy_array(w[i],create_using=nx.DiGraph)
             Ge = nx.from_numpy_array(w[i][0:e_end,0:e_end],create_using=nx.DiGraph)
-            Gi = nx.from_numpy_array((w[i][e_end:i_end,e_end:i_end],create_using=nx.DiGraph)
+            Gi = nx.from_numpy_array(w[i][e_end:i_end,e_end:i_end],create_using=nx.DiGraph)
             # plot reciprocity between e units
             result = list(nx.reciprocity(Ge,Ge.nodes).items())
             e_recip = np.array(result)[:,1]
