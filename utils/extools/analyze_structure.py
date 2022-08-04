@@ -52,9 +52,9 @@ def plot_clustering_dist_experiments():
 
         for i in range(4):
             plt.figure()
-            G = nx.from_numpy_array(w[i],create_using=nx.DiGraph)
+            #G = nx.from_numpy_array(w[i],create_using=nx.DiGraph)
             Ge = nx.from_numpy_array(w[i][0:e_end,0:e_end],create_using=nx.DiGraph)
-            Gi = nx.from_numpy_array(w[i][e_end:i_end,e_end:i_end],create_using=nx.DiGraph)
+            Gi = nx.from_numpy_array(np.abs(w[i][e_end:i_end,e_end:i_end]),create_using=nx.DiGraph)
             # plot clustering between e units
             result = list(nx.clustering(Ge,nodes=Ge.nodes,weight='weight').items())
             e_cc = np.array(result)[:,1]
@@ -64,10 +64,10 @@ def plot_clustering_dist_experiments():
             i_cc = np.array(result)[:,1]
             sns.histplot(data=np.ravel(i_cc), bins=30, color='red', label='within i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             # plot whole network clustering
-            result = list(nx.clustering(G,nodes=G.nodes,weight='weight').items())
-            cc = np.array(result)[:,1]
-            sns.histplot(data=np.ravel(cc), bins=30, color='black', label='whole network', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
-            plt.xlabel('weighted clustering for recurrent layer')
+            #result = list(nx.clustering(G,nodes=G.nodes,weight='weight').items())
+            #cc = np.array(result)[:,1]
+            #sns.histplot(data=np.ravel(cc), bins=30, color='black', label='whole network', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            plt.xlabel('absolute weighted clustering for recurrent layer')
             plt.ylabel('density')
             plt.title(plt_string[i])
             plt.legend()
@@ -93,11 +93,11 @@ def nx_plot_clustering_over_time(savepath):
             w = data['tv1.postweights']
             loss.append(np.add(data['step_task_loss'],data['step_rate_loss']).tolist())
             for i in range(np.shape(w)[0]):
-                G = nx.from_numpy_array(w[i],create_using=nx.DiGraph)
+                G = nx.from_numpy_array(np.abs(w[i]),create_using=nx.DiGraph)
                 cc_all.append(nx.average_clustering(G,nodes=G.nodes,weight='weight'))
                 Ge = nx.from_numpy_array(w[i][0:e_end,0:e_end],create_using=nx.DiGraph)
                 cc_e.append(nx.average_clustering(Ge,nodes=Ge.nodes,weight='weight'))
-                Gi = nx.from_numpy_array(w[i][e_end:i_end,e_end:i_end],create_using=nx.DiGraph)
+                Gi = nx.from_numpy_array(np.abs(w[i][e_end:i_end,e_end:i_end]),create_using=nx.DiGraph)
                 cc_i.append(nx.average_clustering(Gi,nodes=Gi.nodes,weight='weight'))
         ax[0].plot(cc_all)
         ax[1].plot(cc_e)
@@ -105,7 +105,7 @@ def nx_plot_clustering_over_time(savepath):
         ax[3].plot(loss)
     for i in range(4):
         ax[i].set_xlabel('batch')
-        ax[i].set_ylabel('weighted clustering coefficient')
+        ax[i].set_ylabel('absolute weighted clustering coefficient')
     ax[0].set_title('whole graph')
     ax[1].set_title('within e')
     ax[2].set_title('within i')
