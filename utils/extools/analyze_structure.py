@@ -56,23 +56,23 @@ def plot_clustering_dist_experiments():
             Ge = nx.from_numpy_array(w[i][0:e_end,0:e_end],create_using=nx.DiGraph)
             Gi = nx.from_numpy_array(w[i][e_end:i_end,e_end:i_end],create_using=nx.DiGraph)
             # plot clustering between e units
-            result = list(nx.clustering(Ge).items())
+            result = list(nx.clustering(Ge,nodes=Ge.nodes,weight='weight').items())
             e_cc = np.array(result)[:,1]
             sns.histplot(data=np.ravel(e_cc), bins=30, color='blue', label='within e units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             # plot clustering between i units
-            result = list(nx.clustering(Gi).items())
+            result = list(nx.clustering(Gi,nodes=Gi.nodes,weight='weight').items())
             i_cc = np.array(result)[:,1]
             sns.histplot(data=np.ravel(i_cc), bins=30, color='red', label='within i units', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             # plot whole network clustering
-            result = list(nx.clustering(G).items())
+            result = list(nx.clustering(G,nodes=G.nodes,weight='weight').items())
             cc = np.array(result)[:,1]
             sns.histplot(data=np.ravel(cc), bins=30, color='black', label='whole network', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
-            plt.xlabel('clustering for recurrent layer')
+            plt.xlabel('weighted clustering for recurrent layer')
             plt.ylabel('density')
             plt.title(plt_string[i])
             plt.legend()
             plt.draw()
-            plt_name = plt_string[i]+"_clustering_dist_exp.png"
+            plt_name = plt_string[i]+"_wcc_dist_exp.png"
             plt.savefig(os.path.join(savepath,exp_path,plt_name),dpi=300)
             plt.clf()
             plt.close()
@@ -94,18 +94,18 @@ def nx_plot_clustering_over_time(savepath):
             loss.append(np.add(data['step_task_loss'],data['step_rate_loss']).tolist())
             for i in range(np.shape(w)[0]):
                 G = nx.from_numpy_array(w[i],create_using=nx.DiGraph)
-                cc_all.append(nx.average_clustering(G))
+                cc_all.append(nx.average_clustering(G,nodes=G.nodes,weight='weight'))
                 Ge = nx.from_numpy_array(w[i][0:e_end,0:e_end],create_using=nx.DiGraph)
-                cc_e.append(nx.average_clustering(Ge))
+                cc_e.append(nx.average_clustering(Ge,nodes=Ge.nodes,weight='weight'))
                 Gi = nx.from_numpy_array(w[i][e_end:i_end,e_end:i_end],create_using=nx.DiGraph)
-                cc_i.append(nx.average_clustering(Gi))
+                cc_i.append(nx.average_clustering(Gi,nodes=Gi.nodes,weight='weight'))
         ax[0].plot(cc_all)
         ax[1].plot(cc_e)
         ax[2].plot(cc_i)
         ax[3].plot(loss)
     for i in range(4):
         ax[i].set_xlabel('batch')
-        ax[i].set_ylabel('clustering coefficient')
+        ax[i].set_ylabel('weighted clustering coefficient')
     ax[0].set_title('whole graph')
     ax[1].set_title('within e')
     ax[2].set_title('within i')
@@ -114,7 +114,7 @@ def nx_plot_clustering_over_time(savepath):
     fig.suptitle('experiment set 1 synaptic clustering')
     plt.draw()
     plt.subplots_adjust(wspace=0.5,hspace=0.5)
-    plt.savefig(os.path.join(savepath,"set_clustering.png"),dpi=300)
+    plt.savefig(os.path.join(savepath,"set_wcc.png"),dpi=300)
     plt.clf()
     plt.close()
 
