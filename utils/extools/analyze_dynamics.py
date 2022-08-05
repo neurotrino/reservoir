@@ -141,7 +141,7 @@ def branching_param(bin_size,spikes): # spikes in shape of [units, time]
 
 def simple_branching_param(bin_size, spikes): # spikes in shape of [units, time]
     run_time = np.shape(spikes)[1]
-    nbins = np.round(run_time/bin_size)
+    nbins = int(np.round(run_time/bin_size))
 
     # for every pair of timesteps, determine the number of ancestors and the number of descendants
     numA = np.zeros([nbins-1]); # number of ancestors for each bin
