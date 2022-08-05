@@ -94,7 +94,7 @@ def plot_rates_over_time():
     plt.clf()
     plt.close()
 
-def plot_synch_over_time():
+#def plot_synch_over_time():
     # use the fast measure
 
 """
@@ -137,8 +137,7 @@ def branching_param(bin_size,spikes): # spikes in shape of [units, time]
         i+=1
 
     net_bscore = np.sum(dratio*pd)
-    return net_bscore
-"""
+    return net_bscore"""
 
 def simple_branching_param(bin_size, spikes): # spikes in shape of [units, time]
     run_time = np.shape(spikes)[1]
