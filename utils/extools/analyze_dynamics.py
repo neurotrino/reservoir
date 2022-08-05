@@ -149,7 +149,7 @@ def simple_branching_param(bin_size, spikes): # spikes in shape of [units, time]
 
     for i in range(nbins-1):
         numA[i] = np.size(np.argwhere(spikes[:,i]==1))
-        numD[i] = np.size(np.argwhere(spikes[:,i+bin]==1))
+        numD[i] = np.size(np.argwhere(spikes[:,i+bin_size]==1))
 
     # the ratio of descendants per ancestor
     d = numD/numA
