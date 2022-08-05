@@ -27,7 +27,7 @@ e_end = 240
 i_end = 300
 savepath = '/data/results/experiment1/'
 
-def plot_rates_over_time():
+def plot_rates_over_time(output_only=True):
     # separate into coherence level 1 and coherence level 0
     experiments = get_experiments(data_dir, experiment_string)
     # plot for each experiment, one rate value per coherence level per batch update
@@ -51,6 +51,7 @@ def plot_rates_over_time():
             data = np.load(filepath)
             spikes = data['spikes']
             y = data['true_y']
+            output_w = data['tv2.postweights']
             y.resize([np.shape(y)[0],np.shape(y)[1],np.shape(y)[2]])
             for i in range(np.shape(y)[0]): # each file contains 100 batch updates
                 # find indices for coherence level 0 and for 1
@@ -61,16 +62,30 @@ def plot_rates_over_time():
                 batch_e_1_rate = []
                 batch_i_0_rate = []
                 batch_i_1_rate = []
-                for j in range(np.shape(y)[1]):
-                    coh_0_idx = np.argwhere(y[i][j]==0)
-                    coh_1_idx = np.argwhere(y[i][j]==1)
+                # find the units that have nonzero projections to the output
+                if output_only:
+                    batch_w = np.reshape(output_w[i],np.shape(output_w[i])[0])
+                    e_out_idx = np.squeeze(np.where(batch_w>0))
+                    i_out_idx = np.squeeze(np.where(batch_w<0))
+                for j in range(np.shape(y)[1]): # each of 30 trials per batch update
+                    batch_y = np.squeeze(y[i][j])
+                    coh_0_idx = np.squeeze(np.where(batch_y==0))
+                    coh_1_idx = np.squeeze(np.where(batch_y==1))
                     spikes_trial = np.transpose(spikes[i][j])
                     if np.size(coh_0_idx)!=0:
-                        batch_e_0_rate.append(np.mean(spikes_trial[0:e_end,coh_0_idx]))
-                        batch_i_0_rate.append(np.mean(spikes_trial[e_end:i_end,coh_0_idx]))
+                        if output_only:
+                            batch_e_0_rate.append(np.mean(spikes_trial[e_out_idx[:,None],coh_0_idx[None,:]]))
+                            batch_i_0_rate.append(np.mean(spikes_trial[i_out_idx[:,None],coh_0_idx[None,:]]))
+                        else:
+                            batch_e_0_rate.append(np.mean(spikes_trial[0:e_end,coh_0_idx]))
+                            batch_i_0_rate.append(np.mean(spikes_trial[e_end:i_end,coh_0_idx]))
                     if np.size(coh_1_idx)!=0:
-                        batch_e_1_rate.append(np.mean(spikes_trial[0:e_end,coh_1_idx]))
-                        batch_i_1_rate.append(np.mean(spikes_trial[e_end:i_end,coh_1_idx]))
+                        if output_only:
+                            batch_e_1_rate.append(np.mean(spikes_trial[e_out_idx[:,None],coh_1_idx[None,:]]))
+                            batch_i_1_rate.append(np.mean(spikes_trial[i_out_idx[:,None],coh_1_idx[None,:]]))
+                        else:
+                            batch_e_1_rate.append(np.mean(spikes_trial[0:e_end,coh_1_idx]))
+                            batch_i_1_rate.append(np.mean(spikes_trial[e_end:i_end,coh_1_idx]))
                 e_0_rate.append(np.mean(batch_e_0_rate))
                 e_1_rate.append(np.mean(batch_e_1_rate))
                 i_0_rate.append(np.mean(batch_i_0_rate))
@@ -82,15 +97,15 @@ def plot_rates_over_time():
     for i in range(4):
         ax[i].set_xlabel('batch')
         ax[i].set_ylabel('rate')
-    ax[0].set_title('e units, coherence 0')
-    ax[1].set_title('e units, coherence 1')
-    ax[2].set_title('i units, coherence 0')
-    ax[3].set_title('i units, coherence 1')
+    ax[0].set_title('e-to-output units, coherence 0')
+    ax[1].set_title('e-to-output units, coherence 1')
+    ax[2].set_title('i-to-output units, coherence 0')
+    ax[3].set_title('i-to-output units, coherence 1')
     # Create and save the final figure
     fig.suptitle('experiment set 1.5 rates according to coherence level')
     plt.draw()
     plt.subplots_adjust(wspace=0.5,hspace=0.5)
-    plt.savefig(os.path.join(savepath,"set_rates.png"),dpi=300)
+    plt.savefig(os.path.join(savepath,"set_output_rates.png"),dpi=300)
     plt.clf()
     plt.close()
 
