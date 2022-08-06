@@ -82,7 +82,7 @@ def generate_all_functional_graphs(experiment_string, overwrite=False, e_only=Tr
                     # generate MI graph from spikes for each coherence level
                     fns_coh0 = []
                     fns_coh1 = []
-                    for batch in range(np.shape(true_y)[0]) # each file contains 100 batch updates
+                    for batch in range(np.shape(true_y)[0]): # each file contains 100 batch updates
                     # each batch update has 30 trials
                     # those spikes and labels are passed to generate FNs batch-wise
                         [batch_fn_coh0, batch_fn_coh1] = generate_batch_ccd_functional_graphs(spikes[batch],true_y[batch],e_only)
