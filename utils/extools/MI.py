@@ -17,7 +17,7 @@ experiment = 'ccd_save_spikes'
 run_dur = 4080
 batch_size = 10
 
-def simple_confMI(raster,lag=1,positive_only=False):
+def simple_confMI(raster,positive_only=False,lag=1):
     post_raster = raster[:, lag:]
     raster = raster[:, :-lag]
     post_raster = np.logical_or(raster, post_raster) # confluence

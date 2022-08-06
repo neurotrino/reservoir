@@ -41,9 +41,9 @@ def generate_batch_ccd_functional_graphs(spikes,true_y,e_only,positive_only):
         spikes_trial = np.transpose(spikes[trial])
         if e_only:
             if np.size(coh_0_idx)!=0:
-                fn_coh0 = simple_confMI(spikes_trial[0:e_end,coh_0_idx],lag=1,positive_only) # looking at adjacent ms bins for now
+                fn_coh0 = simple_confMI(spikes_trial[0:e_end,coh_0_idx],positive_only,lag=1) # looking at adjacent ms bins for now
             if np.size(coh_1_idx)!=0:
-                fn_coh1 = simple_confMI(spikes_trial[0:e_end,coh_1_idx],lag=1,positive_only)
+                fn_coh1 = simple_confMI(spikes_trial[0:e_end,coh_1_idx],positive_only,lag=1)
     # average across trials
     batch_fn_coh0 = np.mean(fn_coh0)
     batch_fn_coh1 = np.mean(fn_coh1)
