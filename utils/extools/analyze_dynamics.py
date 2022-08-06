@@ -81,7 +81,7 @@ def generate_all_functional_graphs(experiment_string, overwrite=False, e_only=Tr
             for file_idx in range(np.size(data_files)):
                 filepath = os.path.join(data_dir, xdir, 'npz-data', data_files[file_idx])
                 # check if we haven't generated FNs already
-                if not os.path.isfile(os.path.join(MI_savepath,exp_path,subdir,save_files[file_idx])) or overwrite:
+                if not os.path.isfile(os.path.join(MI_savepath,exp_path,subdir_names[0],save_files[file_idx])) or overwrite:
                     data = np.load(filepath)
                     spikes = data['spikes']
                     true_y = data['true_y']
