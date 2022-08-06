@@ -91,14 +91,14 @@ def generate_all_functional_graphs(experiment_string, overwrite=False, e_only=Tr
                     for batch in range(np.shape(true_y)[0]): # each file contains 100 batch updates
                     # each batch update has 30 trials
                     # those spikes and labels are passed to generate FNs batch-wise
-                        [batch_fn_coh0, batch_fn_coh1] = generate_batch_ccd_functional_graphs(spikes[batch],true_y[batch],e_only)
+                        [batch_fn_coh0, batch_fn_coh1] = generate_batch_ccd_functional_graphs(spikes[batch],true_y[batch],e_only,positive_only)
                         fns_coh0.append(batch_fn_coh0)
                         fns_coh1.append(batch_fn_coh1)
                     # saving convention is same as npz data files
                     # within each subdir (e_coh0 or e_coh1), save as 1-10.npy for example
                     # the data is sized [100 batch updates, 240 pre e units, 240 post e units]
-                    np.save(os.path.join(MI_savepath,exp_path,subdir[0],save_files[file_idx]), fns_coh0)
-                    np.save(os.path.join(MI_savepath,exp_path,subdir[1],save_files[file_idx]), fns_coh1)
+                    np.save(os.path.join(MI_savepath,exp_path,subdir_names[0],save_files[file_idx]), fns_coh0)
+                    np.save(os.path.join(MI_savepath,exp_path,subdir_names[1],save_files[file_idx]), fns_coh1)
 
 
 def generate_recruitment_graphs(save_graphs=True):
