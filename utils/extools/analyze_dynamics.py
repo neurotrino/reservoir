@@ -30,24 +30,30 @@ i_end = 300
 savepath = '/data/results/experiment1/'
 
 def generate_batch_ccd_functional_graphs(spikes,true_y,e_only,positive_only):
-    fn_coh0 = []
-    fn_coh1 = []
-    # calculate FNs for each of 30 trials because memory can't handle all of them together
-    for trial in range(np.shape(true_y)[0]): # each of 30 trials per batch update
-        batch_y = np.squeeze(true_y[trial])
-        # separate spikes according to coherence level
-        coh0_idx = np.squeeze(np.where(true_y==0))
-        coh1_idx = np.squeeze(np.where(true_y==1))
-        spikes_trial = np.transpose(spikes[trial])
-        if e_only:
+    # calculate 2 FNs (1 for each coherence level) for each batch of 30 trials
+    if e_only:
+        spikes_coh0 = np.empty([e_end,0])
+        trialends_coh0 = []
+        spikes_coh1 = np.empty([e_end,0])
+        trialends_coh1 = []
+        for trial in range(np.shape(true_y)[0]): # each of 30 trials per batch update
+            trial_y = np.squeeze(true_y[trial])
+            # separate spikes according to coherence level
+            coh_0_idx = np.squeeze(np.where(trial_y==0))
+            coh_1_idx = np.squeeze(np.where(trial_y==1))
+            spikes_trial = np.transpose(spikes[trial])
+            # get all the spikes for each coherence level strung together
+            # get indices of trial_ends
             if np.size(coh_0_idx)!=0:
-                fn_coh0 = simple_confMI(spikes_trial[0:e_end,coh_0_idx],positive_only,lag=1) # looking at adjacent ms bins for now
+                spikes_coh0 = np.hstack([spikes_coh0,spikes_trial[0:e_end,coh_0_idx]])
+                trialends_coh0.append(np.shape(spikes_coh0)[1]-1)
             if np.size(coh_1_idx)!=0:
-                fn_coh1 = simple_confMI(spikes_trial[0:e_end,coh_1_idx],positive_only,lag=1)
-    # average across trials
-    batch_fn_coh0 = np.mean(fn_coh0)
-    batch_fn_coh1 = np.mean(fn_coh1)
-    return [batch_fn_coh0, batch_fn_coh1]
+                spikes_coh1 = np.hstack([spikes_coh1,spikes_trial[0:e_end,coh_1_idx]])
+                trialends_coh1.append(np.shape(spikes_coh1)[1]-1)
+        # pipe into confMI calculation
+        fn_coh0 = simple_confMI(spikes_coh0,trialends_coh0,positive_only,lag=1)
+        fn_coh1 = simple_confMI(spikes_coh1,trialends_coh1,positive_only,lag=1)
+        return [fn_coh0, fn_coh1]
 
 # this function generates functional graphs (using confMI) to save
 # so that we'll have them on hand for use in all the analyses we need

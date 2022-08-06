@@ -17,10 +17,15 @@ experiment = 'ccd_save_spikes'
 run_dur = 4080
 batch_size = 10
 
-def simple_confMI(raster,positive_only=False,lag=1):
+def simple_confMI(raster,trial_ends,positive_only=False,lag=1):
     post_raster = raster[:, lag:]
     raster = raster[:, :-lag]
     post_raster = np.logical_or(raster, post_raster) # confluence
+
+    # remove trial ends
+    raster = remove_trial_ends(raster, trial_ends[:-1])
+    post_raster = remove_trial_ends(post_raster, trial_ends[:-1])
+
     # compute the actual MI
     neurons = raster.shape[0]
     mat = np.zeros([neurons, neurons])
