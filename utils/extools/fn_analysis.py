@@ -7,7 +7,7 @@ import os
 import seaborn as sns
 
 # internal ----
-from utils.extools.MI import generate_mi_graph
+#from utils.extools.MI import generate_mi_graph
 from utils.misc import filenames
 
 xdir = ""
@@ -23,9 +23,8 @@ run_dur = 4080
 dt = 1
 savedir = "/home/macleanlab/experiments/ccd_save_spikes/analysis/"
 
-
+"""
 def compare_syn_fn(data_dir, batch):
-    """..."""
 
     data_files = filenames(num_epochs=200, epochs_per_file=10)
 
@@ -108,7 +107,7 @@ def compare_syn_fn(data_dir, batch):
     plt.legend()
     plt.draw()
     plt.savefig(savedir + "syn_fn_corr.png", dpi=300)
-
+"""
 
 def presaved_compare_syn_fn(data_dir, batch):
     epochs = np.arange(10, 201, 10)
