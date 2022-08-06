@@ -70,7 +70,7 @@ def generate_all_functional_graphs(experiment_string, overwrite=False, e_only=Tr
         if e_only:
             subdir_names = ['e_coh0','e_coh1']
             for subdir in subdir_names:
-                if not os.path.isdir(os.path.join(MI_savepath,exp_path,subdir))
+                if not os.path.isdir(os.path.join(MI_savepath,exp_path,subdir)):
                     os.makedirs(os.path.join(MI_savepath,exp_path,subdir))
             for file_idx in range(np.size(data_files)):
                 filepath = os.path.join(data_dir, xdir, 'npz-data', data_files[file_idx])
