@@ -59,3 +59,9 @@ def filenames(num_epochs, epochs_per_file):
         f"{i}-{i + epochs_per_file - 1}.npz"
         for i in range(1, num_epochs, epochs_per_file)
     ]
+
+def generic_filenames(num_epochs, epochs_per_file):
+    return [
+        f"{i}-{i + epochs_per_file - 1}.npy"
+        for i in range(1, num_epochs, epochs_per_file)
+    ]

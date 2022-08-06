@@ -13,11 +13,13 @@ sys.path.append('../../')
 
 # internal ----
 from utils.misc import filenames
+from utils.misc import generic_filenames
 from utils.misc import get_experiments
 from utils.extools.fn_analysis import reciprocity
 from utils.extools.fn_analysis import reciprocity_ei
 from utils.extools.fn_analysis import calc_density
 from utils.extools.fn_analysis import out_degree
+from utils.extools.MI import simple_confMI
 
 data_dir = '/data/experiments/'
 experiment_string = 'run-batch30-specout-onlinerate0.1-savey'
@@ -26,6 +28,81 @@ epochs_per_file = 10
 e_end = 240
 i_end = 300
 savepath = '/data/results/experiment1/'
+
+def generate_batch_ccd_functional_graphs(spikes,true_y,e_only,positive_only):
+    fn_coh0 = []
+    fn_coh1 = []
+    # calculate FNs for each of 30 trials because memory can't handle all of them together
+    for trial in range(np.shape(true_y)[0]): # each of 30 trials per batch update
+        batch_y = np.squeeze(true_y[trial])
+        # separate spikes according to coherence level
+        coh0_idx = np.squeeze(np.where(true_y==0))
+        coh1_idx = np.squeeze(np.where(true_y==1))
+        spikes_trial = np.transpose(spikes[trial])
+        if e_only:
+            if np.size(coh_0_idx)!=0:
+                fn_coh0 = simple_confMI(spikes_trial[0:e_end,coh_0_idx],lag=1,positive_only) # looking at adjacent ms bins for now
+            if np.size(coh_1_idx)!=0:
+                fn_coh1 = simple_confMI(spikes_trial[0:e_end,coh_1_idx],lag=1,positive_only)
+    # average across trials
+    batch_fn_coh0 = np.mean(fn_coh0)
+    batch_fn_coh1 = np.mean(fn_coh1)
+    return [batch_fn_coh0, batch_fn_coh1]
+
+# this function generates functional graphs (using confMI) to save
+# so that we'll have them on hand for use in all the analyses we need
+def generate_all_functional_graphs(experiment_string, overwrite=False, e_only=True, positive_only=False):
+    # do not overwrite already-saved files that contain generated functional networks
+    # currently working only with e units
+    # positive_only=False means we DO include negative confMI values (negative correlations)
+    # previously we had always removed those, but now we'll try to make sense of negative correlations as we go
+    experiments = get_experiments(data_dir, experiment_string)
+    data_files = filenames(num_epochs, epochs_per_file)
+    save_files = generic_filenames(num_epochs, epochs_per_file)
+    MI_savepath = os.path.join(savepath,"MI_graphs")
+    for xdir in experiments:
+        exp_path = xdir[-9:-1]
+        if not os.path.isdir(os.path.join(MI_savepath,exp_path)):
+            os.makedirs(os.path.join(MI_savepath,exp_path))
+        # check if FN folders have already been generated
+        # for every batch update, there should be 2 FNs for the 2 coherence levels
+        # currently we are only generating FNs for e units, not yet supporting i units
+        if e_only:
+            subdir_names = ['e_coh0','e_coh1']
+            for subdir in subdir_names:
+                if not os.path.isdir(os.path.join(MI_savepath,exp_path,subdir))
+                    os.makedirs(os.path.join(MI_savepath,exp_path,subdir))
+            for file_idx in range(np.size(data_files)):
+                filepath = os.path.join(data_dir, xdir, 'npz-data', data_files[file_idx])
+                # check if we haven't generated FNs already
+                if not os.path.isfile(os.path.join(MI_savepath,exp_path,subdir,save_files[file_idx])) or overwrite:
+                    data = np.load(filepath)
+                    spikes = data['spikes']
+                    true_y = data['true_y']
+                    # generate MI graph from spikes for each coherence level
+                    fns_coh0 = []
+                    fns_coh1 = []
+                    for batch in range(np.shape(true_y)[0]) # each file contains 100 batch updates
+                    # each batch update has 30 trials
+                    # those spikes and labels are passed to generate FNs batch-wise
+                        [batch_fn_coh0, batch_fn_coh1] = generate_batch_ccd_functional_graphs(spikes[batch],true_y[batch],e_only)
+                        fns_coh0.append(batch_fn_coh0)
+                        fns_coh1.append(batch_fn_coh1)
+                    # saving convention is same as npz data files
+                    # within each subdir (e_coh0 or e_coh1), save as 1-10.npy for example
+                    # the data is sized [100 batch updates, 240 pre e units, 240 post e units]
+                    np.save(os.path.join(MI_savepath,exp_path,subdir[0],save_files[file_idx]), fns_coh0)
+                    np.save(os.path.join(MI_savepath,exp_path,subdir[1],save_files[file_idx]), fns_coh1)
+
+
+def generate_recruitment_graphs(save_graphs=True):
+    # load in functional graphs
+    # load in synaptic graphs
+    # load in spikes
+    # find active units in synaptic graph
+    # take their weights from the functional graph
+    # save recruitment graphs
+    savedir = os.path.join(savepath,"recruitment_graphs")
 
 def plot_rates_over_time(output_only=True):
     # separate into coherence level 1 and coherence level 0

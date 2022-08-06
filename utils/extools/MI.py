@@ -17,6 +17,147 @@ experiment = 'ccd_save_spikes'
 run_dur = 4080
 batch_size = 10
 
+def simple_confMI(raster,lag=1,positive_only=False):
+    post_raster = raster[:, lag:]
+    raster = raster[:, :-lag]
+    post_raster = np.logical_or(raster, post_raster) # confluence
+    # compute the actual MI
+    neurons = raster.shape[0]
+    mat = np.zeros([neurons, neurons])
+    for pre in range(neurons):
+        for post in range(neurons):
+            if pre != post:
+                mat[pre, post] = compute_MI(raster[pre, :], post_raster[post, :])
+    if positive_only:
+        signed_graph = signed_MI(mat,raster)
+        pos_graph = pos(signed_graph)
+        return pos_graph
+    else:
+        return mat
+
+def signed_MI(graph,raster):
+    neurons = np.shape(graph)[0]
+    signed_graph = np.copy(graph)
+    for pre in range(0,neurons):
+        for post in range ((pre+1),neurons):
+            corr_mat = np.corrcoef(raster[pre,:],raster[post,:])
+            factor = np.sign(corr_mat[0,1])
+            if ~np.isnan(factor):
+                signed_graph[pre,post] *= factor
+                signed_graph[post,pre] *= factor
+    return signed_graph
+
+def pos(graph):
+    #takes signed_MI MI graph, returns positive version
+    pos_graph = np.copy(graph)
+    pos_graph[graph < 0] = 0
+    return pos_graph
+
+def construct_MI_mat(raster, trial_ends=[], MI_type='confluent',
+        temporal_FN_union=False):
+    '''
+    construct a mutual information matrix from the given spike trains,
+    excluding transitions over the given trial end indices (the last
+    timebin of each trial.
+
+    confluent, consecutive, or simultaneous mutual information
+
+    alternatively, instead of filling in the matrix with MI values, fill
+    it in with the union of temporal FNs (1 where a spike pair is
+    present at all in the given raster, 0 where it is not)
+    '''
+    assert MI_type in {'confluent', 'consecutive', 'simultaneous'}
+    lag = 1 # currently the trial_end logic won't work with larger lags
+
+    # lag the spike trains accordingly
+    if MI_type == 'confluent':
+        post_raster = raster[:, lag:]
+        raster = raster[:, :-lag]
+        post_raster = np.logical_or(raster, post_raster) # confluence
+    elif MI_type == 'consecutive':
+        post_raster = raster[:, lag:] # nothing more
+        raster = raster[:, :-lag]
+    elif MI_type == 'simultaneous':
+        post_raster = raster # fine to not copy
+
+    # remove trial ends if necessary (they don't affect consecutive MI)
+    if MI_type == 'confluent' or MI_type == 'consecutive':
+        raster = remove_trial_ends(raster, trial_ends)
+        post_raster = remove_trial_ends(post_raster, trial_ends)
+
+    # compute the actual MI
+    neurons = raster.shape[0]
+    mat = np.zeros([neurons, neurons])
+    for pre in range(neurons):
+        for post in range(neurons):
+            if pre != post:
+                if temporal_FN_union:
+                    mat[pre, post] = potential_edge(raster[pre, :], post_raster[post, :])
+                else:
+                    mat[pre, post] = compute_MI(raster[pre, :], post_raster[post, :])
+
+    return mat
+
+def compute_MI(train_1, train_2):
+    '''
+    compute the mutual information between two spike trains
+    (if one has been lagged or made confluent appropriately, this
+    will compute consecutive, confluent, etc. MI)
+    '''
+    # marginal probs
+    p_pre_1 = np.mean(train_1)
+    p_post_1 = np.mean(train_2)
+    p_pre_0 = 1 - p_pre_1
+    p_post_0 = 1 - p_post_1
+
+    # joint variables
+    both_1 = np.logical_and(train_1, train_2)
+    pre_0_post_1 = np.logical_and(np.logical_not(train_1), train_2)
+    pre_1_post_0 = np.logical_and(train_1, np.logical_not(train_2))
+    both_0 = np.logical_and(np.logical_not(train_1), np.logical_not(train_2))
+
+    # and compute probabilities
+    p_both_1 = np.mean(both_1)
+    p_pre_0_post_1 = np.mean(pre_0_post_1)
+    p_pre_1_post_0 = np.mean(pre_1_post_0)
+    p_both_0 = np.mean(both_0)
+
+    # sum up MI, making sure not to take the log of zero
+    MI = 0
+    if p_both_1 > 0:
+        MI += p_both_1 * np.log2(p_both_1 / (p_pre_1 * p_post_1))
+    if p_both_0 > 0:
+        MI += p_both_0 * np.log2(p_both_0 / (p_pre_0 * p_post_0))
+    if p_pre_0_post_1 > 0:
+        MI += p_pre_0_post_1 * np.log2(p_pre_0_post_1 / (p_pre_0 * p_post_1))
+    if p_pre_1_post_0 > 0:
+        MI += p_pre_1_post_0 * np.log2(p_pre_1_post_0 / (p_pre_1 * p_post_0))
+
+    return MI
+
+def potential_edge(train_1, train_2):
+    '''
+    see whether there is a potential edge expressed in the given spike trains
+    that is, if they ever spike together
+    '''
+    return np.any(np.logical_and(train_1, train_2))
+
+# some refactoring by Hal
+def remove_trial_ends(raster, trial_ends):
+    '''
+    return the NxT with the time indices corresponding to the
+    last timebins of each trial removed.
+
+    trial_ends is an array-like of integer indices to be removed
+    so the length of the returned spike train is len(spike_train) - len(trial_ends)
+    assuming all trial end indices are unique
+    '''
+    trial_ends_bin = np.ones(raster.shape[1], dtype=bool)
+    trial_ends_bin[trial_ends] = False
+
+    return raster[:, trial_ends_bin]
+
+"""
 def main(experiment,dt):
     # loop through and load all experiment npz files
     dir = '/home/macleanlab/experiments/' + experiment + '/npz-data/'
@@ -35,13 +176,11 @@ def main(experiment,dt):
     savedir = '/home/macleanlab/experiments/' + experiment + '/analysis/'
     np.save(savedir + 'mi.npy', mi_graphs)
 
-    """
     # for now using postweights but ultimately we'd like to have preweights
     # because those are the weights that actually led to the activity in these trials
-    w_rec = data['tv1.postweights']
+    #w_rec = data['tv1.postweights']
     # note that we are using pre-update weights, since these are the ones actually generating the spikes
-    recruitment_graph = intersect_functional_and_synaptic(functional_graph,w_rec)
-    """
+    #recruitment_graph = intersect_functional_and_synaptic(functional_graph,w_rec)
 
 def debug(experiment,dt):
     dir = '/home/macleanlab/experiments/' + experiment + '/npz-data/'
@@ -128,7 +267,9 @@ def generate_mi_graph_ccd(raster, indices):
     residual_graph = residual(background_graph,MI_graph)
     normed_MI_graph = normed_residual(residual_graph)
     return normed_MI_graph
+"""
 
+"""
 def generate_mi_graph(raster, trial_ends=[], MI_type='confluent',
         temporal=False):
     # add time logging
@@ -201,52 +342,9 @@ def confMI_mat_sinusoid(raster, slow=False, trial_ends=[]):
     mat = np.array(mat)
     np.fill_diagonal(mat, 0.0)
     return mat
+"""
 
-def construct_MI_mat(raster, trial_ends=[], MI_type='confluent',
-        temporal_FN_union=False):
-    '''
-    construct a mutual information matrix from the given spike trains,
-    excluding transitions over the given trial end indices (the last
-    timebin of each trial.
-
-    confluent, consecutive, or simultaneous mutual information
-
-    alternatively, instead of filling in the matrix with MI values, fill
-    it in with the union of temporal FNs (1 where a spike pair is
-    present at all in the given raster, 0 where it is not)
-    '''
-    assert MI_type in {'confluent', 'consecutive', 'simultaneous'}
-    lag = 1 # currently the trial_end logic won't work with larger lags
-
-    # lag the spike trains accordingly
-    if MI_type == 'confluent':
-        post_raster = raster[:, lag:]
-        raster = raster[:, :-lag]
-        post_raster = np.logical_or(raster, post_raster) # confluence
-    elif MI_type == 'consecutive':
-        post_raster = raster[:, lag:] # nothing more
-        raster = raster[:, :-lag]
-    elif MI_type == 'simultaneous':
-        post_raster = raster # fine to not copy
-
-    # remove trial ends if necessary (they don't affect consecutive MI)
-    if MI_type == 'confluent' or MI_type == 'consecutive':
-        raster = remove_trial_ends(raster, trial_ends)
-        post_raster = remove_trial_ends(post_raster, trial_ends)
-
-    # compute the actual MI
-    neurons = raster.shape[0]
-    mat = np.zeros([neurons, neurons])
-    for pre in range(neurons):
-        for post in range(neurons):
-            if pre != post:
-                if temporal_FN_union:
-                    mat[pre, post] = potential_edge(raster[pre, :], post_raster[post, :])
-                else:
-                    mat[pre, post] = compute_MI(raster[pre, :], post_raster[post, :])
-
-    return mat
-
+"""
 def confMI(train_1,train_2,lag,alpha,trial_ends):
     MI = 0
     states = [0,1]
@@ -293,66 +391,9 @@ def confMI(train_1,train_2,lag,alpha,trial_ends):
                         #print(f'{i} {j} {update}')
                         MI += update
     return MI
+"""
 
-# some refactoring by Hal
-def remove_trial_ends(raster, trial_ends):
-    '''
-    return the NxT with the time indices corresponding to the
-    last timebins of each trial removed.
-
-    trial_ends is an array-like of integer indices to be removed
-    so the length of the returned spike train is len(spike_train) - len(trial_ends)
-    assuming all trial end indices are unique
-    '''
-    trial_ends_bin = np.ones(raster.shape[1], dtype=bool)
-    trial_ends_bin[trial_ends] = False
-
-    return raster[:, trial_ends_bin]
-
-def compute_MI(train_1, train_2):
-    '''
-    compute the mutual information between two spike trains
-    (if one has been lagged or made confluent appropriately, this
-    will compute consecutive, confluent, etc. MI)
-    '''
-    # marginal probs
-    p_pre_1 = np.mean(train_1)
-    p_post_1 = np.mean(train_2)
-    p_pre_0 = 1 - p_pre_1
-    p_post_0 = 1 - p_post_1
-
-    # joint variables
-    both_1 = np.logical_and(train_1, train_2)
-    pre_0_post_1 = np.logical_and(np.logical_not(train_1), train_2)
-    pre_1_post_0 = np.logical_and(train_1, np.logical_not(train_2))
-    both_0 = np.logical_and(np.logical_not(train_1), np.logical_not(train_2))
-
-    # and compute probabilities
-    p_both_1 = np.mean(both_1)
-    p_pre_0_post_1 = np.mean(pre_0_post_1)
-    p_pre_1_post_0 = np.mean(pre_1_post_0)
-    p_both_0 = np.mean(both_0)
-
-    # sum up MI, making sure not to take the log of zero
-    MI = 0
-    if p_both_1 > 0:
-        MI += p_both_1 * np.log2(p_both_1 / (p_pre_1 * p_post_1))
-    if p_both_0 > 0:
-        MI += p_both_0 * np.log2(p_both_0 / (p_pre_0 * p_post_0))
-    if p_pre_0_post_1 > 0:
-        MI += p_pre_0_post_1 * np.log2(p_pre_0_post_1 / (p_pre_0 * p_post_1))
-    if p_pre_1_post_0 > 0:
-        MI += p_pre_1_post_0 * np.log2(p_pre_1_post_0 / (p_pre_1 * p_post_0))
-
-    return MI
-
-def potential_edge(train_1, train_2):
-    '''
-    see whether there is a potential edge expressed in the given spike trains
-    that is, if they ever spike together
-    '''
-    return np.any(np.logical_and(train_1, train_2))
-
+"""
 def confMI_fast(train_1, train_2, trial_ends):
     '''
     compute confluent mutual information between two spike trains, with
@@ -421,6 +462,7 @@ def confMI_fast(train_1, train_2, trial_ends):
     return MI
 
 """
+"""
 def null_confMI(train_1,train_2,lag,alpha):
     MI = 0
     states = [0,1]
@@ -453,25 +495,7 @@ def null_confMI(train_1,train_2,lag,alpha):
                         MI += p_i_and_j * np.log2(p_i_and_j/(p_i*p_j))
     return MI
 """
-
-def signed_MI(graph,raster):
-    neurons = np.shape(graph)[0]
-    signed_graph = np.copy(graph)
-    for pre in range(0,neurons):
-        for post in range ((pre+1),neurons):
-            corr_mat = np.corrcoef(raster[pre,:],raster[post,:])
-            #factor = sign(corr_mat[1,2])
-            factor = np.sign(corr_mat[0,1])
-            if ~np.isnan(factor):
-                signed_graph[pre,post] *= factor
-                signed_graph[post,pre] *= factor
-    return signed_graph
-
-def pos(graph):
-    #takes signed_MI MI graph, returns positive version
-    pos_graph = np.copy(graph)
-    pos_graph[graph < 0] = 0
-    return pos_graph
+"""
 
 def reexpress_param(graph):
     #takes pos graph and returns redist graph
@@ -542,8 +566,6 @@ def normed_residual(graph):
     norm_residual = 1/(np.sqrt(np.maximum(norm_residual,np.ones([neurons,neurons])*cutoff)))
     return norm_residual*graph
 
-
-'''
 def binary_raster_gen(spikes,dt):
     bins = np.arange(0,run_total,dt)
     raster = np.zeros(np.shape(spikes)[0],length(bins)-1)
@@ -553,4 +575,4 @@ def binary_raster_gen(spikes,dt):
         for j = 1:length(discrete_train)
             raster[i,Int(discrete_train[j])] = 1
     return raster
-'''
+"""
