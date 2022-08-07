@@ -30,7 +30,7 @@ i_end = 300
 savepath = '/data/results/experiment1/'
 
 e_only = True
-positive_only = True
+positive_only = False
 
 # next thing is to do this for just the units that project to output, rather than the whole e network
 
@@ -57,7 +57,7 @@ def plot_fn_quad_metrics():
     fig.suptitle('functional graph metrics for just 4 epochs')
     plt.draw()
     plt.subplots_adjust(wspace=0.5,hspace=0.5)
-    plt.savefig(os.path.join(savepath,"set_fn_quad_metrics.png"),dpi=300)
+    plt.savefig(os.path.join(savepath,"set_fn_quad_metrics_withnegative.png"),dpi=300)
     plt.clf()
     plt.close()
 
@@ -70,9 +70,7 @@ def calculate_fn_quad_metrics():
     ccs_mat = []
     experiments = get_experiments(data_dir, experiment_string)
     for xdir in experiments:
-        # nx clustering is still not supported for negative values (it will create complex cc values)
-        # so, make all values positive
-        xdir_quad_fn = generate_quad_fn(xdir, e_only, positive_only=True)
+        xdir_quad_fn = generate_quad_fn(xdir, e_only, positive_only)
         n_epochs = np.shape(xdir_quad_fn)[0]
         ws = np.zeros([2,n_epochs])
         dens = np.zeros([2,n_epochs])
@@ -81,14 +79,22 @@ def calculate_fn_quad_metrics():
         for i in range(np.shape(xdir_quad_fn)[1]): # for each of the 2 coherence levels:
             for j in range(n_epochs): # for each of the four epochs
                 # flipping indices from epoch,coherence to coherence,epoch
-                G = nx.from_numpy_array(xdir_quad_fn[j][i],create_using=nx.DiGraph)
                 # calculate mean weight
                 ws[i][j]=np.average(xdir_quad_fn[j][i])
                 # calculate density
-                dens[i][j]=nx.density(G)
+                dens[i][j]=calc_density(xdir_quad_fn[j][i])
                 # calculate reciprocity
-                recips[i][j]=nx.overall_reciprocity(G)
+                recips[i][j]=reciprocity(xdir_quad_fn[j][i])
                 # calculate weighted clustering coefficient
+                # nx clustering is still not supported for negative values (it will create complex cc values)
+                # so, make all values positive as needed
+                if np.size(xdir_quad_fn[j][i][xdir_quad_fn[j][i]<0])>0:
+                    # functional graph contains negative weights
+                    result = np.where(xdir_quad_fn[j][i]<0,0,xdir_quad_fn[j][i])
+                    # replace negative weights with 0's
+                else:
+                    result = xdir_quad_fn[j][i]
+                G = nx.from_numpy_array(result,create_using=nx.DiGraph)
                 ccs[i][j]=nx.average_clustering(G,nodes=G.nodes,weight='weight')
         w_mat.append(ws)
         dens_mat.append(dens)
