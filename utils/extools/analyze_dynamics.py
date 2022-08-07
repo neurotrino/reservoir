@@ -38,6 +38,7 @@ def plot_fn_quad_metrics():
     # even though it's so simple (just 4 values per xdir),
     # it'll be useful to compare across xdirs and training
     metric_mat = calculate_fn_quad_metrics()
+    np.save(os.path.join(savepath,'set_fn_quad_metrics_withnegative.npy'), metric_mat)
     # shaped [4-metrics,number-of-experiments,2-coherence-levels,4-epochs]
     labels=['average weight','density','reciprocity','weighted clustering']
     epochs = [0,10,100,1000]
@@ -87,14 +88,8 @@ def calculate_fn_quad_metrics():
                 recips[i][j]=reciprocity(xdir_quad_fn[j][i])
                 # calculate weighted clustering coefficient
                 # nx clustering is still not supported for negative values (it will create complex cc values)
-                # so, make all values positive as needed
-                if np.size(xdir_quad_fn[j][i][xdir_quad_fn[j][i]<0])>0:
-                    # functional graph contains negative weights
-                    result = np.where(xdir_quad_fn[j][i]<0,0,xdir_quad_fn[j][i])
-                    # replace negative weights with 0's
-                else:
-                    result = xdir_quad_fn[j][i]
-                G = nx.from_numpy_array(result,create_using=nx.DiGraph)
+                # so, use absolute values for now
+                G = nx.from_numpy_array(np.abs(xdir_quad_fn[j][i]),create_using=nx.DiGraph)
                 ccs[i][j]=nx.average_clustering(G,nodes=G.nodes,weight='weight')
         w_mat.append(ws)
         dens_mat.append(dens)
