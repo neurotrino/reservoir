@@ -52,7 +52,7 @@ def calculate_fn_quad_metrics():
             dens = []
             recips = []
             ccs = []
-            for j in range(np.shape(xdir_quad_fn)[1])
+            for j in range(np.shape(xdir_quad_fn)[1]):
                 G = nx.from_numpy_array(xdir_quad_fn[i][j],create_using=nx.DiGraph)
                 # calculate density
                 dens.append(nx.density(G))
