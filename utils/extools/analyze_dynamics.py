@@ -32,36 +32,66 @@ savepath = '/data/results/experiment1/'
 e_only = True
 positive_only = False
 
-"""
+
 def plot_fn_quad_metrics():
     # even though it's so simple (just 4 values per xdir),
-    # it'll be useful to compare across xdirs and training"""
+    # it'll be useful to compare across xdirs and training
+    metric_mat = calculate_fn_quad_metrics
+    # shaped [4-metrics,number-of-experiments,2-coherence-levels,4-epochs]
+    labels=['average weight','density','reciprocity','weighted clustering']
+    epochs = [0,10,100,1000]
+    fig, ax = plt.subplots(nrows=4, ncols=2)
+    ax=ax.flatten()
+    for i in range(4): # for each of the four metrics
+        for j in range(np.shape(metric_mat)[0]): # for each experiment
+            # plot for both coherence levels
+            ax[i].plot(epochs,metric_mat[i][j][0])
+            ax[i+4].plot(epochs,metric_mat[i][j][1])
+        ax[i].set_title(labels[i]+' coherence level 0')
+        ax[i+4].set_title(labels[i]+' coherence level 1')
+        ax[i].set_ylabel(labels[i])
+        ax[i+4].set_ylabel(labels[i])
+    for i in range(8):
+        ax[i].set_xlabel('epoch')
+    fig.suptitle('functional graph metrics for just 4 epochs')
+    plt.draw()
+    plt.subplots_adjust(wspace=0.5,hspace=0.5)
+    plt.savefig(os.path.join(savepath,"set_fn_quad_metrics.png"),dpi=300)
+    plt.clf()
+    plt.close()
 
 def calculate_fn_quad_metrics():
-    # for now, returns [experiments, epoch, metrics, coherence level]
-    # where epoch is just epochs 0, 10, 100, and 1000
-    # and metrics is density, reciprocity, clustering
-    # so sized [number-of-experiments,4,3,2]
-    metric_mat = []
+    # for now, metrics are mean weight, density, reciprocity, clustering
+    # each metric is sized [number-of-experiments,2-coherence-levels,4-epochs,]
+    w_mat = []
+    dens_mat = []
+    recips_mat = []
+    ccs_mat = []
     experiments = get_experiments(data_dir, experiment_string)
     for xdir in experiments:
-        xdir_mat = []
         xdir_quad_fn = generate_quad_fn(xdir, e_only, positive_only)
-        for i in range(np.shape(xdir_quad_fn)[0]):
-            dens = []
-            recips = []
-            ccs = []
-            for j in range(np.shape(xdir_quad_fn)[1]):
-                G = nx.from_numpy_array(xdir_quad_fn[i][j],create_using=nx.DiGraph)
+        n_epochs = np.shape(xdir_quad_fn)[0]
+        ws = np.zeros([2,n_epochs])
+        dens = np.zeros([2,n_epochs])
+        recips = np.zeros([2,n_epochs])
+        ccs = np.zeros([2,n_epochs])
+        for i in range(np.shape(xdir_quad_fn)[1]): # for each of the 2 coherence levels:
+            for j in range(n_epochs): # for each of the four epochs
+                # flipping indices from epoch,coherence to coherence,epoch
+                G = nx.from_numpy_array(xdir_quad_fn[j][i],create_using=nx.DiGraph)
+                # calculate mean weight
+                ws[i][j]=np.average(xdir_quad_fn[j][i])
                 # calculate density
-                dens.append(nx.density(G))
+                dens[i][j]=nx.density(G)
                 # calculate reciprocity
-                recips.append(nx.overall_reciprocity(G))
+                recips[i][j]=nx.overall_reciprocity(G)
                 # calculate weighted clustering coefficient
-                ccs.append(nx.average_clustering(G,nodes=G.nodes,weight='weight'))
-            xdir_mat.append([dens,recips,ccs])
-        metric_mat.append(xdir_mat)
-    return metric_mat
+                ccs[i][j]=nx.average_clustering(G,nodes=G.nodes,weight='weight')
+        w_mat.append(ws)
+        dens_mat.append(dens)
+        recips_mat.append(recips)
+        ccs_mat.append(ccs)
+    return [w_mat,dens_mat,recips_mat,ccs_mat]
 
 def plot_fn_w_dist_experiments():
     # 4 subplots
@@ -93,7 +123,7 @@ def plot_fn_w_dist_experiments():
             plt.title(plt_string[i])
             plt.legend()
             plt.draw()
-            plt_name = plt_string[i]+"_fn.png"
+            plt_name = plt_string[i]+"_fn_wdist.png"
             plt.savefig(os.path.join(savepath,exp_path,plt_name),dpi=300)
             plt.clf()
             plt.close()
