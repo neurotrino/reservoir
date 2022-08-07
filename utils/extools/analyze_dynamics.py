@@ -36,7 +36,7 @@ positive_only = False
 def plot_fn_quad_metrics():
     # even though it's so simple (just 4 values per xdir),
     # it'll be useful to compare across xdirs and training
-    metric_mat = calculate_fn_quad_metrics
+    metric_mat = calculate_fn_quad_metrics()
     # shaped [4-metrics,number-of-experiments,2-coherence-levels,4-epochs]
     labels=['average weight','density','reciprocity','weighted clustering']
     epochs = [0,10,100,1000]
