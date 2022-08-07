@@ -30,8 +30,9 @@ i_end = 300
 savepath = '/data/results/experiment1/'
 
 e_only = True
-positive_only = False
+positive_only = True
 
+# next thing is to do this for just the units that project to output, rather than the whole e network
 
 def plot_fn_quad_metrics():
     # even though it's so simple (just 4 values per xdir),
@@ -69,7 +70,9 @@ def calculate_fn_quad_metrics():
     ccs_mat = []
     experiments = get_experiments(data_dir, experiment_string)
     for xdir in experiments:
-        xdir_quad_fn = generate_quad_fn(xdir, e_only, positive_only)
+        # nx clustering is still not supported for negative values (it will create complex cc values)
+        # so, make all values positive
+        xdir_quad_fn = generate_quad_fn(xdir, e_only, positive_only=True)
         n_epochs = np.shape(xdir_quad_fn)[0]
         ws = np.zeros([2,n_epochs])
         dens = np.zeros([2,n_epochs])
@@ -86,7 +89,8 @@ def calculate_fn_quad_metrics():
                 # calculate reciprocity
                 recips[i][j]=nx.overall_reciprocity(G)
                 # calculate weighted clustering coefficient
-                ccs[i][j]=nx.average_clustering(G,nodes=G.nodes,weight='weight')
+                G_pos = nx.from_numpy_array(xdir_quad_fn[j][i])
+                ccs[i][j]=nx.average_clustering(G_pos,nodes=G_pos.nodes,weight='weight')
         w_mat.append(ws)
         dens_mat.append(dens)
         recips_mat.append(recips)
