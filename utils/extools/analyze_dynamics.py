@@ -132,7 +132,7 @@ def plot_fn_w_dist_experiments():
             plt.clf()
             plt.close()
 
-def generate_quad_fn(xdir, e_only=True, positive_only=False):
+def generate_quad_fn(xdir, e_only, positive_only):
     # simply generate four functional networks for a given xdir within experiments
     # can then be used to make quick plots
     # epochs = ['epoch0','epoch10','epoch100','epoch1000']
