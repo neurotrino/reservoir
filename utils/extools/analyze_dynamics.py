@@ -29,6 +29,102 @@ e_end = 240
 i_end = 300
 savepath = '/data/results/experiment1/'
 
+e_only = True
+positive_only = False
+
+# Sunday: plot heatmaps of functional networks (side-by-side coherence levels)
+# calculate reciprocity, density, clustering as single numbers for each
+# show distribution of weight strengths in fns, contrasting 0 and 1 on same plot
+# do this for all the experiments
+# and that's a good day!
+
+def calculate_fn_quad_metrics():
+    # for now, returns [experiments, epoch, metrics, coherence level]
+    # where epoch is just epochs 0, 10, 100, and 1000
+    # and metrics is density, reciprocity, clustering
+    # so sized [number-of-experiments,4,3,2]
+    metric_mat = []
+    experiments = get_experiments(data_dir, experiment_string)
+    for xdir in experiments:
+        xdir_mat = []
+        xdir_quad_fn = generate_quad_fn(xdir, e_only, positive_only)
+        for i in range(np.shape(xdir_quad_fn)[0]):
+            dens = []
+            recips = []
+            ccs = []
+            for j in range(np.shape(xdir_quad_fn)[1])
+                G = nx.from_numpy_array(xdir_quad_fn[i][j],create_using=nx.DiGraph)
+                # calculate density
+                dens.append(nx.density(G))
+                # calculate reciprocity
+                recips.append(nx.overall_reciprocity(G))
+                # calculate weighted clustering coefficient
+                ccs.append(nx.average_clustering(G,nodes=G.nodes,weight='weight'))
+            xdir_mat.append([dens,recips,ccs])
+        metric_mat.append(xdir_mat)
+    return metric_mat
+
+def plot_fn_w_dist_experiments():
+    # 4 subplots
+    experiments = get_experiments(data_dir, experiment_string)
+    # first for naive distribution
+    # second for epoch 10
+    # third for epoch 100
+    # fourth for epoch 1000
+
+    for xdir in experiments:
+        # create experiment-specific folder for saving if it doesn't exist yet
+        plt_string = ['epoch0','epoch10','epoch100','epoch1000']
+
+        exp_path = xdir[-9:-1]
+        if not os.path.isdir(os.path.join(savepath,exp_path)):
+            os.makedirs(os.path.join(savepath,exp_path))
+
+        xdir_quad_fn = generate_quad_fn(xdir, e_only, positive_only)
+        # sized [4,2,240,240]
+
+        for i in range(np.shape(xdir_quad_fn)[0]):
+            plt.figure()
+            # plot coherence level 0 fn weights
+            sns.histplot(data=np.ravel(xdir_quad_fn[i][0]), binwidth=0.05, color='blue', label='coherence 0', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            # plot coherence level 1 fn weights
+            sns.histplot(data=np.ravel(xdir_quad_fn[i][1]), binwidth=0.05, color='red', label='coherence 1', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            plt.xlabel('functional weight distribution')
+            plt.ylabel('density')
+            plt.title(plt_string[i])
+            plt.legend()
+            plt.draw()
+            plt_name = plt_string[i]+"_fn.png"
+            plt.savefig(os.path.join(savepath,exp_path,plt_name),dpi=300)
+            plt.clf()
+            plt.close()
+
+def generate_quad_fn(xdir, e_only=True, positive_only=False)
+    # simply generate four functional networks for a given xdir within experiments
+    # can then be used to make quick plots
+    # epochs = ['epoch0','epoch10','epoch100','epoch1000']
+    xdir_quad_fn = []
+    data_files = []
+    data_files.append(os.path.join(data_dir, xdir, 'npz-data/1-10.npz'))
+    data_files.append(os.path.join(data_dir, xdir, 'npz-data/91-100.npz'))
+    data_files.append(os.path.join(data_dir, xdir, 'npz-data/991-1000.npz'))
+    spikes = []
+    true_y = []
+    data = np.load(data_files[0])
+    # batch 0 (completely naive) spikes
+    spikes.append(data['spikes'][0])
+    true_y.append(data['true_y'][0])
+    for i in range(3): # load other spikes
+        data = np.load(data_files[i])
+        spikes.append(data['spikes'][99])
+        true_y.append(data['true_y'][99])
+    for i in range(4):
+        [fn_coh0, fn_coh1] = generate_batch_ccd_functional_graphs(spikes[i],true_y[i],e_only,positive_only)
+        xdir_quad_fn.append([fn_coh0, fn_coh1])
+    # returns [epoch,coherence,FN]
+    # sized [4,2,240,240]
+    return xdir_quad_fn
+
 def generate_batch_ccd_functional_graphs(spikes,true_y,e_only,positive_only):
     # calculate 2 FNs (1 for each coherence level) for each batch of 30 trials
     if e_only:
