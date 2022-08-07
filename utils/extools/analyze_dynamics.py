@@ -89,8 +89,7 @@ def calculate_fn_quad_metrics():
                 # calculate reciprocity
                 recips[i][j]=nx.overall_reciprocity(G)
                 # calculate weighted clustering coefficient
-                G_pos = nx.from_numpy_array(xdir_quad_fn[j][i])
-                ccs[i][j]=nx.average_clustering(G_pos,nodes=G_pos.nodes,weight='weight')
+                ccs[i][j]=nx.average_clustering(G,nodes=G.nodes,weight='weight')
         w_mat.append(ws)
         dens_mat.append(dens)
         recips_mat.append(recips)
