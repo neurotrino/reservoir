@@ -32,11 +32,10 @@ savepath = '/data/results/experiment1/'
 e_only = True
 positive_only = False
 
-# Sunday: plot heatmaps of functional networks (side-by-side coherence levels)
-# calculate reciprocity, density, clustering as single numbers for each
-# show distribution of weight strengths in fns, contrasting 0 and 1 on same plot
-# do this for all the experiments
-# and that's a good day!
+"""
+def plot_fn_quad_metrics():
+    # even though it's so simple (just 4 values per xdir),
+    # it'll be useful to compare across xdirs and training"""
 
 def calculate_fn_quad_metrics():
     # for now, returns [experiments, epoch, metrics, coherence level]
@@ -86,9 +85,9 @@ def plot_fn_w_dist_experiments():
         for i in range(np.shape(xdir_quad_fn)[0]):
             plt.figure()
             # plot coherence level 0 fn weights
-            sns.histplot(data=np.ravel(xdir_quad_fn[i][0]), binwidth=0.05, color='blue', label='coherence 0', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            sns.histplot(data=np.ravel(xdir_quad_fn[i][0]), bins=30, color='blue', label='coherence 0', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             # plot coherence level 1 fn weights
-            sns.histplot(data=np.ravel(xdir_quad_fn[i][1]), binwidth=0.05, color='red', label='coherence 1', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+            sns.histplot(data=np.ravel(xdir_quad_fn[i][1]), bins=30, color='red', label='coherence 1', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
             plt.xlabel('functional weight distribution')
             plt.ylabel('density')
             plt.title(plt_string[i])
