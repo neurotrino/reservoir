@@ -34,30 +34,34 @@ positive_only = False
 
 # next thing is to do this for just the units that project to output, rather than the whole e network
 
-def plot_fn_quad_metrics():
+def plot_fn_quad_metrics(load_saved=True):
     # even though it's so simple (just 4 values per xdir),
     # it'll be useful to compare across xdirs and training
-    metric_mat = calculate_fn_quad_metrics()
-    np.save(os.path.join(savepath,'set_fn_quad_metrics_withnegative.npy'), metric_mat)
+    metric_data_file = os.path.join(savepath,'set_fn_quad_metrics_withnegative.npy')
+    if not load_saved:
+        metric_mat = calculate_fn_quad_metrics()
+        np.save(metric_data_file, metric_mat)
+    else:
+        metric_mat = np.load(metric_data_file)
     # shaped [4-metrics,number-of-experiments,2-coherence-levels,4-epochs]
-    labels=['average weight','density','reciprocity','weighted clustering']
+    labels=['average weight','density','reciprocity','clustering']
     epochs = [0,10,100,1000]
     fig, ax = plt.subplots(nrows=4, ncols=2)
     ax=ax.flatten()
-    for i in range(4): # for each of the four metrics
+    for i in [0,2,4,6]: # for each of the four metrics
         for j in range(np.shape(metric_mat)[0]): # for each experiment
             # plot for both coherence levels
             ax[i].plot(epochs,metric_mat[i][j][0])
-            ax[i+4].plot(epochs,metric_mat[i][j][1])
-        ax[i].set_title(labels[i]+' coherence level 0')
-        ax[i+4].set_title(labels[i]+' coherence level 1')
+            ax[i+1].plot(epochs,metric_mat[i][j][1])
+        ax[i].set_title('coherence level 0')
+        ax[i+4].set_title('coherence level 1')
         ax[i].set_ylabel(labels[i])
         ax[i+4].set_ylabel(labels[i])
     for i in range(8):
         ax[i].set_xlabel('epoch')
     fig.suptitle('functional graph metrics for just 4 epochs')
     plt.draw()
-    plt.subplots_adjust(wspace=0.5,hspace=0.5)
+    plt.subplots_adjust(wspace=0.5,hspace=1.0)
     plt.savefig(os.path.join(savepath,"set_fn_quad_metrics_withnegative.png"),dpi=300)
     plt.clf()
     plt.close()
