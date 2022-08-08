@@ -54,10 +54,10 @@ def plot_fn_quad_metrics(load_saved=True):
             # plot for both coherence levels
             ax[ax_idx[i]].plot(epochs,metric_mat[i][j][0])
             ax[ax_idx[i]+1].plot(epochs,metric_mat[i][j][1])
-        ax[i].set_title('coherence level 0')
-        ax[i+4].set_title('coherence level 1')
-        ax[i].set_ylabel(labels[i])
-        ax[i+4].set_ylabel(labels[i])
+        ax[ax_idx[i]].set_title('coherence level 0')
+        ax[ax_idx[i]+1].set_title('coherence level 1')
+        ax[ax_idx[i]].set_ylabel(labels[i])
+        ax[ax_idx[i]+1].set_ylabel(labels[i])
     for i in range(8):
         ax[i].set_xlabel('epoch')
     fig.suptitle('functional graph metrics for just 4 epochs')
