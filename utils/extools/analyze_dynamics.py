@@ -62,7 +62,7 @@ def plot_fn_quad_metrics(load_saved=True):
         ax[i].set_xlabel('epoch')
     fig.suptitle('functional graph metrics for just 4 epochs')
     plt.draw()
-    plt.subplots_adjust(wspace=0.5,hspace=1.0)
+    plt.subplots_adjust(wspace=0.5,hspace=1.5)
     plt.savefig(os.path.join(savepath,"set_fn_quad_metrics_withnegative.png"),dpi=300)
     plt.clf()
     plt.close()
