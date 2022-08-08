@@ -48,11 +48,12 @@ def plot_fn_quad_metrics(load_saved=True):
     epochs = [0,10,100,1000]
     fig, ax = plt.subplots(nrows=4, ncols=2)
     ax=ax.flatten()
-    for i in [0,2,4,6]: # for each of the four metrics
+    ax_idx = [0,2,4,6]
+    for i in range(4): # for each of the four metrics
         for j in range(np.shape(metric_mat)[0]): # for each experiment
             # plot for both coherence levels
-            ax[i].plot(epochs,metric_mat[i][j][0])
-            ax[i+1].plot(epochs,metric_mat[i][j][1])
+            ax[ax_idx[i]].plot(epochs,metric_mat[i][j][0])
+            ax[ax_idx[i]+1].plot(epochs,metric_mat[i][j][1])
         ax[i].set_title('coherence level 0')
         ax[i+4].set_title('coherence level 1')
         ax[i].set_ylabel(labels[i])
