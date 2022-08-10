@@ -31,6 +31,7 @@ savepath = '/data/results/experiment1/'
 
 e_only = True
 positive_only = False
+bin = 10
 
 # next thing is to do this for just the units that project to output, rather than the whole e network
 
@@ -67,7 +68,7 @@ def plot_fn_quad_metrics(load_saved=True):
     plt.clf()
     plt.close()
 
-def calculate_fn_quad_metrics():
+def calculate_fn_quad_metrics(e_only,positive_only=False):
     # for now, metrics are mean weight, density, reciprocity, clustering
     # each metric is sized [number-of-experiments,2-coherence-levels,4-epochs,]
     w_mat = []
@@ -137,6 +138,7 @@ def plot_fn_w_dist_experiments():
             plt.clf()
             plt.close()
 
+"""
 def generate_quad_fn(xdir, e_only, positive_only):
     # simply generate four functional networks for a given xdir within experiments
     # can then be used to make quick plots
@@ -162,10 +164,20 @@ def generate_quad_fn(xdir, e_only, positive_only):
     # returns [epoch,coherence,FN]
     # sized [4,2,240,240]
     return xdir_quad_fn
+"""
 
-def generate_batch_ccd_functional_graphs(spikes,true_y,e_only,positive_only):
-    # calculate 2 FNs (1 for each coherence level) for each batch of 30 trials
-    if e_only:
+def generate_batch_ccd_functional_graphs(spikes,true_y,bin,sliding_window_bins,e_only,positive_only):
+    # calculate 8 FNs (2 coherence levels x 4 types of connectivity)
+    if not e_only:
+        fns_coh0_ee = np.empty([e_end,0])
+        fns_coh0_ei = np.empty([e_end,0])
+        fns_coh0_append(batch_fns[1])
+        fns_coh0_ie.append(batch_fns[2])
+        fns_coh0_ii.append(batch_fns[3])
+        fns_coh1_ee.append(batch_fns[4])
+        fns_coh1_ei.append(batch_fns[5])
+        fns_coh1_ie.append(batch_fns[6])
+        fns_coh1_ii.append(batch_fns[7])
         spikes_coh0 = np.empty([e_end,0])
         trialends_coh0 = []
         spikes_coh1 = np.empty([e_end,0])
@@ -189,6 +201,103 @@ def generate_batch_ccd_functional_graphs(spikes,true_y,e_only,positive_only):
         fn_coh1 = simple_confMI(spikes_coh1,trialends_coh1,positive_only,lag=1)
         return [fn_coh0, fn_coh1]
 
+
+def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, sliding_window_bins=False, threshold=0.25, e_only=False, positive_only=False):
+    # experiment_string is the data we want to turn into recruitment graphs
+    # do not overwrite already-saved files that contain generated networks
+    # bin functional networks into 10ms (as 'consecutive' bins)
+    # for the sake of efficiency, these are discrete bins rather than sliding window through each ms
+    # threshold = 0.25 means we take just the top quartile of FN weights to calculate recruitment graphs
+    # generate separately for e-e, e-i, i-e, and i-i units (if e_only=True, only do e-e)
+    # positive_only=False means we DO include negative confMI values (negative correlations)
+    # previously we had always removed those, but now we'll try to make sense of negative correlations as we go
+
+    experiments = get_experiments(data_dir, experiment_string)
+    data_files = filenames(num_epochs, epochs_per_file)
+    # networks will be saved as npz files (each containing multiple arrays), so the same names as data_files
+
+    recruit_savepath = os.path.join(savepath,"recruitment_graphs_bin10")
+    if not os.path.isdir(recruit_savepath):
+        os.makedirs(recruit_savepath)
+
+    # we desire to save new MI functional graphs as well
+    MI_savepath = os.path.join(savepath,"MI_graphs_bin10")
+    if not os.path.isdir(MI_savepath):
+        os.makedirs(MI_savepath)
+
+    for xdir in experiments:
+        exp_path = xdir[-9:-1]
+        if not os.path.isdir(os.path.join(recruit_savepath,exp_path)):
+            os.makedirs(os.path.join(recruit_savepath,exp_path))
+        if not os.path.isdir(os.path.join(MI_savepath,exp_path)):
+            os.makedirs(os.path.join(MI_savepath,exp_path))
+            # check if recruitment graph folders have already been generated
+            # there should be 8 "lines" of graphs total:
+            # coh0 ee
+            # coh0 ei
+            # coh0 ie
+            # coh0 ii
+            # coh1 ee
+            # coh1 ei
+            # coh1 ie
+            # coh1 ii
+        if not e_only:
+            for file_idx in range(np.size(data_files)):
+                filepath = os.path.join(data_dir, xdir, 'npz-data', data_files[file_idx])
+                # check if we haven't generated FNs already
+                if not os.path.isfile(os.path.join(MI_savepath,exp_path,save_files[file_idx])) or overwrite:
+                    data = np.load(filepath)
+                    spikes = data['spikes']
+                    true_y = data['true_y']
+                    # generate MI and recruitment graphs from spikes for each coherence level
+                    fns_coh0_ee = []
+                    fns_coh1_ee = []
+                    rns_coh0_ee = []
+                    rns_coh1_ee = []
+                    fns_coh0_ei = []
+                    fns_coh1_ei = []
+                    rns_coh0_ei = []
+                    rns_coh1_ei = []
+                    fns_coh0_ie = []
+                    fns_coh1_ie = []
+                    rns_coh0_ie = []
+                    rns_coh1_ie = []
+                    fns_coh0_ii = []
+                    fns_coh1_ii = []
+                    rns_coh0_ii = []
+                    rns_coh1_ii = []
+                    for batch in range(np.shape(true_y)[0]): # each file contains 100 batch updates
+                    # each batch update has 30 trials
+                    # those spikes and labels are passed to generate FNs batch-wise
+                        batch_fns = generate_batch_ccd_functional_graphs(spikes[batch],true_y[batch],bin,sliding_window_bins,e_only,positive_only)
+                        batch_rns = generate_batch_ccd_recruitment_graphs(spikes[batch],bin,sliding_window,threshold,batch_fns)
+                        # aggregate functional networks to save
+                        fns_coh0_ee.append(batch_fns[0])
+                        fns_coh0_ei.append(batch_fns[1])
+                        fns_coh0_ie.append(batch_fns[2])
+                        fns_coh0_ii.append(batch_fns[3])
+                        fns_coh1_ee.append(batch_fns[4])
+                        fns_coh1_ei.append(batch_fns[5])
+                        fns_coh1_ie.append(batch_fns[6])
+                        fns_coh1_ii.append(batch_fns[7])
+                        # aggregate recruitment networks to save
+                        rns_coh0_ee.append(batch_rns[0])
+                        rns_coh0_ei.append(batch_rns[1])
+                        rns_coh0_ie.append(batch_rns[2])
+                        rns_coh0_ii.append(batch_rns[3])
+                        rns_coh1_ee.append(batch_rns[4])
+                        rns_coh1_ei.append(batch_rns[5])
+                        rns_coh1_ie.append(batch_rns[6])
+                        rns_coh1_ii.append(batch_rns[7])
+                    # do not save in separate directories, instead save all these in the same files by variable name
+                    # saving convention is same as npz data files (save as 1-10.npz for example)
+                    # the MI ee data is sized [100 batch updates, 240 pre e units, 240 post e units]
+                    # the recruitment ee data is sized [100 batch updates, 408 timesteps, 240 pre e units, 240 post e units]
+                    # and similarly, the thresholding for the is different.
+                    np.savez(os.path.join(MI_savepath,exp_path,data_files[file_idx]),coh0_ee=fns_coh0_ee,coh0_ei=fns_coh0_ei,coh0_ie=fns_coh0_ie,coh0_ii=fns_coh0_ii,coh1_ee=fns_coh1_ee,coh1_ei=fns_coh1_ei,coh1_ie=fns_coh1_ie,coh1_ii=fns_coh1_ii)
+                    np.savez(os.path.join(recruitment_savepath,exp_path,data_files[file_idx]),coh0_ee=rns_coh0_ee,coh0_ei=rns_coh0_ei,coh0_ie=rns_coh0_ie,coh0_ii=rns_coh0_ii,coh1_ee=rns_coh1_ee,coh1_ei=rns_coh1_ei,coh1_ie=rns_coh1_ie,coh1_ii=rns_coh1_ii)
+
+"""
 # this function generates functional graphs (using confMI) to save
 # so that we'll have them on hand for use in all the analyses we need
 def generate_all_functional_graphs(experiment_string, overwrite=False, e_only=True, positive_only=False):
@@ -233,16 +342,7 @@ def generate_all_functional_graphs(experiment_string, overwrite=False, e_only=Tr
                     # the data is sized [100 batch updates, 240 pre e units, 240 post e units]
                     np.save(os.path.join(MI_savepath,exp_path,subdir_names[0],save_files[file_idx]), fns_coh0)
                     np.save(os.path.join(MI_savepath,exp_path,subdir_names[1],save_files[file_idx]), fns_coh1)
-
-
-def generate_recruitment_graphs(save_graphs=True):
-    # load in functional graphs
-    # load in synaptic graphs
-    # load in spikes
-    # find active units in synaptic graph
-    # take their weights from the functional graph
-    # save recruitment graphs
-    savedir = os.path.join(savepath,"recruitment_graphs")
+"""
 
 def plot_rates_over_time(output_only=True):
     # separate into coherence level 1 and coherence level 0
