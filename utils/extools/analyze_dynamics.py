@@ -166,40 +166,64 @@ def generate_quad_fn(xdir, e_only, positive_only):
     return xdir_quad_fn
 """
 
-def generate_batch_ccd_functional_graphs(spikes,true_y,bin,sliding_window_bins,e_only,positive_only):
+def bin_batch_ccd_functional_graphs(spikes,true_y,bin,sliding_window_bins,e_only,positive_only):
     # calculate 8 FNs (2 coherence levels x 4 types of connectivity)
-    if not e_only:
-        fns_coh0_ee = np.empty([e_end,0])
-        fns_coh0_ei = np.empty([e_end,0])
-        fns_coh0_append(batch_fns[1])
-        fns_coh0_ie.append(batch_fns[2])
-        fns_coh0_ii.append(batch_fns[3])
-        fns_coh1_ee.append(batch_fns[4])
-        fns_coh1_ei.append(batch_fns[5])
-        fns_coh1_ie.append(batch_fns[6])
-        fns_coh1_ii.append(batch_fns[7])
-        spikes_coh0 = np.empty([e_end,0])
-        trialends_coh0 = []
-        spikes_coh1 = np.empty([e_end,0])
-        trialends_coh1 = []
-        for trial in range(np.shape(true_y)[0]): # each of 30 trials per batch update
-            trial_y = np.squeeze(true_y[trial])
-            # separate spikes according to coherence level
-            coh_0_idx = np.squeeze(np.where(trial_y==0))
-            coh_1_idx = np.squeeze(np.where(trial_y==1))
-            spikes_trial = np.transpose(spikes[trial])
+    if e_only:
+        n_units = e_end
+    else:
+        n_units = i_end
+    trial_dur = np.shape(true_y)[1]
+    fn_coh0 = np.empty([n_units,0])
+    fn_coh1 = np.empty([n_units,0])
+    binned_spikes_coh0 = np.empty([n_units,0])
+    trialends_coh0 = []
+    binned_spikes_coh1 = np.empty([n_units,0])
+    trialends_coh1 = []
+    for trial in range(np.shape(true_y)[0]): # each of 30 trials per batch update
+        spikes_trial = np.transpose(spikes[trial])
+        trial_y = np.squeeze(true_y[trial])
+        # separate spikes according to coherence level
+        coh_0_idx = np.squeeze(np.where(trial_y==0))
+        coh_1_idx = np.squeeze(np.where(trial_y==1))
+
+        if np.size(coh_0_idx)>0:
+            # if the start of a new coherence level happens in the middle of the trial
+            if not (0 in coh_0_idx):
+                # remove the first 50 ms
+                coh_0_idx = coh_0_idx[50:]
+            z_coh0 = spikes_trial[:,coh_0_idx]
+            # bin spikes into 10 ms, discarding trailing ms
+            trial_n_bins = int(math.floor(np.shape(z_coh0)[1]/bin))
+            trial_binned_z = np.zeros([n_units,trial_n_bins]) # holder for this trial's binned spikes
+            for t in range(trial_n_bins): # for each 10-ms bin
+                # the only spikes we are looking at (within this 10-ms bin)
+                z_in_bin = z_coh0[:,t*bin:(t+1)*bin-1]
+                for j in range(n_units): # for each neuron
+                    if (1 in z_in_bin[j,:]):
+                        # if spiked at all, put in a 1
+                        trial_binned_z[j,t] = 1
+            binned_spikes_coh0 = np.hstack([binned_spikes_coh0,trial_binned_z])
             # get all the spikes for each coherence level strung together
-            # get indices of trial_ends
-            if np.size(coh_0_idx)!=0:
-                spikes_coh0 = np.hstack([spikes_coh0,spikes_trial[0:e_end,coh_0_idx]])
-                trialends_coh0.append(np.shape(spikes_coh0)[1]-1)
-            if np.size(coh_1_idx)!=0:
-                spikes_coh1 = np.hstack([spikes_coh1,spikes_trial[0:e_end,coh_1_idx]])
-                trialends_coh1.append(np.shape(spikes_coh1)[1]-1)
-        # pipe into confMI calculation
-        fn_coh0 = simple_confMI(spikes_coh0,trialends_coh0,positive_only,lag=1)
-        fn_coh1 = simple_confMI(spikes_coh1,trialends_coh1,positive_only,lag=1)
-        return [fn_coh0, fn_coh1]
+            trialends_coh0.append(np.shape(binned_spikes_coh0)[1]-1)
+            # keep sight of new trial_end_indices relative to newly binned spikes
+        if np.size(coh_1_idx)>0:
+            if not (0 in coh_1_idx):
+                coh_1_idx = coh_1_idx[50:]
+            z_coh1 = spikes_trial[:,coh_1_idx]
+            trial_n_bins = int(math.floor(np.shape(z_coh1)[1]/bin))
+            trial_binned_z = np.zeros([n_units,trial_n_bins])
+            for t in range(trial_n_bins):
+                z_in_bin = z_coh1[:,t*bin:(t+1)*bin-1]
+                for j in range(n_units):
+                    if (1 in z_in_bin[j,:]):
+                        trial_binned_z[j,t] = 1
+            binned_spikes_coh1 = np.hstack([binned_spikes_coh1,trial_binned_z])
+            trialends_coh1.append(np.shape(spikes_coh1)[1]-1)
+
+    # pipe into confMI calculation
+    fn_coh0 = simple_confMI(binned_spikes_coh0,trialends_coh0,positive_only)
+    fn_coh1 = simple_confMI(binned_spikes_coh1,trialends_coh1,positive_only)
+    return [fn_coh0, fn_coh1]
 
 
 def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, sliding_window_bins=False, threshold=0.25, e_only=False, positive_only=False):
@@ -216,7 +240,7 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
     data_files = filenames(num_epochs, epochs_per_file)
     # networks will be saved as npz files (each containing multiple arrays), so the same names as data_files
 
-    recruit_savepath = os.path.join(savepath,"recruitment_graphs_bin10")
+    recruit_savepath = os.path.join(savepath,"recruitment_graphs_bin10_quartile")
     if not os.path.isdir(recruit_savepath):
         os.makedirs(recruit_savepath)
 
@@ -227,21 +251,13 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
 
     for xdir in experiments:
         exp_path = xdir[-9:-1]
+        # check if MI and recruitment graph folders have already been generated
         if not os.path.isdir(os.path.join(recruit_savepath,exp_path)):
             os.makedirs(os.path.join(recruit_savepath,exp_path))
         if not os.path.isdir(os.path.join(MI_savepath,exp_path)):
             os.makedirs(os.path.join(MI_savepath,exp_path))
-            # check if recruitment graph folders have already been generated
-            # there should be 8 "lines" of graphs total:
-            # coh0 ee
-            # coh0 ei
-            # coh0 ie
-            # coh0 ii
-            # coh1 ee
-            # coh1 ei
-            # coh1 ie
-            # coh1 ii
         if not e_only:
+            # for each batch update, there should be 2 functional networks (1 for each coherence level)
             for file_idx in range(np.size(data_files)):
                 filepath = os.path.join(data_dir, xdir, 'npz-data', data_files[file_idx])
                 # check if we haven't generated FNs already
@@ -249,53 +265,31 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
                     data = np.load(filepath)
                     spikes = data['spikes']
                     true_y = data['true_y']
+                    w = data['tv1.postweights']
                     # generate MI and recruitment graphs from spikes for each coherence level
-                    fns_coh0_ee = []
-                    fns_coh1_ee = []
-                    rns_coh0_ee = []
-                    rns_coh1_ee = []
-                    fns_coh0_ei = []
-                    fns_coh1_ei = []
-                    rns_coh0_ei = []
-                    rns_coh1_ei = []
-                    fns_coh0_ie = []
-                    fns_coh1_ie = []
-                    rns_coh0_ie = []
-                    rns_coh1_ie = []
-                    fns_coh0_ii = []
-                    fns_coh1_ii = []
-                    rns_coh0_ii = []
-                    rns_coh1_ii = []
+                    fns_coh0 = []
+                    fns_coh1 = []
+                    rns_coh0 = []
+                    rns_coh1 = []
                     for batch in range(np.shape(true_y)[0]): # each file contains 100 batch updates
                     # each batch update has 30 trials
-                    # those spikes and labels are passed to generate FNs batch-wise
-                        batch_fns = generate_batch_ccd_functional_graphs(spikes[batch],true_y[batch],bin,sliding_window_bins,e_only,positive_only)
-                        batch_rns = generate_batch_ccd_recruitment_graphs(spikes[batch],bin,sliding_window,threshold,batch_fns)
+                    # those spikes and labels are passed to generate graphs batch-wise
+                        batch_fns = bin_batch_ccd_functional_graphs(spikes[batch],true_y[batch],bin,sliding_window_bins,e_only,positive_only)
+                        # batch_fns is sized [2, 300, 300]
+                        batch_rns = bin_batch_ccd_recruitment_graphs(w,batch_fns,bin,sliding_window_bins,threshold)
                         # aggregate functional networks to save
-                        fns_coh0_ee.append(batch_fns[0])
-                        fns_coh0_ei.append(batch_fns[1])
-                        fns_coh0_ie.append(batch_fns[2])
-                        fns_coh0_ii.append(batch_fns[3])
-                        fns_coh1_ee.append(batch_fns[4])
-                        fns_coh1_ei.append(batch_fns[5])
-                        fns_coh1_ie.append(batch_fns[6])
-                        fns_coh1_ii.append(batch_fns[7])
+                        fns_coh0.append(batch_fns[0])
+                        fns_coh1.append(batch_fns[1])
                         # aggregate recruitment networks to save
                         rns_coh0_ee.append(batch_rns[0])
                         rns_coh0_ei.append(batch_rns[1])
-                        rns_coh0_ie.append(batch_rns[2])
-                        rns_coh0_ii.append(batch_rns[3])
-                        rns_coh1_ee.append(batch_rns[4])
-                        rns_coh1_ei.append(batch_rns[5])
-                        rns_coh1_ie.append(batch_rns[6])
-                        rns_coh1_ii.append(batch_rns[7])
                     # do not save in separate directories, instead save all these in the same files by variable name
                     # saving convention is same as npz data files (save as 1-10.npz for example)
-                    # the MI ee data is sized [100 batch updates, 240 pre e units, 240 post e units]
-                    # the recruitment ee data is sized [100 batch updates, 408 timesteps, 240 pre e units, 240 post e units]
-                    # and similarly, the thresholding for the is different.
-                    np.savez(os.path.join(MI_savepath,exp_path,data_files[file_idx]),coh0_ee=fns_coh0_ee,coh0_ei=fns_coh0_ei,coh0_ie=fns_coh0_ie,coh0_ii=fns_coh0_ii,coh1_ee=fns_coh1_ee,coh1_ei=fns_coh1_ei,coh1_ie=fns_coh1_ie,coh1_ii=fns_coh1_ii)
-                    np.savez(os.path.join(recruitment_savepath,exp_path,data_files[file_idx]),coh0_ee=rns_coh0_ee,coh0_ei=rns_coh0_ei,coh0_ie=rns_coh0_ie,coh0_ii=rns_coh0_ii,coh1_ee=rns_coh1_ee,coh1_ei=rns_coh1_ei,coh1_ie=rns_coh1_ie,coh1_ii=rns_coh1_ii)
+                    # for example, fns_coh0 is sized [100 batch updates, 300 pre units, 300 post units]
+                    # and rns_coh0 is sized [100 batch updates, 408 timesteps, 300 pre units, 300 post units]
+                    # we will separate by connection type (ee, ei, ie, ee) in further analyses
+                    np.savez(os.path.join(MI_savepath,exp_path,data_files[file_idx]),coh0=fns_coh0,coh1=fns_coh1)
+                    np.savez(os.path.join(recruitment_savepath,exp_path,data_files[file_idx]),coh0=rns_coh0,coh1=rns_coh1)
 
 """
 # this function generates functional graphs (using confMI) to save
