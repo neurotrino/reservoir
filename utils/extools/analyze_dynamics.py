@@ -166,7 +166,47 @@ def generate_quad_fn(xdir, e_only, positive_only):
     return xdir_quad_fn
 """
 
-def bin_batch_ccd_functional_graphs(spikes,true_y,bin,sliding_window_bins,e_only,positive_only):
+def batch_recruitment_graphs(w,fn,spikes,trialends,threshold):
+    # w = synaptic graph
+    # fn = functional network for a particular batch (and coherence level)
+    # spikes = binned spikes for 30 trials of a particular batch (and coherence level)
+    # trialends = the indices for which spikes reach a discontinuity
+    # thus, the returned recruitment graphs will be shaped [trial(segment), timestep, pre units, post units]
+    # threshold = 0.25 meaning we only use the top quartile of functional weights
+    # otherwise we have a fully dense graph
+
+    # threshold the functional graph
+    # find the value of the top quartile for the fn
+    sorted_fn = np.unique(fn) # sorted unique elements
+    threshold_idx = (1-threshold)*np.size(sorted_fn)
+    threshold_val = sorted_fn[threshold_idx]
+    # return fn value wherever greater than threshold value, otherwise return 0
+    upper_fn = np.where(fn>=threshold_val,fn,0)
+
+    # mask of 0's and 1's for whether actual synaptic connections exist
+    w_bool = np.where(w!=0,1,0)
+
+    trialstarts = np.concatenate(([0],trialends[:-1]))
+    recruit_graphs = np.empty([np.size(trialstarts),0])
+
+    # for each trial segment (determined by trialends):
+    for i in range(np.size(trialstarts)):
+        # aggregate recruitment graphs for this segment
+        recruit_segment = []
+        # for each timestep within that segment:
+        for t in range(trialstarts[i]:trialends[i]):
+            # find which units spiked in this timestep
+            spike_idx = np.argwhere(spikes[t]==1)
+            # find nonzero synaptic connections between the active units
+            w_idx = np.argwhere(w_bool[spike_idx,spike_idx]==1)
+            # append calculated recruitment graph
+            recruit_segment.append(upper_fn[w_idx])
+        recruit_graphs = np.vstack([recruit_graphs,recruit_segment])
+
+    return recruit_graphs
+
+# calculate MI functional graphs and associated binned recruitment graphs for a single batch update of 30 trials
+def bin_batch_MI_graphs(w,spikes,true_y,bin,sliding_window_bins,threshold,e_only,positive_only):
     # calculate 8 FNs (2 coherence levels x 4 types of connectivity)
     if e_only:
         n_units = e_end
@@ -223,8 +263,12 @@ def bin_batch_ccd_functional_graphs(spikes,true_y,bin,sliding_window_bins,e_only
     # pipe into confMI calculation
     fn_coh0 = simple_confMI(binned_spikes_coh0,trialends_coh0,positive_only)
     fn_coh1 = simple_confMI(binned_spikes_coh1,trialends_coh1,positive_only)
-    return [fn_coh0, fn_coh1]
 
+    # make recruitment graphs
+    rn_coh0 = batch_recruitment_graphs(w,fn_coh0,binned_spikes_coh0,trialends_coh0,threshold)
+    rn_coh1 = batch_recruitment_graphs(w,fn_coh1,binned_spikes_coh1,trialends_coh1,threshold)
+
+    return [[fn_coh0,fn_coh1],[rn_coh0,rn_coh1]]
 
 def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, sliding_window_bins=False, threshold=0.25, e_only=False, positive_only=False):
     # experiment_string is the data we want to turn into recruitment graphs
@@ -274,9 +318,9 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
                     for batch in range(np.shape(true_y)[0]): # each file contains 100 batch updates
                     # each batch update has 30 trials
                     # those spikes and labels are passed to generate graphs batch-wise
-                        batch_fns = bin_batch_ccd_functional_graphs(spikes[batch],true_y[batch],bin,sliding_window_bins,e_only,positive_only)
+                        [batch_fns, batch_rns] = bin_batch_MI_graphs(w[batch],spikes[batch],true_y[batch],bin,sliding_window_bins,threshold,e_only,positive_only)
                         # batch_fns is sized [2, 300, 300]
-                        batch_rns = bin_batch_ccd_recruitment_graphs(w,batch_fns,bin,sliding_window_bins,threshold)
+                        #batch_rns = bin_batch_ccd_recruitment_graphs(w,batch_fns,bin,sliding_window_bins,threshold)
                         # aggregate functional networks to save
                         fns_coh0.append(batch_fns[0])
                         fns_coh1.append(batch_fns[1])
