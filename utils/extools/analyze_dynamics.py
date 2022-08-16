@@ -194,7 +194,7 @@ def batch_recruitment_graphs(w,fn,spikes,trialends,threshold):
         # aggregate recruitment graphs for this segment
         recruit_segment = []
         # for each timestep within that segment:
-        for t in range(trialstarts[i]:trialends[i]):
+        for t in range(trialstarts[i],trialends[i]):
             # find which units spiked in this timestep
             spike_idx = np.argwhere(spikes[t]==1)
             # find nonzero synaptic connections between the active units
