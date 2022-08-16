@@ -177,31 +177,42 @@ def batch_recruitment_graphs(w,fn,spikes,trialends,threshold):
 
     # threshold the functional graph
     # find the value of the top quartile for the fn
-    sorted_fn = np.unique(fn) # sorted unique elements
-    threshold_idx = (1-threshold)*np.size(sorted_fn)
-    threshold_val = sorted_fn[threshold_idx]
-    # return fn value wherever greater than threshold value, otherwise return 0
-    upper_fn = np.where(fn>=threshold_val,fn,0)
+    # do so for both negative and positive values, so taking absolute value of the graph
+    sorted_pos_fn = np.abs(np.unique(fn[fn!=0])) # sorted unique elements, not including 0
+    threshold_idx = int((1-threshold)*np.size(sorted_pos_fn))
+    threshold_val = sorted_pos_fn[threshold_idx]
+
+    # return fn value wherever its absolute value is greater than threshold value, otherwise return 0
+    upper_fn = np.where(np.abs(fn)>=threshold_val,fn,0)
+    # so we could still get negative values
 
     # mask of 0's and 1's for whether actual synaptic connections exist
     w_bool = np.where(w!=0,1,0)
 
     trialstarts = np.concatenate(([0],trialends[:-1]))
-    recruit_graphs = np.empty([np.size(trialstarts),0])
+    recruit_graphs = []
 
     # for each trial segment (determined by trialends):
     for i in range(np.size(trialstarts)):
         # aggregate recruitment graphs for this segment
-        recruit_segment = []
+        segment_dur = trialends[i] - trialstarts[i]
+        recruit_segment = np.zeros([segment_dur,np.shape(upper_fn)[0],np.shape(upper_fn)[1]])
         # for each timestep within that segment:
         for t in range(trialstarts[i],trialends[i]):
             # find which units spiked in this timestep
-            spike_idx = np.argwhere(spikes[t]==1)
-            # find nonzero synaptic connections between the active units
-            w_idx = np.argwhere(w_bool[spike_idx,spike_idx]==1)
-            # append calculated recruitment graph
-            recruit_segment.append(upper_fn[w_idx])
-        recruit_graphs = np.vstack([recruit_graphs,recruit_segment])
+            spike_idx = np.argwhere(spikes[:,t]==1)
+            if spike_idx.size>0: # at least one unit spiked
+                # find nonzero synaptic connections between the active units
+                w_idx = []
+                for u in spike_idx:
+                    for v in spike_idx:
+                        if w_bool[u,v]==1:
+                            w_idx.append([u,v])
+                w_idx = np.squeeze(w_idx)
+                if w_idx.size>0: # we found at least one nonzero synaptic connection between the active units
+                    # fill in recruitment graph at those existing active indices using values from tresholded functional graph
+                    recruit_segment[t,w_idx,w_idx] = upper_fn[w_idx,w_idx] # for each trial segment (less than 30)
+        recruit_graphs.append(recruit_segment) # aggregate for the whole batch, though the dimensions (i.e. duration of each trial segment) will be ragged
 
     return recruit_graphs
 
@@ -233,7 +244,7 @@ def bin_batch_MI_graphs(w,spikes,true_y,bin,sliding_window_bins,threshold,e_only
                 coh_0_idx = coh_0_idx[50:]
             z_coh0 = spikes_trial[:,coh_0_idx]
             # bin spikes into 10 ms, discarding trailing ms
-            trial_n_bins = int(math.floor(np.shape(z_coh0)[1]/bin))
+            trial_n_bins = int(np.math.floor(np.shape(z_coh0)[1]/bin)) # (count of bins for this coherence level's spikes)
             trial_binned_z = np.zeros([n_units,trial_n_bins]) # holder for this trial's binned spikes
             for t in range(trial_n_bins): # for each 10-ms bin
                 # the only spikes we are looking at (within this 10-ms bin)
@@ -250,7 +261,7 @@ def bin_batch_MI_graphs(w,spikes,true_y,bin,sliding_window_bins,threshold,e_only
             if not (0 in coh_1_idx):
                 coh_1_idx = coh_1_idx[50:]
             z_coh1 = spikes_trial[:,coh_1_idx]
-            trial_n_bins = int(math.floor(np.shape(z_coh1)[1]/bin))
+            trial_n_bins = int(np.math.floor(np.shape(z_coh1)[1]/bin))
             trial_binned_z = np.zeros([n_units,trial_n_bins])
             for t in range(trial_n_bins):
                 z_in_bin = z_coh1[:,t*bin:(t+1)*bin-1]
@@ -258,7 +269,7 @@ def bin_batch_MI_graphs(w,spikes,true_y,bin,sliding_window_bins,threshold,e_only
                     if (1 in z_in_bin[j,:]):
                         trial_binned_z[j,t] = 1
             binned_spikes_coh1 = np.hstack([binned_spikes_coh1,trial_binned_z])
-            trialends_coh1.append(np.shape(spikes_coh1)[1]-1)
+            trialends_coh1.append(np.shape(binned_spikes_coh1)[1]-1)
 
     # pipe into confMI calculation
     fn_coh0 = simple_confMI(binned_spikes_coh0,trialends_coh0,positive_only)
@@ -305,7 +316,7 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
             for file_idx in range(np.size(data_files)):
                 filepath = os.path.join(data_dir, xdir, 'npz-data', data_files[file_idx])
                 # check if we haven't generated FNs already
-                if not os.path.isfile(os.path.join(MI_savepath,exp_path,save_files[file_idx])) or overwrite:
+                if not os.path.isfile(os.path.join(MI_savepath,exp_path,data_files[file_idx])) or overwrite:
                     data = np.load(filepath)
                     spikes = data['spikes']
                     true_y = data['true_y']
@@ -318,9 +329,23 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
                     for batch in range(np.shape(true_y)[0]): # each file contains 100 batch updates
                     # each batch update has 30 trials
                     # those spikes and labels are passed to generate graphs batch-wise
-                        [batch_fns, batch_rns] = bin_batch_MI_graphs(w[batch],spikes[batch],true_y[batch],bin,sliding_window_bins,threshold,e_only,positive_only)
+                    # each w is actually a postweight, so corresponds to the next batch
+                        if batch==0 and file_idx==0:
+                        # at the very beginning of the experiment, the naive network is loaded in
+                            w_naive = np.load(os.path.join(data_dir, xdir, 'npz-data', 'main_preweights.npy'))
+                            batch_w = w_naive
+                        elif batch==0 and file_idx!=0:
+                        # if we are at the starting batch of a file (but not the starting file of the experiment),
+                        # load in the previous file's final (99th) batch's postweights
+                            prev_data = np.load(os.path.join(data_dir, xdir, 'npz-data', data_files[file_idx-1]))
+                            batch_w = prev_data['tv1.postweights'][99]
+                        elif batch!=0:
+                        # not at the starting (0th) batch (of any file), so just use the previous batch's postweights
+                            batch_w = w[batch-1]
+                        # generate batch-wise MI and recruitment graphs
+                        [batch_fns, batch_rns] = bin_batch_MI_graphs(batch_w,spikes[batch],true_y[batch],bin,sliding_window_bins,threshold,e_only,positive_only)
                         # batch_fns is sized [2, 300, 300]
-                        #batch_rns = bin_batch_ccd_recruitment_graphs(w,batch_fns,bin,sliding_window_bins,threshold)
+                        # batch_rns is sized [2, 408, 300, 300]
                         # aggregate functional networks to save
                         fns_coh0.append(batch_fns[0])
                         fns_coh1.append(batch_fns[1])
@@ -330,7 +355,7 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
                     # do not save in separate directories, instead save all these in the same files by variable name
                     # saving convention is same as npz data files (save as 1-10.npz for example)
                     # for example, fns_coh0 is sized [100 batch updates, 300 pre units, 300 post units]
-                    # and rns_coh0 is sized [100 batch updates, 408 timesteps, 300 pre units, 300 post units]
+                    # and rns_coh0 is sized [100 batch updates, # trial segments, # timesteps, 300 pre units, 300 post units]
                     # we will separate by connection type (ee, ei, ie, ee) in further analyses
                     np.savez(os.path.join(MI_savepath,exp_path,data_files[file_idx]),coh0=fns_coh0,coh1=fns_coh1)
                     np.savez(os.path.join(recruitment_savepath,exp_path,data_files[file_idx]),coh0=rns_coh0,coh1=rns_coh1)
