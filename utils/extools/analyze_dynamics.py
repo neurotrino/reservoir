@@ -350,8 +350,8 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
                         fns_coh0.append(batch_fns[0])
                         fns_coh1.append(batch_fns[1])
                         # aggregate recruitment networks to save
-                        rns_coh0_ee.append(batch_rns[0])
-                        rns_coh0_ei.append(batch_rns[1])
+                        rns_coh0.append(batch_rns[0])
+                        rns_coh1.append(batch_rns[1])
                     # do not save in separate directories, instead save all these in the same files by variable name
                     # saving convention is same as npz data files (save as 1-10.npz for example)
                     # for example, fns_coh0 is sized [100 batch updates, 300 pre units, 300 post units]
