@@ -190,13 +190,13 @@ def batch_recruitment_graphs(w,fn,spikes,trialends,threshold):
     w_bool = np.where(w!=0,1,0)
 
     trialstarts = np.concatenate(([0],trialends[:-1]))
-    recruit_graphs = []
+    recruit_graphs = np.array([],dtype=object) # specifying object bc ragged dimensions
 
     # for each trial segment (determined by trialends):
     for i in range(np.size(trialstarts)):
         # aggregate recruitment graphs for this segment
         segment_dur = trialends[i] - trialstarts[i]
-        recruit_segment = np.zeros([segment_dur,np.shape(upper_fn)[0],np.shape(upper_fn)[1]])
+        recruit_segment = np.zeros([segment_dur,np.shape(upper_fn)[0],np.shape(upper_fn)[1]],dtype=object)
         # for each timestep within that segment:
         for t in range(trialstarts[i],trialends[i]):
             # find which units spiked in this timestep
@@ -331,8 +331,8 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
                     true_y = data['true_y']
                     w = data['tv1.postweights']
                     # generate recruitment graphs
-                    rns_coh0 = []
-                    rns_coh1 = []
+                    rns_coh0 = np.array([],dtype=object) # specifying object bc ragged dimensions
+                    rns_coh1 = np.array([],dtype=object)
                     for batch in range(np.shape(true_y)[0]):
                         # determine batch w
                         if batch==0 and file_idx==0:
@@ -366,8 +366,8 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
                     # generate MI and recruitment graphs from spikes for each coherence level
                     fns_coh0 = []
                     fns_coh1 = []
-                    rns_coh0 = []
-                    rns_coh1 = []
+                    rns_coh0 = np.array([],dtype=object) # specifying object bc ragged dimensions
+                    rns_coh1 = np.array([],dtype=object)
                     for batch in range(np.shape(true_y)[0]): # each file contains 100 batch updates
                     # each batch update has 30 trials
                     # those spikes and labels are passed to generate graphs batch-wise
