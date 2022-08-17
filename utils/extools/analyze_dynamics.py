@@ -212,7 +212,7 @@ def batch_recruitment_graphs(w,fn,spikes,trialends,threshold):
                 if w_idx.size>0: # we found at least one nonzero synaptic connection between the active units
                     # fill in recruitment graph at those existing active indices using values from tresholded functional graph
                     recruit_segment[t-trialstarts[i],w_idx,w_idx] = upper_fn[w_idx,w_idx] # for each trial segment (less than 30)
-        recruit_graphs.append(recruit_segment) # aggregate for the whole batch, though the dimensions (i.e. duration of each trial segment) will be ragged
+        recruit_graphs = np.append(recruit_graphs,recruit_segment) # aggregate for the whole batch, though the dimensions (i.e. duration of each trial segment) will be ragged
 
     return recruit_graphs
 
@@ -352,8 +352,8 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
                         # use to generate just recruitment graphs
                         rn_coh0 = batch_recruitment_graphs(batch_w,fns_coh0[batch],binned_spikes_coh0,trialends_coh0,threshold)
                         rn_coh1 = batch_recruitment_graphs(batch_w,fns_coh1[batch],binned_spikes_coh1,trialends_coh1,threshold)
-                        rns_coh0.append(rn_coh0)
-                        rns_coh1.append(rn_coh1)
+                        rns_coh0 = np.append(rns_coh0,rn_coh0)
+                        rns_coh1 = np.append(rns_coh1,rn_coh1)
                     # save recruitment graphs only
                     np.savez(os.path.join(recruit_savepath,exp_path,data_files[file_idx]),coh0=rns_coh0,coh1=rns_coh1)
 
