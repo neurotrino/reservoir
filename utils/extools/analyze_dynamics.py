@@ -316,7 +316,7 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=True, bin=10, s
             for file_idx in range(np.size(data_files)):
                 filepath = os.path.join(data_dir, xdir, 'npz-data', data_files[file_idx])
                 # check if we haven't generated FNs already
-                if not os.path.isfile(os.path.join(MI_savepath,exp_path,data_files[file_idx])) or overwrite:
+                if not os.path.isfile(os.path.join(MI_savepath,exp_path,data_files[file_idx])) or not os.path.isfile(os.path.join(recruit_savepath,exp_path,data_files[file_idx])) or overwrite:
                     data = np.load(filepath)
                     spikes = data['spikes']
                     true_y = data['true_y']
