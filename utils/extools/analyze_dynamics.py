@@ -358,7 +358,7 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
                     # and rns_coh0 is sized [100 batch updates, # trial segments, # timesteps, 300 pre units, 300 post units]
                     # we will separate by connection type (ee, ei, ie, ee) in further analyses
                     np.savez(os.path.join(MI_savepath,exp_path,data_files[file_idx]),coh0=fns_coh0,coh1=fns_coh1)
-                    np.savez(os.path.join(recruitment_savepath,exp_path,data_files[file_idx]),coh0=rns_coh0,coh1=rns_coh1)
+                    np.savez(os.path.join(recruit_savepath,exp_path,data_files[file_idx]),coh0=rns_coh0,coh1=rns_coh1)
 
 """
 # this function generates functional graphs (using confMI) to save
