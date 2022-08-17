@@ -281,7 +281,7 @@ def bin_batch_MI_graphs(w,spikes,true_y,bin,sliding_window_bins,threshold,e_only
 
     return [[fn_coh0,fn_coh1],[rn_coh0,rn_coh1]]
 
-def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, sliding_window_bins=False, threshold=0.25, e_only=False, positive_only=False):
+def generate_all_recruitment_graphs(experiment_string, overwrite=True, bin=10, sliding_window_bins=False, threshold=0.25, e_only=False, positive_only=False):
     # experiment_string is the data we want to turn into recruitment graphs
     # do not overwrite already-saved files that contain generated networks
     # bin functional networks into 10ms (as 'consecutive' bins)
