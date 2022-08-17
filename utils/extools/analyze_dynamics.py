@@ -216,16 +216,11 @@ def batch_recruitment_graphs(w,fn,spikes,trialends,threshold):
 
     return recruit_graphs
 
-# calculate MI functional graphs and associated binned recruitment graphs for a single batch update of 30 trials
-def bin_batch_MI_graphs(w,spikes,true_y,bin,sliding_window_bins,threshold,e_only,positive_only):
-    # calculate 8 FNs (2 coherence levels x 4 types of connectivity)
+def get_binned_spikes_trialends(e_only,true_y,spikes,bin):
     if e_only:
         n_units = e_end
     else:
         n_units = i_end
-    trial_dur = np.shape(true_y)[1]
-    fn_coh0 = np.empty([n_units,0])
-    fn_coh1 = np.empty([n_units,0])
     binned_spikes_coh0 = np.empty([n_units,0])
     trialends_coh0 = []
     binned_spikes_coh1 = np.empty([n_units,0])
@@ -271,6 +266,13 @@ def bin_batch_MI_graphs(w,spikes,true_y,bin,sliding_window_bins,threshold,e_only
             binned_spikes_coh1 = np.hstack([binned_spikes_coh1,trial_binned_z])
             trialends_coh1.append(np.shape(binned_spikes_coh1)[1]-1)
 
+    return [[binned_spikes_coh0,binned_spikes_coh1],[trialends_coh0,trialends_coh1]]
+
+# calculate MI functional graphs and associated binned recruitment graphs for a single batch update of 30 trials
+def bin_batch_MI_graphs(w,spikes,true_y,bin,sliding_window_bins,threshold,e_only,positive_only):
+
+    [[binned_spikes_coh0,binned_spikes_coh1],[trialends_coh0,trialends_coh1]] = get_binned_spikes_trialends(e_only,true_y,spikes,bin)
+
     # pipe into confMI calculation
     fn_coh0 = simple_confMI(binned_spikes_coh0,trialends_coh0,positive_only)
     fn_coh1 = simple_confMI(binned_spikes_coh1,trialends_coh1,positive_only)
@@ -281,7 +283,7 @@ def bin_batch_MI_graphs(w,spikes,true_y,bin,sliding_window_bins,threshold,e_only
 
     return [[fn_coh0,fn_coh1],[rn_coh0,rn_coh1]]
 
-def generate_all_recruitment_graphs(experiment_string, overwrite=True, bin=10, sliding_window_bins=False, threshold=0.25, e_only=False, positive_only=False):
+def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, sliding_window_bins=False, threshold=0.25, e_only=False, positive_only=False):
     # experiment_string is the data we want to turn into recruitment graphs
     # do not overwrite already-saved files that contain generated networks
     # bin functional networks into 10ms (as 'consecutive' bins)
@@ -314,9 +316,49 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=True, bin=10, s
         if not e_only:
             # for each batch update, there should be 2 functional networks (1 for each coherence level)
             for file_idx in range(np.size(data_files)):
+                # the experimental npz data file (containing 10 epochs x 10 batches)
                 filepath = os.path.join(data_dir, xdir, 'npz-data', data_files[file_idx])
-                # check if we haven't generated FNs already
-                if not os.path.isfile(os.path.join(MI_savepath,exp_path,data_files[file_idx])) or not os.path.isfile(os.path.join(recruit_savepath,exp_path,data_files[file_idx])) or overwrite:
+
+                # case of we HAVE generated FNs for this npz file already, but not recruitment graphs
+                if os.path.isfile(os.path.join(MI_savepath,exp_path,data_files[file_idx])) and not os.path.isfile(os.path.join(recruit_savepath,exp_path,data_files[file_idx])):
+                    # load in pre-generated functional graphs
+                    data = np.load(os.path.join(MI_savepath,exp_path,data_files[file_idx]))
+                    fns_coh0 = data['coh0'] # each shaped 100 batch updates x 300 units x 300 units
+                    fns_coh1 = data['coh1']
+                    # load in experiment data
+                    data = np.load(filepath)
+                    spikes = data['spikes']
+                    true_y = data['true_y']
+                    w = data['tv1.postweights']
+                    # generate recruitment graphs
+                    rns_coh0 = []
+                    rns_coh1 = []
+                    for batch in range(np.shape(true_y)[0]):
+                        # determine batch w
+                        if batch==0 and file_idx==0:
+                        # at the very beginning of the experiment, the naive network is loaded in
+                            w_naive = np.load(os.path.join(data_dir, xdir, 'npz-data', 'main_preweights.npy'))
+                            batch_w = w_naive
+                        elif batch==0 and file_idx!=0:
+                        # if we are at the starting batch of a file (but not the starting file of the experiment),
+                        # load in the previous file's final (99th) batch's postweights
+                            prev_data = np.load(os.path.join(data_dir, xdir, 'npz-data', data_files[file_idx-1]))
+                            batch_w = prev_data['tv1.postweights'][99]
+                        elif batch!=0:
+                        # not at the starting (0th) batch (of any file), so just use the previous batch's postweights
+                            batch_w = w[batch-1]
+                        # bin spikes and find trialends again
+                        [[binned_spikes_coh0,binned_spikes_coh1],[trialends_coh0,trialends_coh1]] = get_binned_spikes_trialends(e_only,true_y[batch],spikes[batch],bin)
+                        # use to generate just recruitment graphs
+                        rn_coh0 = batch_recruitment_graphs(batch_w,fns_coh0[batch],binned_spikes_coh0,trialends_coh0,threshold)
+                        rn_coh1 = batch_recruitment_graphs(batch_w,fns_coh1[batch],binned_spikes_coh1,trialends_coh1,threshold)
+                        rns_coh0.append(rn_coh0)
+                        rns_coh1.append(rn_coh1)
+                    # save recruitment graphs only
+                    np.savez(os.path.join(recruit_savepath,exp_path,data_files[file_idx]),coh0=rns_coh0,coh1=rns_coh1)
+
+                # case of FNs have NOT yet been generated
+                if not os.path.isfile(os.path.join(MI_savepath,exp_path,data_files[file_idx])):
                     data = np.load(filepath)
                     spikes = data['spikes']
                     true_y = data['true_y']
