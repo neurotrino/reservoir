@@ -190,7 +190,7 @@ def batch_recruitment_graphs(w,fn,spikes,trialends,threshold):
     w_bool = np.where(w!=0,1,0)
 
     trialstarts = np.concatenate(([0],trialends[:-1]))
-    recruit_graphs = np.array([],dtype=object) # specifying object bc ragged dimensions
+    recruit_graphs = []
 
     # for each trial segment (determined by trialends):
     for i in range(np.size(trialstarts)):
@@ -212,7 +212,7 @@ def batch_recruitment_graphs(w,fn,spikes,trialends,threshold):
                 if w_idx.size>0: # we found at least one nonzero synaptic connection between the active units
                     # fill in recruitment graph at those existing active indices using values from tresholded functional graph
                     recruit_segment[t-trialstarts[i],w_idx,w_idx] = upper_fn[w_idx,w_idx] # for each trial segment (less than 30)
-        recruit_graphs = np.append(recruit_graphs,recruit_segment) # aggregate for the whole batch, though the dimensions (i.e. duration of each trial segment) will be ragged
+        recruit_graphs.append(recruit_segment) # aggregate for the whole batch, though the dimensions (i.e. duration of each trial segment) will be ragged
 
     return recruit_graphs
 
@@ -280,6 +280,8 @@ def bin_batch_MI_graphs(w,spikes,true_y,bin,sliding_window_bins,threshold,e_only
     # make and save recruitment graphs
     rn_coh0 = batch_recruitment_graphs(w,fn_coh0,binned_spikes_coh0,trialends_coh0,threshold)
     rn_coh1 = batch_recruitment_graphs(w,fn_coh1,binned_spikes_coh1,trialends_coh1,threshold)
+    rn_coh0 = np.array(rn_coh0, dtype=object)
+    rn_coh1 = np.array(rn_coh1, dtype=object)
     np.savez(recruit_batch_savepath,coh0=rn_coh0,coh1=rn_coh1)
 
     return [fn_coh0,fn_coh1]
@@ -321,7 +323,7 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
                 filepath = os.path.join(data_dir, xdir, 'npz-data', data_files[file_idx])
 
                 # case of we HAVE generated FNs for this npz file already, but not recruitment graphs
-                if os.path.isfile(os.path.join(MI_savepath,exp_path,data_files[file_idx])) and not os.path.isfile(os.path.join(recruit_savepath,exp_path,data_files[file_idx])):
+                if os.path.isfile(os.path.join(MI_savepath,exp_path,data_files[file_idx])):
                     # load in pre-generated functional graphs
                     data = np.load(os.path.join(MI_savepath,exp_path,data_files[file_idx]))
                     fns_coh0 = data['coh0'] # each shaped 100 batch updates x 300 units x 300 units
@@ -357,6 +359,8 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
                         epoch_string = data_files[file_idx][:-4]
                         batch_string = epoch_string+'-batch'+str(batch)+'.npz'
                         recruit_batch_savepath = os.path.join(os.path.join(recruit_savepath,exp_path,batch_string))
+                        rn_coh0 = np.array(rn_coh0, dtype=object)
+                        rn_coh1 = np.array(rn_coh1, dtype=object)
                         np.savez(recruit_batch_savepath,coh0=rn_coh0,coh1=rn_coh1)
 
                 # case of FNs have NOT yet been generated
