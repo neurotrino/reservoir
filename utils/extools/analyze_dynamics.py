@@ -211,8 +211,8 @@ def batch_recruitment_graphs(w,fn,spikes,trialends,threshold):
                 w_idx = np.squeeze(w_idx)
                 if w_idx.size>0: # we found at least one nonzero synaptic connection between the active units
                     # fill in recruitment graph at those existing active indices using values from tresholded functional graph
-                    for k in range(np.shape(w_idx)[0]):
-                        recruit_segment[t-trialstarts[i]][tuple(w_idx[k])] = upper_fn[tuple(w_idx[k])] # for each trial segment (less than 30)
+                    for k in w_idx:
+                        recruit_segment[t-trialstarts[i]][tuple(k)] = upper_fn[tuple(k)] # for each trial segment (less than 30)
         recruit_graphs.append(recruit_segment) # aggregate for the whole batch, though the dimensions (i.e. duration of each trial segment) will be ragged
 
     return recruit_graphs
