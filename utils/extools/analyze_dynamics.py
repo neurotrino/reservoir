@@ -211,7 +211,8 @@ def batch_recruitment_graphs(w,fn,spikes,trialends,threshold):
                 w_idx = np.squeeze(w_idx)
                 if w_idx.size>0: # we found at least one nonzero synaptic connection between the active units
                     # fill in recruitment graph at those existing active indices using values from tresholded functional graph
-                    recruit_segment[t-trialstarts[i],w_idx,w_idx] = upper_fn[w_idx,w_idx] # for each trial segment (less than 30)
+                    for k in range(0:np.shape(w_idx)[0]):
+                        recruit_segment[t-trialstarts[i]][tuple(w_idx[k])] = upper_fn[tuple(w_idx[k])] # for each trial segment (less than 30)
         recruit_graphs.append(recruit_segment) # aggregate for the whole batch, though the dimensions (i.e. duration of each trial segment) will be ragged
 
     return recruit_graphs
@@ -286,7 +287,12 @@ def bin_batch_MI_graphs(w,spikes,true_y,bin,sliding_window_bins,threshold,e_only
 
     return [fn_coh0,fn_coh1]
 
-def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, sliding_window_bins=False, threshold=0.25, e_only=False, positive_only=False):
+def generate_naive_trained_recruitment_graphs(experiment_string, overwrite=False, bin=10, sliding_window_bins=False, threshold=0.25, e_only=False, positive_only=False):
+    # TO REDUCE DISK SPACE (which is 35T per experiment for recruitment graphs),
+    # we are first saving just fns for 1-10.npz and 991-1000.npz,
+    # and the individual batch recruitment graphs corresponding.
+
+
     # experiment_string is the data we want to turn into recruitment graphs
     # do not overwrite already-saved files that contain generated networks
     # bin functional networks into 10ms (as 'consecutive' bins)
@@ -318,7 +324,8 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
             os.makedirs(os.path.join(MI_savepath,exp_path))
         if not e_only:
             # for each batch update, there should be 2 functional networks (1 for each coherence level)
-            for file_idx in range(np.size(data_files)):
+            #for file_idx in range(np.size(data_files)):
+            for file_idx in [0,99]:
                 # the experimental npz data file (containing 10 epochs x 10 batches)
                 filepath = os.path.join(data_dir, xdir, 'npz-data', data_files[file_idx])
 
@@ -328,6 +335,9 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
                     data = np.load(os.path.join(MI_savepath,exp_path,data_files[file_idx]))
                     fns_coh0 = data['coh0'] # each shaped 100 batch updates x 300 units x 300 units
                     fns_coh1 = data['coh1']
+                    # reduce decimal precision of fns for disk space
+                    fns_coh0 = np.around(fns_coh0,4)
+                    fns_coh1 = np.around(fns_coh1,4)
                     # load in experiment data
                     data = np.load(filepath)
                     spikes = data['spikes']
@@ -400,14 +410,14 @@ def generate_all_recruitment_graphs(experiment_string, overwrite=False, bin=10, 
                         # aggregate functional networks to save
                         fns_coh0.append(batch_fns[0])
                         fns_coh1.append(batch_fns[1])
-                        # aggregate recruitment networks to save
-                        #rns_coh0.append(batch_rns[0])
-                        #rns_coh1.append(batch_rns[1])
                     # do not save in separate directories, instead save all these in the same files by variable name
                     # saving convention is same as npz data files (save as 1-10.npz for example)
                     # for example, fns_coh0 is sized [100 batch updates, 300 pre units, 300 post units]
                     # and rns_coh0 is sized [100 batch updates, # trial segments, # timesteps, 300 pre units, 300 post units]
                     # we will separate by connection type (ee, ei, ie, ee) in further analyses
+                    # reduce decimal precision of fns for disk space
+                    fns_coh0 = np.around(fns_coh0,4)
+                    fns_coh1 = np.around(fns_coh1,4)
                     np.savez(os.path.join(MI_savepath,exp_path,data_files[file_idx]),coh0=fns_coh0,coh1=fns_coh1)
                     #np.savez(os.path.join(recruit_savepath,exp_path,data_files[file_idx]),coh0=rns_coh0,coh1=rns_coh1)
 
