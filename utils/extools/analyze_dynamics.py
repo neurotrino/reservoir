@@ -287,7 +287,7 @@ def bin_batch_MI_graphs(w,spikes,true_y,bin,sliding_window_bins,threshold,e_only
 
     return [fn_coh0,fn_coh1]
 
-def generate_naive_trained_recruitment_graphs(experiment_string, overwrite=False, bin=10, sliding_window_bins=False, threshold=0.5, e_only=False, positive_only=False):
+def generate_naive_trained_recruitment_graphs(experiment_string, overwrite=False, bin=10, sliding_window_bins=False, threshold=0.25, e_only=False, positive_only=False):
     # TO REDUCE DISK SPACE (which is 35T per experiment for recruitment graphs),
     # we are first saving just fns for 1-10.npz and 991-1000.npz,
     # and the individual batch recruitment graphs corresponding.
@@ -306,7 +306,7 @@ def generate_naive_trained_recruitment_graphs(experiment_string, overwrite=False
     data_files = filenames(num_epochs, epochs_per_file)
     # networks will be saved as npz files (each containing multiple arrays), so the same names as data_files
 
-    recruit_savepath = os.path.join(savepath,"recruitment_graphs_bin10_half")
+    recruit_savepath = os.path.join(savepath,"recruitment_graphs_bin10_quartile")
     if not os.path.isdir(recruit_savepath):
         os.makedirs(recruit_savepath)
 
