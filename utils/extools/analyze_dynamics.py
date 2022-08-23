@@ -211,7 +211,7 @@ def batch_recruitment_graphs(w,fn,spikes,trialends,threshold):
                 w_idx = np.squeeze(w_idx)
                 if w_idx.size>0: # we found at least one nonzero synaptic connection between the active units
                     # fill in recruitment graph at those existing active indices using values from tresholded functional graph
-                    for k in range(0,np.shape(w_idx)[0]):
+                    for k in range(np.shape(w_idx)[0]):
                         recruit_segment[t-trialstarts[i]][tuple(w_idx[k])] = upper_fn[tuple(w_idx[k])] # for each trial segment (less than 30)
         recruit_graphs.append(recruit_segment) # aggregate for the whole batch, though the dimensions (i.e. duration of each trial segment) will be ragged
 
@@ -306,7 +306,7 @@ def generate_naive_trained_recruitment_graphs(experiment_string, overwrite=False
     data_files = filenames(num_epochs, epochs_per_file)
     # networks will be saved as npz files (each containing multiple arrays), so the same names as data_files
 
-    recruit_savepath = os.path.join(savepath,"recruitment_graphs_bin10_quartile")
+    recruit_savepath = os.path.join(savepath,"recruitment_graphs_bin10_half")
     if not os.path.isdir(recruit_savepath):
         os.makedirs(recruit_savepath)
 
