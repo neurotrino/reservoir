@@ -334,7 +334,7 @@ def generate_naive_trained_recruitment_graphs(experiment_string, overwrite=False
                 # the experimental npz data file (containing 10 epochs x 10 batches)
                 filepath = os.path.join(data_dir, xdir, 'npz-data', data_files[file_idx])
 
-                # case of we HAVE generated FNs for this npz file already, but not recruitment graphs
+                # case of we HAVE generated FNs for this npz file already
                 if os.path.isfile(os.path.join(MI_savepath,exp_path,data_files[file_idx])):
                     # load in pre-generated functional graphs
                     data = np.load(os.path.join(MI_savepath,exp_path,data_files[file_idx]))
@@ -348,35 +348,38 @@ def generate_naive_trained_recruitment_graphs(experiment_string, overwrite=False
                     spikes = data['spikes']
                     true_y = data['true_y']
                     w = data['tv1.postweights']
+
                     # generate recruitment graphs
-                    #rns_coh0 = np.array([],dtype=object) # specifying object bc ragged dimensions
-                    #rns_coh1 = np.array([],dtype=object)
                     for batch in range(np.shape(true_y)[0]):
-                        # determine batch w
-                        if batch==0 and file_idx==0:
-                        # at the very beginning of the experiment, the naive network is loaded in
-                            w_naive = np.load(os.path.join(data_dir, xdir, 'npz-data', 'main_preweights.npy'))
-                            batch_w = w_naive
-                        elif batch==0 and file_idx!=0:
-                        # if we are at the starting batch of a file (but not the starting file of the experiment),
-                        # load in the previous file's final (99th) batch's postweights
-                            prev_data = np.load(os.path.join(data_dir, xdir, 'npz-data', data_files[file_idx-1]))
-                            batch_w = prev_data['tv1.postweights'][99]
-                        elif batch!=0:
-                        # not at the starting (0th) batch (of any file), so just use the previous batch's postweights
-                            batch_w = w[batch-1]
-                        # bin spikes and find trialends again
-                        [[binned_spikes_coh0,binned_spikes_coh1],[trialends_coh0,trialends_coh1]] = get_binned_spikes_trialends(e_only,true_y[batch],spikes[batch],bin)
-                        # use to generate just recruitment graphs
-                        rn_coh0 = batch_recruitment_graphs(batch_w,fns_coh0[batch],binned_spikes_coh0,trialends_coh0,threshold)
-                        rn_coh1 = batch_recruitment_graphs(batch_w,fns_coh1[batch],binned_spikes_coh1,trialends_coh1,threshold)
-                        # save batchwise recruitment graphs
+                        # paths for saving recruitment graphs
                         epoch_string = data_files[file_idx][:-4]
                         batch_string = epoch_string+'-batch'+str(batch)+'.npz'
                         recruit_batch_savepath = os.path.join(os.path.join(recruit_savepath,exp_path,batch_string))
-                        rn_coh0 = np.array(rn_coh0, dtype=object)
-                        rn_coh1 = np.array(rn_coh1, dtype=object)
-                        np.savez(recruit_batch_savepath,coh0=rn_coh0,coh1=rn_coh1)
+
+                        # continue if we have NOT generated this batch update's recruitment graph yet
+                        if not os.path.isfile(recruit_batch_savepath):
+                            # determine batch w
+                            if batch==0 and file_idx==0:
+                            # at the very beginning of the experiment, the naive network is loaded in
+                                w_naive = np.load(os.path.join(data_dir, xdir, 'npz-data', 'main_preweights.npy'))
+                                batch_w = w_naive
+                            elif batch==0 and file_idx!=0:
+                            # if we are at the starting batch of a file (but not the starting file of the experiment),
+                            # load in the previous file's final (99th) batch's postweights
+                                prev_data = np.load(os.path.join(data_dir, xdir, 'npz-data', data_files[file_idx-1]))
+                                batch_w = prev_data['tv1.postweights'][99]
+                            elif batch!=0:
+                            # not at the starting (0th) batch (of any file), so just use the previous batch's postweights
+                                batch_w = w[batch-1]
+                            # bin spikes and find trialends again
+                            [[binned_spikes_coh0,binned_spikes_coh1],[trialends_coh0,trialends_coh1]] = get_binned_spikes_trialends(e_only,true_y[batch],spikes[batch],bin)
+                            # use to generate just recruitment graphs
+                            rn_coh0 = batch_recruitment_graphs(batch_w,fns_coh0[batch],binned_spikes_coh0,trialends_coh0,threshold)
+                            rn_coh1 = batch_recruitment_graphs(batch_w,fns_coh1[batch],binned_spikes_coh1,trialends_coh1,threshold)
+                            # save batchwise recruitment graphs
+                            rn_coh0 = np.array(rn_coh0, dtype=object)
+                            rn_coh1 = np.array(rn_coh1, dtype=object)
+                            np.savez(recruit_batch_savepath,coh0=rn_coh0,coh1=rn_coh1)
 
                 # case of FNs have NOT yet been generated
                 if not os.path.isfile(os.path.join(MI_savepath,exp_path,data_files[file_idx])):
