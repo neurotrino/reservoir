@@ -33,7 +33,53 @@ e_only = True
 positive_only = False
 bin = 10
 
-# next thing is to do this for just the units that project to output, rather than the whole e network
+"""
+recruit_path = '/data/results/experiment1/recruitment_graphs_bin10_quartile/16.58.32'
+epoch_id = 0 # also 99 for trained (the last epoch)
+save_name='recruit_bin10_quartile'
+def plot_recruit_metrics(recruit_path,epoch_id,save_name):
+    # plot density, reciprocity, and weighted clustering
+    dens_coh0_ee = []
+    dens_coh0_ii = []
+    recip_coh0_ee = []
+    recip_coh0_ii = []
+    cc_coh0_ee = []
+    cc_coh0_ii = []
+    dens_coh1_ee = []
+    dens_coh1_ii = []
+    recip_coh1_ee = []
+    recip_coh1_ii = []
+    cc_coh1_ee = []
+    cc_coh1_ii = []
+    # get recruitment graphs
+    data_files = filenames(num_epochs, epochs_per_file)
+    epoch_string = data_files[epoch_id][:-4]
+    # for each batch update
+    for batch in range(100):
+        batch_string = epoch_string+'-batch'+str(batch)+'.npz'
+        recruit_batch_path = os.path.join(os.path.join(recruit_path,batch_string))
+        data = np.load(recruit_batch_path,allow_pickle=True)
+        coh0 = data['coh0']
+        coh1 = data['coh1']
+        # get the average over the several trials and timepoints
+        for trial in range(np.shape(coh0)[0]):
+            # for the timesteps in this trial
+            for time in range(np.shape(coh0[trial])[0]):
+
+                we_coh0 = np.average(coh0[trial][time][0:e_end,0:e_end])
+                dense_coh0 = calc_density(coh0[trial][time][0:e_end,0:e_end])
+                recipe_coh0 = reciprocity(coh0[trial][time][0:e_end,0:e_end])
+
+                wi_coh0 = np.average(coh0[trial][time][e_end:i_end,e_end:i_end])
+                densi_coh0 = calc_density(coh0[trial][time][e_end:i_end,e_end:i_end])
+                recipi_coh0 = reciprocity(coh0[trial][time][e_end:i_end,e_end:i_end])
+
+                # still does not support negative weights, so take abs
+                Ge_coh0 = nx.from_numpy_array(np.abs(coh0[trial][time][0:e_end,0:e_end]),create_using=nx.DiGraph)
+                Gi_coh0 = nx.from_numpy_array(np.abs(coh0[trial][time][e_end:i_end,e_end:i_end]),create_using=nx.DiGraph)
+                cce_coh0 = nx.average_clustering(G,nodes=G.nodes,weight='weight')
+                cci_coh0 = nx.average_clustering(G,nodes=G.nodes,weight='weight')
+"""
 
 def plot_fn_quad_metrics(load_saved=True):
     # even though it's so simple (just 4 values per xdir),
@@ -292,7 +338,7 @@ def bin_batch_MI_graphs(w,spikes,true_y,bin,sliding_window_bins,threshold,e_only
 
     return [fn_coh0,fn_coh1]
 
-def generate_naive_trained_recruitment_graphs(experiment_string, overwrite=False, bin=10, sliding_window_bins=False, threshold=0.5, e_only=False, positive_only=False):
+def generate_naive_trained_recruitment_graphs(experiment_string, overwrite=False, bin=10, sliding_window_bins=False, threshold=0.25, e_only=False, positive_only=False):
     # TO REDUCE DISK SPACE (which is 35T per experiment for recruitment graphs),
     # we are first saving just fns for 1-10.npz and 991-1000.npz,
     # and the individual batch recruitment graphs corresponding.
@@ -311,7 +357,7 @@ def generate_naive_trained_recruitment_graphs(experiment_string, overwrite=False
     data_files = filenames(num_epochs, epochs_per_file)
     # networks will be saved as npz files (each containing multiple arrays), so the same names as data_files
 
-    recruit_savepath = os.path.join(savepath,"recruitment_graphs_bin10_half")
+    recruit_savepath = os.path.join(savepath,"recruitment_graphs_bin10_quartile")
     if not os.path.isdir(recruit_savepath):
         os.makedirs(recruit_savepath)
 
