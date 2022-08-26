@@ -221,16 +221,17 @@ def batch_recruitment_graphs(w,fn,spikes,trialends,threshold):
     # threshold = 0.25 meaning we only use the top quartile of functional weights
     # otherwise we have a fully dense graph
 
-    # threshold the functional graph
-    # find the value of the top quartile for the fn
-    # do so for both negative and positive values, so taking absolute value of the graph
-    sorted_pos_fn = np.abs(np.unique(fn[fn!=0])) # sorted unique elements, not including 0
-    threshold_idx = int((1-threshold)*np.size(sorted_pos_fn))
-    threshold_val = sorted_pos_fn[threshold_idx]
+    if threshold<1:
+        # threshold the functional graph
+        # find the value of the top quartile for the fn
+        # do so for both negative and positive values, so taking absolute value of the graph
+        sorted_pos_fn = np.abs(np.unique(fn[fn!=0])) # sorted unique elements, not including 0
+        threshold_idx = int((1-threshold)*np.size(sorted_pos_fn))
+        threshold_val = sorted_pos_fn[threshold_idx]
 
-    # return fn value wherever its absolute value is greater than threshold value, otherwise return 0
-    upper_fn = np.where(np.abs(fn)>=threshold_val,fn,0)
-    # so we could still get negative values
+        # return fn value wherever its absolute value is greater than threshold value, otherwise return 0
+        upper_fn = np.where(np.abs(fn)>=threshold_val,fn,0)
+        # so we could still get negative values
 
     # mask of 0's and 1's for whether actual synaptic connections exist
     w_bool = np.where(w!=0,1,0)
@@ -242,7 +243,7 @@ def batch_recruitment_graphs(w,fn,spikes,trialends,threshold):
     for i in range(np.size(trialstarts)):
         # aggregate recruitment graphs for this segment
         segment_dur = trialends[i] - trialstarts[i]
-        recruit_segment = np.zeros([segment_dur,np.shape(upper_fn)[0],np.shape(upper_fn)[1]],dtype=object)
+        recruit_segment = np.zeros([segment_dur,np.shape(fn)[0],np.shape(fn)[1]],dtype=object)
         # for each timestep within that segment:
         for t in range(trialstarts[i],trialends[i]):
             # find which units spiked in this timestep
@@ -259,11 +260,17 @@ def batch_recruitment_graphs(w,fn,spikes,trialends,threshold):
                 # fill in recruitment graph at those existing active indices using values from tresholded functional graph
                 if w_idx.size==2: #tuple-ing doesn't work the same way
                     time_idx = t-trialstarts[i]
-                    recruit_segment[time_idx][tuple(w_idx)] = upper_fn[tuple(w_idx)]
+                    if threshold<1:
+                        recruit_segment[time_idx][tuple(w_idx)] = upper_fn[tuple(w_idx)]
+                    else:
+                        recruit_segment[time_idx][tuple(w_idx)] = fn[tuple(w_idx)]
                 elif w_idx.size>2:
                     for k in range(np.shape(w_idx)[0]):
                         time_idx = t-trialstarts[i]
-                        recruit_segment[time_idx][tuple(w_idx[k])] = upper_fn[tuple(w_idx[k])] # for each trial segment (less than 30)
+                        if threshold<1:
+                            recruit_segment[time_idx][tuple(w_idx[k])] = upper_fn[tuple(w_idx[k])] # for each trial segment (less than 30)
+                        else:
+                            recruit_segment[time_idx][tuple(w_idx[k])] = fn[tuple(w_idx[k])]
         recruit_graphs.append(recruit_segment) # aggregate for the whole batch, though the dimensions (i.e. duration of each trial segment) will be ragged
 
     return recruit_graphs
@@ -338,7 +345,7 @@ def bin_batch_MI_graphs(w,spikes,true_y,bin,sliding_window_bins,threshold,e_only
 
     return [fn_coh0,fn_coh1]
 
-def generate_naive_trained_recruitment_graphs(experiment_string, overwrite=False, bin=10, sliding_window_bins=False, threshold=0.25, e_only=False, positive_only=False):
+def generate_naive_trained_recruitment_graphs(experiment_string, overwrite=False, bin=10, sliding_window_bins=False, threshold=1, e_only=False, positive_only=False):
     # TO REDUCE DISK SPACE (which is 35T per experiment for recruitment graphs),
     # we are first saving just fns for 1-10.npz and 991-1000.npz,
     # and the individual batch recruitment graphs corresponding.
@@ -357,7 +364,7 @@ def generate_naive_trained_recruitment_graphs(experiment_string, overwrite=False
     data_files = filenames(num_epochs, epochs_per_file)
     # networks will be saved as npz files (each containing multiple arrays), so the same names as data_files
 
-    recruit_savepath = os.path.join(savepath,"recruitment_graphs_bin10_quartile")
+    recruit_savepath = os.path.join(savepath,"recruitment_graphs_bin10_full")
     if not os.path.isdir(recruit_savepath):
         os.makedirs(recruit_savepath)
 
