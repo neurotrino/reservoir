@@ -113,44 +113,32 @@ def compare_syn_fn(data_dir, batch):
 def presaved_compare_syn_fn(data_dir, batch):
     epochs = np.arange(10, 201, 10)
     epoch_groups = [
-        "1-10",
-        "11-20",
-        "21-30",
-        "31-40",
-        "41-50",
-        "51-60",
-        "61-70",
-        "71-80",
-        "81-90",
-        "91-100",
-        "101-110",
-        "111-120",
-        "121-130",
-        "131-140",
-        "141-150",
-        "151-160",
-        "161-170",
-        "171-180",
-        "181-190",
-        "191-200",
+        f"{i - 9}-{i}" for i in epochs  # ["1-10", ..., "191-200"]
     ]
+
     # only keeping final batch from each epoch group
     syn_fn_corr = []
     sign_constrained_corr = []
     abs_value_corr = []
     for group in epoch_groups:
         data = np.load(data_dir + group + ".npz")
+
         # get synaptic graph
         syn_w = data["tv1.postweights"][batch - 1]
         units = np.shape(syn_w)[0]
+
         # load pre-calculated mi graph
         mi_graph = np.load(savedir + "mi_graph_" + group + ".npy")
-        # calculate element-wise correlation between syn_w and mi_graph - no constraints
+
+        # calculate element-wise correlation between syn_w and
+        # mi_graph - no constraints
         unconstrained_corr = np.corrcoef(
             np.reshape(syn_w, -1), np.reshape(mi_graph, -1)
         )[0, 1]
         syn_fn_corr.append(unconstrained_corr)
-        # calculate corr only considering mi_graph values that align with +/- according to projecting neuron
+
+        # calculate corr only considering mi_graph values that align
+        # with +/- according to projecting neuron
         e_units = int(0.8 * units)
         mi_e_i = np.copy(mi_graph)
         for i in range(0, e_units):
@@ -165,11 +153,13 @@ def presaved_compare_syn_fn(data_dir, batch):
             np.reshape(syn_w, -1), np.reshape(mi_e_i, -1)
         )[0, 1]
         sign_constrained_corr.append(signed_corr)
+
         # calculate corr considering absolute values of each synapse
         abs_corr = np.corrcoef(
             np.reshape(np.abs(syn_w), -1), np.reshape(np.abs(mi_graph), -1)
         )[0, 1]
         abs_value_corr.append(abs_corr)
+
     # plot correlations over epochs
     labels = [
         "all conns as they are",
@@ -332,26 +322,32 @@ def out_degree(
 
 
 def reciprocity(graph):
+    """Calculate reciprocity."""
     pre_units = np.shape(graph)[0]
     post_units = np.shape(graph)[1]
+
     reciprocal_ct = 0
+
     for i in range(0, pre_units):
         for j in range(i + 1, post_units):
             if graph[i, j] != 0 and graph[j, i] != 0:
                 reciprocal_ct += 2
+
     possible_reciprocal_ct = np.size(graph[graph != 0])
     return reciprocal_ct / possible_reciprocal_ct
 
 
-def reciprocity_ei(
-    e_graph, i_graph
-):  # separate reciprocity calculation for e/i, since two matrices needed as args
+def reciprocity_ei(e_graph, i_graph):
+    """Reciprocity for excitatory/inhbitory graphs."""
     e_units = np.shape(e_graph)[0]
     i_units = np.shape(i_graph)[0]
+
     reciprocal_ct = 0
+
     for i in range(0, e_units):
         for j in range(0, i_units):
             if e_graph[i, j] != 0 and i_graph[j, i] != 0:
                 reciprocal_ct += 1
+
     possible_reciprocal_ct = np.size(e_graph[e_graph != 0])
     return reciprocal_ct / possible_reciprocal_ct

@@ -1,4 +1,9 @@
-# Script for plotting / determining what happens in connectivity to cause spikes in loss during training
+"""Look for relations between network connectivity and training loss.
+
+Create plots and conduct analyses on saved spiking neural network (SNN)
+weight matrices to look for correlations between changing connectivity
+and any sudden increases in task loss and/or spike-regularization loss.
+"""
 
 import sys
 import numpy as np
@@ -38,7 +43,8 @@ def reciprocity(graph):
 
 
 def scatter_reasons():
-    # comparison is always for the previous epoch's postweights (current preweights) and current epoch total loss
+    # comparison is always for the previous epoch's postweights
+    # (current preweights) and current epoch total loss
     data_files = filenames(num_epochs, epochs_per_file)
     losses = []
     eiratio_in = []
