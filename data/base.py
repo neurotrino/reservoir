@@ -1,5 +1,6 @@
 import tensorflow as tf
 
+
 class BaseDataGenerator:
     def __init__(self, cfg):
         self.cfg = cfg

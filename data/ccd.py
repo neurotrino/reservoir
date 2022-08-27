@@ -6,9 +6,10 @@ from scipy.sparse import load_npz
 import numpy as np
 import tensorflow as tf
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Data Serving                                                              │
-#┴───────────────────────────────────────────────────────────────────────────╯
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Data Serving                                                              │
+# ┴───────────────────────────────────────────────────────────────────────────╯
+
 
 class DataGenerator(BaseDataGenerator):
     """Serve coherence change detection (CCD) task data.
@@ -16,37 +17,42 @@ class DataGenerator(BaseDataGenerator):
     Stores and serves data associated with a CCD task. Data is
     formatted as spike trains (features) and coherence values (labels).
     """
+
     def __init__(self, cfg):
         """Initialize ccd.DataGenerator object."""
         super().__init__(cfg)
 
         # Generate initial dataset
-        seq_len = cfg['data'].seq_len  # no. inputs
-        n_input = cfg['data'].n_input  # dim of input
+        seq_len = cfg["data"].seq_len  # no. inputs
+        n_input = cfg["data"].n_input  # dim of input
 
-        rates = np.load(cfg['data'].rate_npy)
-        coherences = load_npz(cfg['data'].coh_npz) # shape 60 x 40800
+        rates = np.load(cfg["data"].rate_npy)
+        coherences = load_npz(cfg["data"].coh_npz)  # shape 60 x 40800
 
         x = rates
-        y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None] # shape 600 x 4080 x 1
+        y = np.array(coherences.todense().reshape((-1, seq_len)))[
+            :, :, None
+        ]  # shape 600 x 4080 x 1
 
         if cfg["model"].cell.likelihood_output:
             # depending on y's value (0 or 1) at any seq_len point of each trial,
             # create new 2-row output. first row copies y, second inverts it.
-            coh_1 = np.copy(y) # 100% coherence subset; bc when actual y=0, the
+            coh_1 = np.copy(
+                y
+            )  # 100% coherence subset; bc when actual y=0, the
             # likelihood of 100% coherence is 0, and when y=1, the likelihood of
             # 100% coherence is 1.
-            coh_0 = np.zeros(np.shape(coh_1)) # 15% coherence subset; bc when
+            coh_0 = np.zeros(np.shape(coh_1))  # 15% coherence subset; bc when
             # actual y=0, the likelihood of 15% coherence is 1, and when y=1,
             # the likeliihood of 15% coherence is 0.
             # wherever coh_1 was 0, make coh_0 nonzero
-            coh_0[np.nonzero(coh_1==0)]=1
+            coh_0[np.nonzero(coh_1 == 0)] = 1
             # combine outputs
-            y = np.concatenate([coh_0, coh_1],-1) # (600, 4080, 2)
+            y = np.concatenate([coh_0, coh_1], -1)  # (600, 4080, 2)
 
         if cfg["model"].cell.categorical_output:
-            cat = np.copy(y)*0.5 # zeros remain 0
-            cat[cat==0]=2.0 # zeros become 2
+            cat = np.copy(y) * 0.5  # zeros remain 0
+            cat[cat == 0] = 2.0  # zeros become 2
             # even though these are target values, they are ratios
             # therefore one coherence level does not create greater overall activity than the other
             y = cat
@@ -66,11 +72,9 @@ class DataGenerator(BaseDataGenerator):
         # Declare data iterator
         self.iterator = None
 
-
     def get(self):
         """Retrieve a complete dataset."""
         return self.dataset
-
 
     def next(self):
         """Retrieve a single batch from the dataset."""

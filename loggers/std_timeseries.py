@@ -40,13 +40,14 @@ WHITE_COLORMAP = LinearSegmentedColormap(
         "blue": (
             (0.0, 1.0, 1.0),
             (1.0, 1.0, 1.0),
-        )
-    }
+        ),
+    },
 )
 
 # ┬──────────────────────────────────────────────────────────────────────────╮
 # │ Plotting Functions                                                       │
 # ┴──────────────────────────────────────────────────────────────────────────╯
+
 
 def save_weight_hist(filename, weights, title="Recurrent Layer Weights"):
     """Plot a histogram of recurrent weights."""
@@ -76,7 +77,6 @@ def save_io_plot(
 ):
     """Plot model input and output (voltage, spiking, performance)."""
 
-
     def plot_input(inp, fig, axes, ax_idx=0):
         ax = axes[ax_idx]
 
@@ -87,7 +87,6 @@ def save_io_plot(
 
         return fig.colorbar(im, ax=axes[0])
 
-
     def plot_voltage(voltage, fig, axes, ax_idx=1):
         ax = axes[ax_idx]
 
@@ -96,7 +95,6 @@ def save_io_plot(
 
         return fig.colorbar(im, ax=ax)
 
-
     def plot_spikes(spikes, fig, axes, ax_idx=2):
         ax = axes[ax_idx]
 
@@ -104,7 +102,6 @@ def save_io_plot(
         axes[2].set_ylabel("spike")
 
         return fig.colorbar(im, ax=ax)
-
 
     def plot_performance(true_y, pred_y, axes, ax_idx=3):
         ax = axes[ax_idx]
@@ -124,7 +121,7 @@ def save_io_plot(
             true_y,
             vmin=(max_val + 1),
             vmax=(max_val + 2),
-            cmap=WHITE_COLORMAP
+            cmap=WHITE_COLORMAP,
         )
         cb = fig.colorbar(im)
         cb.set_ticks([])
@@ -134,7 +131,6 @@ def save_io_plot(
         ax.set_ylim(ylim)
 
         return cb
-
 
     # Because matplotlib infringes on our logger, we quiet it here,
     # then unquiet it when we actually need to use it
@@ -172,18 +168,10 @@ def save_io_plot(
 
     # Bodge
     r1 = Rectangle(
-        xy=(0.75, 0.25),
-        width=0.15,
-        height=0.25,
-        fc='white',
-        zorder=2
+        xy=(0.75, 0.25), width=0.15, height=0.25, fc="white", zorder=2
     )
     r2 = Rectangle(
-        xy=(0.75, 0.7),
-        width=0.15,
-        height=0.25,
-        fc='white',
-        zorder=2
+        xy=(0.75, 0.7), width=0.15, height=0.25, fc="white", zorder=2
     )
     fig.add_artist(r1)
     fig.add_artist(r2)
@@ -208,6 +196,7 @@ def save_io_plot(
 # │ Logger                                                                   │
 # ┴──────────────────────────────────────────────────────────────────────────╯
 
+
 class Logger(BaseLogger):
     """Standard timeseries logger.
 
@@ -224,16 +213,15 @@ class Logger(BaseLogger):
         super().__init__(cfg, cb)  # cb == callback(s)
 
         # TODO: support NoneType in these positions
-        self.logvar_whitelist = cfg['log'].logvar_whitelist
-        self.logvar_blacklist = cfg['log'].logvar_blacklist
+        self.logvar_whitelist = cfg["log"].logvar_whitelist
+        self.logvar_blacklist = cfg["log"].logvar_blacklist
 
-        self.todisk_whitelist = cfg['log'].todisk_whitelist
-        self.todisk_blacklist = cfg['log'].todisk_blacklist
+        self.todisk_whitelist = cfg["log"].todisk_whitelist
+        self.todisk_blacklist = cfg["log"].todisk_blacklist
 
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Standard Methods                                                      │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Standard Methods                                                      │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     def post(self):
         """Flush logvars to disk and generate plots.
@@ -253,10 +241,14 @@ class Logger(BaseLogger):
 
         # Plot data from the end of each epoch
         # [!] prefer not to rely on post_every?
-        lo_epoch = 1 if self.last_post['epoch'] is None else self.last_post['epoch'] + 1
+        lo_epoch = (
+            1
+            if self.last_post["epoch"] is None
+            else self.last_post["epoch"] + 1
+        )
         hi_epoch = self.cur_epoch
-        for epoch_idx in range(self.cfg['log'].post_every):
-            step_idx = epoch_idx * self.cfg['train'].n_batch
+        for epoch_idx in range(self.cfg["log"].post_every):
+            step_idx = epoch_idx * self.cfg["train"].n_batch
             self.plot_everything(f"{lo_epoch + epoch_idx}", step_idx)
 
         # Write to disk, free RAM, and perform bookkeeping
@@ -270,21 +262,17 @@ class Logger(BaseLogger):
             + f" ({time.time() - t0:.2f} seconds)"
         )
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ (Pseudo) Callbacks                                                    │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ (Pseudo) Callbacks                                                    │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     def on_train_begin(self):
         """Save some static data about the training."""
 
         # [*] right now I'm just pickling the whole config file
-        fp = os.path.join(
-            self.cfg['save'].main_output_dir,
-            "config.pickle"
-        )
-        with open(fp, 'wb') as file:
+        fp = os.path.join(self.cfg["save"].main_output_dir, "config.pickle")
+        with open(fp, "wb") as file:
             pickle.dump(self.cfg, file)
-
 
     def on_train_end(self):
         # Post any unposted data
@@ -292,16 +280,14 @@ class Logger(BaseLogger):
             self.post()
 
         # Save accrued metadata
-        fp = os.path.join(
-            self.cfg['save'].main_output_dir,
-            "meta.pickle"
-        )
-        with open(fp, 'wb') as file:
+        fp = os.path.join(self.cfg["save"].main_output_dir, "meta.pickle")
+        with open(fp, "wb") as file:
             pickle.dump(self.meta, file)
 
         # create loss over time plot
-        plot_single_experiment_loss(self.cfg['save'].plot_dir, self.cfg['train'].include_rate_loss)
-
+        plot_single_experiment_loss(
+            self.cfg["save"].plot_dir, self.cfg["train"].include_rate_loss
+        )
 
     def on_step_end(self):
         """
@@ -317,11 +303,10 @@ class Logger(BaseLogger):
 
         # Maintain, for convenience, a list of epoch and step numbers
         # to align stepwise data to in the npz file
-        self.log('step', self.cur_step, meta={'stride': 'step'})
-        self.log('sw_epoch', self.cur_epoch, meta={'stride': 'step'})
+        self.log("step", self.cur_step, meta={"stride": "step"})
+        self.log("sw_epoch", self.cur_epoch, meta={"stride": "step"})
 
         return action_list
-
 
     def on_epoch_end(self):
         """
@@ -337,20 +322,19 @@ class Logger(BaseLogger):
 
         # Maintain, for convenience, a list of epoch numbers to align
         # epochwise data to in the npz file
-        self.log('ew_epoch', self.cur_epoch, meta={'stride': 'epoch'})
+        self.log("ew_epoch", self.cur_epoch, meta={"stride": "epoch"})
 
-        if self.cur_epoch % self.cfg['log'].post_every == 0:
+        if self.cur_epoch % self.cfg["log"].post_every == 0:
             self.post()
 
             # [?] Originally used a CheckpointManager in the logger
-            action_list['save_weights'] = True
+            action_list["save_weights"] = True
 
         return action_list
 
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Other Logging Methods                                                 │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Other Logging Methods                                                 │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     def plot_everything(self, unique_id, idx=-1):
         """Save all plots the logger is requested to create."""
@@ -367,13 +351,11 @@ class Logger(BaseLogger):
             self.logvars["true_y"][idx],
             self.logvars["pred_y"][idx],
             title=f"Model I/O\n(epoch {self.cur_epoch})",
-            input_cmap_kwargs={
-                "cmap": "cividis"
-            },
+            input_cmap_kwargs={"cmap": "cividis"},
             voltage_cmap_kwargs={
                 "cmap": "seismic",
                 "vmin": self.cfg["model"].cell.EL - 15,
-                "vmax": self.cfg["model"].cell.thr + 15
+                "vmax": self.cfg["model"].cell.thr + 15,
             },
         )
 
@@ -386,9 +368,9 @@ class Logger(BaseLogger):
                 weight_distr_filename,
                 self.logvars["tv0.postweights"][idx],
                 title=(
-                    "Distribution of Weights in the Recurrent Layer\n" +
-                    f"(epoch={self.cur_epoch})"
-                )
+                    "Distribution of Weights in the Recurrent Layer\n"
+                    + f"(epoch={self.cur_epoch})"
+                ),
             )
         except:
             logging.warning(

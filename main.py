@@ -6,7 +6,7 @@ import logging
 import utils.config
 
 
-for filepath in Path('.').rglob('*.py'):
+for filepath in Path(".").rglob("*.py"):
     """Hacky code to abstract imports.
 
     Python doesn't like it when you abstract imports, which is meant to
@@ -26,10 +26,10 @@ for filepath in Path('.').rglob('*.py'):
     if fp_str not in [__file__, "__init__.py", "setup.py"]:
         # Convert filepaths to module paths
         module_name = fp_str[:-3]
-        module_name = module_name.replace('/', '.')
+        module_name = module_name.replace("/", ".")
 
         # Call `import data.ccd` and so on
-        exec(f'import {module_name}')
+        exec(f"import {module_name}")
         print(f"registered {fp_str} as {module_name}")
 
 
@@ -38,13 +38,13 @@ def main():
 
     # to handle the while loop, we do this piecemeal, so the part that
     # needs to change per loop changes per loop (would normally be
-    #cfg = utils.config.boot()
+    # cfg = utils.config.boot()
     # )
     args = utils.config.get_args()
 
     while True:
         cfg = utils.config.boot(args)
-        logging.info("experiment directory: " + abspath(cfg['save'].exp_dir))
+        logging.info("experiment directory: " + abspath(cfg["save"].exp_dir))
 
         # Convert stringnames of component classes into component classes
         model_module = eval(f"models.{cfg['model'].type}")
@@ -71,5 +71,6 @@ def main():
         trainer.train()
         logging.info("training complete")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

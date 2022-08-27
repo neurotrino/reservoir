@@ -11,7 +11,8 @@ import os
 
 # internal ----
 from models.common import *
-#from models.neurons.adex import *
+
+# from models.neurons.adex import *
 from models.neurons.lif import *
 from utils.connmat import (
     ExInOutputMatrixGenerator as OMG,
@@ -23,6 +24,7 @@ DEBUG_MODE = True
 
 switched_tf_function = SwitchedDecorator(tf.function)
 switched_tf_function.enabled = not DEBUG_MODE
+
 
 class ModifiedDense(tf.keras.layers.Layer):
     @tf.custom_gradient
@@ -97,7 +99,7 @@ class ModifiedDense(tf.keras.layers.Layer):
             p_from_e=self.p_eo,
             p_from_i=self.p_io,
             mu=self.mu,
-            sigma=self.sigma
+            sigma=self.sigma,
         )
         initial_oweights = output_connmat_generator.run_generator()
         self.oweights.assign_add(
@@ -105,7 +107,12 @@ class ModifiedDense(tf.keras.layers.Layer):
         )
 
         # save initial output weights
-        np.save(os.path.join(self.cfg['save'].main_output_dir, "output_preweights.npy"), initial_oweights)
+        np.save(
+            os.path.join(
+                self.cfg["save"].main_output_dir, "output_preweights.npy"
+            ),
+            initial_oweights,
+        )
 
         # set output weights from generators
         #
@@ -183,8 +190,8 @@ class ModifiedDense(tf.keras.layers.Layer):
         self.output_sign = tf.sign(self.oweights)
 
     def get_config(self):
-        #Return a JSON-serializable configuration of this object.
-        #The output of this method is the input to `.from_config()`.
+        # Return a JSON-serializable configuration of this object.
+        # The output of this method is the input to `.from_config()`.
         parent_config = super(ModifiedDense, self).get_config()
         self_config = {
             "num_neurons": self.num_neurons,
@@ -192,7 +199,7 @@ class ModifiedDense(tf.keras.layers.Layer):
             "p_io": self.p_io,
             "frac_e": self.frac_e,
             "mu": self.mu,
-            "sigma": self.sigma
+            "sigma": self.sigma,
         }
         return {**parent_config, **self_config}  # '|' op in Python 3.9
 
@@ -203,24 +210,26 @@ class Model(BaseModel):
     """
 
     def __init__(self, cfg):
-        """ ... """
+        """..."""
         super().__init__()
 
         # Attribute assignments
         self.cfg = cfg
-        cell_cfg = self.cfg['model'].cell
-        train_cfg = self.cfg['train']
+        cell_cfg = self.cfg["model"].cell
+        train_cfg = self.cfg["train"]
 
-        cell_type = eval(cfg['model'].cell.type)  # neuron (class)
-        self.cell = cell_type(subconfig(          # neuron (object)
-            cfg,
-            cfg['model'].cell,
-            old_label='model',
-            new_label='cell'
-        ))
+        cell_type = eval(cfg["model"].cell.type)  # neuron (class)
+        self.cell = cell_type(
+            subconfig(  # neuron (object)
+                cfg, cfg["model"].cell, old_label="model", new_label="cell"
+            )
+        )
         logging.info(f"cell type set to {cell_type.__name__}")
 
-        if self.cfg['model'].cell.likelihood_output or self.cfg['model'].cell.categorical_output:
+        if (
+            self.cfg["model"].cell.likelihood_output
+            or self.cfg["model"].cell.categorical_output
+        ):
             self.n_out = 2
         else:
             self.n_out = 1
@@ -228,7 +237,7 @@ class Model(BaseModel):
         # Layer definitions
         self.rnn1 = tf.keras.layers.RNN(self.cell, return_sequences=True)
 
-        if self.cfg['model'].cell.define_output_w:
+        if self.cfg["model"].cell.define_output_w:
             self.dense1 = ModifiedDense(
                 self.cfg,
                 cell_cfg.units,
@@ -242,13 +251,12 @@ class Model(BaseModel):
             )
         else:
             self.dense1 = tf.keras.layers.Dense(self.n_out)
-            self.dense1.trainable = self.cfg['train'].output_trainable
+            self.dense1.trainable = self.cfg["train"].output_trainable
 
         self.layers = [  # gather in a list for later convenience
             self.rnn1,
-            self.dense1
+            self.dense1,
         ]
-
 
     @switched_tf_function
     def noise_weights(self, mean=1.0, stddev=0.1):
@@ -265,16 +273,15 @@ class Model(BaseModel):
 
         self.rnn1.set_weights([iweights, noised_weights])
 
-
     @switched_tf_function
     def call(self, inputs, training=False):
-        """ ... """
+        """..."""
 
         # [!] is it okay that I got rid of tf.identity for the outputs?
         # [!] is it a problem that I'm putting cell.initial_state here?
         voltages, spikes = self.rnn1(
             inputs,
-            initial_state=self.cell.zero_state(self.cfg['train'].batch_size)
+            initial_state=self.cell.zero_state(self.cfg["train"].batch_size),
         )
         prediction = self.dense1(spikes)
         prediction = exp_convolve(prediction, axis=1)

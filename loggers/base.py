@@ -5,6 +5,7 @@ import numpy as np
 import os
 import tensorflow as tf
 
+
 class BaseLogger:
     """Logging interface used while training."""
 
@@ -12,21 +13,21 @@ class BaseLogger:
         """Create a new logger."""
         self.cfg = cfg
 
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Bookkeeping                                                       │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ Bookkeeping                                                       │
+        # ┴───────────────────────────────────────────────────────────────────╯
 
         self.cur_epoch = 0  # current epoch in training
-        self.cur_step = 0   # current step in current epoch
+        self.cur_step = 0  # current step in current epoch
 
         # (epoch, step) of last post. `(None, None)` if yet to post.
-        self.last_post = {'epoch': None, 'step': None}
+        self.last_post = {"epoch": None, "step": None}
 
         self.seen_statics = []
 
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Logging Buffer(s)                                                 │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ Logging Buffer(s)                                                 │
+        # ┴───────────────────────────────────────────────────────────────────╯
 
         # Buffered data for each logvar.
         #
@@ -46,9 +47,9 @@ class BaseLogger:
         # posted data.
         self.meta = dict()
 
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Logging Filters                                                   │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ Logging Filters                                                   │
+        # ┴───────────────────────────────────────────────────────────────────╯
 
         # Only log vars with labels in this list
         self.logvar_whitelist = None
@@ -62,9 +63,9 @@ class BaseLogger:
         # Log all vars no in this list (overrides whitelist)
         self.todisk_blacklist = None
 
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ TensorFlow/TensorBoard Integration                                │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ TensorFlow/TensorBoard Integration                                │
+        # ┴───────────────────────────────────────────────────────────────────╯
 
         # Summary writers.
         #
@@ -78,10 +79,10 @@ class BaseLogger:
         # may or may not add additional summary writers (they generally
         # shouldn't need to).
         self.train_writer = tf.summary.create_file_writer(
-            os.path.join(cfg['save'].summary_dir, "train")
+            os.path.join(cfg["save"].summary_dir, "train")
         )
         self.test_writer = tf.summary.create_file_writer(
-            os.path.join(cfg['save'].summary_dir, "test")
+            os.path.join(cfg["save"].summary_dir, "test")
         )
 
         # Keras callbacks.
@@ -95,10 +96,9 @@ class BaseLogger:
         # TODO: move checkpointing to the logger (as much as possible)
         #       > add checkpoint manager in .__init__()
 
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Core Operations                                                       │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Core Operations                                                       │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     def log(self, data_label, data, meta={}):
         """Main logging interface.
@@ -124,8 +124,8 @@ class BaseLogger:
                 if (wl == None) or (data_label in wl):  # whitelisting
                     self.logvars[data_label] = [data]
         else:
-            if 'stride' not in meta:
-                logging.warning('stride unspecified for ' + data_label)
+            if "stride" not in meta:
+                logging.warning("stride unspecified for " + data_label)
             elif meta["stride"] == "static":
                 # Make static variables only logged once
                 if data_label not in self.seen_statics:
@@ -134,23 +134,24 @@ class BaseLogger:
             else:
                 self.logvars[data_label].append(data)
 
-
         # Metadata
         if data_label not in self.meta:
-            meta['dtype'] = type(data)
+            meta["dtype"] = type(data)
             self.meta[data_label] = meta
-
 
     def post(self):
         """Flush data from the logging buffer to disk, possibly with
         additional processing.
         """
-        lo_epoch = 1 if self.last_post['epoch'] is None else self.last_post['epoch'] + 1
+        lo_epoch = (
+            1
+            if self.last_post["epoch"] is None
+            else self.last_post["epoch"] + 1
+        )
         hi_epoch = self.cur_epoch
 
         fp = os.path.join(  # [?] I wonder if I can encapsulate this better
-            self.cfg['save'].main_output_dir,
-            f"{lo_epoch}-{hi_epoch}.npz"
+            self.cfg["save"].main_output_dir, f"{lo_epoch}-{hi_epoch}.npz"
         )
 
         # Save data to disk
@@ -172,9 +173,7 @@ class BaseLogger:
                 continue
 
             # Convert to numpy array
-            vars_to_save[data_label] = np.array(
-                self.logvars[data_label]
-            )
+            vars_to_save[data_label] = np.array(self.logvars[data_label])
 
             # Adjust precision if specified in the HJSON
             old_type = vars_to_save[data_label].dtype
@@ -191,7 +190,7 @@ class BaseLogger:
                 vars_to_save[data_label] = vars_to_save[data_label].astype(
                     new_type
                 )
-                logging.debug(f'cast {data_label} ({old_type}) to {new_type}')
+                logging.debug(f"cast {data_label} ({old_type}) to {new_type}")
 
         if vars_to_save != {}:
             np.savez_compressed(fp, **vars_to_save)
@@ -200,12 +199,11 @@ class BaseLogger:
         self.logvars = {}
 
         # Bookkeeping
-        self.last_post = {'epoch': self.cur_epoch, 'step': self.cur_step}
+        self.last_post = {"epoch": self.cur_epoch, "step": self.cur_step}
 
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ TensorBoard Logging                                                   │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ TensorBoard Logging                                                   │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     def summarize(self, index, summary_items=[], writer="train"):
         """Log scalar values.
@@ -234,10 +232,9 @@ class BaseLogger:
                     continue
                 _writer.flush
 
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Callbacks                                                             │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Callbacks                                                             │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     def add_callback(self, cb):
         """Add a keras callback or list of keras callbacks to logger.
@@ -258,10 +255,9 @@ class BaseLogger:
             # Add a single callback
             self.callbacks.append(cb)
 
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Pseudo-Callbacks                                                      │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Pseudo-Callbacks                                                      │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     def on_train_begin(self):
         """Logging logic/operations performed at the start of training.
@@ -273,7 +269,6 @@ class BaseLogger:
         action_list = {}
         return action_list
 
-
     def on_train_end(self):
         """Logging logic/operations performed at the end of training.
 
@@ -283,7 +278,6 @@ class BaseLogger:
         """
         action_list = {}
         return action_list
-
 
     def on_epoch_begin(self):
         """Logging logic/operations performed at the start of each
@@ -299,7 +293,6 @@ class BaseLogger:
 
         return action_list
 
-
     def on_epoch_end(self):
         """Logging logic/operations performed at the end of each epoch.
 
@@ -312,7 +305,6 @@ class BaseLogger:
         self.cur_step = 0  # bookkeeping
 
         return action_list
-
 
     def on_step_begin(self):
         """Logging logic/operations performed at the start of each
@@ -327,7 +319,6 @@ class BaseLogger:
         self.cur_step += 1  # bookkeeping
 
         return action_list
-
 
     def on_step_end(self):
         """Logging logic/operations performed at the end of each step.

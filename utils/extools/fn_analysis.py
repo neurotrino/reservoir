@@ -7,7 +7,7 @@ import os
 import seaborn as sns
 
 # internal ----
-#from utils.extools.MI import generate_mi_graph
+# from utils.extools.MI import generate_mi_graph
 from utils.misc import filenames
 
 xdir = ""
@@ -108,6 +108,7 @@ def compare_syn_fn(data_dir, batch):
     plt.draw()
     plt.savefig(savedir + "syn_fn_corr.png", dpi=300)
 """
+
 
 def presaved_compare_syn_fn(data_dir, batch):
     epochs = np.arange(10, 201, 10)
@@ -316,15 +317,18 @@ def gen_heatmap(weights, title, axis, show_value_bounds=True):
 
     return heatmap
 
-def out_degree(graph, weighted): # input tranposed graph and you'll get in-degrees instead
+
+def out_degree(
+    graph, weighted
+):  # input tranposed graph and you'll get in-degrees instead
     pre_units = np.shape(graph)[0]
     degrees = []
     for i in range(0, pre_units):
         if weighted:
-            degrees.append(np.sum(graph[i][graph[i]!=0]))
+            degrees.append(np.sum(graph[i][graph[i] != 0]))
         else:
-            degrees.append(np.size(graph[i][graph[i]!=0]))
-    return degrees # for each unit in the graph
+            degrees.append(np.size(graph[i][graph[i] != 0]))
+    return degrees  # for each unit in the graph
 
 
 def reciprocity(graph):
@@ -332,19 +336,22 @@ def reciprocity(graph):
     post_units = np.shape(graph)[1]
     reciprocal_ct = 0
     for i in range(0, pre_units):
-        for j in range(i+1, post_units):
+        for j in range(i + 1, post_units):
             if graph[i, j] != 0 and graph[j, i] != 0:
                 reciprocal_ct += 2
-    possible_reciprocal_ct = np.size(graph[graph!=0])
-    return reciprocal_ct/possible_reciprocal_ct
+    possible_reciprocal_ct = np.size(graph[graph != 0])
+    return reciprocal_ct / possible_reciprocal_ct
 
-def reciprocity_ei(e_graph, i_graph): # separate reciprocity calculation for e/i, since two matrices needed as args
+
+def reciprocity_ei(
+    e_graph, i_graph
+):  # separate reciprocity calculation for e/i, since two matrices needed as args
     e_units = np.shape(e_graph)[0]
     i_units = np.shape(i_graph)[0]
     reciprocal_ct = 0
     for i in range(0, e_units):
         for j in range(0, i_units):
-            if e_graph[i,j]!=0 and i_graph[j,i]!=0:
+            if e_graph[i, j] != 0 and i_graph[j, i] != 0:
                 reciprocal_ct += 1
-    possible_reciprocal_ct = np.size(e_graph[e_graph!=0])
-    return reciprocal_ct/possible_reciprocal_ct
+    possible_reciprocal_ct = np.size(e_graph[e_graph != 0])
+    return reciprocal_ct / possible_reciprocal_ct

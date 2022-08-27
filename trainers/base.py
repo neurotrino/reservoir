@@ -11,8 +11,10 @@ DEBUG_MODE = False
 switched_tf_function = SwitchedDecorator(tf.function)
 switched_tf_function.enabled = not DEBUG_MODE
 
+
 class BaseTrainer(object):
     """TODO: docs"""
+
     def __init__(self, cfg, model, data, logger):
         """TODO: docs
 

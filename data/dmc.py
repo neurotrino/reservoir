@@ -6,60 +6,56 @@ from scipy.sparse import load_npz
 import numpy as np
 import tensorflow as tf
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Data Serving                                                              │
-#┴───────────────────────────────────────────────────────────────────────────╯
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Data Serving                                                              │
+# ┴───────────────────────────────────────────────────────────────────────────╯
 
 
 class DataGenerator(BaseDataGenerator):
     """TODO - DOCS"""
+
     def __init__(self, cfg):
         super().__init__(cfg)
 
         # Generate initial dataset
-        seq_len = cfg['data'].seq_len  # no. inputs
-        n_input = cfg['data'].n_input  # dim of input
+        seq_len = cfg["data"].seq_len  # no. inputs
+        n_input = cfg["data"].n_input  # dim of input
 
-        FRAMES_PER_TRIAL=240
+        FRAMES_PER_TRIAL = 240
         FRAMERATE = 60
         MS_PER_TRIAL = (FRAMES_PER_TRIAL // FRAMERATE) * 1000
 
-        spikes = load_npz(cfg['data'].spike_npz)
-        matches = np.load(cfg['data'].match_npy)
-        #match_labels_frames = matches.reshape(600, FRAMES_PER_TRIAL)
+        spikes = load_npz(cfg["data"].spike_npz)
+        matches = np.load(cfg["data"].match_npy)
+        # match_labels_frames = matches.reshape(600, FRAMES_PER_TRIAL)
         # dilate the coherence vectors from frames to ms
         # sanity check: 2400*17 = 10*4080 = 40800ms per movie
-        #match_labels_ms = np.repeat(match_labels_frames, int(MS_PER_TRIAL/FRAMES_PER_TRIAL)+1, axis=1)
+        # match_labels_ms = np.repeat(match_labels_frames, int(MS_PER_TRIAL/FRAMES_PER_TRIAL)+1, axis=1)
 
         x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
-        y = matches.reshape((-1,seq_len))[:,:,None]
-        #y = np.array(matches.todense().reshape((-1, seq_len)))[:,:,None]
-        #y = match_labels_ms.reshape((-1,seq_len))[:,:,None]
+        y = matches.reshape((-1, seq_len))[:, :, None]
+        # y = np.array(matches.todense().reshape((-1, seq_len)))[:,:,None]
+        # y = match_labels_ms.reshape((-1,seq_len))[:,:,None]
 
-        self.dataset = tf.data.Dataset.from_tensor_slices(
-            (x, y)
-        ).repeat(
-            count=1
-        ).batch(
-            cfg['train'].batch_size
-        ).shuffle(
-            x.shape[0]
+        self.dataset = (
+            tf.data.Dataset.from_tensor_slices((x, y))
+            .repeat(count=1)
+            .batch(cfg["train"].batch_size)
+            .shuffle(x.shape[0])
         )
 
         # Iterator
         self.iterator = None
 
-
     def get(self):
         return self.dataset
-
 
     def next(self):
         if self.iterator is None:
             self.iterator = iter(self.dataset)
         try:
             nxt = self.iterator.get_next()
-            if nxt[1].shape[0] != self.cfg['data'].n_input:
+            if nxt[1].shape[0] != self.cfg["data"].n_input:
                 # [!] this shouldn't be enforced here but elsewhere;
                 #     move soon
                 nxt = self.next()
@@ -74,15 +70,15 @@ def load_data(cfg):
     return DataGenerator(cfg).dataset
 
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Preprocessing                                                             │
-#┴───────────────────────────────────────────────────────────────────────────╯
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Preprocessing                                                             │
+# ┴───────────────────────────────────────────────────────────────────────────╯
 
 # N/A
 
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Postprocessing                                                            │
-#┴───────────────────────────────────────────────────────────────────────────╯
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Postprocessing                                                            │
+# ┴───────────────────────────────────────────────────────────────────────────╯
 
 # N/A

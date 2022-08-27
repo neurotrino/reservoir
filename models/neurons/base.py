@@ -22,21 +22,22 @@ import logging
 import numpy as np
 import tensorflow as tf
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Core Neuron                                                               │
-#┴───────────────────────────────────────────────────────────────────────────╯
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Core Neuron                                                               │
+# ┴───────────────────────────────────────────────────────────────────────────╯
+
 
 class Neuron(tf.keras.layers.Layer):
     """Parent class for all neuron variants."""
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Keras Layer Methods                                                   │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Keras Layer Methods                                                   │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     def __init__(self, cfg):
         super().__init__()
 
-        cell_cfg = cfg['cell']
+        cell_cfg = cfg["cell"]
         self.cfg = cfg
 
         # Internal flag to see if CMG has been built already
@@ -59,7 +60,6 @@ class Neuron(tf.keras.layers.Layer):
         # Number of zeros to try to maintain if rewiring is enabled
         self._target_zcount = None
 
-
     def build(self, input_shape):
         """Setup  connectivity parameters and IMG and CMG."""
 
@@ -81,21 +81,23 @@ class Neuron(tf.keras.layers.Layer):
 
             # Generate generic input connectivity
             self.input_connmat_generator = IMG(
-                self.n_in, self.units, self.p_input, self.mu, self.sigma, self.cfg["cell"].input_multiplier
+                self.n_in,
+                self.units,
+                self.p_input,
+                self.mu,
+                self.sigma,
+                self.cfg["cell"].input_multiplier,
             )
 
             # Generate connectiviy matrix
             self.connmat_generator = CMG(
-                self.units,
-                self.p,
-                self.mu, self.sigma
+                self.units, self.p, self.mu, self.sigma
             )
             self._cmg_set = True  # bookkeeeping
 
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Additional Methods                                                    │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Additional Methods                                                    │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     def noise_weights(self, mean=1.0, stddev=0.1):
         gain_matrix = tf.random.normal(
@@ -104,11 +106,9 @@ class Neuron(tf.keras.layers.Layer):
         noised_weights = self.recurrent_weights * gain_matrix
         self.recurrent_weights.assign(noised_weights)
 
-
     def pseudo_derivative(self, v_scaled, dampening_factor):
         """Calculate the pseudo-derivative."""
         return dampening_factor * tf.maximum(1 - tf.abs(v_scaled), 0)
-
 
     @tf.custom_gradient
     def spike_function(self, v_scaled, dampening_factor):
@@ -120,8 +120,10 @@ class Neuron(tf.keras.layers.Layer):
         (it would be a case of -(max-x)/(max-min)
         :param dampening_factor: parameter to stabilize learning
         """
-        z_ = tf.greater(v_scaled, 0.) # returns bool of whether v_scaled is above thr or not, since it would be equal to 0 at thr
-        z_ = tf.cast(z_, tf.float32) # cast as number [0, 1]
+        z_ = tf.greater(
+            v_scaled, 0.0
+        )  # returns bool of whether v_scaled is above thr or not, since it would be equal to 0 at thr
+        z_ = tf.cast(z_, tf.float32)  # cast as number [0, 1]
 
         def grad(dy):
             de_dz = dy
@@ -134,9 +136,10 @@ class Neuron(tf.keras.layers.Layer):
         return tf.identity(z_, name="spike_function"), grad
 
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Modifiers                                                                 │
-#┴───────────────────────────────────────────────────────────────────────────╯
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Modifiers                                                                 │
+# ┴───────────────────────────────────────────────────────────────────────────╯
+
 
 class ExIn(object):
     """Excitatory/inhibitory modifier to the neuron class.
@@ -149,12 +152,13 @@ class ExIn(object):
     excitatory or inhibitory synapses in the layer's weight matrix,
     respectively.
     """
+
     def __init__(self, cfg):
         super().__init__(cfg)
 
         # Number of excitatory and inhibitory neurons in the layer
-        self.num_ex = int(cfg['cell'].frac_e * self.cfg['cell'].units)
-        self.num_in = self.cfg['cell'].units - self.num_ex
+        self.num_ex = int(cfg["cell"].frac_e * self.cfg["cell"].units)
+        self.num_in = self.cfg["cell"].units - self.num_ex
 
         # Number of input units
         self.n_in = self.cfg["data"].n_input
@@ -169,37 +173,45 @@ class ExIn(object):
         # synapses and the rest are for inhibitory synapses. This is
         # consistent with the rest of the codebase as of 2021-Aug-26,
         # but is not enforced programmatically, so be mindful.
-        mask_shape = (cfg['cell'].units, cfg['cell'].units)
+        mask_shape = (cfg["cell"].units, cfg["cell"].units)
         self.ex_mask = np.zeros(mask_shape, dtype=bool)
-        self.ex_mask[0:self.num_ex] = True
+        self.ex_mask[0 : self.num_ex] = True
         self.in_mask = np.invert(self.ex_mask)
-
 
     def build(self, input_shape):
         """Setup ExIn connectivity parameters and ExInCMG."""
 
         if not self._cmg_set:
             # Read connectivity parameters
-            self.p_ee = self.cfg['cell'].p_ee
-            self.p_ei = self.cfg['cell'].p_ei
-            self.p_ie = self.cfg['cell'].p_ie
-            self.p_ii = self.cfg['cell'].p_ii
+            self.p_ee = self.cfg["cell"].p_ee
+            self.p_ei = self.cfg["cell"].p_ei
+            self.p_ie = self.cfg["cell"].p_ie
+            self.p_ii = self.cfg["cell"].p_ii
             # Read input connectivity parameters
             self.p_input = self.cfg["cell"].p_input
 
             # Generate input connectivity
             self.input_connmat_generator = IMG(
-                self.n_in, self.units, self.p_input, self.mu, self.sigma, self.cfg["cell"].input_multiplier
+                self.n_in,
+                self.units,
+                self.p_input,
+                self.mu,
+                self.sigma,
+                self.cfg["cell"].input_multiplier,
             )
 
             # Generate connectivity matrix
             self.connmat_generator = ExInCMG(
-                self.num_ex, self.num_in,
-                self.p_ee, self.p_ei, self.p_ie, self.p_ii,
-                self.mu, self.sigma
+                self.num_ex,
+                self.num_in,
+                self.p_ee,
+                self.p_ei,
+                self.p_ie,
+                self.p_ii,
+                self.mu,
+                self.sigma,
             )
             self._cmg_set = True  # bookkeeeping
-
 
     def rewire(self):
         if self._target_zcount is None:
@@ -208,7 +220,7 @@ class ExIn(object):
             # comparison, and return
             self._target_zcount = len(tf.where(self.recurrent_weights == 0))
             self._target_zcount -= self.units  # adjust for diagonal
-            logging.debug(f'cell will maintain {self._target_zcount} zeros')
+            logging.debug(f"cell will maintain {self._target_zcount} zeros")
             return
 
         # Determine how many weights went to zero in this step
@@ -222,35 +234,40 @@ class ExIn(object):
         # if there are side effects, an option would be to make a
         # deep copy of the recurrent weights and use *that* to
         # generate the indices we need...
-        self.recurrent_weights.assign(tf.where(
-            self.disconnect_mask,
-            tf.ones_like(self.recurrent_weights),
-            self.recurrent_weights
-        ))
+        self.recurrent_weights.assign(
+            tf.where(
+                self.disconnect_mask,
+                tf.ones_like(self.recurrent_weights),
+                self.recurrent_weights,
+            )
+        )
         zero_indices = tf.where(self.recurrent_weights == 0)
         num_new_zeros = tf.shape(zero_indices)[0] - self._target_zcount
-        self.recurrent_weights.assign(tf.where(  # undo the thing
-            self.disconnect_mask,
-            tf.zeros_like(self.recurrent_weights),
-            self.recurrent_weights
-        ))
+        self.recurrent_weights.assign(
+            tf.where(  # undo the thing
+                self.disconnect_mask,
+                tf.zeros_like(self.recurrent_weights),
+                self.recurrent_weights,
+            )
+        )
 
         # Replace any new zeros (not necessarily in the same spot)
         if num_new_zeros > 0:
             logging.debug(
-                f'found {num_new_zeros} new zeros for a total of '
-                + f'{len(zero_indices)} zeros')
+                f"found {num_new_zeros} new zeros for a total of "
+                + f"{len(zero_indices)} zeros"
+            )
             # Generate a list of non-zero replacement weights
             new_weights = np.random.lognormal(
-                self.mu,
-                self.sigma,
-                num_new_zeros
+                self.mu, self.sigma, num_new_zeros
             )
             new_weights[np.where(new_weights == 0)] += 0.01
 
             # Randomly select zero-weight indices (without replacement)
             # [?] use tf instead of np
-            meta_indices = np.random.choice(len(zero_indices), num_new_zeros, False)
+            meta_indices = np.random.choice(
+                len(zero_indices), num_new_zeros, False
+            )
             zero_indices = tf.gather(zero_indices, meta_indices)
 
             # Invert and scale inhibitory neurons
@@ -263,9 +280,11 @@ class ExIn(object):
             x = tf.tensor_scatter_nd_update(
                 tf.zeros(self.recurrent_weights.shape),
                 zero_indices,
-                new_weights
+                new_weights,
             )
-            logging.debug(f'{tf.math.count_nonzero(x)} non-zero values generated in recurrent weight patch')
+            logging.debug(
+                f"{tf.math.count_nonzero(x)} non-zero values generated in recurrent weight patch"
+            )
 
             # as of version 2.6.0, tensorflow does not support in-place
             # operation of tf.tensor_scatter_nd_update(), so we just
@@ -274,7 +293,7 @@ class ExIn(object):
             # recurrent weights are zero
             self.recurrent_weights.assign_add(x)
             logging.debug(
-                f'{tf.math.count_nonzero(self.recurrent_weights)} non-zeroes in recurrent layer after adjustments'
+                f"{tf.math.count_nonzero(self.recurrent_weights)} non-zeroes in recurrent layer after adjustments"
             )
 
         # update rec_sign

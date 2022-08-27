@@ -15,11 +15,12 @@ import shutil
 import tensorflow as tf
 import time
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Python (Not TensorFlow) Logger                                            │
-#┴───────────────────────────────────────────────────────────────────────────╯
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Python (Not TensorFlow) Logger                                            │
+# ┴───────────────────────────────────────────────────────────────────────────╯
 
-def start_logger(clevel_str, flevel_str, fpath, writemode='w+'):
+
+def start_logger(clevel_str, flevel_str, fpath, writemode="w+"):
     """Initialize and configure the *vanilla* Python logger.
 
     Provided three configuration strings, set the logging output levels
@@ -42,12 +43,12 @@ def start_logger(clevel_str, flevel_str, fpath, writemode='w+'):
     logger.handlers = []
 
     formatter = logging.Formatter(
-        '[%(asctime)s] %(levelname)-9s- %(message)s', '%Y-%m-%d %H:%M:%S'
+        "[%(asctime)s] %(levelname)-9s- %(message)s", "%Y-%m-%d %H:%M:%S"
     )
 
     # Console logging
-    if clevel_str != 'OFF':
-        clevel = eval(f'logging.{clevel_str}')
+    if clevel_str != "OFF":
+        clevel = eval(f"logging.{clevel_str}")
 
         ch = logging.StreamHandler()
         ch.setFormatter(formatter)
@@ -58,8 +59,8 @@ def start_logger(clevel_str, flevel_str, fpath, writemode='w+'):
         clevel = logging.CRITICAL + 1
 
     # File logging
-    if flevel_str != 'OFF':
-        flevel = eval(f'logging.{flevel_str}')
+    if flevel_str != "OFF":
+        flevel = eval(f"logging.{flevel_str}")
 
         fh = logging.FileHandler(fpath, writemode)
         fh.setFormatter(formatter)
@@ -72,9 +73,10 @@ def start_logger(clevel_str, flevel_str, fpath, writemode='w+'):
     logger.setLevel(min(clevel, flevel))
 
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Command Line Parsing                                                      │
-#┴───────────────────────────────────────────────────────────────────────────╯
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Command Line Parsing                                                      │
+# ┴───────────────────────────────────────────────────────────────────────────╯
+
 
 def get_args():
     """Parse command line arguments parameterizing the session.
@@ -87,46 +89,47 @@ def get_args():
 
     # Path to HJSON configuration file specifying session variables
     parser.add_argument(
-        '-c',          # short command-line flag
-        '--config',    # long flag; becomes attribute (`args.config`)
-        metavar='C',
+        "-c",  # short command-line flag
+        "--config",  # long flag; becomes attribute (`args.config`)
+        metavar="C",
         default=None,  # value used when user provides none
-        help='path to HJSON configuration file specifying session variables'
+        help="path to HJSON configuration file specifying session variables",
     )
 
     # Console-logging level
     parser.add_argument(
-        '-lc',
-        '--log-level-console',
-        metavar='LC',
-        default='INFO',
-        help='Console logging level (DEBUG, INFO, WARN, ERROR, CRITICAL, OFF)'
+        "-lc",
+        "--log-level-console",
+        metavar="LC",
+        default="INFO",
+        help="Console logging level (DEBUG, INFO, WARN, ERROR, CRITICAL, OFF)",
     )
 
     # File-logging level
     parser.add_argument(
-        '-lf',
-        '--log-level-file',
-        metavar='F',
-        default='OFF',
-        help='File logging level (DEBUG, INFO, WARN, ERROR, CRITICAL, OFF)'
+        "-lf",
+        "--log-level-file",
+        metavar="F",
+        default="OFF",
+        help="File logging level (DEBUG, INFO, WARN, ERROR, CRITICAL, OFF)",
     )
 
     # File-loggging output
     parser.add_argument(
-        '-lo',
-        '--log-output',
-        metavar='LO',
-        default='latest.log',
-        help='File logging output'
+        "-lo",
+        "--log-output",
+        metavar="LO",
+        default="latest.log",
+        help="File logging output",
     )
 
     return parser.parse_args()
 
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ HJSON Parsing and Configuration Operations                                │
-#┴───────────────────────────────────────────────────────────────────────────╯
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ HJSON Parsing and Configuration Operations                                │
+# ┴───────────────────────────────────────────────────────────────────────────╯
+
 
 def recursively_make_namespace(src_dict):
     """Convert each key into a namespace. Recurse if the key leads to a
@@ -143,7 +146,7 @@ def recursively_make_namespace(src_dict):
     model_cfg = recursively_make_namespace()
 
 
-def subconfig(cfg, subcfg, old_label='model', new_label='cell'):
+def subconfig(cfg, subcfg, old_label="model", new_label="cell"):
     """Create a new configuration for a submodel or layer.
 
     This is done to preserve abstraction, so that when designing a
@@ -153,7 +156,7 @@ def subconfig(cfg, subcfg, old_label='model', new_label='cell'):
     """
     new_cfg = cfg.copy()  # create deep copy to avoid weirdness
 
-    new_cfg.pop(old_label)       # preserve encapsulation
+    new_cfg.pop(old_label)  # preserve encapsulation
     new_cfg[new_label] = subcfg  # preserve abstraction/generalization
 
     return new_cfg  # configuration for use by sub- model/layer
@@ -188,39 +191,39 @@ def load_hjson_config(filepath):
     Raises:
         ValueError: if no experiment ID was provided
     """
-    with open(filepath, 'r') as config_file:
+    with open(filepath, "r") as config_file:
         config = hjson.load(config_file)  # read HJSON from filepath
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Special Configuration Steps for File-Saving Settings                  │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Special Configuration Steps for File-Saving Settings                  │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
-    save_cfg = config['save']
+    save_cfg = config["save"]
 
     # Check for null base directory
-    if save_cfg['exp_dir'] is None:
-        raise ValueError('cannot begin with null experiment directory')
+    if save_cfg["exp_dir"] is None:
+        raise ValueError("cannot begin with null experiment directory")
 
     # Directory for this experiment
-    if save_cfg['timestamp']:
+    if save_cfg["timestamp"]:
         # Timestamp the experiment directory if requested
         s = "%Y-%m-%d %H.%M.%S"
         s = datetime.utcfromtimestamp(time.time()).strftime(s)
         s = " [" + s + "]"
-        save_cfg['exp_dir'] += s
+        save_cfg["exp_dir"] += s
 
     # Check if the experiment directory already exits
-    if os.path.exists(save_cfg['exp_dir']):
+    if os.path.exists(save_cfg["exp_dir"]):
         logging.info(f"{os.path.abspath(save_cfg['exp_dir'])} already exists")
 
         # If we're *not* okay overwriting this directory...
-        if save_cfg['avoid_overwrite']:
+        if save_cfg["avoid_overwrite"]:
             # Append a number at the end of the filepath so it's unique
-            original = save_cfg['exp_dir']
+            original = save_cfg["exp_dir"]
             unique_id = 1
 
-            while os.path.exists(save_cfg['exp_dir']):
-                save_cfg['exp_dir'] = original + f"_{unique_id}"
+            while os.path.exists(save_cfg["exp_dir"]):
+                save_cfg["exp_dir"] = original + f"_{unique_id}"
                 unique_id += 1
 
             # Inform the user that we've selected a new directory to
@@ -232,21 +235,21 @@ def load_hjson_config(filepath):
         # If we *are* okay overwriting this directory...
         else:
             # Set the save path to the existing directory
-            fullpath = os.path.abspath(save_cfg['exp_dir'])
+            fullpath = os.path.abspath(save_cfg["exp_dir"])
 
             # Alert the user that we'll be writing into this directory
-            if save_cfg['hard_overwrite']:
+            if save_cfg["hard_overwrite"]:
                 # Remove the preexisting directory
                 logging.warning(f"purging old data in {fullpath}")
-                shutil.rmtree(save_cfg['exp_dir'])
+                shutil.rmtree(save_cfg["exp_dir"])
             else:
                 # Warn the user that new data will be mixed in with the
                 # old data and might overwrite preexisting files
                 logging.warning(f"potentially overwriting data in {fullpath}")
 
     # Instantiate subdirectories
-    for subdir in save_cfg['subdirs']:
-        sd_path = save_cfg['subdirs'][subdir]
+    for subdir in save_cfg["subdirs"]:
+        sd_path = save_cfg["subdirs"][subdir]
 
         # Ignore null filepaths
         if sd_path is None:
@@ -256,8 +259,7 @@ def load_hjson_config(filepath):
 
         # Create directories within the experiment directory
         save_cfg[subdir] = os.path.join(
-            save_cfg['exp_dir'],
-            save_cfg['subdirs'][subdir]
+            save_cfg["exp_dir"], save_cfg["subdirs"][subdir]
         )
         try:
             if not os.path.exists(save_cfg[subdir]):
@@ -266,24 +268,25 @@ def load_hjson_config(filepath):
             print("Error creating directories: {0}".format(err))
             raise Exception(err)
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Finalize Configuration Settings                                       │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Finalize Configuration Settings                                       │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     cfg = {
-        'model': recursively_make_namespace(config['model']),
-        'save': recursively_make_namespace(config['save']),
-        'data': recursively_make_namespace(config['data']),
-        'log': recursively_make_namespace(config['log']),
-        'train': recursively_make_namespace(config['train']),
-        'misc': recursively_make_namespace(config['misc'])
+        "model": recursively_make_namespace(config["model"]),
+        "save": recursively_make_namespace(config["save"]),
+        "data": recursively_make_namespace(config["data"]),
+        "log": recursively_make_namespace(config["log"]),
+        "train": recursively_make_namespace(config["train"]),
+        "misc": recursively_make_namespace(config["misc"]),
     }
     return cfg
 
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Startup Boilerplate                                                       │
-#┴───────────────────────────────────────────────────────────────────────────╯
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Startup Boilerplate                                                       │
+# ┴───────────────────────────────────────────────────────────────────────────╯
+
 
 def boot(args=None):
     """Parse command line arguments and HJSON configuration files."""
@@ -296,11 +299,7 @@ def boot(args=None):
             raise Exception("missing or invalid arguments")
 
     # Initialize the vanilla python logger (configured in command line)
-    start_logger(
-        args.log_level_console,
-        args.log_level_file,
-        args.log_output
-    )
+    start_logger(args.log_level_console, args.log_level_file, args.log_output)
 
     # Parse HJSON configuration files
     try:
@@ -309,24 +308,24 @@ def boot(args=None):
         raise Exception(e, "issue parsing HJSON")
 
     # Save a copy of this file, if the flags are set
-    if cfg['save'].log_config:
-        shutil.copyfile(args.config, cfg['save'].exp_dir + "/config.hjson")
+    if cfg["save"].log_config:
+        shutil.copyfile(args.config, cfg["save"].exp_dir + "/config.hjson")
 
     # Check for a GPU
     device_name = tf.test.gpu_device_name()
 
     if not device_name:
-        logging.warning('GPU device not found')
+        logging.warning("GPU device not found")
         logging.debug(
-            'output of device_lib.list_local_devices(): '
-            + f'{device_lib.list_local_devices()}'
+            "output of device_lib.list_local_devices(): "
+            + f"{device_lib.list_local_devices()}"
         )
         logging.debug(
-            'output of tf.config.list_physical_devices(): '
-            + f'{tf.config.list_physical_devices()}'
+            "output of tf.config.list_physical_devices(): "
+            + f"{tf.config.list_physical_devices()}"
         )
     else:
-        logging.debug(f'found GPU at {device_name}')
+        logging.debug(f"found GPU at {device_name}")
 
     # Return configuration settings
     return cfg

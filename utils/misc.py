@@ -6,6 +6,7 @@ import sys
 
 """Generic wrapper to make decorators switchable."""
 
+
 class SwitchedDecorator:
     """Wrapper providing a programmatic toggle for decorators."""
 
@@ -30,23 +31,27 @@ class SwitchedDecorator:
         """Setter to update the `enabled` flag."""
         if not isinstance(new_val, bool):
             raise ValueError(
-                f"expected boolean flag, got value '{new_val}' of type " +
-                f"{type(new_val)}"
+                f"expected boolean flag, got value '{new_val}' of type "
+                + f"{type(new_val)}"
             )
         self._enabled = new_val
+
 
 def get_experiments(data_dir, experiment_string):
     """Get a list of filenames for all experiments that contain a desired string.
     Experiments begun on 2022-07-25 (containing string) are defunct.
     Do not include experiments that have not yet completed 1000 epochs of training."""
     exp_dirs = []
-    null_date = '2022-07-25'
+    null_date = "2022-07-25"
     for fname in os.listdir(data_dir):
         if fname.startswith(experiment_string):
             if not null_date in fname:
-                if os.path.exists(os.path.join(data_dir,fname,'npz-data/991-1000.npz')):
-                    exp_dirs.append(os.path.join(data_dir,fname))
+                if os.path.exists(
+                    os.path.join(data_dir, fname, "npz-data/991-1000.npz")
+                ):
+                    exp_dirs.append(os.path.join(data_dir, fname))
     return exp_dirs
+
 
 def filenames(num_epochs, epochs_per_file):
     """Get the filenames storing data for epoch ranges.
@@ -59,6 +64,7 @@ def filenames(num_epochs, epochs_per_file):
         f"{i}-{i + epochs_per_file - 1}.npz"
         for i in range(1, num_epochs, epochs_per_file)
     ]
+
 
 def generic_filenames(num_epochs, epochs_per_file):
     return [

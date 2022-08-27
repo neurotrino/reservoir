@@ -1,7 +1,7 @@
 """Connectivity matrices."""
 
 # version: Python 3.7
-__author__ = 'Tarek, Isabel'
+__author__ = "Tarek, Isabel"
 
 from os import makedirs, path
 
@@ -10,20 +10,14 @@ import logging
 import numpy as np
 import tensorflow as tf
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Output Connectivity Matrix Generator                                             │
-#┴───────────────────────────────────────────────────────────────────────────╯
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Output Connectivity Matrix Generator                                             │
+# ┴───────────────────────────────────────────────────────────────────────────╯
+
 
 class ExInOutputMatrixGenerator(object):
     def __init__(
-        self,
-        n_excit,
-        n_inhib,
-        n_out,
-        p_from_e,
-        p_from_i,
-        mu,
-        sigma
+        self, n_excit, n_inhib, n_out, p_from_e, p_from_i, mu, sigma
     ):
 
         self.n_excit = n_excit
@@ -106,9 +100,11 @@ class ExInOutputMatrixGenerator(object):
             logging.exception(e)
             return False
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Input Connectivity Matrix Generator                                             │
-#┴───────────────────────────────────────────────────────────────────────────╯
+
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Input Connectivity Matrix Generator                                             │
+# ┴───────────────────────────────────────────────────────────────────────────╯
+
 
 class InputMatrixGenerator(object):
     def __init__(self, n_in, n_neurons, p_input, mu, sigma, input_multiplier):
@@ -133,7 +129,9 @@ class InputMatrixGenerator(object):
         try:
             # Generate input matrix and check it's successful
             if not self.generate_conn_mat():
-                raise Exception("failed to generate input connectivity matrix")
+                raise Exception(
+                    "failed to generate input connectivity matrix"
+                )
             logging.info("input connectivity matrix generated")
 
             # Generate weight matrix and check that it's successful
@@ -141,9 +139,7 @@ class InputMatrixGenerator(object):
                 raise Exception("failed to weight input connectivity matrix")
             logging.info("input connectivity matrix weighted")
 
-            return (
-                self.input_weight
-            )
+            return self.input_weight
 
         except Exception as e:
             logging.exception(e)
@@ -176,7 +172,7 @@ class InputMatrixGenerator(object):
                         self.input_weight[i][j] = np.random.lognormal(
                             self.mu, self.sigma
                         )
-            self.input_weight*=(self.input_multiplier/10)
+            self.input_weight *= self.input_multiplier / 10
 
             return True
 
@@ -185,12 +181,12 @@ class InputMatrixGenerator(object):
             return False
 
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Connectivity Matrix Generator                                             │
-#┴───────────────────────────────────────────────────────────────────────────╯
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Connectivity Matrix Generator                                             │
+# ┴───────────────────────────────────────────────────────────────────────────╯
+
 
 class ConnectivityMatrixGenerator(object):
-
     def __init__(self, n_neurons, p, mu, sigma):
 
         self.n_neurons = n_neurons
@@ -212,15 +208,15 @@ class ConnectivityMatrixGenerator(object):
         try:
             # Generate connectivity matrix and check it's successful
             if not self.generate_conn_mat():
-                raise Exception('failed to generate connectivity matrix')
+                raise Exception("failed to generate connectivity matrix")
             logging.info("connectivity matrix generated")
 
             # Generate weight matrix and check that it's successful
             if not self.make_weighted():
-                raise Exception('failed to weight connectivity matrix')
+                raise Exception("failed to weight connectivity matrix")
             logging.info("connectivity matrix weighted")
 
-            return self.weight_mat/10 # hard-coded decrease weights by /10;
+            return self.weight_mat / 10  # hard-coded decrease weights by /10;
             # later on we will need to change the mu and sigma to
             # reflect current rather than conductance anyway
 
@@ -252,8 +248,8 @@ class ConnectivityMatrixGenerator(object):
             for i in range(0, self.n_neurons):
                 for j in range(0, self.n_neurons):
                     if self.conn_mat[i][j] == 1:
-                        self.weight_mat[i][j] = (
-                            np.random.lognormal(self.mu, self.sigma)
+                        self.weight_mat[i][j] = np.random.lognormal(
+                            self.mu, self.sigma
                         )
 
             return True
@@ -263,12 +259,12 @@ class ConnectivityMatrixGenerator(object):
             return False
 
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Excitatory/Inhibitory Connectivity Matrix Generator                       │
-#┴───────────────────────────────────────────────────────────────────────────╯
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Excitatory/Inhibitory Connectivity Matrix Generator                       │
+# ┴───────────────────────────────────────────────────────────────────────────╯
+
 
 class ExInConnectivityMatrixGenerator(object):
-
     def __init__(self, n_excite, n_inhib, p_ee, p_ei, p_ie, p_ii, mu, sigma):
 
         # Determine numbers of neurons
@@ -298,15 +294,17 @@ class ExInConnectivityMatrixGenerator(object):
 
             # Generate connectivity matrix and check it's successful
             if not self.generate_conn_mat():
-                raise Exception('failed to generate connectivity matrix')
+                raise Exception("failed to generate connectivity matrix")
             logging.info("generated E/I connectivity matrix")
 
             # Generate weight matrix and check that it's successful
             if not self.make_weighted():
-                raise Exception('failed to weight connectivity matrix')
+                raise Exception("failed to weight connectivity matrix")
             logging.info("weighted connectivity matrix")
 
-            return self.weight_mat/10 # again doing the hard-coded divide by 10 to make weights in the range that seems most trainable
+            return (
+                self.weight_mat / 10
+            )  # again doing the hard-coded divide by 10 to make weights in the range that seems most trainable
 
         except Exception as e:
             logging.exception(e)
@@ -327,9 +325,13 @@ class ExInConnectivityMatrixGenerator(object):
             # E to I connections
             for n in range(0, self.n_excite):
                 for a in range(0, self.k_ei):
-                    rand = np.random.randint(self.n_excite, self.n_excite + self.n_inhib)
+                    rand = np.random.randint(
+                        self.n_excite, self.n_excite + self.n_inhib
+                    )
                     while self.conn_mat[n][rand] == 1:
-                        rand = np.random.randint(self.n_excite, self.n_excite + self.n_inhib)
+                        rand = np.random.randint(
+                            self.n_excite, self.n_excite + self.n_inhib
+                        )
                     self.conn_mat[n][rand] = 1
 
             # I to E connections
@@ -343,9 +345,16 @@ class ExInConnectivityMatrixGenerator(object):
             # I to I connections
             for n in range(0, self.n_inhib):
                 for a in range(0, self.k_ii):
-                    rand = np.random.randint(self.n_excite, self.n_excite + self.n_inhib)
-                    while rand == (n + self.n_excite) or self.conn_mat[n + self.n_excite][rand] == 1:
-                        rand = np.random.randint(self.n_excite, self.n_excite + self.n_inhib)
+                    rand = np.random.randint(
+                        self.n_excite, self.n_excite + self.n_inhib
+                    )
+                    while (
+                        rand == (n + self.n_excite)
+                        or self.conn_mat[n + self.n_excite][rand] == 1
+                    ):
+                        rand = np.random.randint(
+                            self.n_excite, self.n_excite + self.n_inhib
+                        )
                     self.conn_mat[n + self.n_excite][rand] = 1
 
             return True
@@ -362,9 +371,15 @@ class ExInConnectivityMatrixGenerator(object):
             for i in range(0, self.n_neurons):
                 for j in range(0, self.n_neurons):
                     if self.conn_mat[i][j] == 1:
-                        self.weight_mat[i][j] = (np.random.lognormal(self.mu, self.sigma))
+                        self.weight_mat[i][j] = np.random.lognormal(
+                            self.mu, self.sigma
+                        )
                         # Make all I 10 times stronger AND NEGATIVE
-                        if self.n_neurons > i > (self.n_neurons - self.n_inhib):
+                        if (
+                            self.n_neurons
+                            > i
+                            > (self.n_neurons - self.n_inhib)
+                        ):
                             self.weight_mat[i][j] *= -10
 
             return True

@@ -23,48 +23,50 @@ DEBUG_MODE = True
 switched_tf_function = SwitchedDecorator(tf.function)
 switched_tf_function.enabled = not DEBUG_MODE
 
+
 class Trainer(BaseTrainer):
     """TODO: docs  | note how `optimizer` isn't in the parent"""
 
     def __init__(self, cfg, model, data, logger):
         super().__init__(cfg, model, data, logger)
 
-        train_cfg = cfg['train']
+        train_cfg = cfg["train"]
 
         try:
             if train_cfg.use_adam:
                 self.main_optimizer = tf.keras.optimizers.Adam(
-                    learning_rate = train_cfg.learning_rate
+                    learning_rate=train_cfg.learning_rate
                 )
                 self.output_optimizer = tf.keras.optimizers.Adam(
-                    learning_rate = train_cfg.output_learning_rate
+                    learning_rate=train_cfg.output_learning_rate
                 )
             else:
                 self.main_optimizer = tf.keras.optimizers.SGD(
-                    learning_rate = train_cfg.learning_rate
+                    learning_rate=train_cfg.learning_rate
                 )
                 self.output_optimizer = tf.keras.optimizers.SGD(
-                    learning_rate = train_cfg.output_learning_rate
+                    learning_rate=train_cfg.output_learning_rate
                 )
         except Exception as e:
             logging.warning(f"learning rate not set: {e}")
 
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Training Loop (step level)                                            │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Training Loop (step level)                                            │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     @switched_tf_function
     def loss(self, x, y):
         """Calculate the loss on data x labeled y."""
 
         # Model output
-        model_output = self.model(x) # tripartite output
+        model_output = self.model(x)  # tripartite output
         voltage, spikes, prediction = model_output
 
-        if self.cfg['model'].cell.categorical_output:
-            cat_prediction = tf.math.divide_no_nan(prediction[:,:,0],prediction[:,:,1])
-            #cat_prediction = tf.scatter_nd(tf.math.is_nan(cat_prediction), 0, tf.shape(cat_prediction))
+        if self.cfg["model"].cell.categorical_output:
+            cat_prediction = tf.math.divide_no_nan(
+                prediction[:, :, 0], prediction[:, :, 1]
+            )
+            # cat_prediction = tf.scatter_nd(tf.math.is_nan(cat_prediction), 0, tf.shape(cat_prediction))
         # turns into a ratio
         # if >1, then one output has more activity
         # if <1, then the other output has more activity
@@ -72,7 +74,7 @@ class Trainer(BaseTrainer):
 
         # Penalty for performance
         loss_object = tf.keras.losses.MeanSquaredError()
-        if self.cfg['model'].cell.categorical_output:
+        if self.cfg["model"].cell.categorical_output:
             task_loss = loss_object(y_true=y, y_pred=cat_prediction)
         else:
             task_loss = loss_object(y_true=y, y_pred=prediction)
@@ -83,19 +85,34 @@ class Trainer(BaseTrainer):
         #     reporting of loss components (could store all losses in
         #     a model attribute and add to our loading bar plus write
         #     to disk then flush)
-        if self.cfg['train'].simple_rate_loss:
+        if self.cfg["train"].simple_rate_loss:
             unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
-            rate_loss = tf.reduce_sum(tf.square(unitwise_rates - self.cfg['train'].target_rate)) * self.cfg['train'].rate_cost
+            rate_loss = (
+                tf.reduce_sum(
+                    tf.square(unitwise_rates - self.cfg["train"].target_rate)
+                )
+                * self.cfg["train"].rate_cost
+            )
         else:
-        # replace simple average with online running average rate
+            # replace simple average with online running average rate
             shp = tf.shape(spikes)
-            z_single_agent = tf.concat(tf.unstack(spikes,axis=0),axis=0)
-            spike_count_single_agent = tf.cumsum(z_single_agent,axis=0)
-            timeline_single_agent = tf.cast(tf.range(shp[0] * shp[1]),tf.float32)
-            running_av = spike_count_single_agent / (timeline_single_agent + 1)[:,None]
-            running_av = tf.stack(tf.split(running_av,self.cfg['train'].batch_size),axis=0)
-            rate_loss = tf.square(running_av - self.cfg['train'].target_rate)
-            rate_loss = tf.reduce_sum(tf.reduce_mean(rate_loss,axis=1) * self.cfg['train'].rate_cost)
+            z_single_agent = tf.concat(tf.unstack(spikes, axis=0), axis=0)
+            spike_count_single_agent = tf.cumsum(z_single_agent, axis=0)
+            timeline_single_agent = tf.cast(
+                tf.range(shp[0] * shp[1]), tf.float32
+            )
+            running_av = (
+                spike_count_single_agent
+                / (timeline_single_agent + 1)[:, None]
+            )
+            running_av = tf.stack(
+                tf.split(running_av, self.cfg["train"].batch_size), axis=0
+            )
+            rate_loss = tf.square(running_av - self.cfg["train"].target_rate)
+            rate_loss = tf.reduce_sum(
+                tf.reduce_mean(rate_loss, axis=1)
+                * self.cfg["train"].rate_cost
+            )
 
         if self.cfg["train"].lax_rate_loss:
             if rate_loss < task_loss * self.cfg["train"].lax_rate_threshold:
@@ -105,8 +122,13 @@ class Trainer(BaseTrainer):
             net_loss += rate_loss
 
         # Penalty for unrealistic synchrony
-        synchrony = fano_factor(self, self.cfg['data'].seq_len, spikes)
-        synch_loss = tf.reduce_sum(tf.square(synchrony - self.cfg['train'].target_synch)) * self.cfg['train'].synch_cost
+        synchrony = fano_factor(self, self.cfg["data"].seq_len, spikes)
+        synch_loss = (
+            tf.reduce_sum(
+                tf.square(synchrony - self.cfg["train"].target_synch)
+            )
+            * self.cfg["train"].synch_cost
+        )
         if self.cfg["train"].lax_synch_loss:
             if synch_loss < task_loss * self.cfg["train"].lax_synch_threshold:
                 synch_loss = 0.0
@@ -123,7 +145,6 @@ class Trainer(BaseTrainer):
             net_loss,
         )
         return (model_output, losses)
-
 
     @switched_tf_function
     def grad(self, inputs, targets):
@@ -153,60 +174,55 @@ class Trainer(BaseTrainer):
         grads = tape.gradient(losses[-1], self.model.trainable_variables)
         return (model_output, losses, grads)
 
-
-    #@switched_tf_function  # [!] might need this
+    # @switched_tf_function  # [!] might need this
     def train_step(self, batch_x, batch_y, batch_idx=None):
         """Train on the next batch."""
 
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Pre-Step Logging                                                  │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ Pre-Step Logging                                                  │
+        # ┴───────────────────────────────────────────────────────────────────╯
 
         self.logger.on_step_begin()
 
         # Input/reference variables
         self.logger.log(
-            data_label='inputs',
+            data_label="inputs",
             data=batch_x.numpy(),
             meta={
-                'stride': 'step',
-                'shape_key': (
-                    'num_batches * post_every',
-                    'batch_size',
-                    'seq_len',
-                    'n_input'
+                "stride": "step",
+                "shape_key": (
+                    "num_batches * post_every",
+                    "batch_size",
+                    "seq_len",
+                    "n_input",
                 ),
-                'description':
-                    'inputs'
-            }
+                "description": "inputs",
+            },
         )
         self.logger.log(
-            data_label='true_y',
+            data_label="true_y",
             data=batch_y.numpy(),
             meta={
-                'stride': 'step',
-                'shape_key': (
-                    'num_batches * post_every',
-                    'batch_size',
-                    'seq_len',
-                    '1'
+                "stride": "step",
+                "shape_key": (
+                    "num_batches * post_every",
+                    "batch_size",
+                    "seq_len",
+                    "1",
                 ),
-                'description':
-                    'correct values'
-            }
+                "description": "correct values",
+            },
         )
-
 
         # [!] empty first time (needs at least one forward pass)
         # [!] besides the first time, this is just postweights of the
         #     last batch, so we want to have a `static` save of the
         #     first time, but not this
-        #preweights = [x for x in self.model.trainable_variables]
+        # preweights = [x for x in self.model.trainable_variables]
 
-
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Gradient Calculation                                              │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ Gradient Calculation                                              │
+        # ┴───────────────────────────────────────────────────────────────────╯
 
         (model_output, losses, grads) = self.grad(batch_x, batch_y)
         voltage, spikes, prediction = model_output
@@ -219,61 +235,57 @@ class Trainer(BaseTrainer):
         grads1 = grads[: len(self.var_list1)]
         grads2 = grads[len(self.var_list1) :]
 
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Mid-Step Logging                                                  │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ Mid-Step Logging                                                  │
+        # ┴───────────────────────────────────────────────────────────────────╯
 
         # Output variables
         self.logger.log(
-            data_label='voltage',
+            data_label="voltage",
             data=voltage.numpy(),
             meta={
-                'stride': 'step',
-                'shape_key': (
-                    'num_batches * post_every',
-                    'batch_size',
-                    'seq_len',
-                    'n_recurrent'
+                "stride": "step",
+                "shape_key": (
+                    "num_batches * post_every",
+                    "batch_size",
+                    "seq_len",
+                    "n_recurrent",
                 ),
-                'description':
-                    'voltages'
-            }
+                "description": "voltages",
+            },
         )
         self.logger.log(
-            data_label='spikes',
+            data_label="spikes",
             data=spikes.numpy(),
             meta={
-                'stride': 'step',
-                'shape_key':  (
-                    'num_batches * post_every',
-                    'batch_size',
-                    'seq_len',
-                    'n_recurrent'
+                "stride": "step",
+                "shape_key": (
+                    "num_batches * post_every",
+                    "batch_size",
+                    "seq_len",
+                    "n_recurrent",
                 ),
-                'description':
-                    'spikes'
-            }
+                "description": "spikes",
+            },
         )
         self.logger.log(
-            data_label='pred_y',
+            data_label="pred_y",
             data=prediction.numpy(),
             meta={
-                'stride': 'step',
-                'shape_key': (
-                    'num_batches * post_every',
-                    'batch_size',
-                    'seq_len',
-                    '1'
+                "stride": "step",
+                "shape_key": (
+                    "num_batches * post_every",
+                    "batch_size",
+                    "seq_len",
+                    "1",
                 ),
-                'description':
-                    'predictions'
-            }
+                "description": "predictions",
+            },
         )
 
-
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Gradient Application                                              │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ Gradient Application                                              │
+        # ┴───────────────────────────────────────────────────────────────────╯
         """
         self.optimizer.apply_gradients(
             zip(grads, self.model.trainable_variables)
@@ -290,21 +302,23 @@ class Trainer(BaseTrainer):
         if self.cfg["train"].noise_weights_after_gradient:
             self.model.noise_weights()
 
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Sparsity Enforcement                                              │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ Sparsity Enforcement                                              │
+        # ┴───────────────────────────────────────────────────────────────────╯
 
         # if freewiring is permitted (i.e. sparsity of any kind is NOT enforced),
         # this step is needed to explicitly ensure self-recurrent
         # connections remain zero otherwise (if sparsity IS enforced)
         # that is taken care of through the rec_sign application below
-        if self.cfg['model'].cell.freewiring:  # TODO: document in HJSON
+        if self.cfg["model"].cell.freewiring:  # TODO: document in HJSON
             # Make sure all self-connections remain 0
-            self.model.cell.recurrent_weights.assign(tf.where(
-                self.model.cell.disconnect_mask,
-                tf.zeros_like(self.model.cell.recurrent_weights),
-                self.model.cell.recurrent_weights
-            ))
+            self.model.cell.recurrent_weights.assign(
+                tf.where(
+                    self.model.cell.disconnect_mask,
+                    tf.zeros_like(self.model.cell.recurrent_weights),
+                    self.model.cell.recurrent_weights,
+                )
+            )
 
         # If the sign of a weight changed from the original or the
         # weight (previously 0) is no longer 0, make the weight 0.
@@ -312,22 +326,28 @@ class Trainer(BaseTrainer):
         # Reminder that rec_sign contains 0's for initial 0's when
         # rewiring = true whereas it contains +1's or -1's (for excit
         # or inhib) for initial 0's when rewiring = false (freewiring = true)
-        self.model.cell.recurrent_weights.assign(tf.where(
-            self.model.cell.rec_sign * self.model.cell.recurrent_weights > 0,
-            self.model.cell.recurrent_weights,
-            0
-        ))
+        self.model.cell.recurrent_weights.assign(
+            tf.where(
+                self.model.cell.rec_sign * self.model.cell.recurrent_weights
+                > 0,
+                self.model.cell.recurrent_weights,
+                0,
+            )
+        )
 
         # THIS SECTION parallels how sparsity is maintained for the RSNN even in the absence of rewiring
         # If the sign of an output weight changed from the original (or updated from last step)
         # or the weight is no longer 0, make the weight 0.
         # output_sign contains 0's for former 0's, +1 for former positives, and -1 for former negatives.
         #
-        self.model.dense1.oweights.assign(tf.where(
-            self.model.dense1.output_sign * self.model.dense1.oweights > 0,
-            self.model.dense1.oweights,
-            0
-        ))
+        self.model.dense1.oweights.assign(
+            tf.where(
+                self.model.dense1.output_sign * self.model.dense1.oweights
+                > 0,
+                self.model.dense1.oweights,
+                0,
+            )
+        )
 
         # [!] prefer to have something like "for cell in model.cells,
         #     if cell.rewiring then cell.rewire" to better generalize;
@@ -365,9 +385,9 @@ class Trainer(BaseTrainer):
         ):
             self.model.dense1.rewire()
 
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Post-Step Logging                                                 │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ Post-Step Logging                                                 │
+        # ┴───────────────────────────────────────────────────────────────────╯
 
         # [*] Log any step-wise variables for trainable variables
         #
@@ -382,13 +402,12 @@ class Trainer(BaseTrainer):
 
             # Layer shape
             self.logger.log(  # [?] static value logged repeatedly
-                data_label=tvar.name + '.shapes',
+                data_label=tvar.name + ".shapes",
                 data=tvar.shape,
                 meta={
-                    'stride': 'static',
-                    'description':
-                        'shape of layer ' + tvar.name
-                }
+                    "stride": "static",
+                    "description": "shape of layer " + tvar.name,
+                },
             )
 
             # Calculated gradients
@@ -396,13 +415,12 @@ class Trainer(BaseTrainer):
                 data_label=f"tv{i}.gradients",
                 data=grads[i].numpy(),
                 meta={
-                    'stride': 'step',
-                    'description':
-                        'gradients calculated for ' + tvar.name
-                }
+                    "stride": "step",
+                    "description": "gradients calculated for " + tvar.name,
+                },
             )
 
-            '''
+            """
             # Weights before applying gradients
             try:
                 self.logger.log(
@@ -417,8 +435,7 @@ class Trainer(BaseTrainer):
                     }
                 )
             except Exception as e:
-                logging.warning(f"issue logging preweights: {e}")'''
-
+                logging.warning(f"issue logging preweights: {e}")"""
 
             # Weights after applying gradients
             try:
@@ -426,12 +443,11 @@ class Trainer(BaseTrainer):
                     data_label=f"tv{i}.postweights",
                     data=tvar.numpy(),
                     meta={
-                        'stride': 'step',
-                        'description':
-                            'layer weights for '
-                            + tvar.name
-                            + ' after applying the gradients'
-                    }
+                        "stride": "step",
+                        "description": "layer weights for "
+                        + tvar.name
+                        + " after applying the gradients",
+                    },
                 )
             except:  # [!] prefer not to have try/except
                 pass
@@ -473,74 +489,57 @@ class Trainer(BaseTrainer):
             # For a linear layer, these weights are `w` and `b`.
             for i in range(len(layer.weights)):
                 self.logger.log(
-                    data_label=layer.name + '.w' + str(i),
+                    data_label=layer.name + ".w" + str(i),
                     data=layer.weights[i].numpy(),
                     meta={
-                        'stride': 'step',
-
-                        'description':
-                            'w weights of ' + layer.name
-                    }
+                        "stride": "step",
+                        "description": "w weights of " + layer.name,
+                    },
                 )
 
             # Log any losses associated with the layer
             self.logger.log(
-                data_label=layer.name + '.losses',
+                data_label=layer.name + ".losses",
                 data=layer.losses,
                 meta={
-                    'stride': 'step',
-
-                    'description':
-                        'losses for ' + layer.name
-                }
+                    "stride": "step",
+                    "description": "losses for " + layer.name,
+                },
             )
-
 
         # Log the calculated step loss
         self.logger.log(
-            data_label='step_task_loss',
+            data_label="step_task_loss",
             data=float(task_loss),
             meta={
-                'stride': 'step',
-
-                'description':
-                    'calculated step loss (task)'
-            }
+                "stride": "step",
+                "description": "calculated step loss (task)",
+            },
         )
 
         self.logger.log(
-            data_label='step_rate_loss',
+            data_label="step_rate_loss",
             data=float(rate_loss),
             meta={
-                'stride': 'step',
-
-                'description':
-                    'calculated step loss (rate)'
-            }
+                "stride": "step",
+                "description": "calculated step loss (rate)",
+            },
         )
         self.logger.log(
-            data_label='step_synch_loss',
+            data_label="step_synch_loss",
             data=float(synch_loss),
             meta={
-                'stride': 'step',
-
-                'description':
-                    'calculated step loss (synchrony)'
-            }
+                "stride": "step",
+                "description": "calculated step loss (synchrony)",
+            },
         )
 
         self.logger.log(
-            data_label='step_loss',
+            data_label="step_loss",
             data=float(net_loss),
-            meta={
-                'stride': 'step',
-
-                'description':
-                    'calculated step loss'
-            }
+            meta={"stride": "step", "description": "calculated step loss"},
         )
         self.logger.on_step_end()
-
 
         # Log the target zeros and signs for input and recurrent layers
         self.logger.log(
@@ -577,26 +576,24 @@ class Trainer(BaseTrainer):
 
         return losses  # in classification tasks, also return accuracy
 
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Training Loop (epoch level)                                           │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Training Loop (epoch level)                                           │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     def train_epoch(self, epoch_idx=None):
         """Train over an epoch.
 
         Also performs logging at the level of epoch metrics.
         """
-        train_cfg = self.cfg['train']
+        train_cfg = self.cfg["train"]
 
-        profile_epoch = (  # [!] duplicate code
-            (epoch_idx + 1) in self.cfg['log'].profiler_epochs
-            and self.cfg['log'].run_profiler
-        )
+        profile_epoch = (epoch_idx + 1) in self.cfg[  # [!] duplicate code
+            "log"
+        ].profiler_epochs and self.cfg["log"].run_profiler
 
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Epochwise Logging (pre-epoch)                                     │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ Epochwise Logging (pre-epoch)                                     │
+        # ┴───────────────────────────────────────────────────────────────────╯
 
         # [*] Declare epoch-level log variables (logged after training)
         net_losses = []
@@ -604,9 +601,9 @@ class Trainer(BaseTrainer):
         rate_losses = []
         synch_losses = []
 
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Epochwise Training                                                │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ Epochwise Training                                                │
+        # ┴───────────────────────────────────────────────────────────────────╯
 
         pb = Progbar(train_cfg.n_batch, stateful_metrics=None)
 
@@ -616,14 +613,25 @@ class Trainer(BaseTrainer):
             # NOTE: trace events only created when profiler is enabled
             # (i.e. this isn't costly if the profiler is off)
             """
-            with profiler.Trace('train', step_num=step_idx, _r=1):
+            with profiler.Trace("train", step_num=step_idx, _r=1):
                 # [!] implement range (i.e. just 1-10 batches)
                 (batch_x_rates, batch_y) = self.data.next()
                 # generate Poisson spikes from rates
-                random_matrix = np.random.rand(batch_x_rates.shape[0], batch_x_rates.shape[1], batch_x_rates.shape[2])
-                #batch_x_spikes = (batch_x_rates - random_matrix > 0)*1.
-                batch_x_spikes = tf.where((batch_x_rates - random_matrix > 0), 1., 0.)
-                (task_loss, rate_loss, synch_loss, net_loss) = self.train_step(batch_x_spikes, batch_y, step_idx)
+                random_matrix = np.random.rand(
+                    batch_x_rates.shape[0],
+                    batch_x_rates.shape[1],
+                    batch_x_rates.shape[2],
+                )
+                # batch_x_spikes = (batch_x_rates - random_matrix > 0)*1.
+                batch_x_spikes = tf.where(
+                    (batch_x_rates - random_matrix > 0), 1.0, 0.0
+                )
+                (
+                    task_loss,
+                    rate_loss,
+                    synch_loss,
+                    net_loss,
+                ) = self.train_step(batch_x_spikes, batch_y, step_idx)
 
             # Update progress bar
             pb.add(
@@ -632,11 +640,11 @@ class Trainer(BaseTrainer):
                     # [*] Register real-time epoch-level log variables.
                     # These are what show up to the right of the
                     # progress bar during training.
-                    ('net loss', net_loss),
-                    ('task loss', task_loss),
-                    ('rate loss', rate_loss),
-                    ('synch loss', synch_loss)
-                ]
+                    ("net loss", net_loss),
+                    ("task loss", task_loss),
+                    ("rate loss", rate_loss),
+                    ("synch loss", synch_loss),
+                ],
             )
 
             # [*] Update epoch-level log variables
@@ -645,58 +653,50 @@ class Trainer(BaseTrainer):
             rate_losses.append(rate_loss)
             synch_losses.append(synch_loss)
 
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Epochwise Logging (post-epoch)                                    │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ Epochwise Logging (post-epoch)                                    │
+        # ┴───────────────────────────────────────────────────────────────────╯
 
         # [*] Post-training operations on epoch-level log variables
         epoch_loss = np.mean(net_losses)
         # [*] Log any epoch-wise variables.
         self.logger.log(
-            data_label='epoch_loss',
+            data_label="epoch_loss",
             data=epoch_loss,
             meta={
-                'stride': 'epoch',
-
-                'description':
-                    'mean step loss within an epoch'
-            }
+                "stride": "epoch",
+                "description": "mean step loss within an epoch",
+            },
         )
         epoch_rate_loss = np.mean(rate_losses)
         # [*] Log any epoch-wise variables.
         self.logger.log(
-            data_label='epoch_rate_loss',
+            data_label="epoch_rate_loss",
             data=epoch_rate_loss,
             meta={
-                'stride': 'epoch',
-
-                'description':
-                    'mean step loss within an epoch (rate)'
-            }
+                "stride": "epoch",
+                "description": "mean step loss within an epoch (rate)",
+            },
         )
         epoch_synch_loss = np.mean(synch_losses)
         # [*] Log any epoch-wise variables.
         self.logger.log(
-            data_label='epoch_synch_loss',
+            data_label="epoch_synch_loss",
             data=epoch_synch_loss,
             meta={
-                'stride': 'epoch',
-
-                'description':
-                    'mean step loss within an epoch (synchrony)'
-            }
+                "stride": "epoch",
+                "description": "mean step loss within an epoch (synchrony)",
+            },
         )
         epoch_task_loss = np.mean(task_losses)
         # [*] Log any epoch-wise variables.
         self.logger.log(
-            data_label='epoch_task_loss',
+            data_label="epoch_task_loss",
             data=epoch_task_loss,
             meta={
-                'stride': 'epoch',
-
-                'description':
-                    'mean step loss within an epoch (task)'
-            }
+                "stride": "epoch",
+                "description": "mean step loss within an epoch (task)",
+            },
         )
 
         # [*] Summarize epoch-level log variables here
@@ -707,27 +707,26 @@ class Trainer(BaseTrainer):
                 ("epoch_loss", epoch_loss),
                 ("epoch_task_loss", epoch_task_loss),
                 ("epoch_rate_loss", epoch_rate_loss),
-            }
+            },
         )
 
         return epoch_loss
 
-
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Training Loop                                                         │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Training Loop                                                         │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     # [?] Should we be using @switched_tf_function somewhere?
     # [!] Annoying how plt logging shows up
     def train(self):
         """TODO: docs"""
-        n_epochs = self.cfg['train'].n_epochs
+        n_epochs = self.cfg["train"].n_epochs
 
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Logging (pre-training)                                            │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ Logging (pre-training)                                            │
+        # ┴───────────────────────────────────────────────────────────────────╯
 
-        self.logger.on_train_begin();
+        self.logger.on_train_begin()
 
         # Create checkpoint manager  # [?] move to logger?
         """
@@ -742,9 +741,9 @@ class Trainer(BaseTrainer):
             max_to_keep=3
         )"""
 
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Training                                                          │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ Training                                                          │
+        # ┴───────────────────────────────────────────────────────────────────╯
 
         for epoch_idx in range(n_epochs):
             """[*] Other stuff you can log
@@ -753,18 +752,20 @@ class Trainer(BaseTrainer):
                 print("trainable_variables:")
                 print(k)
             """
-            action_list = self.logger.on_epoch_begin() # put profiler in here?
+            action_list = (
+                self.logger.on_epoch_begin()
+            )  # put profiler in here?
 
             profile_epoch = (
-                self.cfg['log'].run_profiler
-                and (epoch_idx + 1) in self.cfg['log'].profiler_epochs
+                self.cfg["log"].run_profiler
+                and (epoch_idx + 1) in self.cfg["log"].profiler_epochs
             )
 
             # Start profiler
             if profile_epoch:
                 # [!] implement range
                 try:
-                    profiler.start(self.cfg['save'].profile_dir)
+                    profiler.start(self.cfg["save"].profile_dir)
                 except Exception as e:
                     logging.warning(f"issue starting profiler: {e}")
 
@@ -774,15 +775,15 @@ class Trainer(BaseTrainer):
             )
             loss = self.train_epoch(epoch_idx)
 
-            #┬───────────────────────────────────────────────────────────────╮
-            #┤ Logging (mid-training)                                        │
-            #┴───────────────────────────────────────────────────────────────╯
+            # ┬───────────────────────────────────────────────────────────────╮
+            # ┤ Logging (mid-training)                                        │
+            # ┴───────────────────────────────────────────────────────────────╯
 
             # Save checkpoints
             # [?] move to logger
             # [!] not integrated with broader training paradigm
             # [!] still don't have full model saving
-            if self.cfg['log'].ckpt_freq * self.cfg['log'].ckpt_lim > 0:
+            if self.cfg["log"].ckpt_freq * self.cfg["log"].ckpt_lim > 0:
                 ckpt.step.assign_add(1)
                 if epoch_idx == 2:
                     save_path = cpm.save()
@@ -808,8 +809,8 @@ class Trainer(BaseTrainer):
                     logging.warning(f"issue stopping profiler: {e}")
                 # [!] implement range
 
-        #┬───────────────────────────────────────────────────────────────────╮
-        #┤ Logging (post-training)                                           │
-        #┴───────────────────────────────────────────────────────────────────╯
+        # ┬───────────────────────────────────────────────────────────────────╮
+        # ┤ Logging (post-training)                                           │
+        # ┴───────────────────────────────────────────────────────────────────╯
 
-        self.logger.on_train_end();
+        self.logger.on_train_end()

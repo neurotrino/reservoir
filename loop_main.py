@@ -1,6 +1,7 @@
 def main():
     while True:
-        execfile('main.py')
+        execfile("main.py")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -11,6 +11,7 @@ DEBUG_MODE = False
 switched_tf_function = SwitchedDecorator(tf.function)
 switched_tf_function.enabled = not DEBUG_MODE
 
+
 class RateRegularizer(tf.keras.regularizers.Regularizer):
     """Regularizes firing rate.
 
@@ -26,7 +27,6 @@ class RateRegularizer(tf.keras.regularizers.Regularizer):
         """
         self.target_rate = target_rate  # target spiking rate
         self.weight = weight  # scaling of loss value
-
 
     @switched_tf_function
     def __call__(self, model_output):
@@ -44,7 +44,6 @@ class RateRegularizer(tf.keras.regularizers.Regularizer):
 
         # Apply any specified weighting to the final loss
         return self.weight * rate_loss
-
 
     def get_config(self):
         """Return a JSON-serializable configuration of this object.

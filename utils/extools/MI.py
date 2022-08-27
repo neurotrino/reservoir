@@ -1,5 +1,5 @@
-#MI.py
-#calculates confluent mutual information based on spikes from .npz files
+# MI.py
+# calculates confluent mutual information based on spikes from .npz files
 
 import sys
 import time
@@ -13,14 +13,15 @@ import matplotlib.pyplot as plt
 import os
 
 dt = 1
-experiment = 'ccd_save_spikes'
+experiment = "ccd_save_spikes"
 run_dur = 4080
 batch_size = 10
 
-def simple_confMI(raster,trial_ends,positive_only,lag=1):
+
+def simple_confMI(raster, trial_ends, positive_only, lag=1):
     post_raster = raster[:, lag:]
     raster = raster[:, :-lag]
-    post_raster = np.logical_or(raster, post_raster) # confluence
+    post_raster = np.logical_or(raster, post_raster)  # confluence
 
     # remove trial ends
     raster = remove_trial_ends(raster, trial_ends[:-1])
@@ -32,35 +33,41 @@ def simple_confMI(raster,trial_ends,positive_only,lag=1):
     for pre in range(neurons):
         for post in range(neurons):
             if pre != post:
-                mat[pre, post] = compute_MI(raster[pre, :], post_raster[post, :])
+                mat[pre, post] = compute_MI(
+                    raster[pre, :], post_raster[post, :]
+                )
     if positive_only:
-        signed_graph = signed_MI(mat,raster)
+        signed_graph = signed_MI(mat, raster)
         pos_graph = pos(signed_graph)
         return pos_graph
     else:
         return mat
 
-def signed_MI(graph,raster):
+
+def signed_MI(graph, raster):
     neurons = np.shape(graph)[0]
     signed_graph = np.copy(graph)
-    for pre in range(0,neurons):
-        for post in range ((pre+1),neurons):
-            corr_mat = np.corrcoef(raster[pre,:],raster[post,:])
-            factor = np.sign(corr_mat[0,1])
+    for pre in range(0, neurons):
+        for post in range((pre + 1), neurons):
+            corr_mat = np.corrcoef(raster[pre, :], raster[post, :])
+            factor = np.sign(corr_mat[0, 1])
             if ~np.isnan(factor):
-                signed_graph[pre,post] *= factor
-                signed_graph[post,pre] *= factor
+                signed_graph[pre, post] *= factor
+                signed_graph[post, pre] *= factor
     return signed_graph
 
+
 def pos(graph):
-    #takes signed_MI MI graph, returns positive version
+    # takes signed_MI MI graph, returns positive version
     pos_graph = np.copy(graph)
     pos_graph[graph < 0] = 0
     return pos_graph
 
-def construct_MI_mat(raster, trial_ends=[], MI_type='confluent',
-        temporal_FN_union=False):
-    '''
+
+def construct_MI_mat(
+    raster, trial_ends=[], MI_type="confluent", temporal_FN_union=False
+):
+    """
     construct a mutual information matrix from the given spike trains,
     excluding transitions over the given trial end indices (the last
     timebin of each trial.
@@ -70,23 +77,23 @@ def construct_MI_mat(raster, trial_ends=[], MI_type='confluent',
     alternatively, instead of filling in the matrix with MI values, fill
     it in with the union of temporal FNs (1 where a spike pair is
     present at all in the given raster, 0 where it is not)
-    '''
-    assert MI_type in {'confluent', 'consecutive', 'simultaneous'}
-    lag = 1 # currently the trial_end logic won't work with larger lags
+    """
+    assert MI_type in {"confluent", "consecutive", "simultaneous"}
+    lag = 1  # currently the trial_end logic won't work with larger lags
 
     # lag the spike trains accordingly
-    if MI_type == 'confluent':
+    if MI_type == "confluent":
         post_raster = raster[:, lag:]
         raster = raster[:, :-lag]
-        post_raster = np.logical_or(raster, post_raster) # confluence
-    elif MI_type == 'consecutive':
-        post_raster = raster[:, lag:] # nothing more
+        post_raster = np.logical_or(raster, post_raster)  # confluence
+    elif MI_type == "consecutive":
+        post_raster = raster[:, lag:]  # nothing more
         raster = raster[:, :-lag]
-    elif MI_type == 'simultaneous':
-        post_raster = raster # fine to not copy
+    elif MI_type == "simultaneous":
+        post_raster = raster  # fine to not copy
 
     # remove trial ends if necessary (they don't affect consecutive MI)
-    if MI_type == 'confluent' or MI_type == 'consecutive':
+    if MI_type == "confluent" or MI_type == "consecutive":
         raster = remove_trial_ends(raster, trial_ends)
         post_raster = remove_trial_ends(post_raster, trial_ends)
 
@@ -97,18 +104,23 @@ def construct_MI_mat(raster, trial_ends=[], MI_type='confluent',
         for post in range(neurons):
             if pre != post:
                 if temporal_FN_union:
-                    mat[pre, post] = potential_edge(raster[pre, :], post_raster[post, :])
+                    mat[pre, post] = potential_edge(
+                        raster[pre, :], post_raster[post, :]
+                    )
                 else:
-                    mat[pre, post] = compute_MI(raster[pre, :], post_raster[post, :])
+                    mat[pre, post] = compute_MI(
+                        raster[pre, :], post_raster[post, :]
+                    )
 
     return mat
 
+
 def compute_MI(train_1, train_2):
-    '''
+    """
     compute the mutual information between two spike trains
     (if one has been lagged or made confluent appropriately, this
     will compute consecutive, confluent, etc. MI)
-    '''
+    """
     # marginal probs
     p_pre_1 = np.mean(train_1)
     p_post_1 = np.mean(train_2)
@@ -140,27 +152,30 @@ def compute_MI(train_1, train_2):
 
     return MI
 
+
 def potential_edge(train_1, train_2):
-    '''
+    """
     see whether there is a potential edge expressed in the given spike trains
     that is, if they ever spike together
-    '''
+    """
     return np.any(np.logical_and(train_1, train_2))
+
 
 # some refactoring by Hal
 def remove_trial_ends(raster, trial_ends):
-    '''
+    """
     return the NxT with the time indices corresponding to the
     last timebins of each trial removed.
 
     trial_ends is an array-like of integer indices to be removed
     so the length of the returned spike train is len(spike_train) - len(trial_ends)
     assuming all trial end indices are unique
-    '''
+    """
     trial_ends_bin = np.ones(raster.shape[1], dtype=bool)
     trial_ends_bin[trial_ends] = False
 
     return raster[:, trial_ends_bin]
+
 
 """
 def main(experiment,dt):

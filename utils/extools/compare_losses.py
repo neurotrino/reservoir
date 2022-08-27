@@ -6,8 +6,8 @@ import numpy as np
 import os
 import sys
 
-sys.path.append('../')
-sys.path.append('../../')
+sys.path.append("../")
+sys.path.append("../../")
 
 # internal ----
 from utils.misc import filenames
@@ -20,25 +20,25 @@ epochs_per_file = 10
 onlinerate_experiments = [
     "fwd-pipeline-batchsize30-definedout-fixedsparserewire",
     "fwd-pipeline-batchsize30-definedout-fixedsparserewire-onlinerate0.5",
-    "fwd-pipeline-batchsize30-definedout-fixedsparserewire-onlinerate0.1-endplot"
+    "fwd-pipeline-batchsize30-definedout-fixedsparserewire-onlinerate0.1-endplot",
 ]
 
 onlinerate_legend = [
     "realistic output with rewiring and global rate loss (1x)",
     "above with online rate loss 0.5x",
-    "online rate loss 0.1x"
+    "online rate loss 0.1x",
 ]
 
 spec_output_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50",
     "fwd-pipeline-batchsize30-definedout",
-    "fwd-pipeline-batchsize30-definedout-fixedsparserewire"
+    "fwd-pipeline-batchsize30-definedout-fixedsparserewire",
 ]
 
 fwd_experiments = [
     "fwd-input-img-15x-trainable",
     "fwd-input-img-15x-fixed",
-    "fwd-main-rewire-img-15x-fixed"
+    "fwd-main-rewire-img-15x-fixed",
 ]
 regeninspikes_experiments = [
     "fwd-main-rewire-lowlroutput",
@@ -46,7 +46,7 @@ regeninspikes_experiments = [
     "fwd-pipeline-inputspikeregen",
     "fwd-pipeline-inputspikeregen-newallen-l23",
 ]
-runlonger_experiments=[
+runlonger_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-2",
     "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower",
@@ -54,20 +54,20 @@ runlonger_experiments=[
 regen_lr_experiments = [
     "fwd-pipeline-inputspikeregen-newallen-l23",
     "fwd-pipeline-inputspikeregen-newl23-lowerlr",
-    "fwd-pipeline-inputspikeregen-newl23-evenlowerlr"
+    "fwd-pipeline-inputspikeregen-newl23-evenlowerlr",
 ]
 rewire_optimizer_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower",
     "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower-norewire",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-norewire",
-    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-SGD"
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-SGD",
 ]
 all_combined_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-onlyoutputlrlower-runlonger-vdist",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-norewire-vdist",
-    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-noisew-vdist"
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-noisew-vdist",
 ]
 all_less_some_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist",
@@ -79,36 +79,41 @@ rateloss_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-laxrateloss1",
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad",
-    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50"
+    "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50",
 ]
 rateloss_legend = [
     "rate cost 10",
     "rate cost 1",
     "rate cost 1, lax rate loss inclusion",
     "rate cost 1, refractory stop gradient",
-    "the above with batch size 50"
+    "the above with batch size 50",
 ]
 synchloss_experiments = [
     "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50",
     "fwd-pipeline-batchsize30-synchcost0.01",
     "fwd-pipeline-batchsize30-synchcost0.1",
-    "fwd-pipeline-batchsize30-laxsynchrate0.25"
+    "fwd-pipeline-batchsize30-laxsynchrate0.25",
 ]
 synchloss_legend = [
     "larger batch size, rate loss cost 1",
     "the above with synch loss cost 0.01",
     "the above with synch loss cost 0.1",
-    "the above with both lax rate and synch loss"
+    "the above with both lax rate and synch loss",
 ]
 spec_output_legend = [
     "dense, unspecified output (previous)",
     "specified lognormal sparse output init",
-    "specified output with enforced sparsity and rewiring"
+    "specified output with enforced sparsity and rewiring",
 ]
 
-experiments = ['ccd_200_lif_sparse','ccd_200_lif_rewiring','ccd_500_lif_sparse','ccd_500_lif_rewiring']
+experiments = [
+    "ccd_200_lif_sparse",
+    "ccd_200_lif_rewiring",
+    "ccd_500_lif_sparse",
+    "ccd_500_lif_rewiring",
+]
 
-savepath = '/data/results/fwd/onlinerate_task.png'
+savepath = "/data/results/fwd/onlinerate_task.png"
 
 # remove loss_of_interest from arg
 
@@ -168,6 +173,7 @@ def compare_losses_within_experiment_set(
     plt.clf()
     plt.close()"""
 
+
 def compare_losses(
     savepath=savepath,
     data_dir=data_dir,
@@ -177,7 +183,7 @@ def compare_losses(
     title="Specified output layer",
     xlabel="batches",
     ylabel="total loss",
-    legend=onlinerate_legend
+    legend=onlinerate_legend,
 ):
     """Generate plots comparing losses from multiple experiments.
     Args:
@@ -206,13 +212,13 @@ def compare_losses(
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
 
-            #if xdir != "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50":
-                #arr = np.array([data['step_task_loss'],data['step_rate_loss'],data['step_synch_loss']])
-                #loss_of_interest = arr.sum(axis=0)
-                #losses += loss_of_interest.tolist()
-            #else:
-            #loss_of_interest = np.add(data['step_task_loss'],data['step_rate_loss'])
-            loss_of_interest = data['step_task_loss']
+            # if xdir != "fwd-pipeline-inputspikeregen-newl23-owerlr-runlonger-vdist-rateloss1-refracstopgrad-batchsize50":
+            # arr = np.array([data['step_task_loss'],data['step_rate_loss'],data['step_synch_loss']])
+            # loss_of_interest = arr.sum(axis=0)
+            # losses += loss_of_interest.tolist()
+            # else:
+            # loss_of_interest = np.add(data['step_task_loss'],data['step_rate_loss'])
+            loss_of_interest = data["step_task_loss"]
             losses += loss_of_interest.tolist()
         # Plot losses for a single experiment
         plt.plot(losses)
@@ -227,7 +233,8 @@ def compare_losses(
     plt.draw()
     plt.savefig(savepath)
 
-def plot_single_experiment_loss(plot_dir,include_rate_loss):
+
+def plot_single_experiment_loss(plot_dir, include_rate_loss):
     rate_losses = []
     task_losses = []
     total_losses = []
@@ -238,10 +245,10 @@ def plot_single_experiment_loss(plot_dir,include_rate_loss):
     for filename in data_files:
         filepath = os.path.join(plot_dir, "../npz-data", filename)
         data = np.load(filepath)
-        task_loss = data['step_task_loss']
+        task_loss = data["step_task_loss"]
         task_losses += task_loss.tolist()
         if include_rate_loss:
-            rate_loss = data['step_rate_loss']
+            rate_loss = data["step_rate_loss"]
             rate_losses += rate_loss.tolist()
             total_loss = task_loss + rate_loss
             total_losses += total_loss.tolist()
@@ -249,12 +256,12 @@ def plot_single_experiment_loss(plot_dir,include_rate_loss):
     if include_rate_loss:
         plt.plot(rate_losses)
         plt.plot(total_losses)
-        legend = ['task loss','rate loss','total loss']
+        legend = ["task loss", "rate loss", "total loss"]
     else:
-        legend = ['task loss']
-    plt.title('Loss over time')
-    plt.xlabel('batch')
-    plt.ylabel('loss')
+        legend = ["task loss"]
+    plt.title("Loss over time")
+    plt.xlabel("batch")
+    plt.ylabel("loss")
     plt.legend(legend)
     plt.draw()
     plt.savefig(os.path.join(plot_dir, "loss_over_time.png"))

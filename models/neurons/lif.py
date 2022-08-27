@@ -9,9 +9,10 @@ import os
 from models.neurons.base import ExIn, Neuron
 from utils.stats import StatisticalDistribution
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Leaky Integrate-and-Fire (LIF) Neuron                                     │
-#┴───────────────────────────────────────────────────────────────────────────╯
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Leaky Integrate-and-Fire (LIF) Neuron                                     │
+# ┴───────────────────────────────────────────────────────────────────────────╯
+
 
 class LIF(Neuron):
     """Layer of leaky integrate-and-fire neurons.
@@ -39,15 +40,15 @@ class LIF(Neuron):
         rewiring. That will come with its own considerations.
     """
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Special Methods                                                       │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Special Methods                                                       │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     def __init__(self, cfg):
         Neuron.__init__(self, cfg)
 
         self.cfg = cfg
-        cell_cfg = cfg['cell']
+        cell_cfg = cfg["cell"]
 
         # Configuration parameters
         self.EL = cell_cfg.EL
@@ -62,23 +63,22 @@ class LIF(Neuron):
         )
 
         # Derived attributes
-        self._decay = tf.exp(-cfg['misc'].dt / self.tau)
+        self._decay = tf.exp(-cfg["misc"].dt / self.tau)
 
         # Other attributes
         self.input_weights = None
         self.bias_currents = None
         self.recurrent_weights = None
         self.disconnect_mask = tf.cast(
-            np.diag(np.ones(self.units, dtype=np.bool)),
-            tf.bool
+            np.diag(np.ones(self.units, dtype=np.bool)), tf.bool
         )
 
         # (voltage, refractory, previous_spikes)
-        self.state_size = tuple([cfg['cell'].units] * 3)
+        self.state_size = tuple([cfg["cell"].units] * 3)
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Reserved Methods                                                      │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Reserved Methods                                                      │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     def build(self, input_shape):
         """Create initial layer weights.
@@ -101,48 +101,57 @@ class LIF(Neuron):
             self.input_weights = self.add_weight(
                 shape=(input_shape[-1], self.units),
                 initializer=tf.keras.initializers.RandomUniform(
-                    minval=0.0,
-                    maxval=0.4
+                    minval=0.0, maxval=0.4
                 ),
                 trainable=True,
-                name='input_weights'
+                name="input_weights",
             )
         # save initial input weights
-        np.save(os.path.join(self.cfg['save'].main_output_dir, "input_preweights.npy"), self.input_weights.numpy())
+        np.save(
+            os.path.join(
+                self.cfg["save"].main_output_dir, "input_preweights.npy"
+            ),
+            self.input_weights.numpy(),
+        )
 
         # Disconnect self-recurrent weights
         self.disconnect_mask = tf.cast(
-            np.diag(np.ones(self.units, dtype=np.bool)),
-            tf.bool
+            np.diag(np.ones(self.units, dtype=np.bool)), tf.bool
         )
 
         self.recurrent_weights = self.add_weight(
             shape=(self.units, self.units),
             initializer=tf.keras.initializers.Orthogonal(gain=0.7),
             trainable=True,
-            name='recurrent_weights'
+            name="recurrent_weights",
         )
         initial_weights_mat = self.connmat_generator.run_generator()
         # save initial recurrent weights
-        np.save(os.path.join(self.cfg['save'].main_output_dir, "main_preweights.npy"), initial_weights_mat)
+        np.save(
+            os.path.join(
+                self.cfg["save"].main_output_dir, "main_preweights.npy"
+            ),
+            initial_weights_mat,
+        )
 
         if self.cfg["cell"].specify_input:
             # just set main weights, as input weights were set earlier
             self.recurrent_weights.assign_add(initial_weights_mat)
         else:
             # set both input and main layer weights
-            self.set_weights([self.input_weights.value(), initial_weights_mat])
+            self.set_weights(
+                [self.input_weights.value(), initial_weights_mat]
+            )
 
         # Store neurons' signs
         if self.freewiring:
             # Store using +1 for excitatory, -1 for inhibitory
             wmat = -1 * np.ones([self.units, self.units])
-            wmat[0:self.num_ex,:] = -1 * wmat[0:self.num_ex,:]
+            wmat[0 : self.num_ex, :] = -1 * wmat[0 : self.num_ex, :]
             self.rec_sign = tf.convert_to_tensor(wmat, dtype=tf.float32)
         else:
             # as above but 0 for zeros
             self.rec_sign = tf.sign(self.recurrent_weights)
-
 
     def call(self, inputs, state):
         """
@@ -206,7 +215,7 @@ class LIF(Neuron):
         i_reset = -(self.thr - self.EL) * old_z
         # ^ approx driving the voltage 20 mV more negative
 
-        input_current = i_in + i_rec + i_reset #+ self.bias_currents[None]
+        input_current = i_in + i_rec + i_reset  # + self.bias_currents[None]
 
         # previously, whether old_v was below or above 0, you would
         # still decay gradually back to 0 decay was dependent on the
@@ -222,14 +231,16 @@ class LIF(Neuron):
         new_v = self.EL + self._decay * (old_v - self.EL) + input_current
 
         is_refractory = tf.greater(old_r, 0)
-        #v_scaled = (new_v - self.thr) / self.thr
+        # v_scaled = (new_v - self.thr) / self.thr
         v_scaled = -(self.thr - new_v) / (self.thr - self.EL)
-        new_z = self.spike_function(v_scaled, self.cfg['cell'].dampening_factor)
+        new_z = self.spike_function(
+            v_scaled, self.cfg["cell"].dampening_factor
+        )
         new_z = tf.where(is_refractory, tf.zeros_like(new_z), new_z)
         new_r = tf.clip_by_value(
-            old_r - 1 + tf.cast(new_z * self.cfg['cell'].n_refrac, tf.int32),
+            old_r - 1 + tf.cast(new_z * self.cfg["cell"].n_refrac, tf.int32),
             0,
-            self.cfg['cell'].n_refrac
+            self.cfg["cell"].n_refrac,
         )
 
         new_state = (new_v, new_r, new_z)
@@ -237,22 +248,24 @@ class LIF(Neuron):
 
         return output, new_state
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Additional Methods                                                    │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Additional Methods                                                    │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     def zero_state(self, batch_size, dtype=tf.dtypes.float32):
         """TODO: docs."""
         sz = (batch_size, self.units)
         v0 = self.v0_sdist.sample(sz) + self.EL
-        #v0 = tf.zeros(sz, dtype) + self.EL
+        # v0 = tf.zeros(sz, dtype) + self.EL
         r0 = tf.zeros(sz, tf.int32)
         z_buf0 = tf.zeros(sz, tf.float32)
         return v0, r0, z_buf0  # voltage, refractory, spike
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Excitatory/Inhibitory LIF Neuron                                          │
-#┴───────────────────────────────────────────────────────────────────────────╯
+
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Excitatory/Inhibitory LIF Neuron                                          │
+# ┴───────────────────────────────────────────────────────────────────────────╯
+
 
 class ExInLIF(ExIn, LIF):
     """LIF neuron with both excitatory and inhibitory synapses."""
@@ -266,9 +279,10 @@ class ExInLIF(ExIn, LIF):
         LIF.build(self, input_shape)
 
 
-#┬───────────────────────────────────────────────────────────────────────────╮
-#┤ Excitatory/Inhibitory Adaptive LIF (ALIF) Neuron                          │
-#┴───────────────────────────────────────────────────────────────────────────╯
+# ┬───────────────────────────────────────────────────────────────────────────╮
+# ┤ Excitatory/Inhibitory Adaptive LIF (ALIF) Neuron                          │
+# ┴───────────────────────────────────────────────────────────────────────────╯
+
 
 class ExInALIF(ExIn, LIF):
     """Layer of adaptive leaky integrate-and-fire neurons containing
@@ -287,11 +301,12 @@ class ExInALIF(ExIn, LIF):
         decay_b -
         state_size -
     """
+
     # base template from October 22nd, 2020 version of LIF_EI
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Keras Layer Methods                                                   │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Keras Layer Methods                                                   │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     def __init__(self, cfg):
         """Initializes like ExInLIF, but with adaptation parameters."""
@@ -299,20 +314,18 @@ class ExInALIF(ExIn, LIF):
         ExIn.__init__(self, cfg)
 
         # Adaptation parameters
-        self.beta = cfg['cell'].beta
+        self.beta = cfg["cell"].beta
         self.decay_b = tf.exp(
-            -cfg['misc'].dt / self.cfg['cell'].tau_adaptation
+            -cfg["misc"].dt / self.cfg["cell"].tau_adaptation
         )
 
         # voltage, refractory, adaptation, prior spikes
         self.state_size = tuple([self.units] * 4)
 
-
     def build(self, input_shape):
         """Built like LIF, but with an ExInCMG instead of a CMG."""
         ExIn.build(self, input_shape)
         LIF.build(self, input_shape)
-
 
     # [?] why do we pass state instead of maintaining w/ attributes?
     def call(self, inputs, state):
@@ -356,7 +369,7 @@ class ExInALIF(ExIn, LIF):
         i_reset = -(self.thr - self.EL) * old_z
         # ^ approx driving the voltage 20 mV more negative
 
-        input_current = i_in + i_rec + i_reset # + self.bias_currents[None]
+        input_current = i_in + i_rec + i_reset  # + self.bias_currents[None]
 
         # previously, whether old_v was below or above 0, you would
         # still decay gradually back to 0 decay was dependent on the
@@ -373,23 +386,29 @@ class ExInALIF(ExIn, LIF):
 
         is_refractory = tf.greater(old_r, 0)
         adaptive_thr = self.thr + old_b * self.beta
-        v_scaled = -(adaptive_thr-new_v) / (adaptive_thr-self.EL)
+        v_scaled = -(adaptive_thr - new_v) / (adaptive_thr - self.EL)
         new_b = self.decay_b * old_b + old_z
-        new_z = self.spike_function(v_scaled, self.cfg['cell'].dampening_factor)
+        new_z = self.spike_function(
+            v_scaled, self.cfg["cell"].dampening_factor
+        )
         new_z = tf.where(is_refractory, tf.zeros_like(new_z), new_z)
-        if self.cfg['cell'].refrac_stop_grad:
+        if self.cfg["cell"].refrac_stop_grad:
             new_r = tf.stop_gradient(
                 tf.clip_by_value(
-                    old_r - 1 + tf.cast(new_z * self.cfg['cell'].n_refrac, tf.int32),
+                    old_r
+                    - 1
+                    + tf.cast(new_z * self.cfg["cell"].n_refrac, tf.int32),
                     0,
-                    self.cfg['cell'].n_refrac
+                    self.cfg["cell"].n_refrac,
                 )
             )
         else:
             new_r = tf.clip_by_value(
-                old_r - 1 + tf.cast(new_z * self.cfg['cell'].n_refrac, tf.int32),
+                old_r
+                - 1
+                + tf.cast(new_z * self.cfg["cell"].n_refrac, tf.int32),
                 0,
-                self.cfg['cell'].n_refrac
+                self.cfg["cell"].n_refrac,
             )
 
         new_state = (new_v, new_r, new_b, new_z)
@@ -397,9 +416,9 @@ class ExInALIF(ExIn, LIF):
 
         return output, new_state
 
-    #┬───────────────────────────────────────────────────────────────────────╮
-    #┤ Additional Methods                                                    │
-    #┴───────────────────────────────────────────────────────────────────────╯
+    # ┬───────────────────────────────────────────────────────────────────────╮
+    # ┤ Additional Methods                                                    │
+    # ┴───────────────────────────────────────────────────────────────────────╯
 
     def zero_state(self, batch_size, dtype=tf.float32):
         """TODO: docs."""
