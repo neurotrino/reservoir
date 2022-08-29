@@ -427,7 +427,7 @@ def bin_batch_MI_graphs(
     )
     rn_coh0 = np.array(rn_coh0, dtype=object)
     rn_coh1 = np.array(rn_coh1, dtype=object)
-    np.savez(recruit_batch_savepath, coh0=rn_coh0, coh1=rn_coh1)
+    np.savez_compressed(recruit_batch_savepath, coh0=rn_coh0, coh1=rn_coh1)
 
     return [fn_coh0, fn_coh1]
 
@@ -658,7 +658,7 @@ def generate_naive_trained_recruitment_graphs(
                     # reduce decimal precision of fns for disk space
                     fns_coh0 = np.around(fns_coh0, 4)
                     fns_coh1 = np.around(fns_coh1, 4)
-                    np.savez(
+                    np.savez_compressed(
                         os.path.join(
                             MI_savepath, exp_path, data_files[file_idx]
                         ),
