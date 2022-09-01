@@ -33,6 +33,54 @@ e_only = True
 positive_only = False
 bin = 10
 
+
+#######################################################################
+
+import scipy
+
+def smallify(old_data):
+    """Format experiment output so it's smaller on disk when saved.
+
+    Item `old_data["cohX"][i][j]` is moved to `new_data["cohX-i-j"].
+    Expects `old_data` to be formatted such that
+    `old_data["cohX"][i][j]` is the NxN (where N is the num. of units,
+    usually 300) matrix corresponding to the jth non-discarded bin for
+    the ith trial at coherence level X (0 or 1).
+
+    Example of reading this data back out:
+    ```
+    old_data = ...
+    new_data = smallify(old_data)
+
+    for cohX in new_data["shapes"]:
+        for (i, (jmax, N, _)) in enumerate(new_data["shapes"][cohX]):
+            for j in range(jmax):
+                label = f"{cohX}-{i}-{j}"
+                matrix = new_data[label].todense()
+
+                assert(np.array_equal(matrix, old_data[cohX][i][j]))
+    ```
+    """
+    new_data = {"shapes": {}}
+
+	# for each coherence level..
+    for cohX in old_data:
+        new_data["shapes"][cohX] = []
+
+		# for each set of NxN (N is typically 300) matrices..
+        for i, ws in enumerate(old_data[cohX]):
+            new_data["shapes"][cohX].append(ws.shape)  # ws.shape == (j, N, N)
+
+			# for each NxN matrix..
+            for j, w in enumerate(ws):
+                new_label = f"{cohX}-{i}-{j}"
+                new_data[new_label] = scipy.sparse.csr_matrix(w.astype(float))
+
+    return new_data
+
+#######################################################################
+
+
 """
 recruit_path = '/data/results/experiment1/recruitment_graphs_bin10_quartile/16.58.32'
 epoch_id = 0 # also 99 for trained (the last epoch)
@@ -396,7 +444,6 @@ def get_binned_spikes_trialends(e_only, true_y, spikes, bin):
     ]
 
 
-# calculate MI functional graphs and associated binned recruitment graphs for a single batch update of 30 trials
 def bin_batch_MI_graphs(
     w,
     spikes,
@@ -408,6 +455,13 @@ def bin_batch_MI_graphs(
     positive_only,
     recruit_batch_savepath,
 ):
+    """Calculate functional and binned recruitment graphs.
+
+    Calculates functional graphs (using mutual information) and
+    associated binned recruitment graphs for a single batch update.
+
+    Assumes 30 trials per batch.
+    """
 
     [
         [binned_spikes_coh0, binned_spikes_coh1],
@@ -427,8 +481,12 @@ def bin_batch_MI_graphs(
     )
     rn_coh0 = np.array(rn_coh0, dtype=object)
     rn_coh1 = np.array(rn_coh1, dtype=object)
-    np.savez_compressed(recruit_batch_savepath, coh0=rn_coh0, coh1=rn_coh1)
-
+    np.savez_compressed(
+        recruit_batch_savepath,
+        **smallify({
+            "coh0": rn_coh0,
+            "coh1": rn_coh1
+        })
     return [fn_coh0, fn_coh1]
 
 
@@ -662,8 +720,10 @@ def generate_naive_trained_recruitment_graphs(
                         os.path.join(
                             MI_savepath, exp_path, data_files[file_idx]
                         ),
-                        coh0=fns_coh0,
-                        coh1=fns_coh1,
+                        **smallify({
+                            "coh0": fns_coh0,
+                            "coh1": fns_coh1
+                        })
                     )
                     # np.savez(os.path.join(recruit_savepath,exp_path,data_files[file_idx]),coh0=rns_coh0,coh1=rns_coh1)
 
@@ -889,7 +949,8 @@ def simple_branching_param(
     run_time = np.shape(spikes)[1]
     nbins = int(np.round(run_time / bin_size))
 
-    # for every pair of timesteps, determine the number of ancestors and the number of descendants
+    # for every pair of timesteps, determine the number of ancestors
+    # and the number of descendants
     numA = np.zeros([nbins - 1])
     # number of ancestors for each bin
     numD = np.zeros([nbins - 1])
@@ -901,12 +962,15 @@ def simple_branching_param(
 
     # the ratio of descendants per ancestor
     d = numD / numA
-    # if we get a nan, that means there were no ancestors in the previous time point
+    # if we get a nan, that means there were no ancestors in the
+    # previous time point;
     # in that case it probably means our choice of bin size is wrong
     # but to handle it for now we should probably just disregard
-    # if we get a 0, that means there were no descendants in the next time point
+    # if we get a 0, that means there were no descendants in the next
+    # time point;
     # 0 in that case is correct, because branching 'dies'
-    # however, that's also incorrect because it means we are choosing our bin size wrong for actual synaptic effects!
+    # however, that's also incorrect because it means we are choosing
+    # our bin size wrong for actual synaptic effects!
     # will revisit this according to time constants
     bscore = np.nanmean(d)
 
@@ -916,18 +980,30 @@ def simple_branching_param(
 def plot_branching_over_time():
     # count spikes in adjacent time bins
     # or should they be not adjacent?
-    bin_size = 1  # for now, adjacent pre-post bins are just adjacent ms
+    bin_size = 1  # for now adjacent pre-post bins are just adjacent ms
     # separate into coherence level 1 and coherence level 0
     experiments = get_experiments(data_dir, experiment_string)
-    # plot for each experiment, one branching value per coherence level per batch update
-    # this means branching params are averaged over entire runs (or section of a run by coherence level) and 30 trials for each update
+    # plot for each experiment, one branching value per coherence level
+    # per batch update
+    #
+    # this means branching params are averaged over entire runs (or
+    # section of a run by coherence level) and 30 trials for each update
     data_files = filenames(num_epochs, epochs_per_file)
     fig, ax = plt.subplots(nrows=2, ncols=2)
     ax = ax.flatten()
-    # subplot 0: coherence level 0, e units, avg branching (for batch of 30 trials) over training time
-    # subplot 1: coherence level 1, e units, avg branching (for batch of 30 trials) over training time
-    # subplot 2: coherence level 0, i units, avg branching (for batch of 30 trials) over training time
-    # subplot 3: coherence level 1, i units, avg branching (for batch of 30 trials) over training time
+
+    # subplot 0: coherence level 0, e units, avg branching (for batch
+    # of 30 trials) over training time
+
+    # subplot 1: coherence level 1, e units, avg branching (for batch
+    # of 30 trials) over training time
+
+    # subplot 2: coherence level 0, i units, avg branching (for batch
+    # of 30 trials) over training time
+
+    # subplot 3: coherence level 1, i units, avg branching (for batch
+    # of 30 trials) over training time
+
     for xdir in experiments:
         e_0_branch = []
         e_1_branch = []
@@ -945,9 +1021,12 @@ def plot_branching_over_time():
                 np.shape(y)[0]
             ):  # each file contains 100 batch updates
                 # find indices for coherence level 0 and for 1
-                # do this for each of 30 trials bc memory can't accommodate the whole batch
-                # this also circumvents continuity problems for calculating branching etc
-                # then calculate rate of spikes for each trial according to coherence level idx
+                # do this for each of 30 trials bc memory can't
+                # accommodate the whole batch
+                # this also circumvents continuity problems for
+                # calculating branching etc
+                # then calculate rate of spikes for each trial
+                # according to coherence level idx
                 batch_e_0_branch = []
                 batch_e_1_branch = []
                 batch_i_0_branch = []
