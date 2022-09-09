@@ -96,17 +96,27 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
     experiment_paths = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
     for exp in experiment_paths:
         # each of these will be plotted per experiment
-        w_ee = []
-        w_ii = []
-        dens_ee = []
-        dens_ii = []
-        cc_ee = []
-        cc_ii = []
+        w_ee_std = []
+        w_ee_mean = []
+        w_ii_std = []
+        w_ii_mean = []
+
+        dens_ee_std = []
+        dens_ee_mean = []
+        dens_ii_std = []
+        dens_ii_mean = []
+
+        cc_ee_std = []
+        cc_ee_mean = []
+        cc_ii_std = []
+        cc_ii_mean = []
+
         # for each batch update
         for batch in range(100):
             batch_string = exp+'/'+epoch_string+'-batch'+str(batch)+'.npz'
             data = np.load(batch_string,allow_pickle=True)
             coh = data[coh_lvl]
+
             # get the average over the several trials and timepoints
             trial_w_e = []
             trial_w_i = []
@@ -146,6 +156,7 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
                     time_cc_i.append(nx.average_clustering(Gi,nodes=Gi.nodes,weight='weight'))
 
                 # collect and average over timesteps
+                # across all timesteps of a trial, get the mean metric value
                 trial_w_e.append(np.mean(time_w_e))
                 trial_w_i.append(np.mean(time_w_i))
 
@@ -156,43 +167,50 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
                 trial_cc_i.append(np.mean(time_cc_i))
 
             # collect over trials
-            w_ee = np.vstack([w_ee,trial_w_e])
-            w_ii = np.vstack([w_ii,trial_w_i])
+            # across all trials for a batch, stack em together
+            w_ee_std.append(np.std(trial_w_e))
+            w_ee_mean.append(np.mean(trial_w_e))
+            w_ii_std.append(np.std(trial_w_i))
+            w_ii_mean.append(np.mean(trial_w_i))
 
-            dens_ee = np.vstack([dens_ee,trial_dens_e])
-            dens_ii = np.vstack([dens_ii,trial_dens_i])
+            dens_ee_std.append(np.std(trial_dens_e))
+            dens_ee_mean.append(np.mean(trial_dens_e))
+            dens_ii_std.append(np.std(trial_dens_i))
+            dens_ii_mean.append(np.mean(trial_dens_i))
 
-            cc_ee = np.vstack([cc_ee,trial_cc_e])
-            cc_ii = np.vstack([cc_ii,trial_cc_i])
+            cc_ee_std.append(np.std(trial_cc_e))
+            cc_ee_mean.append(np.mean(trial_cc_e))
+            cc_ii_std.append(np.std(trial_cc_i))
+            cc_ii_mean.append(np.mean(trial_cc_i))
 
         # plot the average weights over batches
         # plot density over batches
         # plot clustering over batches
 
-        w_ee_std = np.std(w_ee, axis=0)
-        w_ee_mean = np.mean(w_ee, axis=0)
+        #w_ee_std = np.std(w_ee, axis=0)
+        #w_ee_mean = np.mean(w_ee, axis=0)
         ax[0,0].plot(w_ee_mean)
         ax[0,0].fill_between(w_ee_mean-w_ee_std, w_ee_mean+w_ee_std, alpha=0.5)
-        w_ii_std = np.std(w_ii, axis=0)
-        w_ii_mean = np.mean(w_ii, axis=0)
+        #w_ii_std = np.std(w_ii, axis=0)
+        #w_ii_mean = np.mean(w_ii, axis=0)
         ax[0,1].plot(w_ii_mean)
         ax[0,1].fill_between(w_ii_mean-w_ii_std, w_ii_mean+w_ii_std, alpha=0.5)
 
-        dens_ee_std = np.std(dens_ee, axis=0)
-        dens_ee_mean = np.mean(dens_ee, axis=0)
+        #dens_ee_std = np.std(dens_ee, axis=0)
+        #dens_ee_mean = np.mean(dens_ee, axis=0)
         ax[1,0].plot(dens_ee_mean)
         ax[1,0].fill_between(dens_ee_mean-dens_ee_std, dens_ee_mean+dens_ee_std, alpha=0.5)
-        dens_ii_std = np.std(dens_ii, axis=0)
-        dens_ii_mean = np.mean(dens_ii, axis=0)
+        #dens_ii_std = np.std(dens_ii, axis=0)
+        #dens_ii_mean = np.mean(dens_ii, axis=0)
         ax[1,1].plot(dens_ii_mean)
         ax[1,1].fill_between(dens_ii_mean-dens_ii_std, dens_ii_mean+dens_ii_std, alpha=0.5)
 
-        cc_ee_std = np.std(cc_ee, axis=0)
-        cc_ee_mean =  np.mean(cc_ee, axis=0)
+        #cc_ee_std = np.std(cc_ee, axis=0)
+        #cc_ee_mean =  np.mean(cc_ee, axis=0)
         ax[2,0].plot(cc_ee_mean)
         ax[2,0].fill_between(cc_ee_mean-cc_ee_std, cc_ee_mean+cc_ee_std, alpha=0.5)
-        cc_ii_std = np.std(cc_ii, axis=0)
-        cc_ii_mean = np.mean(cc_ii, axis=0)
+        #cc_ii_std = np.std(cc_ii, axis=0)
+        #cc_ii_mean = np.mean(cc_ii, axis=0)
         ax[2,1].plot(cc_ii_mean)
         ax[2,1].fill_between(cc_ii_mean-cc_ii_std, cc_ii_mean+cc_ii_std, alpha=0.5)
 
