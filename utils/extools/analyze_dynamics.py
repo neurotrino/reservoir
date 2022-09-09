@@ -85,7 +85,7 @@ recruit_path = '/data/results/experiment1/recruitment_graphs_bin10_full/'
 naive_id = 0
 trained_id = 99
 save_name='recruit_bin10_full'
-coh_lvl = 'coh_0'
+coh_lvl = 'coh0'
 
 def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
     # plot density, reciprocity, and weighted clustering
