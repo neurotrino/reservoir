@@ -81,53 +81,156 @@ def smallify(old_data):
 #######################################################################
 
 
-"""
-recruit_path = '/data/results/experiment1/recruitment_graphs_bin10_quartile/16.58.32'
-epoch_id = 0 # also 99 for trained (the last epoch)
-save_name='recruit_bin10_quartile'
-def plot_recruit_metrics(recruit_path,epoch_id,save_name):
+recruit_path = '/data/results/experiment1/recruitment_graphs_bin10_full/'
+naive_id = 0
+trained_id = 99
+save_name='recruit_bin10_full'
+coh_lvl = 'coh_0'
+
+def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
     # plot density, reciprocity, and weighted clustering
-    dens_coh0_ee = []
-    dens_coh0_ii = []
-    recip_coh0_ee = []
-    recip_coh0_ii = []
-    cc_coh0_ee = []
-    cc_coh0_ii = []
-    dens_coh1_ee = []
-    dens_coh1_ii = []
-    recip_coh1_ee = []
-    recip_coh1_ii = []
-    cc_coh1_ee = []
-    cc_coh1_ii = []
+    fig, ax = plt.subplots(nrows=3, ncols=2)
     # get recruitment graphs
     data_files = filenames(num_epochs, epochs_per_file)
     epoch_string = data_files[epoch_id][:-4]
-    # for each batch update
-    for batch in range(100):
-        batch_string = epoch_string+'-batch'+str(batch)+'.npz'
-        recruit_batch_path = os.path.join(os.path.join(recruit_path,batch_string))
-        data = np.load(recruit_batch_path,allow_pickle=True)
-        coh0 = data['coh0']
-        coh1 = data['coh1']
-        # get the average over the several trials and timepoints
-        for trial in range(np.shape(coh0)[0]):
-            # for the timesteps in this trial
-            for time in range(np.shape(coh0[trial])[0]):
+    experiment_paths = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
+    for exp in experiment_paths:
+        # each of these will be plotted per experiment
+        w_ee = []
+        w_ii = []
+        dens_ee = []
+        dens_ii = []
+        cc_ee = []
+        cc_ii = []
+        # for each batch update
+        for batch in range(100):
+            batch_string = exp+'/'+epoch_string+'-batch'+str(batch)+'.npz'
+            data = np.load(batch_string,allow_pickle=True)
+            coh = data[coh_lvl]
+            # get the average over the several trials and timepoints
+            trial_w_e = []
+            trial_e_i = []
 
-                we_coh0 = np.average(coh0[trial][time][0:e_end,0:e_end])
-                dense_coh0 = calc_density(coh0[trial][time][0:e_end,0:e_end])
-                recipe_coh0 = reciprocity(coh0[trial][time][0:e_end,0:e_end])
+            trial_dens_e = []
+            trial_dens_i = []
 
-                wi_coh0 = np.average(coh0[trial][time][e_end:i_end,e_end:i_end])
-                densi_coh0 = calc_density(coh0[trial][time][e_end:i_end,e_end:i_end])
-                recipi_coh0 = reciprocity(coh0[trial][time][e_end:i_end,e_end:i_end])
+            trial_cc_e = []
+            trial_cc_i = []
 
-                # still does not support negative weights, so take abs
-                Ge_coh0 = nx.from_numpy_array(np.abs(coh0[trial][time][0:e_end,0:e_end]),create_using=nx.DiGraph)
-                Gi_coh0 = nx.from_numpy_array(np.abs(coh0[trial][time][e_end:i_end,e_end:i_end]),create_using=nx.DiGraph)
-                cce_coh0 = nx.average_clustering(G,nodes=G.nodes,weight='weight')
-                cci_coh0 = nx.average_clustering(G,nodes=G.nodes,weight='weight')
-"""
+            for trial in range(np.shape(coh)[0]):
+                # for the timesteps in this trial
+                time_w_e = []
+                time_dens_e = []
+                time_cc_e = []
+                time_w_i = []
+                time_dens_i = []
+                time_cc_i = []
+
+                for time in range(np.shape(coh[trial])[0]):
+
+                    time_w_e.append(np.mean(coh[trial][time][0:e_end,0:e_end]))
+                    time_dens_e.append(calc_density(coh[trial][time][0:e_end,0:e_end]))
+                    #recip_e = reciprocity(coh[trial][time][0:e_end,0:e_end])
+
+                    time_w_i.append(np.mean(coh[trial][time][e_end:i_end,e_end:i_end]))
+                    time_dens_i.append(calc_density(coh[trial][time][e_end:i_end,e_end:i_end]))
+                    #recip_i = reciprocity(coh[trial][time][e_end:i_end,e_end:i_end])
+
+                    # still does not support negative weights, so take abs
+                    # convert from object to float array
+                    arr = np.abs(coh[trial][time])
+                    float_arr = np.vstack(arr[:, :]).astype(np.float)
+                    Ge = nx.from_numpy_array(float_arr[0:e_end,0:e_end],create_using=nx.DiGraph)
+                    Gi = nx.from_numpy_array(float_arr[e_end:i_end,e_end:i_end],create_using=nx.DiGraph)
+                    time_cc_e.append(nx.average_clustering(Ge,nodes=Ge.nodes,weight='weight'))
+                    time_cc_i.append(nx.average_clustering(Gi,nodes=Gi.nodes,weight='weight'))
+
+                # collect and average over timesteps
+                trial_w_e.append(np.mean(time_w_e))
+                trial_w_i.append(np.mean(time_w_i))
+
+                trial_dens_e.append(np.mean(time_dens_e))
+                trial_dens_i.append(np.mean(time_dens_i))
+
+                trial_cc_e.append(np.mean(time_cc_e))
+                trial_cc_i.append(np.mean(time_cc_i))
+
+            # collect over trials
+            w_ee = np.vstack([w_ee,trial_w_e])
+            w_ii = np.vstack([w_ii,trial_w_i])
+
+            dens_ee = np.vstack([dens_ee,trial_dens_e])
+            dens_ii = np.vstack([dens_ii,trial_dens_i])
+
+            cc_ee = np.vstack([cc_ee,trial_cc_e])
+            cc_ii = np.vstack([cc_ii,trial_cc_i])
+
+        # plot the average weights over batches
+        # plot density over batches
+        # plot clustering over batches
+
+        w_ee_std = np.std(w_ee, axis=0)
+        w_ee_mean = np.mean(w_ee, axis=0)
+        ax[0,0].plot(w_ee_mean)
+        ax[0,0].fill_between(w_ee_mean-w_ee_std, w_ee_mean+w_ee_std, alpha=0.5)
+        w_ii_std = np.std(w_ii, axis=0)
+        w_ii_mean = np.mean(w_ii, axis=0)
+        ax[0,1].plot(w_ii_mean)
+        ax[0,1].fill_between(w_ii_mean-w_ii_std, w_ii_mean+w_ii_std, alpha=0.5)
+
+        dens_ee_std = np.std(dens_ee, axis=0)
+        dens_ee_mean = np.mean(dens_ee, axis=0)
+        ax[1,0].plot(dens_ee_mean)
+        ax[1,0].fill_between(dens_ee_mean-dens_ee_std, dens_ee_mean+dens_ee_std, alpha=0.5)
+        dens_ii_std = np.std(dens_ii, axis=0)
+        dens_ii_mean = np.mean(dens_ii, axis=0)
+        ax[1,1].plot(dens_ii_mean)
+        ax[1,1].fill_between(dens_ii_mean-dens_ii_std, dens_ii_mean+dens_ii_std, alpha=0.5)
+
+        cc_ee_std = np.std(cc_ee, axis=0)
+        cc_ee_mean =  np.mean(cc_ee, axis=0)
+        ax[2,0].plot(cc_ee_mean)
+        ax[2,0].fill_between(cc_ee_mean-cc_ee_std, cc_ee_mean+cc_ee_std, alpha=0.5)
+        cc_ii_std = np.std(cc_ii, axis=0)
+        cc_ii_mean = np.mean(cc_ii, axis=0)
+        ax[2,1].plot(cc_ii_mean)
+        ax[2,1].fill_between(cc_ii_mean-cc_ii_std, cc_ii_mean+cc_ii_std, alpha=0.5)
+
+    ax[0,0].set_title('e-to-e weights')
+    ax[0,0].set_xlabel('batch')
+    ax[0,0].set_ylabel('weight')
+    ax[1,0].set_title('e-to-e density')
+    ax[1,0].set_xlabel('batch')
+    ax[1,0].set_ylabel('density')
+    ax[2,0].set_title('e-to-e clustering')
+    ax[2,0].set_xlabel('batch')
+    ax[2,0].set_ylabel('abs weighted clustering')
+
+    ax[0,1].set_title('i-to-i weights')
+    ax[0,1].set_xlabel('batch')
+    ax[0,1].set_ylabel('weight')
+    ax[1,1].set_title('i-to-i density')
+    ax[1,1].set_xlabel('batch')
+    ax[1,1].set_ylabel('density')
+    ax[2,1].set_title('i-to-i clustering')
+    ax[2,1].set_xlabel('batch')
+    ax[2,1].set_ylabel('abs weighted clustering')
+
+    if epoch_id == 0:
+        title_str = 'Naive (first 10 epochs) recruitment graphs,'
+    elif epoch_id == 99:
+        title_str = 'Trained (last 10 epochs) recruitment graphs,'
+    if coh_lvl == 'coh_0':
+        coh_str = ' 15% coherence'
+    elif coh_lvl == 'coh_1':
+        coh_str = ' 100% coherence'
+
+    fig.suptitle(title_str+coh_str)
+    plt.draw()
+    save_fname = savepath+save_name+'_'+coh_lvl+'_epoch'+epoch_string
+    plt.savefig(save_fname,dpi=300)
+    plt.clf()
+    plt.close()
 
 
 def plot_fn_quad_metrics(load_saved=True):

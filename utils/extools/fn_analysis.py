@@ -334,7 +334,10 @@ def reciprocity(graph):
                 reciprocal_ct += 2
 
     possible_reciprocal_ct = np.size(graph[graph != 0])
-    return reciprocal_ct / possible_reciprocal_ct
+    if possible_reciprocal_ct > 0:
+        return reciprocal_ct / possible_reciprocal_ct
+    else:
+        return 0
 
 
 def reciprocity_ei(e_graph, i_graph):
