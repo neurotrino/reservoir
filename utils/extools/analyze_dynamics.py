@@ -590,6 +590,7 @@ def bin_batch_MI_graphs(
             "coh0": rn_coh0,
             "coh1": rn_coh1
         })
+    )
     return [fn_coh0, fn_coh1]
 
 
