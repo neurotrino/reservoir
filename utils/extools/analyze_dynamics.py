@@ -227,7 +227,7 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
 
     fig.suptitle(title_str+coh_str)
     plt.draw()
-    save_fname = savepath+save_name+'_'+coh_lvl+'_epoch'+epoch_string
+    save_fname = savepath+save_name+'_'+coh_lvl+'_epoch'+epoch_string+'.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
