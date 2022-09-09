@@ -109,7 +109,7 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
             coh = data[coh_lvl]
             # get the average over the several trials and timepoints
             trial_w_e = []
-            trial_e_i = []
+            trial_w_i = []
 
             trial_dens_e = []
             trial_dens_i = []
