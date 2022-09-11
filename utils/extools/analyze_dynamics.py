@@ -429,7 +429,7 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
     experiment_paths = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
 
     for exp in experiment_paths:
-        exp_string = exp[-9:-1]
+        exp_string = exp[-8:]
 
         # each of these will be plotted per experiment
         w_ee_std = []
