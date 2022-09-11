@@ -122,21 +122,14 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
 
         for trial in range(np.shape(coh)[0]):
             # for the timesteps in this trial
-            time_w_e = []
-            time_dens_e = []
-            time_cc_e = []
-            time_w_i = []
-            time_dens_i = []
-            time_cc_i = []
-
             for time in range(np.shape(coh[trial])[0]):
 
-                time_w_e.append(np.mean(coh[trial][time][0:e_end,0:e_end]))
-                time_dens_e.append(calc_density(coh[trial][time][0:e_end,0:e_end]))
+                w_e.append(np.mean(coh[trial][time][0:e_end,0:e_end]))
+                dens_e.append(calc_density(coh[trial][time][0:e_end,0:e_end]))
                 #recip_e = reciprocity(coh[trial][time][0:e_end,0:e_end])
 
-                time_w_i.append(np.mean(coh[trial][time][e_end:i_end,e_end:i_end]))
-                time_dens_i.append(calc_density(coh[trial][time][e_end:i_end,e_end:i_end]))
+                w_i.append(np.mean(coh[trial][time][e_end:i_end,e_end:i_end]))
+                dens_i.append(calc_density(coh[trial][time][e_end:i_end,e_end:i_end]))
                 #recip_i = reciprocity(coh[trial][time][e_end:i_end,e_end:i_end])
 
                 # still does not support negative weights, so take abs
@@ -145,9 +138,10 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
                 float_arr = np.vstack(arr[:, :]).astype(np.float)
                 Ge = nx.from_numpy_array(float_arr[0:e_end,0:e_end],create_using=nx.DiGraph)
                 Gi = nx.from_numpy_array(float_arr[e_end:i_end,e_end:i_end],create_using=nx.DiGraph)
-                time_cc_e.append(nx.average_clustering(Ge,nodes=Ge.nodes,weight='weight'))
-                time_cc_i.append(nx.average_clustering(Gi,nodes=Gi.nodes,weight='weight'))
+                cc_e.append(nx.average_clustering(Ge,nodes=Ge.nodes,weight='weight'))
+                cc_i.append(nx.average_clustering(Gi,nodes=Gi.nodes,weight='weight'))
 
+            """
             # collect and average over timesteps
             # across all timesteps of a trial, get the mean metric value
             w_e.append(np.mean(time_w_e))
@@ -158,6 +152,7 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
 
             cc_e.append(np.mean(time_cc_e))
             cc_i.append(np.mean(time_cc_i))
+            """
 
         # plot as 3 separate histplots
 
@@ -168,6 +163,7 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
             color="blue",
             label="within e units",
             stat="density",
+            bins=30,
             alpha=0.5,
             kde=True,
             edgecolor="white",
@@ -179,6 +175,7 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
             color="red",
             label="within i units",
             stat="density",
+            bins=30,
             alpha=0.5,
             kde=True,
             edgecolor="white",
@@ -202,6 +199,7 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
             color="blue",
             label="within e units",
             stat="density",
+            bins=30,
             alpha=0.5,
             kde=True,
             edgecolor="white",
@@ -213,6 +211,7 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
             color="red",
             label="within i units",
             stat="density",
+            bins=30,
             alpha=0.5,
             kde=True,
             edgecolor="white",
@@ -237,6 +236,7 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
             color="blue",
             label="within e units",
             stat="density",
+            bins=30,
             alpha=0.5,
             kde=True,
             edgecolor="white",
@@ -248,6 +248,7 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
             color="red",
             label="within i units",
             stat="density",
+            bins=30,
             alpha=0.5,
             kde=True,
             edgecolor="white",
@@ -271,21 +272,14 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
 
         for trial in range(np.shape(coh)[0]):
             # for the timesteps in this trial
-            time_w_e = []
-            time_dens_e = []
-            time_cc_e = []
-            time_w_i = []
-            time_dens_i = []
-            time_cc_i = []
-
             for time in range(np.shape(coh[trial])[0]):
 
-                time_w_e.append(np.mean(coh[trial][time][0:e_end,0:e_end]))
-                time_dens_e.append(calc_density(coh[trial][time][0:e_end,0:e_end]))
+                w_e.append(np.mean(coh[trial][time][0:e_end,0:e_end]))
+                dens_e.append(calc_density(coh[trial][time][0:e_end,0:e_end]))
                 #recip_e = reciprocity(coh[trial][time][0:e_end,0:e_end])
 
-                time_w_i.append(np.mean(coh[trial][time][e_end:i_end,e_end:i_end]))
-                time_dens_i.append(calc_density(coh[trial][time][e_end:i_end,e_end:i_end]))
+                w_i.append(np.mean(coh[trial][time][e_end:i_end,e_end:i_end]))
+                dens_i.append(calc_density(coh[trial][time][e_end:i_end,e_end:i_end]))
                 #recip_i = reciprocity(coh[trial][time][e_end:i_end,e_end:i_end])
 
                 # still does not support negative weights, so take abs
@@ -294,19 +288,8 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
                 float_arr = np.vstack(arr[:, :]).astype(np.float)
                 Ge = nx.from_numpy_array(float_arr[0:e_end,0:e_end],create_using=nx.DiGraph)
                 Gi = nx.from_numpy_array(float_arr[e_end:i_end,e_end:i_end],create_using=nx.DiGraph)
-                time_cc_e.append(nx.average_clustering(Ge,nodes=Ge.nodes,weight='weight'))
-                time_cc_i.append(nx.average_clustering(Gi,nodes=Gi.nodes,weight='weight'))
-
-            # collect and average over timesteps
-            # across all timesteps of a trial, get the mean metric value
-            w_e.append(np.mean(time_w_e))
-            w_i.append(np.mean(time_w_i))
-
-            dens_e.append(np.mean(time_dens_e))
-            dens_i.append(np.mean(time_dens_i))
-
-            cc_e.append(np.mean(time_cc_e))
-            cc_i.append(np.mean(time_cc_i))
+                cc_e.append(nx.average_clustering(Ge,nodes=Ge.nodes,weight='weight'))
+                cc_i.append(nx.average_clustering(Gi,nodes=Gi.nodes,weight='weight'))
 
         # plot as 3 separate histplots
 
@@ -317,6 +300,7 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
             color="blue",
             label="within e units",
             stat="density",
+            bins=30,
             alpha=0.5,
             kde=True,
             edgecolor="white",
@@ -328,6 +312,7 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
             color="red",
             label="within i units",
             stat="density",
+            bins=30,
             alpha=0.5,
             kde=True,
             edgecolor="white",
@@ -351,6 +336,7 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
             color="blue",
             label="within e units",
             stat="density",
+            bins=30,
             alpha=0.5,
             kde=True,
             edgecolor="white",
@@ -362,6 +348,7 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
             color="red",
             label="within i units",
             stat="density",
+            bins=30,
             alpha=0.5,
             kde=True,
             edgecolor="white",
@@ -386,6 +373,7 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
             color="blue",
             label="within e units",
             stat="density",
+            bins=30,
             alpha=0.5,
             kde=True,
             edgecolor="white",
@@ -397,6 +385,7 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
             color="red",
             label="within i units",
             stat="density",
+            bins=30,
             alpha=0.5,
             kde=True,
             edgecolor="white",
