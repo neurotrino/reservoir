@@ -87,6 +87,81 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 
+def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
+
+    if coh_lvl == 'coh0':
+        coh_str = '15% coherence'
+    elif coh_lvl == 'coh1':
+        coh_str = '100% coherence'
+
+    # get recruitment graph experiment files
+    experiment_paths = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
+
+    for exp in experiment_paths:
+        exp_string = exp[-8:]
+
+        batch_strings = [exp+'/1-10-batch0.npz', exp+'/1-10-batch99.npz', exp+'/991-1000-batch99.npz']
+        batch_names = ['batch 0','batch 10','batch 10000']
+
+        plt.figure()
+
+        for i in range(3): # for each of the three batches
+            data = np.load(batch_strings[i], allow_pickle=True)
+            coh = data[coh_lvl]
+            cc_e = []
+
+            for trial in range(np.shape(coh)[0]):
+                # for the timesteps in this trial
+                for time in range(np.shape(coh[trial])[0]):
+
+                    #w_e.append(np.mean(coh[trial][time][0:e_end,0:e_end]))
+                    #dens_e.append(calc_density(coh[trial][time][0:e_end,0:e_end]))
+                    #recip_e = reciprocity(coh[trial][time][0:e_end,0:e_end])
+
+                    # still does not support negative weights, so take abs
+                    # convert from object to float array
+                    arr = np.abs(coh[trial][time])
+                    float_arr = np.vstack(arr[:, :]).astype(np.float)
+                    Ge = nx.from_numpy_array(float_arr[0:e_end,0:e_end],create_using=nx.DiGraph)
+                    #Gi = nx.from_numpy_array(float_arr[e_end:i_end,e_end:i_end],create_using=nx.DiGraph)
+                    cc_e.append(nx.average_clustering(Ge,nodes=Ge.nodes,weight='weight'))
+                    #cc_i.append(nx.average_clustering(Gi,nodes=Gi.nodes,weight='weight'))
+
+                """
+                # collect and average over timesteps
+                # across all timesteps of a trial, get the mean metric value
+                w_e.append(np.mean(time_w_e))
+                w_i.append(np.mean(time_w_i))
+
+                dens_e.append(np.mean(time_dens_e))
+                dens_i.append(np.mean(time_dens_i))
+
+                cc_e.append(np.mean(time_cc_e))
+                cc_i.append(np.mean(time_cc_i))
+                """
+            # PLOT
+            sns.histplot(
+                data=cc_e,
+                label=batch_names[i],
+                stat="density",
+                bins=30,
+                alpha=0.5,
+                kde=True,
+                edgecolor="white",
+                linewidth=0.5,
+                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
+            )
+
+        plt.xlabel("weighted clustering coefficient")
+        plt.ylabel("density")
+        plt.title("Clustering of e units in recruitment graph, "+coh_str)
+        plt.legend()
+        plt.draw()
+        plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_e_tribatch_clustering.png'
+        plt.savefig(plt_name, dpi=300)
+        plt.clf()
+        plt.close()
+
 def plot_recruit_metrics_single_update(recruit_path,coh_lvl,save_name):
     # plot weights, density, and weighted clustering of just epoch 0 and epoch 1000
     # plot as distributions for comparison
