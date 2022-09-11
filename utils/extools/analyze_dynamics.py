@@ -100,36 +100,36 @@ def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
     for exp in experiment_paths:
         exp_string = exp[-8:]
 
-        batch_strings = [exp+'/1-10-batch1.npz', exp+'/1-10-batch99.npz', exp+'/991-1000-batch99.npz']
-        batch_names = ['batch 1','batch 10','batch 10000']
-        batch_colors = ['mediumseagreen','darkturquoise','dodgerblue']
+        batch_strings = [exp+'/1-10-batch1.npz', exp+'/1-10-batch10.npz', exp+'/1-10-batch99.npz', exp+'/991-1000-batch99.npz']
+        batch_names = ['batch 1','batch 10','batch100','batch 10000']
+        batch_colors = ['yellowgreen','mediumseagreen','darkturquoise','dodgerblue']
 
         plt.figure()
 
-        for i in range(3): # for each of the three batches
+        for i in range(4): # for each of the three batches
             data = np.load(batch_strings[i], allow_pickle=True)
             coh = data[coh_lvl]
-            w_e = []
+            cc_e = []
 
             for trial in range(np.shape(coh)[0]):
                 # for the timesteps in this trial
                 for time in range(np.shape(coh[trial])[0]):
 
-                    w_e.append(np.mean(coh[trial][time][0:e_end,0:e_end]))
+                    #w_e.append(np.mean(coh[trial][time][0:e_end,0:e_end]))
                     #dens_e.append(calc_density(coh[trial][time][0:e_end,0:e_end]))
                     #recip_e = reciprocity(coh[trial][time][0:e_end,0:e_end])
 
                     # still does not support negative weights, so take abs
                     # convert from object to float array
-                    """
+
                     arr = np.abs(coh[trial][time])
                     float_arr = np.vstack(arr[:, :]).astype(np.float)
                     Ge = nx.from_numpy_array(float_arr[0:e_end,0:e_end],create_using=nx.DiGraph)
                     #Gi = nx.from_numpy_array(float_arr[e_end:i_end,e_end:i_end],create_using=nx.DiGraph)
-                    cc_e.append(nx.average_clustering(Ge,nodes=Ge.nodes,weight='weight'))"""
+                    cc_e.append(nx.average_clustering(Ge,nodes=Ge.nodes,weight='weight'))
                     #cc_i.append(nx.average_clustering(Gi,nodes=Gi.nodes,weight='weight'))
             # PLOT
-            cc_arr = np.array(w_e)
+            cc_arr = np.array(cc_e)
             if len(cc_arr[cc_arr>0])>0:
                 sns.histplot(
                     data=cc_arr[cc_arr>0],
