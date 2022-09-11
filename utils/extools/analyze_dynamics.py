@@ -109,39 +109,27 @@ def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
         for i in range(3): # for each of the three batches
             data = np.load(batch_strings[i], allow_pickle=True)
             coh = data[coh_lvl]
-            cc_e = []
+            w_e = []
 
             for trial in range(np.shape(coh)[0]):
                 # for the timesteps in this trial
                 for time in range(np.shape(coh[trial])[0]):
 
-                    #w_e.append(np.mean(coh[trial][time][0:e_end,0:e_end]))
+                    w_e.append(np.mean(coh[trial][time][0:e_end,0:e_end]))
                     #dens_e.append(calc_density(coh[trial][time][0:e_end,0:e_end]))
                     #recip_e = reciprocity(coh[trial][time][0:e_end,0:e_end])
 
                     # still does not support negative weights, so take abs
                     # convert from object to float array
+                    """
                     arr = np.abs(coh[trial][time])
                     float_arr = np.vstack(arr[:, :]).astype(np.float)
                     Ge = nx.from_numpy_array(float_arr[0:e_end,0:e_end],create_using=nx.DiGraph)
                     #Gi = nx.from_numpy_array(float_arr[e_end:i_end,e_end:i_end],create_using=nx.DiGraph)
-                    cc_e.append(nx.average_clustering(Ge,nodes=Ge.nodes,weight='weight'))
+                    cc_e.append(nx.average_clustering(Ge,nodes=Ge.nodes,weight='weight'))"""
                     #cc_i.append(nx.average_clustering(Gi,nodes=Gi.nodes,weight='weight'))
-
-                """
-                # collect and average over timesteps
-                # across all timesteps of a trial, get the mean metric value
-                w_e.append(np.mean(time_w_e))
-                w_i.append(np.mean(time_w_i))
-
-                dens_e.append(np.mean(time_dens_e))
-                dens_i.append(np.mean(time_dens_i))
-
-                cc_e.append(np.mean(time_cc_e))
-                cc_i.append(np.mean(time_cc_i))
-                """
             # PLOT
-            cc_arr = np.array(cc_e)
+            cc_arr = np.array(w_e)
             if len(cc_arr[cc_arr>0])>0:
                 sns.histplot(
                     data=cc_arr[cc_arr>0],
@@ -156,12 +144,12 @@ def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
                     line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
                 )
 
-        plt.xlabel("weighted clustering coefficient")
+        plt.xlabel("weights")
         plt.ylabel("density")
-        plt.title("Clustering of e units in recruitment graph, "+coh_str)
+        plt.title("Weights of e units in recruitment graph, "+coh_str)
         plt.legend()
         plt.draw()
-        plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_e_tribatch_clustering.png'
+        plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_e_tribatch_weights.png'
         plt.savefig(plt_name, dpi=300)
         plt.clf()
         plt.close()
