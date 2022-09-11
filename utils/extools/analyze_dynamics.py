@@ -148,7 +148,7 @@ def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
         plt.title("Weights of e units in recruitment graph, "+coh_str)
         plt.legend()
         plt.draw()
-        plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_e_tribatch_weights.png'
+        plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_e_tribatch_clustering.png'
         plt.savefig(plt_name, dpi=300)
         plt.clf()
         plt.close()
