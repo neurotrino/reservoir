@@ -136,7 +136,6 @@ def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
                     color=batch_colors[i],
                     label=batch_names[i],
                     stat="density",
-                    bins=30,
                     alpha=0.5,
                     kde=True,
                     edgecolor="white",
