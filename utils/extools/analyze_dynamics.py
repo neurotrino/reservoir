@@ -102,6 +102,7 @@ def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
 
         batch_strings = [exp+'/1-10-batch0.npz', exp+'/1-10-batch99.npz', exp+'/991-1000-batch99.npz']
         batch_names = ['batch 0','batch 10','batch 10000']
+        batch_colors = ['mediumseagreen','darkturquoise','dodgerblue']
 
         plt.figure()
 
@@ -141,7 +142,8 @@ def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
                 """
             # PLOT
             sns.histplot(
-                data=cc_e,
+                data=cc_e[cc_e!=0],
+                color=batch_colors[i],
                 label=batch_names[i],
                 stat="density",
                 bins=30,
