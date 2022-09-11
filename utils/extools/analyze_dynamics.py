@@ -250,9 +250,9 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
         title_str = 'Naive (first 10 epochs) recruitment graphs,'
     elif epoch_id == 99:
         title_str = 'Trained (last 10 epochs) recruitment graphs,'
-    if coh_lvl == 'coh_0':
+    if coh_lvl == 'coh0':
         coh_str = ' 15% coherence'
-    elif coh_lvl == 'coh_1':
+    elif coh_lvl == 'coh1':
         coh_str = ' 100% coherence'
 
     fig.suptitle(title_str+coh_str)
