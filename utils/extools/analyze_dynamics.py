@@ -90,11 +90,20 @@ coh_lvl = 'coh0'
 def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
     # plot density, reciprocity, and weighted clustering
     fig, ax = plt.subplots(nrows=3, ncols=2)
+
+    if coh_lvl == 'coh0':
+        coh_str = ' 15% coherence'
+    elif coh_lvl == 'coh1':
+        coh_str = ' 100% coherence'
+
     # get recruitment graphs
     data_files = filenames(num_epochs, epochs_per_file)
     epoch_string = data_files[epoch_id][:-4]
     experiment_paths = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
+
     for exp in experiment_paths:
+        exp_string = exp[-9:-1]
+
         # each of these will be plotted per experiment
         w_ee_std = []
         w_ee_mean = []
@@ -226,6 +235,24 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
         ax[2,1].plot(cc_ii_mean)
         ax[2,1].fill_between(cc_ii_mean-cc_ii_std, cc_ii_mean+cc_ii_std, alpha=0.5)
 
+        # save calculated data for this experiment in case sth messes up
+        exp_dname = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_epoch'+epoch_string+'.png'
+        np.savez(
+            exp_dname,
+            w_ee_mean=w_ee_mean,
+            w_ee_std=w_ee_std,
+            w_ii_mean=w_ii_mean,
+            w_ii_std=w_ii_std,
+            dens_ee_mean=dens_ee_mean,
+            dens_ee_std=dens_ee_std,
+            dens_ii_mean=dens_ii_mean,
+            dens_ii_std=dens_ii_std,
+            cc_ee_mean=cc_ee_mean,
+            cc_ee_std=cc_ee_std,
+            cc_ii_mean=cc_ii_mean,
+            cc_ii_std=cc_ii_std
+        )
+
     ax[0,0].set_title('e-to-e weights')
     ax[0,0].set_xlabel('batch')
     ax[0,0].set_ylabel('weight')
@@ -250,10 +277,6 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
         title_str = 'Naive (first 10 epochs) recruitment graphs,'
     elif epoch_id == 99:
         title_str = 'Trained (last 10 epochs) recruitment graphs,'
-    if coh_lvl == 'coh0':
-        coh_str = ' 15% coherence'
-    elif coh_lvl == 'coh1':
-        coh_str = ' 100% coherence'
 
     fig.suptitle(title_str+coh_str)
     plt.draw()
