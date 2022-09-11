@@ -266,7 +266,7 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
 
         # NOW TRAINED DATA (EPOCH 1000)
         trained_batch_str = exp+'/991-1000-batch99.npz'
-        data = np.load(naive_batch_str, allow_pickle=True)
+        data = np.load(trained_batch_str, allow_pickle=True)
         coh = data[coh_lvl]
 
         for trial in range(np.shape(coh)[0]):
