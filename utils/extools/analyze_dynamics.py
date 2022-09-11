@@ -100,7 +100,7 @@ def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
     for exp in experiment_paths:
         exp_string = exp[-8:]
 
-        batch_strings = [exp+'/1-10-batch0.npz', exp+'/1-10-batch99.npz', exp+'/991-1000-batch99.npz']
+        batch_strings = [exp+'/1-10-batch1.npz', exp+'/1-10-batch99.npz', exp+'/991-1000-batch99.npz']
         batch_names = ['batch 0','batch 10','batch 10000']
         batch_colors = ['mediumseagreen','darkturquoise','dodgerblue']
 
@@ -141,18 +141,19 @@ def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
                 cc_i.append(np.mean(time_cc_i))
                 """
             # PLOT
-            sns.histplot(
-                data=cc_e[cc_e!=0],
-                color=batch_colors[i],
-                label=batch_names[i],
-                stat="density",
-                bins=30,
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-            )
+            if np.size(cc_e[cc_e!=0])>0:
+                sns.histplot(
+                    data=cc_e[cc_e!=0],
+                    color=batch_colors[i],
+                    label=batch_names[i],
+                    stat="density",
+                    bins=30,
+                    alpha=0.5,
+                    kde=True,
+                    edgecolor="white",
+                    linewidth=0.5,
+                    line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
+                )
 
         plt.xlabel("weighted clustering coefficient")
         plt.ylabel("density")
