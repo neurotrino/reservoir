@@ -143,9 +143,9 @@ def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
                     line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
                 )
 
-        plt.xlabel("weights")
+        plt.xlabel("absolute weighted clustering coefficient")
         plt.ylabel("density")
-        plt.title("Weights of e units in recruitment graph, "+coh_str)
+        plt.title("Clustering of e units in recruitment graph, "+coh_str)
         plt.legend()
         plt.draw()
         plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_e_tribatch_clustering.png'
