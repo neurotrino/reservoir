@@ -11,6 +11,7 @@ import os
 
 # internal ----
 from models.common import *
+import utils.config
 
 # from models.neurons.adex import *
 from models.neurons.lif import *
@@ -209,9 +210,12 @@ class Model(BaseModel):
     provide an example to people learning the research infrastructure.
     """
 
-    def __init__(self, cfg):
+    def __init__(self, cfg, training=True):
         """..."""
         super().__init__()
+        self.loaded_weights = None
+
+        self.training = training
 
         # Attribute assignments
         self.cfg = cfg
@@ -249,14 +253,18 @@ class Model(BaseModel):
                 trainable=train_cfg.output_trainable,
                 dtype=tf.float32,
             )
+            self.dense1.trainable = self.training
         else:
             self.dense1 = tf.keras.layers.Dense(self.n_out)
-            self.dense1.trainable = self.cfg["train"].output_trainable
+            self.dense1.trainable = (
+                self.training and self.cfg["train"].output_trainable
+            )
 
         self.layers = [  # gather in a list for later convenience
             self.rnn1,
             self.dense1,
         ]
+
 
     @switched_tf_function
     def noise_weights(self, mean=1.0, stddev=0.1):
@@ -273,6 +281,7 @@ class Model(BaseModel):
 
         self.rnn1.set_weights([iweights, noised_weights])
 
+
     @switched_tf_function
     def call(self, inputs, training=False):
         """..."""
@@ -282,8 +291,38 @@ class Model(BaseModel):
         voltages, spikes = self.rnn1(
             inputs,
             initial_state=self.cell.zero_state(self.cfg["train"].batch_size),
+            training=self.training
         )
         prediction = self.dense1(spikes)
         prediction = exp_convolve(prediction, axis=1)
 
+        try:
+            if not self.training and self.loaded_weights is not None:
+                [w0, w1, w2] = self.loaded_weights
+
+                self.cell.input_weights.assign(w0)
+                self.cell.recurrent_weights.assign(w1)
+
+                dense_weights = self.dense1.get_weights()
+                self.dense1.set_weights([w2])
+        except Exception as e:
+            logging.warning(f"issue loading saved weights: {e}")
+
         return voltages, spikes, prediction
+
+
+    @classmethod
+    def from_disk(cls, npz_filename, cfg_filename, train=False):
+        """Load a trained model."""
+        data = np.load(npz_filename)
+        cfg = utils.config.load_hjson_config(cfg_filename)
+
+        w0 = data["tv0.postweights"][-1]  # input connections
+        w1 = data["tv1.postweights"][-1]  # recurrent connections
+        w2 = data["tv2.postweights"][-1]  # output connections
+
+        model = cls(cfg)
+        model.loaded_weights = [w0, w1, w2] # hacky temp workaround
+        model.training = train
+
+        return model

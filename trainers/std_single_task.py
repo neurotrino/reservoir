@@ -292,14 +292,15 @@ class Trainer(BaseTrainer):
         )
         """
 
-        self.main_optimizer.apply_gradients(
-            zip(grads1, self.model.rnn1.trainable_variables)
-        )
-        self.output_optimizer.apply_gradients(
-            zip(grads2, self.model.dense1.trainable_variables)
-        )
+        if self.model.training:
+            self.main_optimizer.apply_gradients(
+                zip(grads1, self.model.rnn1.trainable_variables)
+            )
+            self.output_optimizer.apply_gradients(
+                zip(grads2, self.model.dense1.trainable_variables)
+            )
 
-        if self.cfg["train"].noise_weights_after_gradient:
+        if self.cfg["train"].noise_weights_after_gradient and self.model.training:
             self.model.noise_weights()
 
         # ┬───────────────────────────────────────────────────────────────────╮
