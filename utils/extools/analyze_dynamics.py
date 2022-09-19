@@ -151,11 +151,11 @@ def degree_rate_correspondence(recruit_path,coh_lvl,save_name,weighted=False):
                 degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
                 # returns [in, out]
                 e_time_degrees.append(degrees[1] + degrees[0])
-                e_time_d_ratio.append(degrees[1] / degrees[0])
+                e_time_d_ratio.append(np.divide(degrees[1],degrees[0]))
                 # do the same for inhibitory units
                 degrees = get_degrees(arr[e_end:i_end,e_end:i_end],weighted)
                 i_degrees.append(degrees[1] + degrees[0])
-                i_d_ratio.append(degrees[1] + degrees[0])
+                i_d_ratio.append(np.divide(degrees[1],degrees[0]))
                 # appends over both timepoints and trials, but it doesn't matter bc we are averaging over both for single units anyway
 
         ax[0,0].scatter(unitwise_rates[0:e_end,0:e_end], np.mean(e_degrees,0))
