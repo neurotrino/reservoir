@@ -142,10 +142,10 @@ def degree_rate_correspondence(recruit_path,coh_lvl,save_name,weighted=False):
         e_d_ratio = []
         i_d_ratio = []
 
-        for i in np.shape(recruit_graphs)[0]: # for each trial
+        for i in range(np.shape(recruit_graphs)[0]): # for each trial
             e_time_degrees = []
             e_time_d_ratio = []
-            for j in np.shape(recruit_graphs[i])[0]: # for each timepoint
+            for j in range(np.shape(recruit_graphs[i])[0]): # for each timepoint
                 arr = recruit_graphs[i][j]
                 # get degrees for each unit
                 degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
@@ -156,6 +156,7 @@ def degree_rate_correspondence(recruit_path,coh_lvl,save_name,weighted=False):
                 degrees = get_degrees(arr[e_end:i_end,e_end:i_end],weighted)
                 i_degrees.append(degrees[1] + degrees[0])
                 i_d_ratio.append(degrees[1] + degrees[0])
+                # appends over both timepoints and trials, but it doesn't matter bc we are averaging over both for single units anyway
 
         ax[0,0].scatter(unitwise_rates[0:e_end,0:e_end], np.mean(e_degrees,0))
         ax[0,1].scatter(unitwise_rates[e_end:i_end,e_end:i_end], np.mean(i_degrees,0))
