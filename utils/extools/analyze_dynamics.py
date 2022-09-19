@@ -143,18 +143,18 @@ def degree_rate_correspondence(recruit_path,coh_lvl,save_name,weighted=False):
         i_d_ratio = []
 
         for i in range(np.shape(recruit_graphs)[0]): # for each trial
-            e_time_degrees = []
-            e_time_d_ratio = []
             for j in range(np.shape(recruit_graphs[i])[0]): # for each timepoint
                 arr = recruit_graphs[i][j]
-                # get degrees for each unit
+
+                # get degrees for each e unit
                 degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
                 # returns [in, out]
-                e_time_degrees.append(degrees[1] + degrees[0])
-                e_time_d_ratio.append(np.divide(degrees[1],degrees[0]))
-                # do the same for inhibitory units
+                e_degrees.append(np.add(degrees[1],degrees[0]))
+                e_d_ratio.append(np.divide(degrees[1],degrees[0]))
+
+                # now do the same for i units
                 degrees = get_degrees(arr[e_end:i_end,e_end:i_end],weighted)
-                i_degrees.append(degrees[1] + degrees[0])
+                i_degrees.append(np.add(degrees[1],degrees[0]))
                 i_d_ratio.append(np.divide(degrees[1],degrees[0]))
                 # appends over both timepoints and trials, but it doesn't matter bc we are averaging over both for single units anyway
 
