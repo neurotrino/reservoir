@@ -150,18 +150,18 @@ def degree_rate_correspondence(recruit_path,coh_lvl,save_name,weighted=False):
                 degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
                 # returns [in, out]
                 e_degrees.append(np.add(degrees[1],degrees[0]))
-                e_d_ratio.append(np.divide(degrees[1],degrees[0]))
+                e_d_ratio.append(np.nan_to_num(np.divide(degrees[1],degrees[0])))
 
                 # now do the same for i units
                 degrees = get_degrees(arr[e_end:i_end,e_end:i_end],weighted)
                 i_degrees.append(np.add(degrees[1],degrees[0]))
-                i_d_ratio.append(np.divide(degrees[1],degrees[0]))
+                i_d_ratio.append(np.nan_to_num(np.divide(degrees[1],degrees[0])))
                 # appends over both timepoints and trials, but it doesn't matter bc we are averaging over both for single units anyway
 
-        ax[0,0].scatter(unitwise_rates[0:e_end,0:e_end], np.mean(e_degrees,0))
-        ax[0,1].scatter(unitwise_rates[e_end:i_end,e_end:i_end], np.mean(i_degrees,0))
-        ax[1,0].scatter(unitwise_rates[0:e_end,0:e_end], np.mean(e_d_ratio,0))
-        ax[1,1].scatter(unitwise_rates[e_end:i_end,e_end:i_end], np.mean(i_d_ratio,0))
+        ax[0,0].scatter(unitwise_rates[0:e_end], np.mean(e_degrees,0))
+        ax[0,1].scatter(unitwise_rates[e_end:i_end], np.mean(i_degrees,0))
+        ax[1,0].scatter(unitwise_rates[0:e_end], np.mean(e_d_ratio,0))
+        ax[1,1].scatter(unitwise_rates[e_end:i_end], np.mean(i_d_ratio,0))
 
     ax[0,0].set_title('e total degree')
     ax[0,0].set_xlabel('average rate')
