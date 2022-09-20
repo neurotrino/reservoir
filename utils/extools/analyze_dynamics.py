@@ -158,7 +158,7 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=False):
                     # get degrees for each e unit
                     degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
                     # returns [in, out]
-                    e_degrees_0.append(np.add(degrees[1],degrees[0]))
+                    e_degrees.append(np.add(degrees[1],degrees[0]))
                     #e_d_ratio.append(np.nan_to_num(np.divide(degrees[1],degrees[0])))
 
                     # now do the same for i units
@@ -183,7 +183,7 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=False):
                     # get degrees for each e unit
                     degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
                     # returns [in, out]
-                    e_degrees_0.append(np.add(degrees[1],degrees[0]))
+                    e_degrees.append(np.add(degrees[1],degrees[0]))
                     #e_d_ratio.append(np.nan_to_num(np.divide(degrees[1],degrees[0])))
 
                     # now do the same for i units
