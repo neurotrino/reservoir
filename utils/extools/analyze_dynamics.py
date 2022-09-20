@@ -88,7 +88,7 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 
-def degree_rate_correspondence(recruit_path,save_name,weighted=False):
+def degree_rate_correspondence(recruit_path,save_name,weighted=True):
 # plot the relationship between firing rates and in degree, out degree, and out/in-degree ratio
 # for trained recruitment graphs
 
@@ -97,13 +97,6 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=False):
 # load in recruitment graph data
 # calculate firing rates for whole trial
 # match with the degree average for the recruitment graphs
-
-    if coh_lvl == 'coh0':
-        coh_str = '15% coherence'
-        coh = 0
-    elif coh_lvl == 'coh1':
-        coh_str = '100% coherence'
-        coh = 1
 
     data_dirs = get_experiments(data_dir, experiment_string)
     recruit_dirs = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
@@ -197,21 +190,21 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=False):
 
             ax[0,0].set_title('e total degree, coh 0')
             ax[0,0].set_xlabel('average rate')
-            ax[0,0].set_ylabel('total degree')
+            ax[0,0].set_ylabel('weighted average total degree')
             ax[0,1].set_title('i total degree, coh 0')
             ax[0,1].set_xlabel('average rate')
-            ax[0,1].set_ylabel('total degree')
+            ax[0,1].set_ylabel('weighted average total degree')
             ax[1,0].set_title('e total degree, coh 1')
             ax[1,0].set_xlabel('average rate')
-            ax[1,0].set_ylabel('total degree')
+            ax[1,0].set_ylabel('weighted average total degree')
             ax[1,1].set_title('i total degree, coh 1')
             ax[1,1].set_xlabel('average rate')
-            ax[1,1].set_ylabel('total degree')
+            ax[1,1].set_ylabel('weighted average total degree')
 
-            fig.suptitle('Total degree vs. rate, final batch')
+            fig.suptitle('Weighted total degree vs. rate, final batch')
             plt.subplots_adjust(wspace=0.4, hspace=0.7)
             plt.draw()
-            save_fname = savepath+save_name+'_'+exp_string+'_ratevdegree.png'
+            save_fname = savepath+save_name+'_'+exp_string+'_ratevweighteddegree.png'
             plt.savefig(save_fname,dpi=300)
             plt.clf()
             plt.close()
