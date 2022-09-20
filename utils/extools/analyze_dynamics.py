@@ -167,8 +167,8 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=False):
                     #i_d_ratio.append(np.nan_to_num(np.divide(degrees[1],degrees[0])))
                     # appends over both timepoints and trials, but it doesn't matter bc we are averaging over both for single units anyway
 
-            ax[0,0].scatter(unitwise_rates[0:e_end], np.mean(e_degrees,0), s=2)
-            ax[0,1].scatter(unitwise_rates[e_end:i_end], np.mean(i_degrees,0), s=2)
+            ax[0,0].scatter(unitwise_0_rates[0:e_end], np.mean(e_degrees,0), s=2)
+            ax[0,1].scatter(unitwise_0_rates[e_end:i_end], np.mean(i_degrees,0), s=2)
 
             # now do for coherence 1
             recruit_graphs = recruit_data['coh1']
@@ -192,8 +192,8 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=False):
                     #i_d_ratio.append(np.nan_to_num(np.divide(degrees[1],degrees[0])))
                     # appends over both timepoints and trials, but it doesn't matter bc we are averaging over both for single units anyway
 
-            ax[1,0].scatter(unitwise_rates[0:e_end], np.mean(e_degrees,0), s=2)
-            ax[1,1].scatter(unitwise_rates[e_end:i_end], np.mean(i_degrees,0), s=2)
+            ax[1,0].scatter(unitwise_1_rates[0:e_end], np.mean(e_degrees,0), s=2)
+            ax[1,1].scatter(unitwise_1_rates[e_end:i_end], np.mean(i_degrees,0), s=2)
 
             ax[0,0].set_title('e total degree, coh 0')
             ax[0,0].set_xlabel('average rate')
