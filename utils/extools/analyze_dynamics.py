@@ -108,12 +108,12 @@ def degree_rate_correspondence(recruit_path,coh_lvl,save_name,weighted=False):
     data_dirs = get_experiments(data_dir, experiment_string)
     recruit_dirs = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
 
-    fig, ax = plt.subplots(nrows=3, ncols=2)
-
-    for exp in recruit_dirs: # plot on same plot for all experiments
+    for exp in recruit_dirs: # plot for all experiments
         # check if recruitment graph has been made
         recruit_file = exp + '/991-1000-batch99.npz'
         if recruit_file.exists():
+
+            fig, ax = plt.subplots(nrows=2, ncols=2)
 
             exp_string = exp[-8:]
             for dir in data_dirs:
@@ -167,26 +167,26 @@ def degree_rate_correspondence(recruit_path,coh_lvl,save_name,weighted=False):
             ax[1,0].scatter(unitwise_rates[0:e_end], np.mean(e_d_ratio,0))
             ax[1,1].scatter(unitwise_rates[e_end:i_end], np.mean(i_d_ratio,0))
 
-    ax[0,0].set_title('e total degree')
-    ax[0,0].set_xlabel('average rate')
-    ax[0,0].set_ylabel('e total degree')
-    ax[0,1].set_title('i total degree')
-    ax[0,1].set_xlabel('average rate')
-    ax[0,1].set_ylabel('i total degree')
-    ax[1,0].set_title('e out/in degree ratio')
-    ax[1,0].set_xlabel('average rate')
-    ax[1,0].set_ylabel('e out/in degree ratio')
-    ax[1,1].set_title('i out/in degree ratio')
-    ax[1,1].set_xlabel('average rate')
-    ax[1,1].set_ylabel('i out/in degree ratio')
+            ax[0,0].set_title('e total degree')
+            ax[0,0].set_xlabel('average rate')
+            ax[0,0].set_ylabel('e total degree')
+            ax[0,1].set_title('i total degree')
+            ax[0,1].set_xlabel('average rate')
+            ax[0,1].set_ylabel('i total degree')
+            ax[1,0].set_title('e out/in degree ratio')
+            ax[1,0].set_xlabel('average rate')
+            ax[1,0].set_ylabel('e out/in degree ratio')
+            ax[1,1].set_title('i out/in degree ratio')
+            ax[1,1].set_xlabel('average rate')
+            ax[1,1].set_ylabel('i out/in degree ratio')
 
-    title_str = 'Total degree vs. rate, final batch, '
-    fig.suptitle(title_str+coh_str)
-    plt.draw()
-    save_fname = savepath+save_name+'_'+coh_lvl+'_ratevdegree.png'
-    plt.savefig(save_fname,dpi=300)
-    plt.clf()
-    plt.close()
+            title_str = 'Total degree vs. rate, final batch, '
+            fig.suptitle(title_str+coh_str)
+            plt.draw()
+            save_fname = savepath+save_name+'_'+coh_lvl+'_'+exp_string+'_ratevdegree.png'
+            plt.savefig(save_fname,dpi=300)
+            plt.clf()
+            plt.close()
 
 def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
 
