@@ -111,7 +111,7 @@ def degree_rate_correspondence(recruit_path,coh_lvl,save_name,weighted=False):
     for exp in recruit_dirs: # plot for all experiments
         # check if recruitment graph has been made
         recruit_file = exp + '/991-1000-batch99.npz'
-        if os.path.isFile(recruit_file):
+        if os.path.isfile(recruit_file):
 
             fig, ax = plt.subplots(nrows=2, ncols=2)
 
