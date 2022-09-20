@@ -179,7 +179,7 @@ def degree_rate_correspondence(recruit_path,coh_lvl,save_name,weighted=False):
     title_str = 'Total degree vs. rate, final batch, '
     fig.suptitle(title_str+coh_str)
     plt.draw()
-    save_fname = savepath+save_name+'_'+coh_lvl+'_ratevdegree.png'
+    save_fname = savepath+save_name+'_'+coh_lvl+'_ratevweighteddegree.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
