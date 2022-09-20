@@ -88,7 +88,7 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 
-def degree_rate_correspondence(recruit_path,coh_lvl,save_name,weighted=False):
+def degree_rate_correspondence(recruit_path,save_name,weighted=False):
 # plot the relationship between firing rates and in degree, out degree, and out/in-degree ratio
 # for trained recruitment graphs
 
@@ -126,25 +126,30 @@ def degree_rate_correspondence(recruit_path,coh_lvl,save_name,weighted=False):
             # figure out which spikes correspond to current coherence
             true_y = data['true_y'][99]
             true_y = np.squeeze(true_y)
-            rates = []
+            rates_0 = []
+            rates_1 = []
             for i in range(np.shape(spikes)[0]): # for each trial
                 spikes_trial = np.transpose(spikes[i])
-                coh_idx = np.squeeze(np.where(true_y[i]==coh))
-                if np.size(coh_idx) > 0:
-                    coh_spikes = spikes_trial[:,coh_idx]
+                coh_0_idx = np.squeeze(np.where(true_y[i]==0))
+                coh_1_idx = np.squeeze(np.where(true_y[i]==1))
+                if np.size(coh_0_idx) > 0:
+                    coh_0_spikes = spikes_trial[:,coh_0_idx]
                     # calculate rates for each unit
-                    rates.append(np.mean(coh_spikes,1))
+                    rates_0.append(np.mean(coh_0_spikes,1))
+                if np.size(coh_1_idx) > 0:
+                    coh_1_spikes = spikes_trial[:,coh_1_idx]
+                    # calculate rates for each unit
+                    rates_1.append(np.mean(coh_1_spikes,1))
             # collapse across trials for a given unit
-            unitwise_rates = np.mean(rates,0)
+            unitwise_0_rates = np.mean(rates_0,0)
+            unitwise_1_rates = np.mean(rates_1,0)
 
             # load recruitment graphs
             recruit_data = np.load(recruit_file, allow_pickle=True)
-            recruit_graphs = recruit_data[coh_lvl]
+            recruit_graphs = recruit_data['coh0']
 
             e_degrees = []
             i_degrees = []
-            e_d_ratio = []
-            i_d_ratio = []
 
             for i in range(np.shape(recruit_graphs)[0]): # for each trial
                 for j in range(np.shape(recruit_graphs[i])[0]): # for each timepoint
@@ -153,38 +158,60 @@ def degree_rate_correspondence(recruit_path,coh_lvl,save_name,weighted=False):
                     # get degrees for each e unit
                     degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
                     # returns [in, out]
-                    e_degrees.append(np.add(degrees[1],degrees[0]))
-                    e_d_ratio.append(np.nan_to_num(np.divide(degrees[1],degrees[0])))
+                    e_degrees_0.append(np.add(degrees[1],degrees[0]))
+                    #e_d_ratio.append(np.nan_to_num(np.divide(degrees[1],degrees[0])))
 
                     # now do the same for i units
                     degrees = get_degrees(arr[e_end:i_end,e_end:i_end],weighted)
                     i_degrees.append(np.add(degrees[1],degrees[0]))
-                    i_d_ratio.append(np.nan_to_num(np.divide(degrees[1],degrees[0])))
+                    #i_d_ratio.append(np.nan_to_num(np.divide(degrees[1],degrees[0])))
                     # appends over both timepoints and trials, but it doesn't matter bc we are averaging over both for single units anyway
 
             ax[0,0].scatter(unitwise_rates[0:e_end], np.mean(e_degrees,0), s=2)
             ax[0,1].scatter(unitwise_rates[e_end:i_end], np.mean(i_degrees,0), s=2)
-            ax[1,0].scatter(unitwise_rates[0:e_end], np.mean(e_d_ratio,0), s=2)
-            ax[1,1].scatter(unitwise_rates[e_end:i_end], np.mean(i_d_ratio,0), s=2)
 
-            ax[0,0].set_title('e total degree')
+            # now do for coherence 1
+            recruit_graphs = recruit_data['coh1']
+
+            e_degrees = []
+            i_degrees = []
+
+            for i in range(np.shape(recruit_graphs)[0]): # for each trial
+                for j in range(np.shape(recruit_graphs[i])[0]): # for each timepoint
+                    arr = recruit_graphs[i][j]
+
+                    # get degrees for each e unit
+                    degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
+                    # returns [in, out]
+                    e_degrees_0.append(np.add(degrees[1],degrees[0]))
+                    #e_d_ratio.append(np.nan_to_num(np.divide(degrees[1],degrees[0])))
+
+                    # now do the same for i units
+                    degrees = get_degrees(arr[e_end:i_end,e_end:i_end],weighted)
+                    i_degrees.append(np.add(degrees[1],degrees[0]))
+                    #i_d_ratio.append(np.nan_to_num(np.divide(degrees[1],degrees[0])))
+                    # appends over both timepoints and trials, but it doesn't matter bc we are averaging over both for single units anyway
+
+            ax[1,0].scatter(unitwise_rates[0:e_end], np.mean(e_degrees,0), s=2)
+            ax[1,1].scatter(unitwise_rates[e_end:i_end], np.mean(i_degrees,0), s=2)
+
+            ax[0,0].set_title('e total degree, coh 0')
             ax[0,0].set_xlabel('average rate')
-            ax[0,0].set_ylabel('e total degree')
-            ax[0,1].set_title('i total degree')
+            ax[0,0].set_ylabel('total degree')
+            ax[0,1].set_title('i total degree, coh 0')
             ax[0,1].set_xlabel('average rate')
-            ax[0,1].set_ylabel('i total degree')
-            ax[1,0].set_title('e out/in degree ratio')
+            ax[0,1].set_ylabel('total degree')
+            ax[1,0].set_title('e total degree, coh 1')
             ax[1,0].set_xlabel('average rate')
-            ax[1,0].set_ylabel('e out/in degree ratio')
-            ax[1,1].set_title('i out/in degree ratio')
+            ax[1,0].set_ylabel('total degree')
+            ax[1,1].set_title('i total degree, coh 1')
             ax[1,1].set_xlabel('average rate')
-            ax[1,1].set_ylabel('i out/in degree ratio')
+            ax[1,1].set_ylabel('total degree')
 
-            title_str = 'Total degree vs. rate, final batch, '
-            fig.suptitle(title_str+coh_str)
-            plt.subplots_adjust(wspace=0.5, hspace=1.5)
+            fig.suptitle('Total degree vs. rate, final batch')
+            plt.subplots_adjust(wspace=0.4, hspace=0.7)
             plt.draw()
-            save_fname = savepath+save_name+'_'+coh_lvl+'_'+exp_string+'_ratevdegree.png'
+            save_fname = savepath+save_name+'_'+exp_string+'_ratevdegree.png'
             plt.savefig(save_fname,dpi=300)
             plt.clf()
             plt.close()
