@@ -122,7 +122,7 @@ def synaptic_degree_rate_correspondence(save_name,weighted=False):
 
     fig.suptitle('Total synaptic degree vs. rate, final batch')
     plt.draw()
-    save_fname = savepath+save_name+'_ratevdegree_synaptic.png'
+    save_fname = savepath+'/'+save_name+'_plots/ratevdegree/synaptic_99.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
