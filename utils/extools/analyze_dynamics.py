@@ -88,6 +88,45 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 
+# might as well plot correspondence of synaptic and recruitment degree soon?
+
+def synaptic_degree_rate_correspondence(save_name,weighted=False):
+    data_dirs = get_experiments(data_dir, experiment_string)
+    fig, ax = plt.subplots(nrows=1, ncols=2)
+    # plot all experiments together now
+    for exp in data_dirs:
+        data = np.load(exp + '/npz-data/991-1000.npz')
+        spikes = data['spikes'][99]
+        w = data['tv1.postweights'][98] # single synaptic graph for this batch
+
+        # for each unit, find its in/out degree and its avg rate over all trials
+        degrees_e = get_degrees(w[0:e_end,0:e_end],weighted)
+        degrees_i = get_degrees(w[e_end:i_end,e_end:i_end],weighted)
+
+        rates = []
+        for i in range(np.shape(spikes)[0]): # for each trial
+            spikes_trial = np.transpose(spikes[i])
+            rates.append(np.mean(spikes_trial,1))
+        # collapse across trials for a given unit
+        unitwise_rates = np.mean(rates,0)
+
+        ax[0,0].scatter(unitwise_rates[0:e_end], np.mean(degrees_e,0), s=2)
+        ax[0,1].scatter(unitwise_rates[e_end:i_end], np.mean(degrees_i,0), s=2)
+
+    ax[0,0].set_title('e total degree')
+    ax[0,0].set_xlabel('avg rate')
+    ax[0,0].set_ylabel('avg total degree')
+    ax[0,1].set_title('i total degree')
+    ax[0,1].set_xlabel('avg rate')
+    ax[0,1].set_ylabel('avg total degree')
+
+    fig.suptitle('Total synaptic degree vs. rate, final batch')
+    plt.draw()
+    save_fname = savepath+save_name+'_ratevdegree_synaptic.png'
+    plt.savefig(save_fname,dpi=300)
+    plt.clf()
+    plt.close()
+
 def degree_rate_correspondence(recruit_path,save_name,weighted=True):
 # plot the relationship between firing rates and in degree, out degree, and out/in-degree ratio
 # for trained recruitment graphs
