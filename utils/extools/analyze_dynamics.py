@@ -110,15 +110,15 @@ def synaptic_degree_rate_correspondence(save_name,weighted=False):
         # collapse across trials for a given unit
         unitwise_rates = np.mean(rates,0)
 
-        ax[0,0].scatter(unitwise_rates[0:e_end], np.mean(degrees_e,0), s=2)
-        ax[0,1].scatter(unitwise_rates[e_end:i_end], np.mean(degrees_i,0), s=2)
+        ax[0].scatter(unitwise_rates[0:e_end], np.mean(degrees_e,0), s=2)
+        ax[1].scatter(unitwise_rates[e_end:i_end], np.mean(degrees_i,0), s=2)
 
-    ax[0,0].set_title('e total degree')
-    ax[0,0].set_xlabel('avg rate')
-    ax[0,0].set_ylabel('avg total degree')
-    ax[0,1].set_title('i total degree')
-    ax[0,1].set_xlabel('avg rate')
-    ax[0,1].set_ylabel('avg total degree')
+    ax[0].set_title('e total degree')
+    ax[0].set_xlabel('avg rate')
+    ax[0].set_ylabel('avg total degree')
+    ax[1].set_title('i total degree')
+    ax[1].set_xlabel('avg rate')
+    ax[1].set_ylabel('avg total degree')
 
     fig.suptitle('Total synaptic degree vs. rate, final batch')
     plt.draw()
@@ -140,12 +140,12 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=True):
     data_dirs = get_experiments(data_dir, experiment_string)
     recruit_dirs = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
 
-    for exp in recruit_dirs: # plot for all experiments
+    fig, ax = plt.subplots(nrows=2, ncols=2) # plot them all together now
+
+    for exp in recruit_dirs: # for all experiments
         # check if recruitment graph has been made
         recruit_file = exp + '/991-1000-batch99.npz'
         if os.path.isfile(recruit_file):
-
-            fig, ax = plt.subplots(nrows=2, ncols=2)
 
             exp_string = exp[-8:]
             for dir in data_dirs:
@@ -227,26 +227,26 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=True):
             ax[1,0].scatter(unitwise_1_rates[0:e_end], np.mean(e_degrees,0), s=2)
             ax[1,1].scatter(unitwise_1_rates[e_end:i_end], np.mean(i_degrees,0), s=2)
 
-            ax[0,0].set_title('e total degree, coh 0')
-            ax[0,0].set_xlabel('average rate')
-            ax[0,0].set_ylabel('weighted average total degree')
-            ax[0,1].set_title('i total degree, coh 0')
-            ax[0,1].set_xlabel('average rate')
-            ax[0,1].set_ylabel('weighted average total degree')
-            ax[1,0].set_title('e total degree, coh 1')
-            ax[1,0].set_xlabel('average rate')
-            ax[1,0].set_ylabel('weighted average total degree')
-            ax[1,1].set_title('i total degree, coh 1')
-            ax[1,1].set_xlabel('average rate')
-            ax[1,1].set_ylabel('weighted average total degree')
+    ax[0,0].set_title('e total degree, coh 0')
+    ax[0,0].set_xlabel('average rate')
+    ax[0,0].set_ylabel('avg total degree')
+    ax[0,1].set_title('i total degree, coh 0')
+    ax[0,1].set_xlabel('average rate')
+    ax[0,1].set_ylabel('avg total degree')
+    ax[1,0].set_title('e total degree, coh 1')
+    ax[1,0].set_xlabel('average rate')
+    ax[1,0].set_ylabel('avg total degree')
+    ax[1,1].set_title('i total degree, coh 1')
+    ax[1,1].set_xlabel('average rate')
+    ax[1,1].set_ylabel('avg total degree')
 
-            fig.suptitle('Weighted total degree vs. rate, final batch')
-            plt.subplots_adjust(wspace=0.4, hspace=0.7)
-            plt.draw()
-            save_fname = savepath+save_name+'_'+exp_string+'_ratevweighteddegree.png'
-            plt.savefig(save_fname,dpi=300)
-            plt.clf()
-            plt.close()
+    fig.suptitle('Weighted total degree vs. rate, final batch')
+    plt.subplots_adjust(wspace=0.4, hspace=0.7)
+    plt.draw()
+    save_fname = savepath+'/'+save_name+'_plots/ratevdegree/recruit_99.png'
+    plt.savefig(save_fname,dpi=300)
+    plt.clf()
+    plt.close()
 
 def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
 
