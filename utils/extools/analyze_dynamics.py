@@ -127,7 +127,7 @@ def synaptic_degree_rate_correspondence(save_name,weighted=False):
     plt.clf()
     plt.close()
 
-def degree_rate_correspondence(recruit_path,save_name,weighted=True):
+def degree_rate_correspondence(recruit_path,save_name,weighted=False):
 # plot the relationship between firing rates and in degree, out degree, and out/in-degree ratio
 # for trained recruitment graphs
 
@@ -144,7 +144,7 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=True):
 
     for exp in recruit_dirs: # for all experiments
         # check if recruitment graph has been made
-        recruit_file = exp + '/991-1000-batch99.npz'
+        recruit_file = exp + '/1-10-batch99.npz'
         if os.path.isfile(recruit_file):
 
             exp_string = exp[-8:]
@@ -153,7 +153,7 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=True):
                     exp_data_dir = dir
 
             # load in just the last batch
-            data = np.load(exp_data_dir + '/npz-data/991-1000.npz')
+            data = np.load(exp_data_dir + '/npz-data/1-10.npz')
             spikes = data['spikes'][99] # only taking the final batch
             # figure out which spikes correspond to current coherence
             true_y = data['true_y'][99]
@@ -243,7 +243,7 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=True):
     fig.suptitle('Weighted total degree vs. rate, final batch')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
     plt.draw()
-    save_fname = savepath+'/'+save_name+'_plots/ratevdegree/recruit_99.png'
+    save_fname = savepath+'/'+save_name+'_plots/ratevdegree/recruit_1.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
