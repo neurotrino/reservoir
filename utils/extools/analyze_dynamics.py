@@ -96,8 +96,8 @@ def synaptic_degree_rate_correspondence(save_name,weighted=False):
     # plot all experiments together now
     for exp in data_dirs:
         data = np.load(exp + '/npz-data/991-1000.npz')
-        spikes = data['spikes'][99]
-        w = data['tv1.postweights'][98] # single synaptic graph for this batch
+        spikes = data['spikes'][10]
+        w = data['tv1.postweights'][9] # single synaptic graph for this batch
 
         # for each unit, find its in/out degree and its avg rate over all trials
         degrees_e = get_degrees(w[0:e_end,0:e_end],weighted)
@@ -122,7 +122,7 @@ def synaptic_degree_rate_correspondence(save_name,weighted=False):
 
     fig.suptitle('Total synaptic degree vs. rate, final batch')
     plt.draw()
-    save_fname = savepath+'/'+save_name+'_plots/ratevdegree/synaptic_99.png'
+    save_fname = savepath+'/'+save_name+'_plots/ratevdegree/synaptic_10.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
@@ -154,9 +154,9 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=False):
 
             # load in just the last batch
             data = np.load(exp_data_dir + '/npz-data/1-10.npz')
-            spikes = data['spikes'][99] # only taking the final batch
+            spikes = data['spikes'][10] # only taking the final batch
             # figure out which spikes correspond to current coherence
-            true_y = data['true_y'][99]
+            true_y = data['true_y'][10]
             true_y = np.squeeze(true_y)
             rates_0 = []
             rates_1 = []
@@ -243,7 +243,7 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=False):
     fig.suptitle('Weighted total degree vs. rate, final batch')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
     plt.draw()
-    save_fname = savepath+'/'+save_name+'_plots/ratevdegree/recruit_1.png'
+    save_fname = savepath+'/'+save_name+'_plots/ratevdegree/recruit_10.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
