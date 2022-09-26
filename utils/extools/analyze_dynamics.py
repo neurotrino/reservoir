@@ -154,9 +154,9 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=False):
 
             # load in just the last batch
             data = np.load(exp_data_dir + '/npz-data/1-10.npz')
-            spikes = data['spikes'][10] # only taking the final batch
+            spikes = data['spikes'][50] # only taking the final batch
             # figure out which spikes correspond to current coherence
-            true_y = data['true_y'][10]
+            true_y = data['true_y'][50]
             true_y = np.squeeze(true_y)
             rates_0 = []
             rates_1 = []
@@ -243,7 +243,7 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=False):
     fig.suptitle('Weighted total degree vs. rate, final batch')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
     plt.draw()
-    save_fname = savepath+'/'+save_name+'_plots/ratevdegree/recruit_10.png'
+    save_fname = savepath+'/'+save_name+'_plots/ratevdegree/recruit_50.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
