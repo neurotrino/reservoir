@@ -88,6 +88,127 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 
+def track_high_degree_units_over_time(save_name,weighted=False):
+    recruit_dirs = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
+    # for each experiment
+    for exp in recruit_dirs:
+        fig, ax = plt.subplots(nrows=2, ncols=2)
+        # find the units with highest degree in epoch 50
+        # find the units with highest degree in epoch 100000
+        # do this separately for the two coherence levels
+
+        # check if recruitment graph has been made
+        naive_recruit_file = exp + '/1-10-batch99.npz'
+        trained_recruit_file = exp + '/991-1000-batch99.npz'
+        if os.path.isfile(naive_recruit_file):
+
+            exp_string = exp[-8:]
+            for dir in data_dirs:
+                if (exp_string in dir):
+                    exp_data_dir = dir
+
+            # load recruitment graphs
+            naive_recruit_data = np.load(naive_recruit_file, allow_pickle=True)
+            naive_recruit_graphs = recruit_data['coh0']
+
+            trained_recruit_data = np.load(trained_recruit_file, allow_pickle=True)
+            trained_recruit_graphs = recruit_data['coh0']
+
+            naive_degrees = []
+            trained_degrees = []
+
+            for i in range(np.shape(recruit_graphs)[0]): # for each trial
+                for j in range(np.shape(recruit_graphs[i])[0]): # for each timepoint
+                    arr = naive_recruit_graphs[i][j]
+                    # get degrees for each naive unit
+                    degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
+                    # returns [in, out]
+                    naive_degrees.append(np.add(degrees[1],degrees[0]))
+
+                    arr = trained_recruit_graphs[i][j]
+                    # get degrees for each trained unit
+                    degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
+                    # returns [in, out]
+                    trained_degrees.append(np.add(degrees[1],degrees[0]))
+
+            # unitwise means
+            naive_means = np.mean(naive_degrees,0)
+            trained_means = np.mean(trained_degrees,0)
+
+            # find the top 15% of each
+            threshold_idx = int((1 - 0.15) * np.size(naive_means))
+            naive_thresh = np.sort(naive_means)[threshold_idx]
+            trained_thresh = np.sort(trained_means)[threshold_idx]
+            # get the top 15% idx
+            naive_top_idx = np.argwhere(naive_means>=naive_thresh)
+            trained_top_idx = np.argwhere(trained_means>=trained_thresh)
+
+            # plot those indices' degrees
+            ax[0,0].scatter(naive_means[naive_top_idx], trained_means[naive_top_idx], s=2)
+            ax[0,1].scatter(naive_means[trained_top_idx], trained_means[trained_top_idx], s=2)
+
+            # now do for coherence 1
+            naive_recruit_graphs = naive_recruit_data['coh0']
+            trained_recruit_graphs = trained_recruit_data['coh0']
+
+            naive_degrees = []
+            trained_degrees = []
+
+            for i in range(np.shape(recruit_graphs)[0]): # for each trial
+                for j in range(np.shape(recruit_graphs[i])[0]): # for each timepoint
+                    arr = naive_recruit_graphs[i][j]
+                    # get degrees for each naive unit
+                    degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
+                    # returns [in, out]
+                    naive_degrees.append(np.add(degrees[1],degrees[0]))
+
+                    arr = trained_recruit_graphs[i][j]
+                    # get degrees for each trained unit
+                    degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
+                    # returns [in, out]
+                    trained_degrees.append(np.add(degrees[1],degrees[0]))
+
+            # unitwise means
+            naive_means = np.mean(naive_degrees,0)
+            trained_means = np.mean(trained_degrees,0)
+
+            # find the top 15% of each
+            threshold_idx = int((1 - 0.15) * np.size(naive_means))
+            naive_thresh = np.sort(naive_means)[threshold_idx]
+            trained_thresh = np.sort(trained_means)[threshold_idx]
+            # get the top 15% idx
+            naive_top_idx = np.argwhere(naive_means>=naive_thresh)
+            trained_top_idx = np.argwhere(trained_means>=trained_thresh)
+
+            # plot those indices' degrees
+            ax[1,0].scatter(naive_means[naive_top_idx], trained_means[naive_top_idx], s=2)
+            ax[1,1].scatter(naive_means[trained_top_idx], trained_means[trained_top_idx], s=2)
+
+
+    ax[0,0].set_title('tracking naive top 15%, coh 0')
+    ax[0,0].set_xlabel('naive degree')
+    ax[0,0].set_ylabel('trained degree')
+    ax[0,1].set_title('tracking trained top 15%, coh 0')
+    ax[0,1].set_xlabel('naive degree')
+    ax[0,1].set_ylabel('trained degree')
+    ax[1,0].set_title('tracking naive top 15%, coh 1')
+    ax[1,0].set_xlabel('naive degree')
+    ax[1,0].set_ylabel('trained degree')
+    ax[1,1].set_title('tracking trained top 15%, coh 1')
+    ax[1,1].set_xlabel('naive degree')
+    ax[1,1].set_ylabel('total degree')
+
+    fig.suptitle('Top 15% of e units with highest degree')
+    plt.subplots_adjust(wspace=0.4, hspace=0.7)
+    plt.draw()
+    save_fname = savepath+'/'+save_name+'_plots/tracking/totaldegree.png'
+    plt.savefig(save_fname,dpi=300)
+    plt.clf()
+    plt.close()
+
+
+
+
 # might as well plot correspondence of synaptic and recruitment degree soon?
 
 def synaptic_degree_rate_correspondence(save_name,weighted=False):
@@ -95,9 +216,10 @@ def synaptic_degree_rate_correspondence(save_name,weighted=False):
     fig, ax = plt.subplots(nrows=1, ncols=2)
     # plot all experiments together now
     for exp in data_dirs:
-        data = np.load(exp + '/npz-data/991-1000.npz')
-        spikes = data['spikes'][10]
-        w = data['tv1.postweights'][9] # single synaptic graph for this batch
+        #data = np.load(exp + '/npz-data/991-1000.npz')
+        data = np.load(exp + '/npz-data/1-10.npz')
+        spikes = data['spikes'][99]
+        w = data['tv1.postweights'][98] # single synaptic graph for this batch
 
         # for each unit, find its in/out degree and its avg rate over all trials
         degrees_e = get_degrees(w[0:e_end,0:e_end],weighted)
@@ -144,7 +266,7 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=False):
 
     for exp in recruit_dirs: # for all experiments
         # check if recruitment graph has been made
-        recruit_file = exp + '/1-10-batch99.npz'
+        recruit_file = exp + '/1-10-batch10.npz'
         if os.path.isfile(recruit_file):
 
             exp_string = exp[-8:]
@@ -154,9 +276,9 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=False):
 
             # load in just the last batch
             data = np.load(exp_data_dir + '/npz-data/1-10.npz')
-            spikes = data['spikes'][50] # only taking the final batch
+            spikes = data['spikes'][10] # only taking the final batch
             # figure out which spikes correspond to current coherence
-            true_y = data['true_y'][50]
+            true_y = data['true_y'][10]
             true_y = np.squeeze(true_y)
             rates_0 = []
             rates_1 = []
@@ -243,7 +365,7 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=False):
     fig.suptitle('Weighted total degree vs. rate, final batch')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
     plt.draw()
-    save_fname = savepath+'/'+save_name+'_plots/ratevdegree/recruit_50.png'
+    save_fname = savepath+'/'+save_name+'_plots/ratevdegree/recruit_10.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
