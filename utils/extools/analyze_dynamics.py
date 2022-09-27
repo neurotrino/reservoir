@@ -113,8 +113,8 @@ def track_high_degree_units_over_time(save_name,weighted=False):
             naive_degrees = []
             trained_degrees = []
 
-            for i in range(np.shape(recruit_graphs)[0]): # for each trial
-                for j in range(np.shape(recruit_graphs[i])[0]): # for each timepoint
+            for i in range(np.shape(naive_recruit_graphs)[0]): # for each trial
+                for j in range(np.shape(naive_recruit_graphs[i])[0]): # for each timepoint
                     arr = naive_recruit_graphs[i][j]
                     # get degrees for each naive unit
                     degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
@@ -150,8 +150,8 @@ def track_high_degree_units_over_time(save_name,weighted=False):
             naive_degrees = []
             trained_degrees = []
 
-            for i in range(np.shape(recruit_graphs)[0]): # for each trial
-                for j in range(np.shape(recruit_graphs[i])[0]): # for each timepoint
+            for i in range(np.shape(naive_recruit_graphs)[0]): # for each trial
+                for j in range(np.shape(naive_recruit_graphs[i])[0]): # for each timepoint
                     arr = naive_recruit_graphs[i][j]
                     # get degrees for each naive unit
                     degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
