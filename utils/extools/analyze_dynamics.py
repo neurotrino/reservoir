@@ -99,7 +99,7 @@ def track_high_degree_units_over_time(save_name,weighted=False):
         # do this separately for the two coherence levels
 
         # check if recruitment graph has been made
-        naive_recruit_file = exp + '/1-10-batch10.npz'
+        naive_recruit_file = exp + '/1-10-batch50.npz'
         trained_recruit_file = exp + '/991-1000-batch99.npz'
         if os.path.isfile(naive_recruit_file) and os.path.isfile(trained_recruit_file):
 
@@ -195,12 +195,12 @@ def track_high_degree_units_over_time(save_name,weighted=False):
     ax[1,0].set_ylabel('trained degree')
     ax[1,1].set_title('tracking trained top 15%, coh 1')
     ax[1,1].set_xlabel('naive degree')
-    ax[1,1].set_ylabel('total degree')
+    ax[1,1].set_ylabel('trained degree')
 
     fig.suptitle('Top 15% of e units with highest degree')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
     plt.draw()
-    save_fname = savepath+'/'+save_name+'_plots/tracking/totaldegree.png'
+    save_fname = savepath+'/'+save_name+'_plots/tracking/totaldegree_50.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
