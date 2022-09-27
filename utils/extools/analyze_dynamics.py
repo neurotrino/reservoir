@@ -90,7 +90,7 @@ coh_lvl = 'coh0'
 
 def track_high_degree_units_over_time(save_name,weighted=False):
     recruit_dirs = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
-    # plot all experiments together 
+    # plot all experiments together
     fig, ax = plt.subplots(nrows=2, ncols=2)
     # for each experiment
     for exp in recruit_dirs:
@@ -105,10 +105,10 @@ def track_high_degree_units_over_time(save_name,weighted=False):
 
             # load recruitment graphs
             naive_recruit_data = np.load(naive_recruit_file, allow_pickle=True)
-            naive_recruit_graphs = recruit_data['coh0']
+            naive_recruit_graphs = naive_recruit_data['coh0']
 
             trained_recruit_data = np.load(trained_recruit_file, allow_pickle=True)
-            trained_recruit_graphs = recruit_data['coh0']
+            trained_recruit_graphs = trained_recruit_data['coh0']
 
             naive_degrees = []
             trained_degrees = []
@@ -144,8 +144,8 @@ def track_high_degree_units_over_time(save_name,weighted=False):
             ax[0,1].scatter(naive_means[trained_top_idx], trained_means[trained_top_idx], s=2)
 
             # now do for coherence 1
-            naive_recruit_graphs = naive_recruit_data['coh0']
-            trained_recruit_graphs = trained_recruit_data['coh0']
+            naive_recruit_graphs = naive_recruit_data['coh1']
+            trained_recruit_graphs = trained_recruit_data['coh1']
 
             naive_degrees = []
             trained_degrees = []
