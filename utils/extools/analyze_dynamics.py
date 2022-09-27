@@ -90,9 +90,10 @@ coh_lvl = 'coh0'
 
 def track_high_degree_units_over_time(save_name,weighted=False):
     recruit_dirs = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
+    # plot all experiments together 
+    fig, ax = plt.subplots(nrows=2, ncols=2)
     # for each experiment
     for exp in recruit_dirs:
-        fig, ax = plt.subplots(nrows=2, ncols=2)
         # find the units with highest degree in epoch 50
         # find the units with highest degree in epoch 100000
         # do this separately for the two coherence levels
@@ -101,11 +102,6 @@ def track_high_degree_units_over_time(save_name,weighted=False):
         naive_recruit_file = exp + '/1-10-batch99.npz'
         trained_recruit_file = exp + '/991-1000-batch99.npz'
         if os.path.isfile(naive_recruit_file):
-
-            exp_string = exp[-8:]
-            for dir in data_dirs:
-                if (exp_string in dir):
-                    exp_data_dir = dir
 
             # load recruitment graphs
             naive_recruit_data = np.load(naive_recruit_file, allow_pickle=True)
@@ -183,7 +179,6 @@ def track_high_degree_units_over_time(save_name,weighted=False):
             # plot those indices' degrees
             ax[1,0].scatter(naive_means[naive_top_idx], trained_means[naive_top_idx], s=2)
             ax[1,1].scatter(naive_means[trained_top_idx], trained_means[trained_top_idx], s=2)
-
 
     ax[0,0].set_title('tracking naive top 15%, coh 0')
     ax[0,0].set_xlabel('naive degree')
