@@ -99,7 +99,7 @@ def track_high_degree_units_over_time(save_name,weighted=False):
         # do this separately for the two coherence levels
 
         # check if recruitment graph has been made
-        naive_recruit_file = exp + '/1-10-batch99.npz'
+        naive_recruit_file = exp + '/1-10-batch10.npz'
         trained_recruit_file = exp + '/991-1000-batch99.npz'
         if os.path.isfile(naive_recruit_file):
 
@@ -121,6 +121,8 @@ def track_high_degree_units_over_time(save_name,weighted=False):
                     # returns [in, out]
                     naive_degrees.append(np.add(degrees[1],degrees[0]))
 
+            for i in range(np.shape(trained_recruit_graphs)[0]): # for each trial
+                for j in range(np.shape(trained_recruit_graphs[i])[0]): # for each timepoint
                     arr = trained_recruit_graphs[i][j]
                     # get degrees for each trained unit
                     degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
@@ -158,6 +160,8 @@ def track_high_degree_units_over_time(save_name,weighted=False):
                     # returns [in, out]
                     naive_degrees.append(np.add(degrees[1],degrees[0]))
 
+            for i in range(np.shape(trained_recruit_graphs)[0]): # for each trial
+                for j in range(np.shape(trained_recruit_graphs[i])[0]): # for each timepoint
                     arr = trained_recruit_graphs[i][j]
                     # get degrees for each trained unit
                     degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
