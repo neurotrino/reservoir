@@ -218,8 +218,8 @@ def synaptic_degree_rate_correspondence(save_name,weighted=False):
     for exp in data_dirs:
         #data = np.load(exp + '/npz-data/991-1000.npz')
         data = np.load(exp + '/npz-data/1-10.npz')
-        spikes = data['spikes'][99]
-        w = data['tv1.postweights'][98] # single synaptic graph for this batch
+        spikes = data['spikes'][10]
+        w = data['tv1.postweights'][9] # single synaptic graph for this batch
 
         # for each unit, find its in/out degree and its avg rate over all trials
         degrees_e = get_degrees(w[0:e_end,0:e_end],weighted)
