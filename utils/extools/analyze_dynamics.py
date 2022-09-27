@@ -101,7 +101,7 @@ def track_high_degree_units_over_time(save_name,weighted=False):
         # check if recruitment graph has been made
         naive_recruit_file = exp + '/1-10-batch10.npz'
         trained_recruit_file = exp + '/991-1000-batch99.npz'
-        if os.path.isfile(naive_recruit_file):
+        if os.path.isfile(naive_recruit_file) and os.path.isfile(trained_recruit_file):
 
             # load recruitment graphs
             naive_recruit_data = np.load(naive_recruit_file, allow_pickle=True)
