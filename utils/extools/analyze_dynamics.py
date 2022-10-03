@@ -88,7 +88,7 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 
-def track_high_degree_units_over_time(save_name,weighted=False):
+def track_high_degree_units_over_time(save_name,weighted=True):
     recruit_dirs = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
     # plot all experiments together
     fig, ax = plt.subplots(nrows=2, ncols=2)
@@ -201,10 +201,10 @@ def track_high_degree_units_over_time(save_name,weighted=False):
     ax[1,1].set_xlabel('naive degree / max')
     ax[1,1].set_ylabel('trained degree / max')
 
-    fig.suptitle('Top 15% of e units with highest degree')
+    fig.suptitle('Top 15% of e units with highest weighted degree')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
     plt.draw()
-    save_fname = savepath+'/'+save_name+'_plots/tracking/totaldegree_relative_50.png'
+    save_fname = savepath+'/'+save_name+'_plots/tracking/totaldegree_weighted_relative_50.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
