@@ -189,14 +189,14 @@ def synaptic_vs_recruit_degree(save_name, coh_lvl='coh0', e_only=False, weighted
             w_10000 = data['tv1.postweights'][98]
 
             # get synaptic degrees
-            degrees = get_degrees(w_0[e_end:i_end,e_end,i_end],weighted)
+            degrees = get_degrees(w_0[e_end:i_end,e_end:i_end],weighted)
             # sum in and out degrees for total degree of each unit
             degrees_w_0 = np.add(degrees[1],degrees[0])
-            degrees = get_degrees(w_10[e_end:i_end,e_end,i_end],weighted)
+            degrees = get_degrees(w_10[e_end:i_end,e_end:i_end],weighted)
             degrees_w_10 = np.add(degrees[1],degrees[0])
-            degrees = get_degrees(w_100[e_end:i_end,e_end,i_end],weighted)
+            degrees = get_degrees(w_100[e_end:i_end,e_end:i_end],weighted)
             degrees_w_100 = np.add(degrees[1],degrees[0])
-            degrees = get_degrees(w_10000[e_end:i_end,e_end,i_end],weighted)
+            degrees = get_degrees(w_10000[e_end:i_end,e_end:i_end],weighted)
             degrees_w_10000 = np.add(degrees[1],degrees[0])
 
             # for recruitment graphs, mean across coherence level 0
@@ -218,28 +218,28 @@ def synaptic_vs_recruit_degree(save_name, coh_lvl='coh0', e_only=False, weighted
                 for j in range(np.shape(recruit_0[i])[0]): # for each timepoint
                     arr = recruit_0[i][j]
                     # get degrees for each naive unit
-                    degrees = get_degrees(arr[e_end:i_end,e_end,i_end],weighted)
+                    degrees = get_degrees(arr[e_end:i_end,e_end:i_end],weighted)
                     # returns [in, out]
                     degrees_rec_0.append(np.add(degrees[1],degrees[0]))
             for i in range(np.shape(recruit_10)[0]): # for each trial
                 for j in range(np.shape(recruit_10[i])[0]): # for each timepoint
                     arr = recruit_10[i][j]
                     # get degrees for each naive unit
-                    degrees = get_degrees(arr[e_end:i_end,e_end,i_end],weighted)
+                    degrees = get_degrees(arr[e_end:i_end,e_end:i_end],weighted)
                     # returns [in, out]
                     degrees_rec_10.append(np.add(degrees[1],degrees[0]))
             for i in range(np.shape(recruit_100)[0]): # for each trial
                 for j in range(np.shape(recruit_100[i])[0]): # for each timepoint
                     arr = recruit_100[i][j]
                     # get degrees for each naive unit
-                    degrees = get_degrees(arr[e_end:i_end,e_end,i_end],weighted)
+                    degrees = get_degrees(arr[e_end:i_end,e_end:i_end],weighted)
                     # returns [in, out]
                     degrees_rec_100.append(np.add(degrees[1],degrees[0]))
             for i in range(np.shape(recruit_10000)[0]): # for each trial
                 for j in range(np.shape(recruit_10000[i])[0]): # for each timepoint
                     arr = recruit_10000[i][j]
                     # get degrees for each naive unit
-                    degrees = get_degrees(arr[e_end:i_end,e_end,i_end],weighted)
+                    degrees = get_degrees(arr[e_end:i_end,e_end:i_end],weighted)
                     # returns [in, out]
                     degrees_rec_10000.append(np.add(degrees[1],degrees[0]))
 
