@@ -88,6 +88,49 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 
+def track_synaptic_high_degree_units_over_time(save_name,weighted=True):
+    data_dirs = get_experiments(data_dir, experiment_string)
+    fig, ax = plt.subplots(nrows=1, ncols=2)
+    # plot all experiments together now
+    for exp in data_dirs:
+        #data = np.load(exp + '/npz-data/991-1000.npz')
+        data = np.load(exp + '/npz-data/1-10.npz')
+        naive_w = data['tv1.postweights'][50] # use batch 50 to be consistent with recruitment graphs
+        data = np.load(exp + '/npz-data/991-1000.npz')
+        trained_w = data['tv1.postweights'][99]
+
+        # get degrees of excitatory units only
+        naive_degrees = get_degrees(naive_w[0:e_end,0:e_end],weighted)
+        trained_degrees = get_degrees(trained_w[0:e_end,0:e_end],weighted)
+
+        # find the top 15% of each
+        threshold_idx = int((1 - 0.15) * np.size(naive_degrees))
+        naive_thresh = np.sort(naive_degrees)[threshold_idx]
+        naive_max = np.amax(naive_degrees)
+        trained_thresh = np.sort(trained_degrees)[threshold_idx]
+        trained_max = np.amax(trained_degrees)
+        # get the top 15% idx
+        naive_top_idx = np.argwhere(naive_degrees>=naive_thresh)
+        trained_top_idx = np.argwhere(trained_degrees>=trained_thresh)
+
+        # plot those indices' degrees relative to the top degree
+        ax[0].scatter(naive_degrees[naive_top_idx]/naive_max, trained_degrees[naive_top_idx]/trained_max, s=2)
+        ax[1].scatter(naive_degrees[trained_top_idx]/naive_max, trained_degrees[trained_top_idx]/trained_max, s=2)
+
+    ax[0].set_title('tracking naive top 15%')
+    ax[0].set_xlabel('naive degree / max')
+    ax[0].set_ylabel('trained degree / max')
+    ax[1].set_title('tracking trained top 15%')
+    ax[1].set_xlabel('naive degree / max')
+    ax[1].set_ylabel('trained degree / max')
+
+    fig.suptitle('Top 15% of e units with highest synaptic degree')
+    plt.draw()
+    save_fname = savepath+'/'+save_name+'_plots/tracking/totaldegree_synaptic_relative_50.png'
+    plt.savefig(save_fname,dpi=300)
+    plt.clf()
+    plt.close()
+
 def track_high_degree_units_over_time(save_name,weighted=True):
     recruit_dirs = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
     # plot all experiments together
@@ -208,9 +251,6 @@ def track_high_degree_units_over_time(save_name,weighted=True):
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
-
-
-
 
 # might as well plot correspondence of synaptic and recruitment degree soon?
 
