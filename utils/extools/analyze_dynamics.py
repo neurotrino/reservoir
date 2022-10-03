@@ -159,7 +159,7 @@ def loss_comps_vs_degree(save_name,coh_lvl='coh0',weighted=False):
             plt.close()
 
 
-def synaptic_vs_recruit_degree(save_name, coh_lvl='coh1', e_only=False, weighted=False):
+def synaptic_vs_recruit_degree(save_name, coh_lvl='coh1', e_only=False, weighted=True):
     # for each experiment
     # check recruitment plots generated
     # plot at 0, 10, 100, and 1000 epochs
@@ -263,7 +263,7 @@ def synaptic_vs_recruit_degree(save_name, coh_lvl='coh1', e_only=False, weighted
     fig.suptitle('Excitatory synaptic vs. recruitment (coh 1) degrees')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
     plt.draw()
-    save_fname = savepath+'/'+save_name+'_plots/synvrecruit/degree_e_coh1_quad.png'
+    save_fname = savepath+'/'+save_name+'_plots/synvrecruit/degree_weighted_e_coh1_quad.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
