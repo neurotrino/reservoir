@@ -129,7 +129,7 @@ def track_synaptic_high_degree_units_over_time(save_name,weighted=True):
 
     fig.suptitle('Top 15% of e units with highest synaptic degree')
     plt.draw()
-    save_fname = savepath+'/'+save_name+'_plots/tracking/totaldegree_synaptic_relative_50.png'
+    save_fname = savepath+'/'+save_name+'_plots/tracking/totaldegree_synaptic_weighted_relative_50.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
