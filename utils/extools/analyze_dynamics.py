@@ -88,6 +88,118 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 
+def synaptic_vs_recruit_degree(save_name, coh_lvl='coh0', e_only=True, weighted=False):
+    # for each experiment
+    # check recruitment plots generated
+    # plot at 0, 10, 100, and 1000 epochs
+    data_dirs = get_experiments(data_dir, experiment_string)
+    recruit_dirs = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
+
+    fig, ax = plt.subplots(nrows=2, ncols=2) # plot them all together now
+
+    for exp in recruit_dirs: # for all experiments
+        # check if recruitment graph has been made
+        recruit_file_0 = exp + '/1-10-batch1.npz'
+        recruit_file_10 = exp + '/1-10-batch10.npz'
+        recruit_file_100 = exp + '/1-10-batch99.npz'
+        recruit_file_10000 = exp + '/991-1000-batch99.npz'
+        if os.path.isfile(recruit_file_10000):
+
+            # get synaptic data
+            exp_string = exp[-8:]
+            for dir in data_dirs:
+                if (exp_string in dir):
+                    exp_data_dir = dir
+            data = np.load(exp_data_dir + '/npz-data/1-10.npz')
+            w_0 = data['tv1.postweights'][0]
+            w_10 = data['tv1.postweights'][9]
+            w_100 = data['tv1.postweights'][98]
+            data = np.load(exp_data_dir + '/npz-data/991-1000.npz')
+            w_10000 = data['tv1.postweights'][98]
+
+            # get synaptic degrees
+            degrees = get_degrees(w_0[0:e_end,0:e_end],weighted)
+            # sum in and out degrees for total degree of each unit
+            degrees_w_0 = np.add(degrees[1],degrees[0])
+            degrees = get_degrees(w_10[0:e_end,0:e_end],weighted)
+            degrees_w_10 = np.add(degrees[1],degrees[0])
+            degrees = get_degrees(w_100[0:e_end,0:e_end],weighted)
+            degrees_w_100 = np.add(degrees[1],degrees[0])
+            degrees = get_degrees(w_10000[0:e_end,0:e_end],weighted)
+            degrees_w_10000 = np.add(degrees[1],degrees[0])
+
+            # for recruitment graphs, mean across coherence level 0
+            recruit_data = np.load(recruit_file_0, allow_pickle=True)
+            recruit_0 = recruit_data[coh_lvl]
+            recruit_data = np.load(recruit_file_10, allow_pickle=True)
+            recruit_10 = recruit_data[coh_lvl]
+            recruit_data = np.load(recruit_file_100, allow_pickle=True)
+            recruit_100 = recruit_data[coh_lvl]
+            recruit_data = np.load(recruit_file_10000, allow_pickle=True)
+            recruit_10000 = recruit_data[coh_lvl]
+
+            # get mean degrees for recruitment graphs
+            degrees_rec_0 = []
+            degrees_rec_10 = []
+            degrees_rec_100 = []
+            degrees_rec_10000 = []
+            for i in range(np.shape(recruit_0)[0]): # for each trial
+                for j in range(np.shape(recruit_0[i])[0]): # for each timepoint
+                    arr = recruit_0[i][j]
+                    # get degrees for each naive unit
+                    degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
+                    # returns [in, out]
+                    degrees_rec_0.append(np.add(degrees[1],degrees[0]))
+            for i in range(np.shape(recruit_10)[0]): # for each trial
+                for j in range(np.shape(recruit_10[i])[0]): # for each timepoint
+                    arr = recruit_10[i][j]
+                    # get degrees for each naive unit
+                    degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
+                    # returns [in, out]
+                    degrees_rec_10.append(np.add(degrees[1],degrees[0]))
+            for i in range(np.shape(recruit_100)[0]): # for each trial
+                for j in range(np.shape(recruit_100[i])[0]): # for each timepoint
+                    arr = recruit_100[i][j]
+                    # get degrees for each naive unit
+                    degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
+                    # returns [in, out]
+                    degrees_rec_100.append(np.add(degrees[1],degrees[0]))
+            for i in range(np.shape(recruit_10000)[0]): # for each trial
+                for j in range(np.shape(recruit_10000[i])[0]): # for each timepoint
+                    arr = recruit_10000[i][j]
+                    # get degrees for each naive unit
+                    degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
+                    # returns [in, out]
+                    degrees_rec_10000.append(np.add(degrees[1],degrees[0]))
+
+            # now plot correspondingly
+            ax[0,0].scatter(degrees_w_0,np.mean(degrees_rec_0,0))
+            ax[0,0].set_xlabel('synaptic degree')
+            ax[0,0].set_ylabel('recruitment degree')
+            ax[0,0].set_title('Epoch 1')
+            ax[0,1].scatter(degrees_w_10,np.mean(degrees_rec_10,0))
+            ax[0,1].set_xlabel('synaptic degree')
+            ax[0,1].set_ylabel('recruitment degree')
+            ax[0,1].set_title('Epoch 10')
+            ax[1,0].scatter(degrees_w_100,np.mean(degrees_rec_100,0))
+            ax[1,0].set_xlabel('synaptic degree')
+            ax[1,0].set_ylabel('recruitment degree')
+            ax[1,0].set_title('Epoch 100')
+            ax[1,1].scatter(degrees_w_10000,np.mean(degrees_rec_10000,0))
+            ax[0,0].set_xlabel('synaptic degree')
+            ax[1,1].set_ylabel('recruitment degree')
+            ax[1,1].set_title('Epoch 10000')
+    fig.suptitle('Excitatory synaptic vs. recruitment (coh 0) degrees')
+    plt.subplots_adjust(wspace=0.4, hspace=0.7)
+    plt.draw()
+    save_fname = savepath+'/'+save_name+'_plots/synvrecruit/degree_e_coh0_quad.png'
+    plt.savefig(save_fname,dpi=300)
+    plt.clf()
+    plt.close()
+
+
+
+
 def track_synaptic_high_degree_units_over_time(save_name,weighted=True):
     data_dirs = get_experiments(data_dir, experiment_string)
     fig, ax = plt.subplots(nrows=1, ncols=2)
