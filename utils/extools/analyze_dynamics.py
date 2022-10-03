@@ -136,14 +136,16 @@ def track_high_degree_units_over_time(save_name,weighted=False):
             # find the top 15% of each
             threshold_idx = int((1 - 0.15) * np.size(naive_means))
             naive_thresh = np.sort(naive_means)[threshold_idx]
+            naive_max = np.amax(naive_means)
             trained_thresh = np.sort(trained_means)[threshold_idx]
+            trained_max = np.amax(trained_means)
             # get the top 15% idx
             naive_top_idx = np.argwhere(naive_means>=naive_thresh)
             trained_top_idx = np.argwhere(trained_means>=trained_thresh)
 
-            # plot those indices' degrees
-            ax[0,0].scatter(naive_means[naive_top_idx], trained_means[naive_top_idx], s=2)
-            ax[0,1].scatter(naive_means[trained_top_idx], trained_means[trained_top_idx], s=2)
+            # plot those indices' degrees relative to the top degree
+            ax[0,0].scatter(naive_means[naive_top_idx]/naive_max, trained_means[naive_top_idx]/trained_max, s=2)
+            ax[0,1].scatter(naive_means[trained_top_idx]/naive_max, trained_means[trained_top_idx]/trained_max, s=2)
 
             # now do for coherence 1
             naive_recruit_graphs = naive_recruit_data['coh1']
@@ -175,32 +177,34 @@ def track_high_degree_units_over_time(save_name,weighted=False):
             # find the top 15% of each
             threshold_idx = int((1 - 0.15) * np.size(naive_means))
             naive_thresh = np.sort(naive_means)[threshold_idx]
+            naive_max = np.amax(naive_means)
             trained_thresh = np.sort(trained_means)[threshold_idx]
+            trained_max = np.amax(trained_means)
             # get the top 15% idx
             naive_top_idx = np.argwhere(naive_means>=naive_thresh)
             trained_top_idx = np.argwhere(trained_means>=trained_thresh)
 
             # plot those indices' degrees
-            ax[1,0].scatter(naive_means[naive_top_idx], trained_means[naive_top_idx], s=2)
-            ax[1,1].scatter(naive_means[trained_top_idx], trained_means[trained_top_idx], s=2)
+            ax[1,0].scatter(naive_means[naive_top_idx]/naive_max, trained_means[naive_top_idx]/trained_max, s=2)
+            ax[1,1].scatter(naive_means[trained_top_idx]/naive_max, trained_means[trained_top_idx]/trained_max, s=2)
 
     ax[0,0].set_title('tracking naive top 15%, coh 0')
-    ax[0,0].set_xlabel('naive degree')
-    ax[0,0].set_ylabel('trained degree')
+    ax[0,0].set_xlabel('naive degree / max')
+    ax[0,0].set_ylabel('trained degree / max')
     ax[0,1].set_title('tracking trained top 15%, coh 0')
-    ax[0,1].set_xlabel('naive degree')
-    ax[0,1].set_ylabel('trained degree')
+    ax[0,1].set_xlabel('naive degree / max')
+    ax[0,1].set_ylabel('trained degree / max')
     ax[1,0].set_title('tracking naive top 15%, coh 1')
-    ax[1,0].set_xlabel('naive degree')
-    ax[1,0].set_ylabel('trained degree')
+    ax[1,0].set_xlabel('naive degree / max')
+    ax[1,0].set_ylabel('trained degree / max')
     ax[1,1].set_title('tracking trained top 15%, coh 1')
-    ax[1,1].set_xlabel('naive degree')
-    ax[1,1].set_ylabel('trained degree')
+    ax[1,1].set_xlabel('naive degree / max')
+    ax[1,1].set_ylabel('trained degree / max')
 
     fig.suptitle('Top 15% of e units with highest degree')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
     plt.draw()
-    save_fname = savepath+'/'+save_name+'_plots/tracking/totaldegree_50.png'
+    save_fname = savepath+'/'+save_name+'_plots/tracking/totaldegree_relative_50.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
