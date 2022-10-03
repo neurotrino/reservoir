@@ -100,8 +100,11 @@ def track_synaptic_high_degree_units_over_time(save_name,weighted=True):
         trained_w = data['tv1.postweights'][99]
 
         # get degrees of excitatory units only
-        naive_degrees = get_degrees(naive_w[0:e_end,0:e_end],weighted)
-        trained_degrees = get_degrees(trained_w[0:e_end,0:e_end],weighted)
+        degrees = get_degrees(naive_w[0:e_end,0:e_end],weighted)
+        # sum in and out degrees for total degree of each unit 
+        naive_degrees = np.add(degrees[1],degrees[0]))
+        degrees = get_degrees(trained_w[0:e_end,0:e_end],weighted)
+        trained_degrees = np.add(degrees[1],degrees[0])
 
         # find the top 15% of each
         threshold_idx = int((1 - 0.15) * np.size(naive_degrees))
