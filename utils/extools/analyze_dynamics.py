@@ -88,6 +88,77 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 
+def loss_comps_vs_degree(save_name,coh_lvl='coh0',weighted=False):
+    # plot loss over time and the average total recruitment degree and synaptic degree
+    # for the whole network and then just for the units that project to output
+    # so that would be... four plots
+    # plot both rate and task losses on same plot
+    # plot just the first 100 epochs for now
+    data_dirs = get_experiments(data_dir, experiment_string)
+    recruit_dirs = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
+
+    for exp in recruit_dirs:
+        # check if recruitment graph has been made
+        final_recruit_file = exp + '/1-10-batch99.npz'
+        if os.path.isfile(final_recruit_file):
+            fig, ax = plt.subplots(nrows=2, ncols=2) # plot them all together now
+
+            # get original data
+            exp_string = exp[-8:]
+            for dir in data_dirs:
+                if (exp_string in dir):
+                    exp_data_dir = dir
+            data = np.load(exp_data_dir + '/npz-data/1-10.npz')
+            task_loss = data['step_task_loss']
+            ax[0,0].plot(task_loss)
+            ax[0,0].set_xlabel('batch')
+            ax[0,0].set_ylabel('task loss')
+            ax[0,0].set_title('Task Loss')
+            rate_loss = data['step_rate_loss']
+            ax[0,1].plot(rate_loss)
+            ax[0,1].set_xlabel('batch')
+            ax[0,1].set_ylabel('rate loss')
+            ax[0,1].set_title('Rate Loss')
+            w = data['tv1.postweights']
+
+            mean_recruit_degrees = []
+            # get recruit degrees
+            for i in range(100): # over all batches in the first 1-10.npz file
+                recruit_file = exp + '/1-10-batch' + str(i) + '.npz'
+                recruit_data = np.load(recruit_file, allow_pickle=True)
+                recruit = recruit_data[coh_lvl]
+                degrees_rec = []
+                for i in range(np.shape(recruit)[0]): # for each trial
+                    for j in range(np.shape(recruit[i])[0]): # for each timepoint
+                        arr = recruit[i][j]
+                        # get degrees for each naive unit
+                        degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
+                        # returns [in, out]
+                        degrees_rec.append(np.add(degrees[1],degrees[0]))
+                mean_recruit_degrees.append(np.mean(degrees_rec))
+            ax[1,1].plot(mean_recruit_degrees)
+            ax[1,1].set_xlabel('batch')
+            ax[1,1].set_ylabel('mean e degree')
+            ax[1,1].set_title('Recruitment Graph (Coh 0) Degrees')
+
+            # plot synaptic degrees
+            mean_syn_degrees = []
+            for i in range(100):
+                arr = w[i]
+                degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
+                mean_syn_degrees.append(np.mean(degrees))
+            ax[1,0].plot(mean_syn_degrees)
+            ax[1,0].set_xlabel('batch')
+            ax[1,0].set_ylabel('mean e degree')
+            ax[1,0].set_title('Synaptic Graph Degrees')
+            plt.subplots_adjust(wspace=0.4, hspace=0.7)
+            plt.draw()
+            save_fname = savepath+'/'+save_name+'_plots/lossversus/'+exp_string+'_coh0_e_degree.png'
+            plt.savefig(save_fname,dpi=300)
+            plt.clf()
+            plt.close()
+
+
 def synaptic_vs_recruit_degree(save_name, coh_lvl='coh0', e_only=True, weighted=False):
     # for each experiment
     # check recruitment plots generated
@@ -196,9 +267,6 @@ def synaptic_vs_recruit_degree(save_name, coh_lvl='coh0', e_only=True, weighted=
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
-
-
-
 
 def track_synaptic_high_degree_units_over_time(save_name,weighted=True):
     data_dirs = get_experiments(data_dir, experiment_string)
