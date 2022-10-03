@@ -186,7 +186,7 @@ def synaptic_vs_recruit_degree(save_name, coh_lvl='coh0', e_only=True, weighted=
             ax[1,0].set_ylabel('recruitment degree')
             ax[1,0].set_title('Epoch 100')
             ax[1,1].scatter(degrees_w_10000,np.mean(degrees_rec_10000,0))
-            ax[0,0].set_xlabel('synaptic degree')
+            ax[1,1].set_xlabel('synaptic degree')
             ax[1,1].set_ylabel('recruitment degree')
             ax[1,1].set_title('Epoch 10000')
     fig.suptitle('Excitatory synaptic vs. recruitment (coh 0) degrees')
