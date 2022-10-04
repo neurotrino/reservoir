@@ -176,6 +176,7 @@ class Trainer(BaseTrainer):
             grads = tape.gradient(losses[0], self.model.trainable_variables)
         """
         grads = tape.gradient(losses[-1], self.model.trainable_variables)
+        return (model_output, losses, grads)
 
     # @switched_tf_function  # [!] might need this
     def train_step(self, batch_x, batch_y, batch_idx=None):
