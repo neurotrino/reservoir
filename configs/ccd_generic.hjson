@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/run-batch30-onlyrateloss
+        exp_dir: /data/experiments/run-batch30-onlytaskloss
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -251,6 +251,7 @@
         todisk_whitelist: [
             step_rate_loss
             step_task_loss
+            epoch_loss
             spikes
             true_y
             pred_y
@@ -351,9 +352,9 @@
         // number of epochs the model is fit over
         n_epochs: 1000
 
-        include_task_loss: false
+        include_task_loss: true
 
-        include_rate_loss: true
+        include_rate_loss: false
 
         include_synch_loss: false
 

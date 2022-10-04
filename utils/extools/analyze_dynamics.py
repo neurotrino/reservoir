@@ -88,6 +88,48 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 
+
+def output_projection(save_name,coh_lvl='coh0',weighted=False):
+    # looking at only the units that project to the output
+    # find their interconnected density
+    # plot their degrees relative to the degrees of the rest of the network
+    data_dirs = get_experiments(data_dir, experiment_string)
+    recruit_dirs = [f.path for f in os.scandir(recruit_path)]
+
+    for exp in recruit_dirs:
+        final_recruit_file = exp + '/1-10-batch99.npz'
+        if os.path.isfile(final_recruit_file):
+
+            # get original data
+            exp_string = exp[-8:]
+            for dir in data_dirs:
+                if (exp_string in dir):
+                    exp_data_dir = dir
+            data = np.load(exp_data_dir + '/npz-data/1-10.npz')
+            naive_w = data['tv1.postweights'][50]
+            naive_out = data['tv2.postweights'][50]
+            data = np.load(exp_data_dir + '/npz-data/991-1000.npz')
+            trained_w = data['tv1.postweights'][99]
+            trained_out = data['tv2.postweights'][99]
+
+            # find the indices of the units that project to output
+            naive_out_idx = np.argwhere(naive_out!=0)[:,0]
+            trained_out_idx = np.argwhere(trained_out!=0)[:,0]
+
+            naive_set = np.take(naive_w,naive_out_idx,0)
+            naive_set = np.take(naive_set,naive_out_idx,1)
+            # get degrees for each naive unit
+            degrees = get_degrees(naive_set[0:e_end,0:e_end],weighted)
+            naive_degrees = np.add(degrees[1],degrees[0]))
+
+            trained_set = np.take(trained_w,trained_out_idx,0)
+            trained_set = np.take(trained_set,trained_out_idx,1)
+            degrees = get_degrees(trained_set[0:e_end,0:e_end],weighted)
+            trained_degrees = np.add(degrees[1],degrees[0]))
+
+            
+
+
 def loss_comps_vs_degree(save_name,coh_lvl='coh0',weighted=False):
     # plot loss over time and the average total recruitment degree and synaptic degree
     # for the whole network and then just for the units that project to output
