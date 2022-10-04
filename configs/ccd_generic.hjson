@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/run-batch30-specout-onlinerate0.1-savey
+        exp_dir: /data/experiments/run-batch30-onlyrateloss
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -249,9 +249,8 @@
         // logger, they just won't be written to disk. This is useful if you
         // want to generate plots but not keep the underlying data.
         todisk_whitelist: [
-            step_task_loss
             step_rate_loss
-            epoch_loss
+            step_task_loss
             spikes
             true_y
             pred_y
@@ -352,7 +351,7 @@
         // number of epochs the model is fit over
         n_epochs: 1000
 
-        include_task_loss: true
+        include_task_loss: false
 
         include_rate_loss: true
 

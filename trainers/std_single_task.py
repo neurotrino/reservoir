@@ -171,7 +171,10 @@ class Trainer(BaseTrainer):
         elif self.cfg["train"].include_task_loss and not self.cfg["train"].include_rate_loss:
             grads = tape.gradient(losses[0], self.model.trainable_variables)
         """
-        grads = tape.gradient(losses[-1], self.model.trainable_variables)
+        if self.cfg['train'].include_task_loss:
+            grads = tape.gradient(losses[-1], self.model.trainable_variables)
+        else:
+            grads = tape.gradient(losses[1], self.model.trainable_variables)
         return (model_output, losses, grads)
 
     # @switched_tf_function  # [!] might need this
