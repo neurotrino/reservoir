@@ -88,8 +88,8 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 
-"""
-def output_projection(save_name,coh_lvl='coh0',weighted=False):
+
+def output_projection(save_name,weighted=False):
     # looking at only the units that project to the output
     # find their interconnected density
     # plot their degrees relative to the degrees of the rest of the network
@@ -99,6 +99,8 @@ def output_projection(save_name,coh_lvl='coh0',weighted=False):
     for exp in recruit_dirs:
         final_recruit_file = exp + '/1-10-batch99.npz'
         if os.path.isfile(final_recruit_file):
+
+            fig, ax = plt.subplots(nrows=1, ncols=2)
 
             # get original data
             exp_string = exp[-8:]
@@ -119,15 +121,45 @@ def output_projection(save_name,coh_lvl='coh0',weighted=False):
             naive_set = np.take(naive_w,naive_out_idx,0)
             naive_set = np.take(naive_set,naive_out_idx,1)
             # get degrees for each naive unit
-            degrees = get_degrees(naive_set[0:e_end,0:e_end],weighted)
-            naive_degrees = np.add(degrees[1],degrees[0]))
+            degrees = get_degrees(naive_set,weighted)
+            naive_set_degrees = np.add(degrees[1],degrees[0]))
 
             trained_set = np.take(trained_w,trained_out_idx,0)
             trained_set = np.take(trained_set,trained_out_idx,1)
-            degrees = get_degrees(trained_set[0:e_end,0:e_end],weighted)
-            trained_degrees = np.add(degrees[1],degrees[0]))
+            degrees = get_degrees(trained_set,weighted)
+            trained_set_degrees = np.add(degrees[1],degrees[0]))
 
-            """
+            # find degrees of the rest of the units (that have 0 projections to output)
+            naive_rest_idx = np.argwhere(naive_out==0)[:,0]
+            trained_rest_idx = np.argwhere(trained_out==0)[:,0]
+            naive_rest = np.take(naive_w,naive_rest_idx,0)
+            naive_rest = np.take(naive_rest,naive_rest_idx,1)
+            degrees = get_degrees(naive_rest,weighted)
+            naive_rest_degrees = np.add(degrees[1],degrees[0])
+            trained_rest = np.take(trained_w,trained_rest_idx,0)
+            trained_rest = np.take(trained_rest,trained_rest_idx,1)
+            degrees = get_degrees(trained_rest,weighted)
+            trained_rest_degrees = np.add(degrees[0],degrees[1])
+
+            # plot
+            ax[0].sns.histplot(data=naive_set_degrees,color="red",label="projection units",stat="density",bins=30,alpha=0.5,kde=True,edgecolor="white",linewidth=0.5,line_kws=dict(color="black", alpha=0.5, linewidth=1.5)
+            ax[0].sns.histplot(data=naive_rest_degrees,color="blue",label="other units",stat="density",bins=30,alpha=0.5,kde=True,edgecolor="white",linewidth=0.5,line_kws=dict(color="black", alpha=0.5, linewidth=1.5)
+            ax[0].legend()
+            ax[0].set_xlabel('total unweighted degree')
+            ax[0].set_ylabel('density')
+            ax[0].set_title('naive (epoch 50)')
+            ax[1].sns.histplot(data=trained_set_degrees,color="red",label="projection units",stat="density",bins=30,alpha=0.5,kde=True,edgecolor="white",linewidth=0.5,line_kws=dict(color="black", alpha=0.5, linewidth=1.5)
+            ax[1].sns.histplot(data=trained_rest_degrees,color="blue",label="other units",stat="density",bins=30,alpha=0.5,kde=True,edgecolor="white",linewidth=0.5,line_kws=dict(color="black", alpha=0.5, linewidth=1.5)
+            ax[1].legend()
+            ax[1].set_xlabel('total unweighted degree')
+            ax[1].set_ylabel('density')
+            ax[1].set_title('trained')
+            plt.suptitle('Synaptic graph')
+            plt.draw()
+            plt.savefig(savepath+'/'+save_name+'_plots/projectionset/'+exp_string+'_synaptic_degree.png')
+            plt.clf()
+            plt.close()
+
 
 
 def loss_comps_vs_degree(save_name,coh_lvl='coh0',weighted=False):
