@@ -122,12 +122,12 @@ def output_projection(save_name,weighted=False):
             naive_set = np.take(naive_set,naive_out_idx,1)
             # get degrees for each naive unit
             degrees = get_degrees(naive_set,weighted)
-            naive_set_degrees = np.add(degrees[1],degrees[0]))
+            naive_set_degrees = np.add(degrees[1],degrees[0])
 
             trained_set = np.take(trained_w,trained_out_idx,0)
             trained_set = np.take(trained_set,trained_out_idx,1)
             degrees = get_degrees(trained_set,weighted)
-            trained_set_degrees = np.add(degrees[1],degrees[0]))
+            trained_set_degrees = np.add(degrees[1],degrees[0])
 
             # find degrees of the rest of the units (that have 0 projections to output)
             naive_rest_idx = np.argwhere(naive_out==0)[:,0]
