@@ -88,7 +88,7 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 
-
+"""
 def output_projection(save_name,coh_lvl='coh0',weighted=False):
     # looking at only the units that project to the output
     # find their interconnected density
@@ -127,7 +127,7 @@ def output_projection(save_name,coh_lvl='coh0',weighted=False):
             degrees = get_degrees(trained_set[0:e_end,0:e_end],weighted)
             trained_degrees = np.add(degrees[1],degrees[0]))
 
-            
+            """
 
 
 def loss_comps_vs_degree(save_name,coh_lvl='coh0',weighted=False):
