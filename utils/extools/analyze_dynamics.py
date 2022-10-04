@@ -142,8 +142,8 @@ def output_projection(save_name,weighted=False):
             trained_rest_degrees = np.add(degrees[0],degrees[1])
 
             # plot
-            ax[0].sns.histplot(data=naive_set_degrees,color="red",label="projection units",stat="density",bins=30,alpha=0.5,kde=True,edgecolor="white",linewidth=0.5,line_kws=dict(color="black", alpha=0.5, linewidth=1.5)
-            ax[0].sns.histplot(data=naive_rest_degrees,color="blue",label="other units",stat="density",bins=30,alpha=0.5,kde=True,edgecolor="white",linewidth=0.5,line_kws=dict(color="black", alpha=0.5, linewidth=1.5)
+            ax[0].sns.histplot(data=naive_set_degrees,color="red",label="projection units",stat="density",bins=30,alpha=0.5,kde=True,edgecolor="white",linewidth=0.5,line_kws=dict(color="black", alpha=0.5, linewidth=1.5))
+            ax[0].sns.histplot(data=naive_rest_degrees,color="blue",label="other units",stat="density",bins=30,alpha=0.5,kde=True,edgecolor="white",linewidth=0.5,line_kws=dict(color="black", alpha=0.5, linewidth=1.5))
             ax[0].legend()
             ax[0].set_xlabel('total unweighted degree')
             ax[0].set_ylabel('density')
