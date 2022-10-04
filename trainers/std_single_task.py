@@ -78,7 +78,11 @@ class Trainer(BaseTrainer):
             task_loss = loss_object(y_true=y, y_pred=cat_prediction)
         else:
             task_loss = loss_object(y_true=y, y_pred=prediction)
-        net_loss = task_loss
+
+        if self.cfg['train'].include_task_loss:
+            net_loss = task_loss
+        else:
+            net_loss = 0
 
         # Penalty for unrealistic firing rates
         # [!] need to add metric or something else for real-time
@@ -171,11 +175,7 @@ class Trainer(BaseTrainer):
         elif self.cfg["train"].include_task_loss and not self.cfg["train"].include_rate_loss:
             grads = tape.gradient(losses[0], self.model.trainable_variables)
         """
-        if self.cfg['train'].include_task_loss:
-            grads = tape.gradient(losses[-1], self.model.trainable_variables)
-        else:
-            grads = tape.gradient(losses[1], self.model.trainable_variables)
-        return (model_output, losses, grads)
+        grads = tape.gradient(losses[-1], self.model.trainable_variables)
 
     # @switched_tf_function  # [!] might need this
     def train_step(self, batch_x, batch_y, batch_idx=None):
