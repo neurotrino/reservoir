@@ -193,8 +193,8 @@ def loss_comps_over_all_time(save_name):
             # for each batch update, calculate e-e graph density
             for i in range(0,np.shape(data["tv1.postweights"])[0]):
                 density.append(calc_density(data["tv1.postweights"][i][0:e_end,0:e_end]))
-            ax[2].plot(task_losses)
-            ax[3].plot(density)
+        ax[2].plot(task_losses)
+        ax[3].plot(density)
 
     ax[0].set_title('dual trained network')
     ax[0].set_xlabel('batch')
