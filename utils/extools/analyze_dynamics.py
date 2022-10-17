@@ -192,7 +192,7 @@ def loss_comps_over_all_time(save_name):
             task_losses += data["step_task_loss"].tolist()
             # for each batch update, calculate e-e graph density
             for i in range(0,np.shape(data["tv1.postweights"])[0]):
-                density.append(calc_density(data["tv1.postweights"][epoch][0:e_end,0:e_end]))
+                density.append(calc_density(data["tv1.postweights"][i][0:e_end,0:e_end]))
             ax[2].plot(task_losses)
             ax[3].plot(density)
 
