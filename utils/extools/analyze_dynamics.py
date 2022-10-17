@@ -214,7 +214,7 @@ def loss_comps_over_all_time(save_name):
     plt.close()
 
 
-def pairwise_rate_MI_relation(save_name,coh_lvl='coh0',weighted=True):
+#def pairwise_rate_MI_relation(save_name,coh_lvl='coh0',weighted=True):
 
 
 def loss_comps_vs_degree(save_name,coh_lvl='coh0',weighted=False):
