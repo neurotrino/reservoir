@@ -24,6 +24,7 @@ from utils.extools.MI import simple_confMI
 
 data_dir = "/data/experiments/"
 experiment_string = "run-batch30-specout-onlinerate0.1-savey"
+task_experiment_string = 'run-batch30-onlytaskloss'
 num_epochs = 1000
 epochs_per_file = 10
 e_end = 240
@@ -161,6 +162,59 @@ def output_projection(save_name,weighted=True):
             plt.clf()
             plt.close()
 
+def loss_comps_over_all_time(save_name):
+    # load in all experiments and plot their losses over time on the same plot
+    # plot both rate loss and task loss
+    data_dirs = get_experiments(data_dir, experiment_string)
+    data_files = filenames(num_epochs, epochs_per_file)
+    fig, ax = plt.subplots(nrows=4, ncols=1)
+    # get your usual experiments first
+    for xdir in data_dirs:
+        # Get all of a single experiment's losses
+        task_losses = []
+        rate_losses = []
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            task_losses += data["step_task_loss"].tolist()
+            rate_losses += data["step_rate_loss"].tolist()
+        # Plot losses for a single experiment
+        ax[1].plot(task_losses)
+        ax[0].plot(rate_losses)
+    # now do for the task only experiments
+    task_data_dirs = get_experiments(data_dir, task_experiment_string)
+    for xdir in task_data_dirs:
+        task_losses = []
+        density = []
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            task_losses += data["step_task_loss"].tolist()
+            # for each batch update, calculate e-e graph density
+            for i in range(0,np.shape(data["tv1.postweights"])[0]):
+                density.append(calc_density(data["tv1.postweights"][epoch][0:e_end,0:e_end])
+            ax[2].plot(task_losses)
+            ax[3].plot(density)
+
+    ax[0].set_title('dual trained network')
+    ax[0].set_xlabel('batch')
+    ax[0].set_ylabel('rate loss')
+    ax[1].set_title('dual trained network')
+    ax[1].set_xlabel('batch')
+    ax[1].set_ylabel('task loss')
+    ax[2].set_title('task only trained network')
+    ax[2].set_xlabel('batch')
+    ax[2].set_ylabel('task loss')
+    ax[3].set_title('task only trained network')
+    ax[3].set_xlabel('batch')
+    ax[3].set_ylabel('e-e density')
+    plt.draw()
+    plt.savefig(savepath+'/set_plots/losses_dual_vs_task_trained.png')
+    plt.clf()
+    plt.close()
+
+
+def pairwise_rate_MI_relation(save_name,coh_lvl='coh0',weighted=True):
 
 
 def loss_comps_vs_degree(save_name,coh_lvl='coh0',weighted=False):
