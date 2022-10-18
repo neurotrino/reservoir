@@ -89,6 +89,8 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 
+MI_path = '/data/results/experiment1/MI_graphs_bin10/'
+
 
 def output_projection(save_name,weighted=True):
     # looking at only the units that project to the output
@@ -213,8 +215,113 @@ def loss_comps_over_all_time(save_name):
     plt.clf()
     plt.close()
 
+def pairwise_rate_MI_relation(save_name):
+    # for each pair of units, plot their confMI vs sqrt(fr1^2+fr2^2)
+    data_dirs = get_experiments(data_dir, experiment_string)
+    MI_dirs = [f.path for f in os.scandir(MI_path) if f.is_dir()]
 
-#def pairwise_rate_MI_relation(save_name,coh_lvl='coh0',weighted=True):
+    for exp in MI_dirs:
+        # check if final functional graph has been made
+        naive_MI_file = exp + '/1-10.npz'
+        final_MI_file = exp + '/991-1000.npz'
+        if os.path.isfile(final_MI_file) and os.path.isfile(naive_MI_file):
+            # plot single experiments
+            fig, ax = plt.subplots(nrows=2, ncols=2)
+            # get coh0 data and coh1 data
+            exp_string = exp[-8:]
+            for dir in data_dirs:
+                if (exp_string in dir):
+                    exp_data_dir = dir
+            # load in just the naive batch
+            data = np.load(exp_data_dir + '/npz-data/1-10.npz')
+            spikes = data['spikes'][50] # designated naive is 50 for now...
+            # figure out which spikes correspond to current coherence
+            true_y = data['true_y'][50]
+            true_y = np.squeeze(true_y)
+            rates_0 = []
+            rates_1 = []
+            for i in range(np.shape(spikes)[0]): # for each trial
+                spikes_trial = np.transpose(spikes[i])
+                coh_0_idx = np.squeeze(np.where(true_y[i]==0))
+                coh_1_idx = np.squeeze(np.where(true_y[i]==1))
+                if np.size(coh_0_idx) > 0:
+                    coh_0_spikes = spikes_trial[:,coh_0_idx]
+                    # calculate rates for each unit
+                    rates_0.append(np.mean(coh_0_spikes,1))
+                if np.size(coh_1_idx) > 0:
+                    coh_1_spikes = spikes_trial[:,coh_1_idx]
+                    # calculate rates for each unit
+                    rates_1.append(np.mean(coh_1_spikes,1))
+            # collapse across trials for a given unit
+            unitwise_0_rates = np.mean(rates_0,0)
+            unitwise_1_rates = np.mean(rates_1,0)
+
+            # load functional graphs
+            MI_data = np.load(naive_MI_file, allow_pickle=True)
+            # again, just focusing on single batch as naive rn
+            MI_coh0 = MI_data['coh0'][50]
+            MI_coh1 = MI_data['coh1'][50]
+
+            # for every pair of e units
+            for i in range(0,e_end):
+                for j in range(0,e_end):
+                    ax[0,0].scatter(np.sqrt(np.add(np.square(unitwise_0_rates[i]),np.square(unitwise_0_rates[j]))), MI_coh0[i,j], s=2, c='blue')
+                    ax[0,1].scatter(np.sqrt(np.add(np.square(unitwise_1_rates[i]),np.square(unitwise_1_rates[j]))), MI_coh1[i,j], s=2, c='blue')
+            ax[0,0].set_title('naive (batch 50) coh 0')
+            ax[0,0].set_xlabel('sqrt(fr1^2 + fr2^2)')
+            ax[0,0].set_ylabel('confMI(1,2)')
+            ax[0,1].set_title('naive (batch 50) coh 1')
+            ax[0,1].set_xlabel('sqrt(fr1^2 + fr2^2)')
+            ax[0,1].set_ylabel('confMI(1,2)')
+
+            # and repeat for trained
+            data = np.load(exp_data_dir + '/npz-data/991-1000.npz')
+            spikes = data['spikes'][99]
+            true_y = data['true_y'][99]
+            true_y = np.squeeze(true_y)
+            rates_0 = []
+            rates_1 = []
+            for i in range(np.shape(spikes)[0]): # for each trial
+                spikes_trial = np.transpose(spikes[i])
+                coh_0_idx = np.squeeze(np.where(true_y[i]==0))
+                coh_1_idx = np.squeeze(np.where(true_y[i]==1))
+                if np.size(coh_0_idx) > 0:
+                    coh_0_spikes = spikes_trial[:,coh_0_idx]
+                    # calculate rates for each unit
+                    rates_0.append(np.mean(coh_0_spikes,1))
+                if np.size(coh_1_idx) > 0:
+                    coh_1_spikes = spikes_trial[:,coh_1_idx]
+                    # calculate rates for each unit
+                    rates_1.append(np.mean(coh_1_spikes,1))
+            # collapse across trials for a given unit
+            unitwise_0_rates = np.mean(rates_0,0)
+            unitwise_1_rates = np.mean(rates_1,0)
+
+            # load functional graphs
+            MI_data = np.load(final_MI_file, allow_pickle=True)
+            # again, just focusing on single batch as naive rn
+            MI_coh0 = MI_data['coh0'][99]
+            MI_coh1 = MI_data['coh1'][99]
+
+            # for every pair of e units
+            for i in range(0,e_end):
+                for j in range(0,e_end):
+                    ax[0,0].scatter(np.sqrt(np.add(np.square(unitwise_0_rates[i]),np.square(unitwise_0_rates[j]))), MI_coh0[i,j], s=2, c='blue')
+                    ax[0,1].scatter(np.sqrt(np.add(np.square(unitwise_1_rates[i]),np.square(unitwise_1_rates[j]))), MI_coh1[i,j], s=2, c='blue')
+            ax[1,0].set_title('trained coh 0')
+            ax[1,0].set_xlabel('sqrt(fr1^2 + fr2^2)')
+            ax[1,0].set_ylabel('confMI(1,2)')
+            ax[1,1].set_title('trained coh 1')
+            ax[1,1].set_xlabel('sqrt(fr1^2 + fr2^2)')
+            ax[1,1].set_ylabel('confMI(1,2)')
+
+            plt.suptitle('excitatory rate MI correspondence')
+            plt.subplots_adjust(wspace=0.4, hspace=0.7)
+            plt.draw()
+            save_fname = savepath+'/MI_bin10_plots/'+exp_string+'_e_MI_v_rate.png'
+            plt.savefig(save_fname,dpi=300)
+            plt.clf()
+            plt.close()
 
 
 def loss_comps_vs_degree(save_name,coh_lvl='coh0',weighted=False):
