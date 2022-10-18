@@ -314,8 +314,8 @@ def pairwise_rate_MI_relation(save_name):
             # for every pair of e units
             for i in range(0,e_end):
                 for j in range(0,e_end):
-                    ax[0,0].scatter(np.sqrt(np.add(np.square(unitwise_0_rates[i]),np.square(unitwise_0_rates[j]))), MI_coh0[i,j], s=2, c='blue')
-                    ax[0,1].scatter(np.sqrt(np.add(np.square(unitwise_1_rates[i]),np.square(unitwise_1_rates[j]))), MI_coh1[i,j], s=2, c='blue')
+                    ax[1,0].scatter(np.sqrt(np.add(np.square(unitwise_0_rates[i]),np.square(unitwise_0_rates[j]))), MI_coh0[i,j], s=2, c='blue')
+                    ax[1,1].scatter(np.sqrt(np.add(np.square(unitwise_1_rates[i]),np.square(unitwise_1_rates[j]))), MI_coh1[i,j], s=2, c='blue')
             ax[1,0].set_title('trained coh 0')
             ax[1,0].set_xlabel('sqrt(fr1^2 + fr2^2)')
             ax[1,0].set_ylabel('confMI(1,2)')
