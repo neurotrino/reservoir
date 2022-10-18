@@ -403,7 +403,7 @@ def loss_comps_vs_degree(save_name,coh_lvl='coh0',weighted=False):
             plt.close()
 
 
-def synaptic_vs_recruit_degree(save_name, coh_lvl='coh0', e_only=True, weighted=True):
+def synaptic_vs_recruit_weight(save_name, coh_lvl='coh1', e_only=True, weighted=True):
     # for each experiment
     # check recruitment plots generated
     # plot at 0, 10, 100, and 1000 epochs
@@ -426,12 +426,13 @@ def synaptic_vs_recruit_degree(save_name, coh_lvl='coh0', e_only=True, weighted=
                 if (exp_string in dir):
                     exp_data_dir = dir
             data = np.load(exp_data_dir + '/npz-data/1-10.npz')
-            w_0 = data['tv1.postweights'][0]
-            w_10 = data['tv1.postweights'][9]
-            w_100 = data['tv1.postweights'][98]
+            w_0 = data['tv1.postweights'][0].reshape([i_end*i_end])
+            w_10 = data['tv1.postweights'][9].reshape([i_end*i_end])
+            w_100 = data['tv1.postweights'][98].reshape([i_end*i_end])
             data = np.load(exp_data_dir + '/npz-data/991-1000.npz')
-            w_10000 = data['tv1.postweights'][98]
+            w_10000 = data['tv1.postweights'][98].reshape([i_end*i_end])
 
+            """
             # get synaptic degrees
             degrees = get_degrees(w_0[0:e_end,0:e_end],weighted)
             # sum in and out degrees for total degree of each unit
@@ -441,9 +442,9 @@ def synaptic_vs_recruit_degree(save_name, coh_lvl='coh0', e_only=True, weighted=
             degrees = get_degrees(w_100[0:e_end,0:e_end],weighted)
             degrees_w_100 = np.add(degrees[1],degrees[0])
             degrees = get_degrees(w_10000[0:e_end,0:e_end],weighted)
-            degrees_w_10000 = np.add(degrees[1],degrees[0])
+            degrees_w_10000 = np.add(degrees[1],degrees[0])"""
 
-            # for recruitment graphs, mean across coherence level 0
+            # for recruitment graphs, mean across coherence level
             recruit_data = np.load(recruit_file_0, allow_pickle=True)
             recruit_0 = recruit_data[coh_lvl]
             recruit_data = np.load(recruit_file_10, allow_pickle=True)
@@ -453,6 +454,30 @@ def synaptic_vs_recruit_degree(save_name, coh_lvl='coh0', e_only=True, weighted=
             recruit_data = np.load(recruit_file_10000, allow_pickle=True)
             recruit_10000 = recruit_data[coh_lvl]
 
+            #get mean weights for recruitment graphs
+            w_rec_0 = []
+            w_rec_10 = []
+            w_rec_100 = []
+            w_rec_10000 = []
+            for i in range(np.shape(recruit_0)[0]): # for each trial
+                # mean across time points of the trial for each neuron
+                w_rec_0.append(np.mean(recruit_0[i],0))
+            # collapse across trials for each neuron
+            w_rec_0 = np.mean(w_rec_0,0).reshape([i_end*i_end])
+
+            for i in range(np.shape(recruit_10)[0]):
+                w_rec_10.append(np.mean(recruit_10[i],0))
+            w_rec_10 = np.mean(w_rec_10,0).reshape([i_end*i_end])
+
+            for i in range(np.shape(recruit_100)[0]):
+                w_rec_100.append(np.mean(recruit_100[i],0))
+            w_rec_100 = np.mean(w_rec_100,0).reshape([i_end*i_end])
+
+            for i in range(np.shape(recruit_10000)[0]):
+                w_rec_10000.append(np.mean(recruit_10000[i],0))
+            w_rec_10000 = np.mean(w_rec_10000,0).reshape([i_end*i_end])
+
+            """
             # get mean degrees for recruitment graphs
             degrees_rec_0 = []
             degrees_rec_10 = []
@@ -485,29 +510,41 @@ def synaptic_vs_recruit_degree(save_name, coh_lvl='coh0', e_only=True, weighted=
                     # get degrees for each naive unit
                     degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
                     # returns [in, out]
-                    degrees_rec_10000.append(np.add(degrees[1],degrees[0]))
+                    degrees_rec_10000.append(np.add(degrees[1],degrees[0]))"""
 
             # now plot correspondingly
-            ax[0,0].scatter(degrees_w_0,np.mean(degrees_rec_0,0), s=2)
-            ax[0,0].set_xlabel('synaptic degree')
-            ax[0,0].set_ylabel('recruitment degree')
+            #ax[0,0].scatter(degrees_w_0,np.mean(degrees_rec_0,0), s=2)
+            #ax[0,0].set_xlabel('synaptic degree')
+            #ax[0,0].set_ylabel('recruitment degree')
+            ax[0,0].scatter(w_0,w_rec_0,s=2)
+            ax[0,0].set_xlabel('synaptic weight')
+            ax[0,0].set_ylabel('recruitment weight')
             ax[0,0].set_title('Epoch 1')
-            ax[0,1].scatter(degrees_w_10,np.mean(degrees_rec_10,0), s=2)
-            ax[0,1].set_xlabel('synaptic degree')
-            ax[0,1].set_ylabel('recruitment degree')
+            #ax[0,1].scatter(degrees_w_10,np.mean(degrees_rec_10,0), s=2)
+            #ax[0,1].set_xlabel('synaptic degree')
+            #ax[0,1].set_ylabel('recruitment degree')
+            ax[0,1].scatter(w_10,w_rec_10,s=2)
+            ax[0,1].set_xlabel('synaptic weight')
+            ax[0,1].set_ylabel('recruitment weight')
             ax[0,1].set_title('Epoch 10')
-            ax[1,0].scatter(degrees_w_100,np.mean(degrees_rec_100,0), s=2)
-            ax[1,0].set_xlabel('synaptic degree')
-            ax[1,0].set_ylabel('recruitment degree')
+            #ax[1,0].scatter(degrees_w_100,np.mean(degrees_rec_100,0), s=2)
+            #ax[1,0].set_xlabel('synaptic degree')
+            #ax[1,0].set_ylabel('recruitment degree')
+            ax[1,0].scatter(w_100,w_rec_100,s=2)
+            ax[1,0].set_xlabel('synaptic weight')
+            ax[1,0].set_ylabel('recruitment weight')
             ax[1,0].set_title('Epoch 100')
-            ax[1,1].scatter(degrees_w_10000,np.mean(degrees_rec_10000,0), s=2)
-            ax[1,1].set_xlabel('synaptic degree')
-            ax[1,1].set_ylabel('recruitment degree')
+            #ax[1,1].scatter(degrees_w_10000,np.mean(degrees_rec_10000,0), s=2)
+            #ax[1,1].set_xlabel('synaptic degree')
+            #ax[1,1].set_ylabel('recruitment degree')
+            ax[1,1].scatter(w_10000,w_rec_10000,s=2)
+            ax[1,1].set_xlabel('synaptic weight')
+            ax[1,1].set_ylabel('recruitment weight')
             ax[1,1].set_title('Epoch 10000')
-    fig.suptitle('Excitatory synaptic vs. recruitment (coh 1) degrees')
+    fig.suptitle('Excitatory synaptic vs. recruitment (coh 1) weight')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
     plt.draw()
-    save_fname = savepath+'/'+save_name+'_plots/synvrecruit/degree_weighted_e_coh0_quad.png'
+    save_fname = savepath+'/'+save_name+'_plots/synvrecruit/weighted_e_coh1_quad.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
