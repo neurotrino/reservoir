@@ -169,20 +169,24 @@ def loss_comps_over_all_time(save_name):
     # plot both rate loss and task loss
     data_dirs = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
-    fig, ax = plt.subplots(nrows=4, ncols=1)
+    fig, ax = plt.subplots(nrows=5, ncols=1)
     # get your usual experiments first
     for xdir in data_dirs:
         # Get all of a single experiment's losses
         task_losses = []
         rate_losses = []
+        density = []
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
             task_losses += data["step_task_loss"].tolist()
             rate_losses += data["step_rate_loss"].tolist()
+            for i in range(0,np.shape(data["tv1.postweights"])[0]):
+                density.append(calc_density(data["tv1.postweights"][i][0:e_end,0:e_end]))
         # Plot losses for a single experiment
-        ax[1].plot(task_losses)
         ax[0].plot(rate_losses)
+        ax[1].plot(task_losses)
+        ax[2].plot(density)
     # now do for the task only experiments
     task_data_dirs = get_experiments(data_dir, task_experiment_string)
     for xdir in task_data_dirs:
@@ -195,8 +199,8 @@ def loss_comps_over_all_time(save_name):
             # for each batch update, calculate e-e graph density
             for i in range(0,np.shape(data["tv1.postweights"])[0]):
                 density.append(calc_density(data["tv1.postweights"][i][0:e_end,0:e_end]))
-        ax[2].plot(task_losses)
-        ax[3].plot(density)
+        ax[3].plot(task_losses)
+        ax[4].plot(density)
 
     ax[0].set_title('dual trained network')
     ax[0].set_xlabel('batch')
@@ -204,12 +208,16 @@ def loss_comps_over_all_time(save_name):
     ax[1].set_title('dual trained network')
     ax[1].set_xlabel('batch')
     ax[1].set_ylabel('task loss')
-    ax[2].set_title('task only trained network')
+    ax[2].set_title('dual trained network')
     ax[2].set_xlabel('batch')
-    ax[2].set_ylabel('task loss')
+    ax[2].set_ylabel('e-e density')
     ax[3].set_title('task only trained network')
     ax[3].set_xlabel('batch')
-    ax[3].set_ylabel('e-e density')
+    ax[3].set_ylabel('task loss')
+    ax[4].set_title('task only trained network')
+    ax[4].set_xlabel('batch')
+    ax[4].set_ylabel('e-e density')
+    plt.subplots_adjust(hspace=0.75)
     plt.draw()
     plt.savefig(savepath+'/set_plots/losses_dual_vs_task_trained.png')
     plt.clf()
