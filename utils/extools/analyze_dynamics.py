@@ -461,20 +461,20 @@ def synaptic_vs_recruit_weight(save_name, coh_lvl='coh1', e_only=True, weighted=
             w_rec_10000 = []
             for i in range(np.shape(recruit_0)[0]): # for each trial
                 # mean across time points of the trial for each neuron
-                w_rec_0.append(np.mean(recruit_0[i][0:e_end,0:e_end],0))
+                w_rec_0.append(np.mean(recruit_0[i],0)[0:e_end,0:e_end])
             # collapse across trials for each neuron
             w_rec_0 = np.mean(w_rec_0,0).reshape([e_end*e_end])
 
             for i in range(np.shape(recruit_10)[0]):
-                w_rec_10.append(np.mean(recruit_10[i][0:e_end,0:e_end],0))
+                w_rec_10.append(np.mean(recruit_10[i],0)[0:e_end,0:e_end])
             w_rec_10 = np.mean(w_rec_10,0).reshape([e_end*e_end])
 
             for i in range(np.shape(recruit_100)[0]):
-                w_rec_100.append(np.mean(recruit_100[i][0:e_end,0:e_end],0))
+                w_rec_100.append(np.mean(recruit_100[i],0)[0:e_end,0:e_end])
             w_rec_100 = np.mean(w_rec_100,0).reshape([e_end*e_end])
 
             for i in range(np.shape(recruit_10000)[0]):
-                w_rec_10000.append(np.mean(recruit_10000[i][0:e_end,0:e_end],0))
+                w_rec_10000.append(np.mean(recruit_10000[i],0)[0:e_end,0:e_end])
             w_rec_10000 = np.mean(w_rec_10000,0).reshape([e_end*e_end])
 
             """
