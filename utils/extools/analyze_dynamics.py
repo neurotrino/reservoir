@@ -426,11 +426,11 @@ def synaptic_vs_recruit_weight(save_name, coh_lvl='coh1', e_only=True, weighted=
                 if (exp_string in dir):
                     exp_data_dir = dir
             data = np.load(exp_data_dir + '/npz-data/1-10.npz')
-            w_0 = data['tv1.postweights'][0].reshape([i_end*i_end])
-            w_10 = data['tv1.postweights'][9].reshape([i_end*i_end])
-            w_100 = data['tv1.postweights'][98].reshape([i_end*i_end])
+            w_0 = data['tv1.postweights'][0][0:e_end,0:e_end].reshape([e_end*e_end])
+            w_10 = data['tv1.postweights'][9][0:e_end,0:e_end].reshape([e_end*e_end])
+            w_100 = data['tv1.postweights'][98][0:e_end,0:e_end].reshape([e_end*e_end])
             data = np.load(exp_data_dir + '/npz-data/991-1000.npz')
-            w_10000 = data['tv1.postweights'][98].reshape([i_end*i_end])
+            w_10000 = data['tv1.postweights'][98][0:e_end,0:e_end].reshape([e_end*e_end])
 
             """
             # get synaptic degrees
@@ -461,21 +461,21 @@ def synaptic_vs_recruit_weight(save_name, coh_lvl='coh1', e_only=True, weighted=
             w_rec_10000 = []
             for i in range(np.shape(recruit_0)[0]): # for each trial
                 # mean across time points of the trial for each neuron
-                w_rec_0.append(np.mean(recruit_0[i],0))
+                w_rec_0.append(np.mean(recruit_0[i][0:e_end,0:e_end],0))
             # collapse across trials for each neuron
-            w_rec_0 = np.mean(w_rec_0,0).reshape([i_end*i_end])
+            w_rec_0 = np.mean(w_rec_0,0).reshape([e_end*e_end])
 
             for i in range(np.shape(recruit_10)[0]):
-                w_rec_10.append(np.mean(recruit_10[i],0))
-            w_rec_10 = np.mean(w_rec_10,0).reshape([i_end*i_end])
+                w_rec_10.append(np.mean(recruit_10[i][0:e_end,0:e_end],0))
+            w_rec_10 = np.mean(w_rec_10,0).reshape([e_end*e_end])
 
             for i in range(np.shape(recruit_100)[0]):
-                w_rec_100.append(np.mean(recruit_100[i],0))
-            w_rec_100 = np.mean(w_rec_100,0).reshape([i_end*i_end])
+                w_rec_100.append(np.mean(recruit_100[i][0:e_end,0:e_end],0))
+            w_rec_100 = np.mean(w_rec_100,0).reshape([e_end*e_end])
 
             for i in range(np.shape(recruit_10000)[0]):
-                w_rec_10000.append(np.mean(recruit_10000[i],0))
-            w_rec_10000 = np.mean(w_rec_10000,0).reshape([i_end*i_end])
+                w_rec_10000.append(np.mean(recruit_10000[i][0:e_end,0:e_end],0))
+            w_rec_10000 = np.mean(w_rec_10000,0).reshape([e_end*e_end])
 
             """
             # get mean degrees for recruitment graphs
@@ -544,7 +544,7 @@ def synaptic_vs_recruit_weight(save_name, coh_lvl='coh1', e_only=True, weighted=
     fig.suptitle('Excitatory synaptic vs. recruitment (coh 1) weight')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
     plt.draw()
-    save_fname = savepath+'/'+save_name+'_plots/synvrecruit/weighted_e_coh1_quad.png'
+    save_fname = savepath+'/'+save_name+'_plots/synvrecruit/weighted_e_only_coh1_quad.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
