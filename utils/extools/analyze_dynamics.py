@@ -131,17 +131,17 @@ def output_projection(save_name,weighted=False):
             naive_i_out_idx = np.argwhere(naive_out<0)[:,0]
             trained_i_out_idx = np.argwhere(trained_out<0)[:,0]
 
-            naive_e_set = np.take(all_naive_degrees,naive_e_out_idx,0)
-            naive_e_set_degrees = np.take(naive_e_set,naive_e_out_idx,1)
+            naive_e_set_degrees = np.take(all_naive_degrees,naive_e_out_idx,0)
+            #naive_e_set_degrees = np.take(naive_e_set,naive_e_out_idx,1)
 
-            naive_i_set = np.take(all_naive_degrees,naive_i_out_idx,0)
-            naive_i_set_degrees = np.take(naive_i_set,naive_i_out_idx,1)
+            naive_i_set_degrees = np.take(all_naive_degrees,naive_i_out_idx,0)
+            #naive_i_set_degrees = np.take(naive_i_set,naive_i_out_idx,1)
 
-            trained_e_set = np.take(all_trained_degrees,trained_e_out_idx,0)
-            trained_e_set_degrees = np.take(trained_e_set,trained_e_out_idx,1)
+            trained_e_set_degrees = np.take(all_trained_degrees,trained_e_out_idx,0)
+            #trained_e_set_degrees = np.take(trained_e_set,trained_e_out_idx,1)
 
-            trained_i_set = np.take(all_trained_degrees,trained_i_out_idx,0)
-            trained_i_set_degrees = np.take(trained_i_set,trained_i_out_idx,1)
+            trained_i_set_degrees = np.take(all_trained_degrees,trained_i_out_idx,0)
+            #trained_i_set_degrees = np.take(trained_i_set,trained_i_out_idx,1)
 
             # find degrees of the rest of the units (that have 0 projections to output)
             naive_e_rest_idx = np.argwhere(naive_out[0:e_end,:]==0)[:,0]
@@ -149,17 +149,17 @@ def output_projection(save_name,weighted=False):
             naive_i_rest_idx = np.argwhere(naive_out[e_end:i_end,:]==0)[:,0]
             trained_i_rest_idx = np.argwhere(trained_out[e_end:i_end,:]==0)[:,0]
 
-            naive_e_rest = np.take(all_naive_degrees,naive_e_rest_idx,0)
-            naive_e_rest_degrees = np.take(naive_e_rest,naive_e_rest_idx,1)
+            naive_e_rest_degrees = np.take(all_naive_degrees,naive_e_rest_idx,0)
+            #naive_e_rest_degrees = np.take(naive_e_rest,naive_e_rest_idx,1)
 
-            naive_i_rest = np.take(all_naive_degrees,naive_i_rest_idx,0)
-            naive_i_rest_degrees = np.take(naive_i_rest,naive_i_rest_idx,1)
+            naive_i_rest_degrees = np.take(all_naive_degrees,naive_i_rest_idx,0)
+            #naive_i_rest_degrees = np.take(naive_i_rest,naive_i_rest_idx,1)
 
-            trained_e_rest = np.take(all_trained_degrees,trained_e_rest_idx,0)
-            trained_e_rest_degrees = np.take(trained_e_rest,trained_e_rest_idx,1)
+            trained_e_rest_degrees = np.take(all_trained_degrees,trained_e_rest_idx,0)
+            #trained_e_rest_degrees = np.take(trained_e_rest,trained_e_rest_idx,1)
 
-            trained_i_rest = np.take(all_trained_degrees,trained_i_rest_idx,0)
-            trained_i_rest_degrees = np.take(trained_i_rest,trained_i_rest_idx,1)
+            trained_i_rest_degrees = np.take(all_trained_degrees,trained_i_rest_idx,0)
+            #trained_i_rest_degrees = np.take(trained_i_rest,trained_i_rest_idx,1)
 
             # plot
             ax[0].hist(x=naive_e_set_degrees/len(naive_e_set_degrees),density=True,alpha=0.7,color="dodgerblue",label="e projection units")
