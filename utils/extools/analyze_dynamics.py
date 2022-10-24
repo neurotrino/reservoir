@@ -262,8 +262,8 @@ def loss_comps_over_all_time(save_name):
     ax[4].set_title('task only trained network')
     ax[4].set_xlabel('batch')
     ax[4].set_ylabel('e-e density')
-    plt.subplots_adjust(hspace=0.75)
     plt.draw()
+    plt.subplots_adjust(hspace=0.75)
     plt.savefig(savepath+'/set_plots/losses_dual_vs_task_trained.png')
     plt.clf()
     plt.close()
@@ -448,7 +448,7 @@ def loss_comps_vs_degree(save_name,coh_lvl='coh0',weighted=False):
             plt.close()
 
 
-def synaptic_vs_recruit_weight(save_name, coh_lvl='coh1', e_only=True, weighted=True):
+def synaptic_vs_recruit_weight(save_name, coh_lvl='coh0', e_only=True, weighted=True):
     # for each experiment
     # check recruitment plots generated
     # plot at 0, 10, 100, and 1000 epochs
@@ -586,10 +586,10 @@ def synaptic_vs_recruit_weight(save_name, coh_lvl='coh1', e_only=True, weighted=
             ax[1,1].set_xlabel('synaptic weight')
             ax[1,1].set_ylabel('recruitment weight')
             ax[1,1].set_title('Epoch 10000')
-    fig.suptitle('Excitatory synaptic vs. recruitment (coh 1) weight')
+    fig.suptitle('Excitatory synaptic vs. recruitment (coh 0) weight')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
     plt.draw()
-    save_fname = savepath+'/'+save_name+'_plots/synvrecruit/weighted_e_only_coh1_quad.png'
+    save_fname = savepath+'/'+save_name+'_plots/synvrecruit/weighted_e_only_coh0_quad.png'
     plt.savefig(save_fname,dpi=300)
     plt.clf()
     plt.close()
