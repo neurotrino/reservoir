@@ -111,8 +111,8 @@ def output_projection(save_name,weighted=False):
                 if (exp_string in dir):
                     exp_data_dir = dir
             data = np.load(exp_data_dir + '/npz-data/1-10.npz')
-            naive_w = data['tv1.postweights'][50]
-            naive_out = data['tv2.postweights'][50]
+            naive_w = data['tv1.postweights'][0]
+            naive_out = data['tv2.postweights'][0]
             data = np.load(exp_data_dir + '/npz-data/991-1000.npz')
             trained_w = data['tv1.postweights'][99]
             trained_out = data['tv2.postweights'][99]
@@ -170,7 +170,7 @@ def output_projection(save_name,weighted=False):
             # normalized by the total number of units within that population set (1)those that project and 2)those that don't project to output)
             ax[0].set_xlabel('total unweighted degree')
             ax[0].set_ylabel('density')
-            ax[0].set_title('naive (epoch 50)')
+            ax[0].set_title('naive')
             ax[1].hist(x=trained_e_set_degrees/len(trained_e_set_degrees),density=True,alpha=0.7,color="dodgerblue",label="e projection units")
             ax[1].hist(x=trained_i_set_degrees/len(trained_i_set_degrees),density=True,alpha=0.7,color='tomato',label='i projection units')
             ax[1].hist(x=trained_e_rest_degrees/len(trained_e_rest_degrees),density=True,alpha=0.7,color="mediumseagreen",label="e other units")
