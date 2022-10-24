@@ -149,16 +149,16 @@ def output_projection(save_name,weighted=False):
             naive_i_rest_idx = np.argwhere(naive_out[e_end:i_end,:]==0)[:,0]
             trained_i_rest_idx = np.argwhere(trained_out[e_end:i_end,:]==0)[:,0]
 
-            naive_e_rest_degrees = np.take(all_naive_degrees,naive_e_rest_idx,0)
+            naive_e_rest_degrees = np.take(all_naive_degrees[0:e_end],naive_e_rest_idx,0)
             #naive_e_rest_degrees = np.take(naive_e_rest,naive_e_rest_idx,1)
 
-            naive_i_rest_degrees = np.take(all_naive_degrees,naive_i_rest_idx,0)
+            naive_i_rest_degrees = np.take(all_naive_degrees[e_end:i_end],naive_i_rest_idx,0)
             #naive_i_rest_degrees = np.take(naive_i_rest,naive_i_rest_idx,1)
 
-            trained_e_rest_degrees = np.take(all_trained_degrees,trained_e_rest_idx,0)
+            trained_e_rest_degrees = np.take(all_trained_degrees[0:e_end],trained_e_rest_idx,0)
             #trained_e_rest_degrees = np.take(trained_e_rest,trained_e_rest_idx,1)
 
-            trained_i_rest_degrees = np.take(all_trained_degrees,trained_i_rest_idx,0)
+            trained_i_rest_degrees = np.take(all_trained_degrees[e_end:i_end],trained_i_rest_idx,0)
             #trained_i_rest_degrees = np.take(trained_i_rest,trained_i_rest_idx,1)
 
             # plot
