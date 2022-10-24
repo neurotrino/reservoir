@@ -117,32 +117,31 @@ def output_projection(save_name,weighted=False):
             trained_w = data['tv1.postweights'][99]
             trained_out = data['tv2.postweights'][99]
 
+            # you should calculate all degrees beforehand... and then get the
+            # identities of the units afterwards. that way you don't need to do
+            # the funny normalizing thing you've been doing.
+            degrees = get_degrees(naive_w,weighted)
+            all_naive_degrees = np.add(degrees[1],degrees[0])
+            degrees = get_degrees(trained_w,weighted)
+            all_trained_degrees = np.add(degrees[1],degrees[0])
+
             # find the indices of the units that project to output
             naive_e_out_idx = np.argwhere(naive_out>0)[:,0]
             trained_e_out_idx = np.argwhere(trained_out>0)[:,0]
             naive_i_out_idx = np.argwhere(naive_out<0)[:,0]
             trained_i_out_idx = np.argwhere(trained_out<0)[:,0]
 
-            naive_e_set = np.take(naive_w,naive_e_out_idx,0)
-            naive_e_set = np.take(naive_e_set,naive_e_out_idx,1)
-            # get degrees for each naive unit
-            degrees = get_degrees(naive_e_set,weighted)
-            naive_e_set_degrees = np.add(degrees[1],degrees[0])
+            naive_e_set = np.take(all_naive_degrees,naive_e_out_idx,0)
+            naive_e_set_degrees = np.take(naive_e_set,naive_e_out_idx,1)
 
-            naive_i_set = np.take(naive_w,naive_i_out_idx,0)
-            naive_i_set = np.take(naive_i_set,naive_i_out_idx,1)
-            degrees = get_degrees(naive_i_set,weighted)
-            naive_i_set_degrees = np.add(degrees[1],degrees[0])
+            naive_i_set = np.take(all_naive_degrees,naive_i_out_idx,0)
+            naive_i_set_degrees = np.take(naive_i_set,naive_i_out_idx,1)
 
-            trained_e_set = np.take(trained_w,trained_e_out_idx,0)
-            trained_e_set = np.take(trained_e_set,trained_e_out_idx,1)
-            degrees = get_degrees(trained_e_set,weighted)
-            trained_e_set_degrees = np.add(degrees[1],degrees[0])
+            trained_e_set = np.take(all_trained_degrees,trained_e_out_idx,0)
+            trained_e_set_degrees = np.take(trained_e_set,trained_e_out_idx,1)
 
-            trained_i_set = np.take(trained_w,trained_i_out_idx,0)
-            trained_i_set = np.take(trained_i_set,trained_i_out_idx,1)
-            degrees = get_degrees(trained_i_set,weighted)
-            trained_i_set_degrees = np.add(degrees[1],degrees[0])
+            trained_i_set = np.take(all_trained_degrees,trained_i_out_idx,0)
+            trained_i_set_degrees = np.take(trained_i_set,trained_i_out_idx,1)
 
             # find degrees of the rest of the units (that have 0 projections to output)
             naive_e_rest_idx = np.argwhere(naive_out[0:e_end,:]==0)[:,0]
@@ -150,42 +149,34 @@ def output_projection(save_name,weighted=False):
             naive_i_rest_idx = np.argwhere(naive_out[e_end:i_end,:]==0)[:,0]
             trained_i_rest_idx = np.argwhere(trained_out[e_end:i_end,:]==0)[:,0]
 
-            naive_e_rest = np.take(naive_w,naive_e_rest_idx,0)
-            naive_e_rest = np.take(naive_e_rest,naive_e_rest_idx,1)
-            degrees = get_degrees(naive_e_rest,weighted)
-            naive_e_rest_degrees = np.add(degrees[1],degrees[0])
+            naive_e_rest = np.take(all_naive_degrees,naive_e_rest_idx,0)
+            naive_e_rest_degrees = np.take(naive_e_rest,naive_e_rest_idx,1)
 
-            naive_i_rest = np.take(naive_w,naive_i_rest_idx,0)
-            naive_i_rest = np.take(naive_i_rest,naive_i_rest_idx,1)
-            degrees = get_degrees(naive_i_rest,weighted)
-            naive_i_rest_degrees = np.add(degrees[1],degrees[0])
+            naive_i_rest = np.take(all_naive_degrees,naive_i_rest_idx,0)
+            naive_i_rest_degrees = np.take(naive_i_rest,naive_i_rest_idx,1)
 
-            trained_e_rest = np.take(trained_w,trained_e_rest_idx,0)
-            trained_e_rest = np.take(trained_e_rest,trained_e_rest_idx,1)
-            degrees = get_degrees(trained_e_rest,weighted)
-            trained_e_rest_degrees = np.add(degrees[0],degrees[1])
+            trained_e_rest = np.take(all_trained_degrees,trained_e_rest_idx,0)
+            trained_e_rest_degrees = np.take(trained_e_rest,trained_e_rest_idx,1)
 
-            trained_i_rest = np.take(trained_w,trained_i_rest_idx,0)
-            trained_i_rest = np.take(trained_i_rest,trained_i_rest_idx,1)
-            degrees = get_degrees(trained_i_rest,weighted)
-            trained_i_rest_degrees = np.add(degrees[0],degrees[1])
+            trained_i_rest = np.take(all_trained_degrees,trained_i_rest_idx,0)
+            trained_i_rest_degrees = np.take(trained_i_rest,trained_i_rest_idx,1)
 
             # plot
-            ax[0].hist(x=naive_e_set_degrees/len(naive_e_set_degrees),density=True,alpha=0.75,color="dodgerblue",label="e projection units")
-            ax[0].hist(x=naive_i_set_degrees/len(naive_i_set_degrees),density=True,alpha=0.75,color='tomato',label='i projection units')
-            ax[0].hist(x=naive_e_rest_degrees/len(naive_e_rest_degrees),density=True,alpha=0.75,color="mediumseagreen",label="e other units")
-            ax[0].hist(x=naive_i_rest_degrees/len(naive_i_rest_degrees),density=True,alpha=0.75,color='orchid',label='i other units')
+            ax[0].hist(x=naive_e_set_degrees/len(naive_e_set_degrees),density=True,alpha=0.7,color="dodgerblue",label="e projection units")
+            ax[0].hist(x=naive_i_set_degrees/len(naive_i_set_degrees),density=True,alpha=0.7,color='tomato',label='i projection units')
+            ax[0].hist(x=naive_e_rest_degrees/len(naive_e_rest_degrees),density=True,alpha=0.7,color="mediumseagreen",label="e other units")
+            ax[0].hist(x=naive_i_rest_degrees/len(naive_i_rest_degrees),density=True,alpha=0.7,color='darkorange',label='i other units')
             ax[0].legend()
             # normalized by the total number of units within that population set (1)those that project and 2)those that don't project to output)
-            ax[0].set_xlabel('norm total unweighted degree')
+            ax[0].set_xlabel('total unweighted degree')
             ax[0].set_ylabel('density')
             ax[0].set_title('naive (epoch 50)')
-            ax[1].hist(x=trained_e_set_degrees/len(trained_e_set_degrees),density=True,alpha=0.75,color="dodgerblue",label="e projection units")
-            ax[1].hist(x=trained_i_set_degrees/len(trained_i_set_degrees),density=True,alpha=0.75,color='tomato',label='i projection units')
-            ax[1].hist(x=trained_e_rest_degrees/len(trained_e_rest_degrees),density=True,alpha=0.75,color="mediumseagreen",label="e other units")
-            ax[1].hist(x=trained_i_rest_degrees/len(trained_i_rest_degrees),density=True,alpha=0.75,color='orchid',label='i other units')
+            ax[1].hist(x=trained_e_set_degrees/len(trained_e_set_degrees),density=True,alpha=0.7,color="dodgerblue",label="e projection units")
+            ax[1].hist(x=trained_i_set_degrees/len(trained_i_set_degrees),density=True,alpha=0.7,color='tomato',label='i projection units')
+            ax[1].hist(x=trained_e_rest_degrees/len(trained_e_rest_degrees),density=True,alpha=0.7,color="mediumseagreen",label="e other units")
+            ax[1].hist(x=trained_i_rest_degrees/len(trained_i_rest_degrees),density=True,alpha=0.7,color='darkorange',label='i other units')
             ax[1].legend()
-            ax[1].set_xlabel('norm total unweighted degree')
+            ax[1].set_xlabel('total unweighted degree')
             ax[1].set_ylabel('density')
             ax[1].set_title('trained')
             plt.suptitle('Synaptic graph')
