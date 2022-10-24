@@ -27,7 +27,7 @@ experiment_string = "run-batch30-specout-onlinerate0.1-savey"
 task_experiment_string = 'run-batch30-onlytaskloss'
 num_epochs = 1000
 epochs_per_file = 10
-e_end = 240
+e_end = 241
 i_end = 300
 savepath = "/data/results/experiment1/"
 
@@ -131,16 +131,16 @@ def output_projection(save_name,weighted=False):
             naive_i_out_idx = np.argwhere(naive_out[e_end:i_end,:]<0)[:,0]
             trained_i_out_idx = np.argwhere(trained_out[e_end:i_end,:]<0)[:,0]
 
-            naive_e_set_degrees = np.take(all_naive_degrees,naive_e_out_idx,0)
+            naive_e_set_degrees = np.take(all_naive_degrees[0:e_end],naive_e_out_idx,0)
             #naive_e_set_degrees = np.take(naive_e_set,naive_e_out_idx,1)
 
-            naive_i_set_degrees = np.take(all_naive_degrees,naive_i_out_idx,0)
+            naive_i_set_degrees = np.take(all_naive_degrees[e_end:i_end],naive_i_out_idx,0)
             #naive_i_set_degrees = np.take(naive_i_set,naive_i_out_idx,1)
 
-            trained_e_set_degrees = np.take(all_trained_degrees,trained_e_out_idx,0)
+            trained_e_set_degrees = np.take(all_trained_degrees[0:e_end],trained_e_out_idx,0)
             #trained_e_set_degrees = np.take(trained_e_set,trained_e_out_idx,1)
 
-            trained_i_set_degrees = np.take(all_trained_degrees,trained_i_out_idx,0)
+            trained_i_set_degrees = np.take(all_trained_degrees[e_end:i_end],trained_i_out_idx,0)
             #trained_i_set_degrees = np.take(trained_i_set,trained_i_out_idx,1)
 
             # find degrees of the rest of the units (that have 0 projections to output)

@@ -33,8 +33,8 @@ def get_degrees(arr, weighted):
 
     for i in range(np.shape(arr)[0]): # calculate degrees for each unit
         if not weighted:
-            out_degree.append(np.size(np.where(arr[i,:]>0)))
-            in_degree.append(np.size(np.where(arr[:,i]>0)))
+            out_degree.append(np.size(np.where(arr[i,:]!=0)))
+            in_degree.append(np.size(np.where(arr[:,i]!=0)))
         else: # absolute weighted degree
             out_degree.append(np.sum(np.abs(arr[i,:])))
             in_degree.append(np.sum(np.abs(arr[:,i])))
