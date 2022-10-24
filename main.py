@@ -23,14 +23,19 @@ for filepath in Path(".").rglob("*.py"):
     """
     fp_str = str(filepath)
 
-    if fp_str not in [__file__, "__init__.py", "setup.py"]:
-        # Convert filepaths to module paths
-        module_name = fp_str[:-3]
-        module_name = module_name.replace("/", ".")
+    if fp_str in [__file__, "__init__.py", "setup.py"]:
+        continue
 
-        # Call `import data.ccd` and so on
-        exec(f"import {module_name}")
-        print(f"registered {fp_str} as {module_name}")
+    # Convert filepaths to module paths
+    module_name = fp_str[:-3]
+    module_name = module_name.replace("/", ".")
+
+    if module_name.startswith("."):
+        continue
+
+    # Call `import data.ccd` and so on
+    exec(f"import {module_name}")
+    print(f"registered {fp_str} as {module_name}")
 
 
 def main():

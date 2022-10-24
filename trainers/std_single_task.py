@@ -54,6 +54,60 @@ class Trainer(BaseTrainer):
     # ┤ Training Loop (step level)                                            │
     # ┴───────────────────────────────────────────────────────────────────────╯
 
+
+    @switched_tf_function
+    def task_loss(self, x, y):
+        return 0
+
+
+    @switched_tf_function
+    def rate_loss(self, spikes, target_rate, wgt=1.0, algorithm="simple"):
+
+        # Compute the sum of squares difference between the target rate
+        # and the observed rate over the entire timeseries
+        if algorithm == "simple":
+            unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
+            rate_loss = tf.reduce_sum(tf.square(unitwise_rates - target_rate))
+            return rate_loss * wgt
+
+        # Compute
+        if algorithm == "rolling":
+
+            # Convenience variables
+            (s0, s1, s2) = spikes.shape
+
+            # Reshape for convenience
+            rs_spikes = tf.reshape(spikes, (s0 * s1, s2))
+
+            # Compute running average
+            denominators = tf.range(1, s0 * s1 + 1, dtype=tf.float32)[:, None]
+            rolling_avg = tf.cumsum(rs_spikes) / denominators
+
+            # Restore shape
+            rolling_avg = tf.reshape(rolling_avg, spikes.shape)
+
+            # Weighted rate loss
+            rate_loss = tf.reduce_sum(
+                tf.reduce_mean(
+                    tf.square(rolling_avg - target_rate),
+                    axis=1
+                )
+            )
+            return rate_loss * wgt
+
+        # Compute the rate loss using a window to compute the
+        # instantaneous firing rate
+        if algorithm == "windowed":
+            raise NotImplementedError(
+                "windowed rate loss is not currently supported"
+            )
+
+
+    @switched_tf_function
+    def sync_loss(self, x, y):
+        return 0
+
+
     @switched_tf_function
     def loss(self, x, y):
         """Calculate the loss on data x labeled y."""
@@ -79,10 +133,10 @@ class Trainer(BaseTrainer):
         else:
             task_loss = loss_object(y_true=y, y_pred=prediction)
 
-        if self.cfg['train'].include_task_loss:
-            net_loss = task_loss
-        else:
-            net_loss = 0
+        if not self.cfg['train'].include_task_loss:
+            task_loss = task_loss * 0.0
+
+        net_loss = task_loss
 
         # Penalty for unrealistic firing rates
         # [!] need to add metric or something else for real-time
@@ -90,32 +144,18 @@ class Trainer(BaseTrainer):
         #     a model attribute and add to our loading bar plus write
         #     to disk then flush)
         if self.cfg["train"].simple_rate_loss:
-            unitwise_rates = tf.reduce_mean(spikes, axis=(0, 1))
-            rate_loss = (
-                tf.reduce_sum(
-                    tf.square(unitwise_rates - self.cfg["train"].target_rate)
-                )
-                * self.cfg["train"].rate_cost
+            rate_loss = self.rate_loss(
+                spikes,
+                self.cfg["train"].target_rate,
+                self.cfg["train"].rate_cost,
+                "simple"
             )
         else:
-            # replace simple average with online running average rate
-            shp = tf.shape(spikes)
-            z_single_agent = tf.concat(tf.unstack(spikes, axis=0), axis=0)
-            spike_count_single_agent = tf.cumsum(z_single_agent, axis=0)
-            timeline_single_agent = tf.cast(
-                tf.range(shp[0] * shp[1]), tf.float32
-            )
-            running_av = (
-                spike_count_single_agent
-                / (timeline_single_agent + 1)[:, None]
-            )
-            running_av = tf.stack(
-                tf.split(running_av, self.cfg["train"].batch_size), axis=0
-            )
-            rate_loss = tf.square(running_av - self.cfg["train"].target_rate)
-            rate_loss = tf.reduce_sum(
-                tf.reduce_mean(rate_loss, axis=1)
-                * self.cfg["train"].rate_cost
+            rate_loss = self.rate_loss(
+                spikes,
+                self.cfg["train"].target_rate,
+                self.cfg["train"].rate_cost,
+                "rolling"
             )
 
         if self.cfg["train"].lax_rate_loss:
@@ -123,7 +163,7 @@ class Trainer(BaseTrainer):
                 rate_loss = 0.0
 
         if self.cfg["train"].include_rate_loss:
-            net_loss += rate_loss
+            net_loss = net_loss + rate_loss
 
         # Penalty for unrealistic synchrony
         synchrony = fano_factor(self, self.cfg["data"].seq_len, spikes)
