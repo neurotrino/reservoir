@@ -92,7 +92,7 @@ coh_lvl = 'coh0'
 MI_path = '/data/results/experiment1/MI_graphs_bin10/'
 
 
-def output_projection(save_name,weighted=False):
+def output_projection(save_name,weighted=True):
     # looking at only the units that project to the output
     # find their interconnected density
     # plot their degrees relative to the degrees of the rest of the network
@@ -168,7 +168,7 @@ def output_projection(save_name,weighted=False):
             ax[0].hist(x=naive_i_rest_degrees,density=True,alpha=0.7,color='darkorange',label='i other units')
             ax[0].legend()
             # normalized by the total number of units within that population set (1)those that project and 2)those that don't project to output)
-            ax[0].set_xlabel('total unweighted degree')
+            ax[0].set_xlabel('total weighted degree')
             ax[0].set_ylabel('density')
             ax[0].set_title('naive (epoch 0)')
             ax[1].hist(x=trained_e_set_degrees,density=True,alpha=0.7,color="dodgerblue",label="e projection units")
@@ -176,13 +176,13 @@ def output_projection(save_name,weighted=False):
             ax[1].hist(x=trained_e_rest_degrees,density=True,alpha=0.7,color="mediumseagreen",label="e other units")
             ax[1].hist(x=trained_i_rest_degrees,density=True,alpha=0.7,color='darkorange',label='i other units')
             ax[1].legend()
-            ax[1].set_xlabel('total unweighted degree')
+            ax[1].set_xlabel('total weighted degree')
             ax[1].set_ylabel('density')
             ax[1].set_title('trained')
             plt.suptitle('Synaptic graph')
             plt.draw()
             plt.subplots_adjust(wspace=0.5)
-            plt.savefig(savepath+'/'+save_name+'_plots/projectionset/'+exp_string+'_ei_synaptic_degree.png')
+            plt.savefig(savepath+'/'+save_name+'_plots/projectionset/'+exp_string+'_ei_weighted_synaptic_degree.png')
             plt.clf()
             plt.close()
 
