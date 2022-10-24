@@ -111,8 +111,8 @@ def output_projection(save_name,weighted=False):
                 if (exp_string in dir):
                     exp_data_dir = dir
             data = np.load(exp_data_dir + '/npz-data/1-10.npz')
-            naive_w = data['tv1.postweights'][0]
-            naive_out = data['tv2.postweights'][0]
+            naive_w = data['tv1.postweights'][50]
+            naive_out = data['tv2.postweights'][50]
             data = np.load(exp_data_dir + '/npz-data/991-1000.npz')
             trained_w = data['tv1.postweights'][99]
             trained_out = data['tv2.postweights'][99]
@@ -126,10 +126,10 @@ def output_projection(save_name,weighted=False):
             all_trained_degrees = np.add(degrees[1],degrees[0])
 
             # find the indices of the units that project to output
-            naive_e_out_idx = np.argwhere(naive_out>0)[:,0]
-            trained_e_out_idx = np.argwhere(trained_out>0)[:,0]
-            naive_i_out_idx = np.argwhere(naive_out<0)[:,0]
-            trained_i_out_idx = np.argwhere(trained_out<0)[:,0]
+            naive_e_out_idx = np.argwhere(naive_out[0:e_end,:]>0)[:,0]
+            trained_e_out_idx = np.argwhere(trained_out[0:e_end,:]>0)[:,0]
+            naive_i_out_idx = np.argwhere(naive_out[e_end:i_end,:]<0)[:,0]
+            trained_i_out_idx = np.argwhere(trained_out[e_end:i_end,:]<0)[:,0]
 
             naive_e_set_degrees = np.take(all_naive_degrees,naive_e_out_idx,0)
             #naive_e_set_degrees = np.take(naive_e_set,naive_e_out_idx,1)
@@ -170,7 +170,7 @@ def output_projection(save_name,weighted=False):
             # normalized by the total number of units within that population set (1)those that project and 2)those that don't project to output)
             ax[0].set_xlabel('total unweighted degree')
             ax[0].set_ylabel('density')
-            ax[0].set_title('naive')
+            ax[0].set_title('naive (epoch 50)')
             ax[1].hist(x=trained_e_set_degrees/len(trained_e_set_degrees),density=True,alpha=0.7,color="dodgerblue",label="e projection units")
             ax[1].hist(x=trained_i_set_degrees/len(trained_i_set_degrees),density=True,alpha=0.7,color='tomato',label='i projection units')
             ax[1].hist(x=trained_e_rest_degrees/len(trained_e_rest_degrees),density=True,alpha=0.7,color="mediumseagreen",label="e other units")
