@@ -92,7 +92,7 @@ coh_lvl = 'coh0'
 MI_path = '/data/results/experiment1/MI_graphs_bin10/'
 
 
-def output_projection(save_name,weighted=False,coh_lvl='coh0'):
+def output_projection(save_name,weighted=False,coh_lvl='coh1'):
     # looking at only the units that project to the output
     # find their interconnected density
     # plot their degrees relative to the degrees of the rest of the network
@@ -202,10 +202,10 @@ def output_projection(save_name,weighted=False,coh_lvl='coh0'):
             ax[1].set_xlabel('total unweighted degree')
             ax[1].set_ylabel('density')
             ax[1].set_title('trained')
-            plt.suptitle('Recruitment graph, coh 0')
+            plt.suptitle('Recruitment graph, coh 1')
             plt.draw()
             plt.subplots_adjust(wspace=0.5)
-            plt.savefig(savepath+'/'+save_name+'_plots/projectionset/'+exp_string+'_ei_recruit_degree.png')
+            plt.savefig(savepath+'/'+save_name+'_plots/projectionset/'+exp_string+'_ei_recruit_coh1_degree.png')
             plt.clf()
             plt.close()
 
