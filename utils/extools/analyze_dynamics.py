@@ -168,7 +168,7 @@ def output_projection(save_name,weighted=False):
             trained_i_rest = np.take(trained_w,trained_i_rest_idx,0)
             trained_i_rest = np.take(trained_i_rest,trained_i_rest_idx,1)
             degrees = get_degrees(trained_i_rest,weighted)
-            trained_i_rest_degrees = np.add(degrees[0],degress[1])
+            trained_i_rest_degrees = np.add(degrees[0],degrees[1])
 
             # plot
             ax[0].hist(x=naive_e_set_degrees/len(naive_e_set_degrees),bins=20,density=True,alpha=0.5,color="dodgerblue",label="e projection units")
