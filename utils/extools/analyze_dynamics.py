@@ -92,7 +92,7 @@ coh_lvl = 'coh0'
 MI_path = '/data/results/experiment1/MI_graphs_bin10/'
 
 
-def output_projection(save_name,weighted=True):
+def output_projection(save_name,weighted=True,coh_lvl='coh0'):
     # looking at only the units that project to the output
     # find their interconnected density
     # plot their degrees relative to the degrees of the rest of the network
@@ -100,22 +100,45 @@ def output_projection(save_name,weighted=True):
     recruit_dirs = [f.path for f in os.scandir(recruit_path)]
 
     for exp in recruit_dirs:
-        final_recruit_file = exp + '/1-10-batch99.npz'
+        final_recruit_file = exp + '/991-1000-batch99.npz'
         if os.path.isfile(final_recruit_file):
 
             fig, ax = plt.subplots(nrows=1, ncols=2)
 
             # get original data
+
             exp_string = exp[-8:]
             for dir in data_dirs:
                 if (exp_string in dir):
                     exp_data_dir = dir
             data = np.load(exp_data_dir + '/npz-data/1-10.npz')
-            naive_w = data['tv1.postweights'][0]
+            #naive_w = data['tv1.postweights'][0]
             naive_out = data['tv2.postweights'][0]
             data = np.load(exp_data_dir + '/npz-data/991-1000.npz')
-            trained_w = data['tv1.postweights'][99]
+            #trained_w = data['tv1.postweights'][99]
             trained_out = data['tv2.postweights'][99]
+
+            # time to do average of all recruitment graphs!
+            mean_recruit = []
+            # get naive recruitment graphs
+            recruit_file = exp + '/1-10-batch50.npz'
+            recruit_data = np.load(recruit_file, allow_pickle=True)
+            recruit = recruit_data[coh_lvl]
+            for i in range(np.shape(recruit)[0]): # for each trial
+                for j in range(np.shape(recruit[i])[0]): # for each timepoint
+                    mean_recruit.append(recruit[i][j])
+            naive_w = np.mean(mean_recruit,0)
+
+            mean_recruit = []
+            # get trained recruitment graphs
+            recruit_file = final_recruit_file
+            recruit_data = np.load(recruit_file, allow_pickle=True)
+            recruit = recruit_data[coh_lvl]
+            for i in range(np.shape(recruit)[0]): # for each trial
+                for j in range(np.shape(recruit[i])[0]): # for each timepoint
+                    arr = recruit[i][j]
+                    mean_recruit.append(arr)
+            trained_w = np.mean(mean_recruit,0)
 
             # you should calculate all degrees beforehand... and then get the
             # identities of the units afterwards. that way you don't need to do
@@ -170,7 +193,7 @@ def output_projection(save_name,weighted=True):
             # normalized by the total number of units within that population set (1)those that project and 2)those that don't project to output)
             ax[0].set_xlabel('total weighted degree')
             ax[0].set_ylabel('density')
-            ax[0].set_title('naive (epoch 0)')
+            ax[0].set_title('naive (batch 50)')
             ax[1].hist(x=trained_e_set_degrees,density=True,alpha=0.7,color="dodgerblue",label="e projection units")
             ax[1].hist(x=trained_i_set_degrees,density=True,alpha=0.7,color='tomato',label='i projection units')
             ax[1].hist(x=trained_e_rest_degrees,density=True,alpha=0.7,color="mediumseagreen",label="e other units")
@@ -179,10 +202,10 @@ def output_projection(save_name,weighted=True):
             ax[1].set_xlabel('total weighted degree')
             ax[1].set_ylabel('density')
             ax[1].set_title('trained')
-            plt.suptitle('Synaptic graph')
+            plt.suptitle('Recruitment graph, coh 0')
             plt.draw()
             plt.subplots_adjust(wspace=0.5)
-            plt.savefig(savepath+'/'+save_name+'_plots/projectionset/'+exp_string+'_ei_weighted_synaptic_degree.png')
+            plt.savefig(savepath+'/'+save_name+'_plots/projectionset/'+exp_string+'_ei_weighted_recruit_degree.png')
             plt.clf()
             plt.close()
 
