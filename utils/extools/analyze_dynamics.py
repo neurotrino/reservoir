@@ -181,7 +181,7 @@ def output_projection(save_name,weighted=False):
             ax[1].set_title('trained')
             plt.suptitle('Synaptic graph')
             plt.draw()
-            plt.subplots_adjust(wspace=0.3)
+            plt.subplots_adjust(wspace=0.5)
             plt.savefig(savepath+'/'+save_name+'_plots/projectionset/'+exp_string+'_ei_synaptic_degree.png')
             plt.clf()
             plt.close()
