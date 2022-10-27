@@ -2012,6 +2012,7 @@ def bin_batch_MI_graphs(
     associated binned recruitment graphs for a single batch update.
 
     Assumes 30 trials per batch.
+
     """
 
     [
@@ -2042,6 +2043,8 @@ def bin_batch_MI_graphs(
     return [fn_coh0, fn_coh1]
 
 
+# THIS IS THE SCRIPT WE CURRENTLY USE TO GENERATE BOTH FUNCTIONAL (MI) AND RECRUITMENT GRAPHS
+# FOR THE FIRST TEN NAIVE (1-10.npz) AND LAST TEN TRAINED (991-1000.npz) EPOCHS ONLY
 def generate_naive_trained_recruitment_graphs(
     experiment_string,
     overwrite=False,
@@ -2055,31 +2058,45 @@ def generate_naive_trained_recruitment_graphs(
     # we are first saving just fns for 1-10.npz and 991-1000.npz,
     # and the individual batch recruitment graphs corresponding.
 
-    # experiment_string is the data we want to turn into recruitment graphs
-    # do not overwrite already-saved files that contain generated networks
-    # bin functional networks into 10ms (as 'consecutive' bins)
-    # for the sake of efficiency, these are discrete bins rather than sliding window through each ms
-    # threshold = 0.25 means we take just the top quartile of FN weights to calculate recruitment graphs
-    # generate separately for e-e, e-i, i-e, and i-i units (if e_only=True, only do e-e)
-    # positive_only=False means we DO include negative confMI values (negative correlations)
-    # previously we had always removed those, but now we'll try to make sense of negative correlations as we go
+    # VARIABLES:
+    # experiment_string: the data we want to turn into recruitment graphs (for you, the string that is common to all rate-only experiments saved in /data/experiments/ (or wherever you saved them))
 
+    # overwrite=False: do not overwrite already-saved files that contain generated networks
+
+    # bin=10: use 10-ms bins of spikes to construct functional graphs
+
+    # sliding_window_bins=False: for the sake of efficiency, these are discrete bins rather than sliding window through each ms
+
+    # threshold=0.25: we take just the top quartile of functional weights to calculate recruitment graphs
+    # threshold=1: we take all functional weights to calculate recruitment graphs; due to sparsity of spikes, this is the best option.
+
+    # e_only=False: generate for e-e, e-i, i-e, and i-i connections (if e_only=True, only do e-e)
+
+    # positive_only=False: we DO include negative confMI values (negative correlations); decide what to do with them later
+    # previously we had always removed those, but now we'll try to make sense of negative correlations with Gabriella's help.
+
+    # may need to modify the following to get the rate-only experiments
     experiments = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
-    # networks will be saved as npz files (each containing multiple arrays), so the same names as data_files
+    # networks will be saved as npz files (each containing multiple arrays), using the same names as data_files
 
-    recruit_savepath = os.path.join(savepath, "recruitment_graphs_bin10_full")
-    if not os.path.isdir(recruit_savepath):
-        os.makedirs(recruit_savepath)
-
-    # we desire to save new MI functional graphs as well
+    # may need to modify the following to save rate-only functional networks in a new folder
+    # I've saved task-and-rate-trained functional and recruitment graphs on ava in /data/results/experiment1/MI_graphs_bin10/ and /data/results/experiment1/recruitment_graphs_bin10_full respectively
     MI_savepath = os.path.join(savepath, "MI_graphs_bin10")
     if not os.path.isdir(MI_savepath):
         os.makedirs(MI_savepath)
 
+    # may need to modify the following to save rate-only recruitment networks in a new folder
+    recruit_savepath = os.path.join(savepath, "recruitment_graphs_bin10_full")
+    if not os.path.isdir(recruit_savepath):
+        os.makedirs(recruit_savepath)
+
+    # for each rate-only experiment that you've run:
     for xdir in experiments:
+        # I am using the time of each experiment as its identifying name for exp_path (like '05.21.35')
         exp_path = xdir[-9:-1]
         # check if MI and recruitment graph folders have already been generated
+        # again you may need to modify this according to where you want to save your rate-only graphs
         if not os.path.isdir(os.path.join(recruit_savepath, exp_path)):
             os.makedirs(os.path.join(recruit_savepath, exp_path))
         if not os.path.isdir(os.path.join(MI_savepath, exp_path)):
@@ -2087,13 +2104,13 @@ def generate_naive_trained_recruitment_graphs(
         if not e_only:
             # for each batch update, there should be 2 functional networks (1 for each coherence level)
             # for file_idx in range(np.size(data_files)):
-            for file_idx in [0, 99]:
+            for file_idx in [0, 99]: # just doing the first and last (naive and trained) for now to save space
                 # the experimental npz data file (containing 10 epochs x 10 batches)
                 filepath = os.path.join(
                     data_dir, xdir, "npz-data", data_files[file_idx]
                 )
 
-                # case of we HAVE generated FNs for this npz file already
+                # case of we HAVE generated FNs for this npz file already (not applicable to you, unless script or screen crashes in the middle (this is why I have this))
                 if os.path.isfile(
                     os.path.join(MI_savepath, exp_path, data_files[file_idx])
                 ):
@@ -2189,10 +2206,12 @@ def generate_naive_trained_recruitment_graphs(
                                 coh1=rn_coh1,
                             )
 
-                # case of FNs have NOT yet been generated
+                # case of FNs have NOT yet been generated (applicable to you and your rate-only experiments)
+                # you might still need to modify some folder / file names
                 if not os.path.isfile(
                     os.path.join(MI_savepath, exp_path, data_files[file_idx])
                 ):
+                    # load in data from experimental npz files
                     data = np.load(filepath)
                     spikes = data["spikes"]
                     true_y = data["true_y"]
@@ -2200,8 +2219,6 @@ def generate_naive_trained_recruitment_graphs(
                     # generate MI and recruitment graphs from spikes for each coherence level
                     fns_coh0 = []
                     fns_coh1 = []
-                    # rns_coh0 = np.array([],dtype=object) # specifying object bc ragged dimensions
-                    # rns_coh1 = np.array([],dtype=object)
                     for batch in range(
                         np.shape(true_y)[0]
                     ):  # each file contains 100 batch updates
@@ -2210,6 +2227,7 @@ def generate_naive_trained_recruitment_graphs(
                         # each w is actually a postweight, so corresponds to the next batch
                         if batch == 0 and file_idx == 0:
                             # at the very beginning of the experiment, the naive network is loaded in
+                            # I have saved the 0th epoch's (truly naive, before first batch update) data in a separate npz-data/main_preweights.npy file, this file should exist for rate-only experiments too
                             w_naive = np.load(
                                 os.path.join(
                                     data_dir,
@@ -2244,6 +2262,8 @@ def generate_naive_trained_recruitment_graphs(
                                 recruit_savepath, exp_path, batch_string
                             )
                         )
+                        # recruitment graphs for each batch are saved within this function call
+                        # saved as "1-10-batch49.npz" for example
                         batch_fns = bin_batch_MI_graphs(
                             batch_w,
                             spikes[batch],
@@ -2260,10 +2280,9 @@ def generate_naive_trained_recruitment_graphs(
                         # aggregate functional networks to save
                         fns_coh0.append(batch_fns[0])
                         fns_coh1.append(batch_fns[1])
-                    # do not save in separate directories, instead save all these in the same files by variable name
                     # saving convention is same as npz data files (save as 1-10.npz for example)
-                    # for example, fns_coh0 is sized [100 batch updates, 300 pre units, 300 post units]
-                    # and rns_coh0 is sized [100 batch updates, # trial segments, # timesteps, 300 pre units, 300 post units]
+                    # fns_coh0 are fns_coh1 are each sized [100 batch updates, 300 pre units, 300 post units]
+                    # rns_coh0 (recruitment graph for coherence 0, which is saved in the above function call to bin_batch_MI_graphs) and rns_coh1 are each sized [100 batch updates, variable # trial segments, variable # timesteps, 300 pre units, 300 post units]
                     # we will separate by connection type (ee, ei, ie, ee) in further analyses
                     # reduce decimal precision of fns for disk space
                     fns_coh0 = np.around(fns_coh0, 4)
