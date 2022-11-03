@@ -84,7 +84,10 @@ def map_no_labels(save_name):
     for xdir in data_dirs:
         [naive_spikes, trained_spikes, naive_y, trained_y] = get_data_for_umap(xdir, separate_by_type=False)
         all_data = np.concatenate((naive_spikes, trained_spikes), axis=0)
-        all_labels = np.concatenate((naive_y, trained_y), axis=0)
+        # flatten units and time, so we have just trial as the first dim
+        all_data=all_data.reshape(np.shape(all_data)[0],np.shape(all_data)[1]*np.shape(all_data)[2])
+        all_labels = np.ndarray.flatten(np.concatenate((naive_y, trained_y), axis=0))
+        
         reducer = umap.UMAP()
         embedding = reducer.fit_transform(all_data)
         plt.scatter(embedding[:, 0], embedding[:, 1], c=all_labels, cmap='Spectral')
