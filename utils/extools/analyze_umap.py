@@ -76,7 +76,7 @@ def get_data_for_umap(separate_by_type=False):
         return [naive_data_arr,trained_data_arr,naive_y_arr,trained_y_arr]
 
 
-def map_no_labels(save_name):
+def map_no_labels():
     # using numpy data appears sufficient
     # give in naive data spikes
     # give in trained data spikes
