@@ -71,7 +71,7 @@ def get_data_for_umap(xdir, separate_by_type=False):
                 else:
                     trained_y_arr.append([3])
 
-        return [naive_data_arr,trained_data_arr,np.ndarray.flatten(naive_y_arr),np.ndarray.flatten(trained_y_arr)]
+        return [naive_data_arr,trained_data_arr,naive_y_arr,trained_y_arr]
 
 
 def map_no_labels(save_name):
