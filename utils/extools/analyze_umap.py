@@ -39,7 +39,7 @@ i_end = 300
 trial_len = 4080
 savepath = "/data/results/experiment1/"
 
-def get_data_for_umap(separate_by_type=False):
+def get_data_for_umap(xdir, separate_by_type=False):
     if not separate_by_type:
         naive_data_arr = []
         naive_y_arr = []
@@ -86,11 +86,11 @@ def map_no_labels():
 
     data_dirs = get_experiments(data_dir, experiment_string)
     for xdir in data_dirs:
-        [naive_spikes, trained_spikes, naive_y, trained_y] = get_data_for_umap(separate_by_type=False)
+        [naive_spikes, trained_spikes, naive_y, trained_y] = get_data_for_umap(xdir, separate_by_type=False)
         all_data = np.concatenate((naive_spikes, trained_spikes), axis=0)
         # flatten units and time, so we have just trial as the first dim
         all_data=all_data.reshape(np.shape(all_data)[0],np.shape(all_data)[1]*np.shape(all_data)[2])
-        all_data_arr.append(all_data) # aggregate spike data with trial as the first dim 
+        all_data_arr.append(all_data) # aggregate spike data with trial as the first dim
         all_labels = np.ndarray.flatten(np.concatenate((naive_y, trained_y), axis=0))
         all_y_arr.append(all_labels)
     all_y_arr.flatten()
