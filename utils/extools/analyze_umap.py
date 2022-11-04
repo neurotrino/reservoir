@@ -182,7 +182,7 @@ def map_no_labels():
     # turn list of arrays into one
     all_y_arr = np.concatenate(all_y_arr,axis=0)
 
-    reducer = umap.UMAP(n_neighbors=5)
+    reducer = umap.UMAP(n_neighbors=3)
     embedding = reducer.fit_transform(all_data_arr)
 
     # Create and save plot
@@ -190,7 +190,7 @@ def map_no_labels():
     plt.colorbar()
     plt.title('UMAP projection of naive & trained coherence-level responses')
     exp_string = xdir[-9:-1]  # NOTE: for use if/when creating and saving each experiment's embedding separately
-    save_fname = savepath+set_save_name+'/umap_50_5.png'
+    save_fname = savepath+set_save_name+'/umap_50_3.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
