@@ -52,7 +52,7 @@ savepath = "/data/results/experiment1/"
 # Data Processing
 # ========== ========== ========== ========== ========== ========== ==========
 
-def get_data_for_umap(xdir, separate_by_type=False):
+def get_spike_data_for_umap(xdir, separate_by_type=False):
     """Get activity for all static-coherence trails from NumPy data.
 
     Arguments:
@@ -167,7 +167,7 @@ def get_data_for_umap(xdir, separate_by_type=False):
 # Plotting
 # ========== ========== ========== ========== ========== ========== ==========
 
-def map_no_labels():
+def map_activity():
     """TODO: document function"""
 
     # NOTE: YQ - using numpy data appears sufficient;
@@ -181,7 +181,7 @@ def map_no_labels():
     data_dirs = get_experiments(DATA_DIR, experiment_string)
 
     for xdir in data_dirs:
-        [naive_spikes, trained_spikes, naive_y, trained_y] = get_data_for_umap(
+        [naive_spikes, trained_spikes, naive_y, trained_y] = get_spike_data_for_umap(
             xdir, separate_by_type=False
         )
 
@@ -210,6 +210,46 @@ def map_no_labels():
     plt.title('UMAP projection of naive & trained coherence-level responses')
     exp_string = xdir[-9:-1]  # NOTE: for use if/when creating and saving each experiment's embedding separately
     save_fname = savepath+set_save_name+'/umap_fullepoch_5.png'
+    plt.savefig(save_fname,dpi=300)
+
+    # Teardown
+    plt.clf()
+    plt.close()
+
+
+def map_synaptic():
+    # UMAP projections of the naive and trained synaptic graphs
+
+    all_w_arr = []
+    all_labels = []
+
+    data_dirs = get_experiments(DATA_DIR, experiment_string)
+
+    for xdir in data_dirs:
+        # load in synaptic data
+        np_dir = os.path.join(DATA_DIR, xdir, "npz-data")
+
+        naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
+        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+
+        for i in range(np.shape(naive_data['true_y'])[0]):
+
+            all_w_arr.append(np.reshape(naive_data['tv1.postweights'][i],[i_end*i_end]))
+            all_w_arr.append(np.reshape(trained_data['tv1.postweights'][i],[i_end*i_end]))
+            all_labels.append([0]) # naive trial
+            all_labels.append([1]) # trained trial
+
+    all_labels.flatten()
+
+    reducer = umap.UMAP(n_neighbors=5)
+    embedding = reducer.fit_transform(all_data_arr)
+
+    # Create and save plot
+    plt.scatter(embedding[:, 0], embedding[:, 1], c=all_labels, cmap='Spectral')
+    plt.colorbar()
+    plt.title('UMAP projection of naive & trained synaptic graphs')
+    exp_string = xdir[-9:-1]  # NOTE: for use if/when creating and saving each experiment's embedding separately
+    save_fname = savepath+set_save_name+'/umap_synaptic_fullepoch_5.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
