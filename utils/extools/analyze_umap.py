@@ -3,8 +3,6 @@
 Intended for use within ava's scikit-learn virtual environment with
 `source /home/macleanlab/sklearn-venv/bin/activate`.
 """
-sys.path.append("../")
-sys.path.append("../../")
 
 # external ----
 from sklearn.model_selection import train_test_split
