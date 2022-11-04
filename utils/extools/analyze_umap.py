@@ -134,8 +134,8 @@ def get_data_for_umap(xdir, separate_by_type=False):
     trained_spikes_agg = []
     naive_y_agg = []
     trained_y_agg = []
-    #for i in range(np.shape(naive_data['true_y'])[0]):
-    for i in range(3):
+    for i in range(np.shape(naive_data['true_y'])[0]):
+    #for i in range(3): # testing
         naive_y = naive_data["true_y"][i]
         trained_y = trained_data["true_y"][i]
 
@@ -160,7 +160,7 @@ def get_data_for_umap(xdir, separate_by_type=False):
             naive_y_agg = np.vstack([naive_y_agg,naive_y_arr])
             trained_y_agg = np.vstack([trained_y_agg,trained_y_arr])
 
-    return [naive_spikes_agg, trained_spikes_agg, naive_y_agg, trained_y_agg]
+    return [naive_spikes_agg, trained_spikes_agg, naive_y_agg.flatten(), trained_y_agg.flatten()]
 
 
 # ========== ========== ========== ========== ========== ========== ==========
@@ -201,7 +201,7 @@ def map_no_labels():
     # turn list of arrays into one
     all_y_arr = np.concatenate(all_y_arr,axis=0)
 
-    reducer = umap.UMAP(n_neighbors=3)
+    reducer = umap.UMAP(n_neighbors=5)
     embedding = reducer.fit_transform(all_data_arr)
 
     # Create and save plot
@@ -209,7 +209,7 @@ def map_no_labels():
     plt.colorbar()
     plt.title('UMAP projection of naive & trained coherence-level responses')
     exp_string = xdir[-9:-1]  # NOTE: for use if/when creating and saving each experiment's embedding separately
-    save_fname = savepath+set_save_name+'/umap_50_3.png'
+    save_fname = savepath+set_save_name+'/umap_fullepoch_5.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
