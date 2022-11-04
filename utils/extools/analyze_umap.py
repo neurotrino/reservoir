@@ -239,10 +239,10 @@ def map_synaptic():
             all_labels.append([0]) # naive trial
             all_labels.append([1]) # trained trial
 
-    all_labels.flatten()
+    all_labels = np.reshape(all_labels,[len(all_labels)])
 
     reducer = umap.UMAP(n_neighbors=5)
-    embedding = reducer.fit_transform(all_data_arr)
+    embedding = reducer.fit_transform(all_w_arr)
 
     # Create and save plot
     plt.scatter(embedding[:, 0], embedding[:, 1], c=all_labels, cmap='Spectral')
