@@ -48,7 +48,7 @@ savepath = "/data/results/experiment1/"
 
 
 # ========== ========== ========== ========== ========== ========== ==========
-#
+# Data Processing
 # ========== ========== ========== ========== ========== ========== ==========
 
 def get_data_for_umap(xdir, separate_by_type=False):
@@ -114,6 +114,7 @@ def get_data_for_umap(xdir, separate_by_type=False):
                 lbl_arr.append([tags[1]])
 
         return dat_arr, lbl_arr
+
 
     # TODO: add support for this flag
     if separate_by_type:
