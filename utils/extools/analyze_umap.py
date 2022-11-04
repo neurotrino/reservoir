@@ -149,10 +149,16 @@ def get_data_for_umap(xdir, separate_by_type=False):
         trained_data_arr, trained_y_arr = np_to_umap_data(
             trained_y, trained_spikes, [2, 3]
         )
-        naive_spikes_agg.append(naive_data_arr)
-        trained_spikes_agg.append(trained_data_arr)
-        naive_y_agg.append(naive_y_arr)
-        trained_y_agg.append(trained_y_arr)
+        if i==0:
+            naive_spikes_agg = naive_data_arr
+            trained_spikes_agg = trained_data_arr
+            naive_y_agg = naive_y_arr
+            trained_y_agg = trained_y_arr
+        else:
+            naive_spikes_agg = np.vstack([naive_spikes_agg,naive_data_arr])
+            trained_spikes_agg = np.vstack([trained_spikes_agg,trained_data_arr])
+            naive_y_agg = np.vstack([naive_y_agg,naive_y_arr])
+            trained_y_agg = np.vstack([trained_y_agg,trained_y_arr])
 
     return [naive_spikes_agg, trained_spikes_agg, naive_y_agg, trained_y_agg]
 
