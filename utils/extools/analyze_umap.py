@@ -170,7 +170,11 @@ def map_no_labels():
 
         # flatten units and time, so we have just trial as the first dim
         all_data=all_data.reshape(np.shape(all_data)[0],np.shape(all_data)[1]*np.shape(all_data)[2])
-        all_data_arr = np.vstack([all_data_arr, all_data]) # aggregate spike data with trial as the first dim
+
+        if all_data_arr==[]:
+            all_data_arr = all_data
+        else:
+            all_data_arr = np.vstack([all_data_arr, all_data]) # aggregate spike data with trial as the first dim
 
         all_labels = np.ndarray.flatten(np.concatenate((naive_y, trained_y), axis=0))
         all_y_arr.append(all_labels)
