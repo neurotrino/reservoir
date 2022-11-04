@@ -134,7 +134,8 @@ def get_data_for_umap(xdir, separate_by_type=False):
     trained_spikes_agg = []
     naive_y_agg = []
     trained_y_agg = []
-    for i in range(np.shape(naive_data['true_y'])[0]):
+    #for i in range(np.shape(naive_data['true_y'])[0]):
+    for i in range(3):
         naive_y = naive_data["true_y"][i]
         trained_y = trained_data["true_y"][i]
 
@@ -177,6 +178,7 @@ def map_no_labels():
         [naive_spikes, trained_spikes, naive_y, trained_y] = get_data_for_umap(
             xdir, separate_by_type=False
         )
+
         all_data = np.concatenate((naive_spikes, trained_spikes), axis=0)
 
         # flatten units and time, so we have just trial as the first dim
