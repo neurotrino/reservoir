@@ -129,10 +129,10 @@ def get_data_for_umap(xdir, separate_by_type=False):
     naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
     trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
 
-    naive_y = naive_data["true_y"][0]
+    naive_y = naive_data["true_y"][50]
     trained_y = trained_data["true_y"][99]
 
-    naive_spikes = naive_data["spikes"][0]
+    naive_spikes = naive_data["spikes"][50]
     trained_spikes = trained_data["spikes"][99]
 
     # Reformat data for umap analysis
@@ -182,7 +182,7 @@ def map_no_labels():
     # turn list of arrays into one
     all_y_arr = np.concatenate(all_y_arr,axis=0)
 
-    reducer = umap.UMAP(n_neighbors=2)
+    reducer = umap.UMAP(n_neighbors=5)
     embedding = reducer.fit_transform(all_data_arr)
 
     # Create and save plot
@@ -190,7 +190,7 @@ def map_no_labels():
     plt.colorbar()
     plt.title('UMAP projection of naive & trained coherence-level responses')
     exp_string = xdir[-9:-1]  # NOTE: for use if/when creating and saving each experiment's embedding separately
-    save_fname = savepath+set_save_name+'/umap_2.png'
+    save_fname = savepath+set_save_name+'/umap_50_5.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
