@@ -107,6 +107,7 @@ def get_data_for_umap(xdir, separate_by_type=False):
 
             # Track the spikes of trials with a consistent coherence
             dat_arr.append(z.transpose())
+            # Transpose so that the first dim is the unit id and the second is time
 
             # Track the coherence label for coherence-static trials
             if y[0] == 0:
@@ -129,20 +130,30 @@ def get_data_for_umap(xdir, separate_by_type=False):
     naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
     trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
 
-    naive_y = naive_data["true_y"][50]
-    trained_y = trained_data["true_y"][99]
+    naive_spikes_agg = []
+    trained_spikes_agg = []
+    naive_y_agg = []
+    trained_y_agg = []
+    for i in range(np.shape(naive_data['true_y'])[0]):
+        naive_y = naive_data["true_y"][i]
+        trained_y = trained_data["true_y"][i]
 
-    naive_spikes = naive_data["spikes"][50]
-    trained_spikes = trained_data["spikes"][99]
+        naive_spikes = naive_data["spikes"][i]
+        trained_spikes = trained_data["spikes"][i]
 
-    # Reformat data for umap analysis
-    naive_data_arr, naive_y_arr = np_to_umap_data(
-        naive_y, naive_spikes, [0, 1]
-    )
-    trained_data_arr, trained_y_arr = np_to_umap_data(
-        trained_y, trained_spikes, [2, 3]
-    )
-    return [naive_data_arr, trained_data_arr, naive_y_arr, trained_y_arr]
+        # Reformat data for umap analysis
+        naive_data_arr, naive_y_arr = np_to_umap_data(
+            naive_y, naive_spikes, [0, 1]
+        )
+        trained_data_arr, trained_y_arr = np_to_umap_data(
+            trained_y, trained_spikes, [2, 3]
+        )
+        naive_spikes_agg.append(naive_data_arr)
+        trained_spikes_agg.append(trained_data_arr)
+        naive_y_agg.append(naive_y_arr)
+        trained_y_agg.append(trained_y_arr)
+
+    return [naive_spikes_agg, trained_spikes_agg, naive_y_agg, trained_y_agg]
 
 
 # ========== ========== ========== ========== ========== ========== ==========
