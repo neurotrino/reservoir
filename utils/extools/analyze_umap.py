@@ -90,7 +90,7 @@ def map_no_labels():
         all_data = np.concatenate((naive_spikes, trained_spikes), axis=0)
         # flatten units and time, so we have just trial as the first dim
         all_data=all_data.reshape(np.shape(all_data)[0],np.shape(all_data)[1]*np.shape(all_data)[2])
-        all_data_arr.append(all_data) # aggregate spike data with trial as the first dim
+        all_data_arr = np.vstack([all_data_arr, all_data]) # aggregate spike data with trial as the first dim
         all_labels = np.ndarray.flatten(np.concatenate((naive_y, trained_y), axis=0))
         all_y_arr.append(all_labels)
     # turn list of arrays into one
