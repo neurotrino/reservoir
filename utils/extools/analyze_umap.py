@@ -58,8 +58,8 @@ def get_spike_data_for_umap(xdir, separate_by_type=False):
     Arguments:
         xdir: experiment directory (relative filepath)
 
-        separate_by_type: TODO: document NOTE: flag is not currently
-            supported
+        separate_by_type: if True, separate into three categories:
+        recurrent units that receive input, all recurrent units, recurrent units that project to output
 
     Returns:
         naive_data_arr: list of spiking activities for the preserved
@@ -118,12 +118,6 @@ def get_spike_data_for_umap(xdir, separate_by_type=False):
         return dat_arr, lbl_arr
 
 
-    # TODO: add support for this flag
-    if separate_by_type:
-        raise NotImplementedError(
-            "the `separate_by_type` flag is not currently supported"
-        )
-
     # Load data from memory
     np_dir = os.path.join(DATA_DIR, xdir, "npz-data")
 
@@ -136,11 +130,36 @@ def get_spike_data_for_umap(xdir, separate_by_type=False):
     trained_y_agg = []
     for i in range(np.shape(naive_data['true_y'])[0]):
     #for i in range(3): # testing
+
         naive_y = naive_data["true_y"][i]
         trained_y = trained_data["true_y"][i]
 
-        naive_spikes = naive_data["spikes"][i]
-        trained_spikes = trained_data["spikes"][i]
+        if separate_by_type:
+            """
+            # get only recurrent units' spikes that receive input
+            in_id = np.argwhere(naive_data['tv0.postweights'][i][:]!=0)
+            naive_spikes = naive_data['spikes'][i][in_id]
+            in_id = np.argwhere(trained_data['tv0.postweights'][i]!=0)
+            trained_spikes = trained_data['spikes'][i][in_id]
+            """
+            # get only recurrent units' spikes that project to output
+            # ultimately separate into e and i as well
+            in_id = np.argwhere(naive_data['tv2.postweights'][i]!=0)
+            in_id = in_id[:,0]
+            naive_spikes = []
+            for j in range(np.shape(naive_data['true_y'][i])[0]):
+                naive_spikes.append(np.transpose(np.transpose(naive_data['spikes'][i][j])[in_id,:]))
+
+            in_id = np.argwhere(trained_data['tv2.postweights'][i]!=0)
+            in_id = in_id[:,0]
+            trained_spikes = []
+            for j in range(np.shape(trained_data['true_y'][i])[0]):
+                trained_spikes.append(np.transpose(np.transpose(trained_data['spikes'][i][j])[in_id,:]))
+
+        else:
+            # get all recurrent units' spikes
+            naive_spikes = naive_data["spikes"][i]
+            trained_spikes = trained_data["spikes"][i]
 
         # Reformat data for umap analysis
         naive_data_arr, naive_y_arr = np_to_umap_data(
@@ -149,6 +168,7 @@ def get_spike_data_for_umap(xdir, separate_by_type=False):
         trained_data_arr, trained_y_arr = np_to_umap_data(
             trained_y, trained_spikes, [2, 3]
         )
+
         if i==0:
             naive_spikes_agg = naive_data_arr
             trained_spikes_agg = trained_data_arr
@@ -210,6 +230,95 @@ def map_activity():
     plt.title('UMAP projection of naive & trained coherence-level responses')
     exp_string = xdir[-9:-1]  # NOTE: for use if/when creating and saving each experiment's embedding separately
     save_fname = savepath+set_save_name+'/umap_fullepoch_5.png'
+    plt.savefig(save_fname,dpi=300)
+
+    # Teardown
+    plt.clf()
+    plt.close()
+
+"""
+def map_input():
+    # only the units that receive input
+
+    all_data_arr = []
+    all_y_arr = []
+
+    data_dirs = get_experiments(DATA_DIR, experiment_string)
+
+    for xdir in data_dirs:
+        [naive_spikes, trained_spikes, naive_y, trained_y] = get_spike_data_for_umap(
+            xdir, separate_by_type=True
+        )
+
+        all_data = np.concatenate((naive_spikes, trained_spikes), axis=0)
+
+        # flatten units and time, so we have just trial as the first dim
+        all_data=all_data.reshape(np.shape(all_data)[0],np.shape(all_data)[1]*np.shape(all_data)[2])
+
+        if all_data_arr==[]:
+            all_data_arr = all_data
+        else:
+            all_data_arr = np.vstack([all_data_arr, all_data]) # aggregate spike data with trial as the first dim
+
+        all_labels = np.ndarray.flatten(np.concatenate((naive_y, trained_y), axis=0))
+        all_y_arr.append(all_labels)
+
+    # turn list of arrays into one
+    all_y_arr = np.concatenate(all_y_arr,axis=0)
+
+    reducer = umap.UMAP(n_neighbors=5)
+    embedding = reducer.fit_transform(all_data_arr)
+
+    # Create and save plot
+    plt.scatter(embedding[:, 0], embedding[:, 1], c=all_y_arr, cmap='Spectral')
+    plt.colorbar()
+    plt.title('UMAP projection of activity of units that receive input')
+    exp_string = xdir[-9:-1]  # NOTE: for use if/when creating and saving each experiment's embedding separately
+    save_fname = savepath+set_save_name+'/umap_fullepoch_input_5.png'
+    plt.savefig(save_fname,dpi=300)
+
+    # Teardown
+    plt.clf()
+    plt.close()
+    """
+
+def map_output():
+    # only the units that project to output
+    all_data_arr = []
+    all_y_arr = []
+
+    data_dirs = get_experiments(DATA_DIR, experiment_string)
+
+    for xdir in data_dirs:
+        [naive_spikes, trained_spikes, naive_y, trained_y] = get_spike_data_for_umap(
+            xdir, separate_by_type=True
+        )
+
+        all_data = np.concatenate((naive_spikes, trained_spikes), axis=0)
+
+        # flatten units and time, so we have just trial as the first dim
+        all_data=all_data.reshape(np.shape(all_data)[0],np.shape(all_data)[1]*np.shape(all_data)[2])
+
+        if all_data_arr==[]:
+            all_data_arr = all_data
+        else:
+            all_data_arr = np.vstack([all_data_arr, all_data]) # aggregate spike data with trial as the first dim
+
+        all_labels = np.ndarray.flatten(np.concatenate((naive_y, trained_y), axis=0))
+        all_y_arr.append(all_labels)
+
+    # turn list of arrays into one
+    all_y_arr = np.concatenate(all_y_arr,axis=0)
+
+    reducer = umap.UMAP(n_neighbors=5)
+    embedding = reducer.fit_transform(all_data_arr)
+
+    # Create and save plot
+    plt.scatter(embedding[:, 0], embedding[:, 1], c=all_y_arr, cmap='Spectral')
+    plt.colorbar()
+    plt.title('UMAP projection of activity of units that project to output')
+    exp_string = xdir[-9:-1]  # NOTE: for use if/when creating and saving each experiment's embedding separately
+    save_fname = savepath+set_save_name+'/umap_fullepoch_output_5.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
