@@ -65,10 +65,10 @@ def plot_input_channels():
                     linewidth=0.5,
                     line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
                 )"""
-                ax[0,0].hist(naive_in[i,:],histtype='step')
-                ax[0,1].hist(early_in[i,:],histtype='step')
-                ax[1,0].hist(late_in[i,:],histtype='step')
-                ax[1,1].hist(trained_in[i,:],histtype='step')
+                ax[0,0].hist(naive_in[i,:],bins=50,histtype='step')
+                ax[0,1].hist(early_in[i,:],bins=50,histtype='step')
+                ax[1,0].hist(late_in[i,:],bins=50,histtype='step')
+                ax[1,1].hist(trained_in[i,:],bins=50,histtype='step')
 
             ax[0,0].set_title('epoch 0')
             ax[0,0].set_xlabel('input weights')
