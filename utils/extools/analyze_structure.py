@@ -34,6 +34,8 @@ def plot_input_channels():
     for xdir in experiments:
         # separately for each experiment
         exp_path = xdir[-9:-1]
+        if not os.path.isdir(os.path.join(savepath, exp_path)):
+            os.makedirs(os.path.join(savepath, exp_path))
 
         np_dir = os.path.join(data_dir, xdir, "npz-data")
         naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
@@ -41,45 +43,47 @@ def plot_input_channels():
         late_data = np.load(os.path.join(np_dir, "241-250.npz"))
         trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
 
-        naive_in = naive_data['tv0.postweights'][0]
-        early_in = early_data['tv0.postweights'][0]
-        late_in = late_data['tv0.postweights'][0]
-        trained_in = trained_data['tv0.postweights'][0]
+        if os.path.isfile(trained_data):
 
-        # plot each channel's distribution
-        for i in range(np.shape(naive_in)[0]):
-            """
-            sns.histplot(
-                data=np.ravel(naive_in[i,:]),
-                bins=30,
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-            )"""
-            ax[0,0].hist(naive_in[i,:],histtype='step')
-            ax[0,1].hist(early_in[i,:],histtype='step')
-            ax[1,0].hist(late_in[i,:],histtype='step')
-            ax[1,1].hist(trained_in[i,:],histtype='step')
+            naive_in = naive_data['tv0.postweights'][0]
+            early_in = early_data['tv0.postweights'][0]
+            late_in = late_data['tv0.postweights'][0]
+            trained_in = trained_data['tv0.postweights'][0]
 
-        ax[0,0].set_title('epoch 0')
-        ax[0,0].set_xlabel('input weights')
-        ax[0,1].set_title('epoch 50')
-        ax[0,1].set_xlabel('input weights')
-        ax[1,0].set_title('epoch 250')
-        ax[1,0].set_xlabel('input weights')
-        ax[1,1].set_title('epoch 1000')
-        ax[1,1].set_xlabel('input weights')
+            # plot each channel's distribution
+            for i in range(np.shape(naive_in)[0]):
+                """
+                sns.histplot(
+                    data=np.ravel(naive_in[i,:]),
+                    bins=30,
+                    stat="density",
+                    alpha=0.5,
+                    kde=True,
+                    edgecolor="white",
+                    linewidth=0.5,
+                    line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
+                )"""
+                ax[0,0].hist(naive_in[i,:],histtype='step')
+                ax[0,1].hist(early_in[i,:],histtype='step')
+                ax[1,0].hist(late_in[i,:],histtype='step')
+                ax[1,1].hist(trained_in[i,:],histtype='step')
 
-        plt.suptitle("Evolution of 16 input channels' weights")
-        plt.draw()
-        plt.subplots_adjust(wspace=0.4, hspace=0.7)
-        save_fname = savepath+exp_path+'/input_channel_dist_quad.png'
-        plt.savefig(save_fname,dpi=300)
-        plt.clf()
-        plt.close()
+            ax[0,0].set_title('epoch 0')
+            ax[0,0].set_xlabel('input weights')
+            ax[0,1].set_title('epoch 50')
+            ax[0,1].set_xlabel('input weights')
+            ax[1,0].set_title('epoch 250')
+            ax[1,0].set_xlabel('input weights')
+            ax[1,1].set_title('epoch 1000')
+            ax[1,1].set_xlabel('input weights')
+
+            plt.suptitle("Evolution of 16 input channels' weights")
+            plt.draw()
+            plt.subplots_adjust(wspace=0.4, hspace=0.7)
+            save_fname = savepath+exp_path+'/input_channel_dist_quad.png'
+            plt.savefig(save_fname,dpi=300)
+            plt.clf()
+            plt.close()
 
 def get_degrees(arr, weighted):
     out_degree = []
