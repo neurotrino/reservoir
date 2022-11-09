@@ -30,7 +30,6 @@ savepath = "/data/results/experiment1/"
 
 def plot_input_channels():
     experiments = get_experiments(data_dir, experiment_string)
-    fig, ax = plt.subplots(nrows=2, ncols=2)
     for xdir in experiments:
         # separately for each experiment
         exp_path = xdir[-9:-1]
@@ -40,6 +39,8 @@ def plot_input_channels():
         np_dir = os.path.join(data_dir, xdir, "npz-data")
 
         if os.path.isfile(os.path.join(np_dir, "991-1000.npz")):
+
+            fig, ax = plt.subplots(nrows=2, ncols=2)
 
             naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
             early_data = np.load(os.path.join(np_dir, "41-50.npz"))
