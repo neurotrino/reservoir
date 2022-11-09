@@ -81,7 +81,7 @@ def plot_input_channels():
             plt.suptitle("Evolution of 16 input channels' weights")
             plt.draw()
             plt.subplots_adjust(wspace=0.4, hspace=0.7)
-            save_fname = savepath+exp_path+'/input_channel_dist_quad.png'
+            save_fname = savepath+exp_path+'/'+exp_path+'_input_channel_dist_quad.png'
             plt.savefig(save_fname,dpi=300)
             plt.clf()
             plt.close()
