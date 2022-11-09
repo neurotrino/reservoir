@@ -45,6 +45,7 @@ epochs_per_file = 10
 e_end = 241
 # note e_end may be different somehow depending on what dataset you're working on
 i_end = 300
+n_input = 16
 savepath = "/data/results/experiment1/"
 
 
@@ -327,7 +328,7 @@ def map_output():
 
 
 def map_synaptic():
-    # UMAP projections of the naive and trained synaptic graphs
+    # UMAP projections of the naive and trained input synaptic graphs
 
     all_w_arr = []
     all_labels = []
@@ -343,8 +344,8 @@ def map_synaptic():
 
         for i in range(np.shape(naive_data['true_y'])[0]):
 
-            all_w_arr.append(np.reshape(naive_data['tv1.postweights'][i],[i_end*i_end]))
-            all_w_arr.append(np.reshape(trained_data['tv1.postweights'][i],[i_end*i_end]))
+            all_w_arr.append(np.reshape(naive_data['tv0.postweights'][i],[n_input*i_end]))
+            all_w_arr.append(np.reshape(trained_data['tv0.postweights'][i],[n_input*i_end]))
             all_labels.append([0]) # naive trial
             all_labels.append([1]) # trained trial
 
@@ -356,9 +357,9 @@ def map_synaptic():
     # Create and save plot
     plt.scatter(embedding[:, 0], embedding[:, 1], c=all_labels, cmap='Spectral')
     plt.colorbar()
-    plt.title('UMAP projection of naive & trained synaptic graphs')
+    plt.title('UMAP projection of naive & trained input weights')
     exp_string = xdir[-9:-1]  # NOTE: for use if/when creating and saving each experiment's embedding separately
-    save_fname = savepath+set_save_name+'/umap_synaptic_fullepoch_5.png'
+    save_fname = savepath+set_save_name+'/umap_input_fullepoch_5.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
