@@ -351,7 +351,7 @@ def map_synaptic():
 
     all_labels = np.reshape(all_labels,[len(all_labels)])
 
-    reducer = umap.UMAP(n_neighbors=5)
+    reducer = umap.UMAP(n_neighbors=15)
     embedding = reducer.fit_transform(all_w_arr)
 
     # Create and save plot
@@ -359,7 +359,7 @@ def map_synaptic():
     plt.colorbar()
     plt.title('UMAP projection of naive & trained input weights')
     exp_string = xdir[-9:-1]  # NOTE: for use if/when creating and saving each experiment's embedding separately
-    save_fname = savepath+set_save_name+'/umap_input_fullepoch_5.png'
+    save_fname = savepath+set_save_name+'/umap_input_fullepoch_15.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
