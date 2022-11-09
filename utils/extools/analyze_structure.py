@@ -20,7 +20,8 @@ from utils.extools.fn_analysis import calc_density
 from utils.extools.fn_analysis import out_degree
 
 data_dir = "/data/experiments/"
-experiment_string = "run-batch30-specout-onlinerate0.1-singlepreweight"
+#experiment_string = "run-batch30-specout-onlinerate0.1-singlepreweight"
+experiment_string = "run-batch30-specout-onlinerate0.1-savey"
 num_epochs = 1000
 epochs_per_file = 10
 e_end = 240
@@ -31,7 +32,7 @@ def plot_input_channels():
     experiments = get_experiments(data_dir, experiment_string)
     fig, ax = plt.subplots(nrows=2, ncols=2)
     for xdir in experiments:
-        # separately for each experiment 
+        # separately for each experiment
         exp_path = xdir[-9:-1]
 
         np_dir = os.path.join(data_dir, xdir, "npz-data")
