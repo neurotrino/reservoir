@@ -38,12 +38,13 @@ def plot_input_channels():
             os.makedirs(os.path.join(savepath, exp_path))
 
         np_dir = os.path.join(data_dir, xdir, "npz-data")
-        naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
-        early_data = np.load(os.path.join(np_dir, "41-50.npz"))
-        late_data = np.load(os.path.join(np_dir, "241-250.npz"))
-        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
 
-        if os.path.isfile(trained_data):
+        if os.path.isfile(os.path.join(np_dir, "991-1000.npz")):
+
+            naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
+            early_data = np.load(os.path.join(np_dir, "41-50.npz"))
+            late_data = np.load(os.path.join(np_dir, "241-250.npz"))
+            trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
 
             naive_in = naive_data['tv0.postweights'][0]
             early_in = early_data['tv0.postweights'][0]
