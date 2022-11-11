@@ -41,7 +41,7 @@ def calc_density(graph):
 def out_degree(graph, weighted):
     """TODO: document function
 
-    Providing a transposed graph with provide the in-degree instead.
+    Providing a transposed graph will provide the in-degree instead.
 
     Arguments:
         graph: NumPy array TODO: document parameter
@@ -56,22 +56,42 @@ def out_degree(graph, weighted):
 
 
 def reciprocity(graph):
-    """Calculate reciprocity."""
-    pre_units = np.shape(graph)[0]
-    post_units = np.shape(graph)[1]
+    """Calculate reciprocity.
 
-    reciprocal_ct = 0
+    Reciprocity is calculated as the number of present reciprocal
+    connections over the number of reciprocal connections possible.
 
-    for i in range(0, pre_units):
-        for j in range(i + 1, post_units):
-            if graph[i, j] != 0 and graph[j, i] != 0:
-                reciprocal_ct += 2
+    Arguments:
+        graph<NumPy Array>: an adjacency matrix of the network whose
+            reciprocity will be calculated.
+    """
 
-    possible_reciprocal_ct = np.size(graph[graph != 0])
-    if possible_reciprocal_ct > 0:
-        return reciprocal_ct / possible_reciprocal_ct
-    else:
-        return 0
+    # Determine the possible number of reciprocal connections
+    possible_reciprocal_ct = np.count_nonzero(graph)
+
+    # If no reciprocal connections are even possible, reciprocity is
+    # undefined
+    if possible_reciprocal_ct <= 0:
+        return 0  # TODO: should we use NaN/None for undef. ?
+
+    # Count actual number of reciprocal connections
+    #
+    # Multiplying (elementwise) the adjacency matrix by its transpose
+    # creates a symmetric matrix with zero-valued entries indicating
+    # non-reciprocal connections (because g[i, j] * g.T[i, j] equals
+    # g[i, j] * g[j, i], so if either are zero, the value will be zero
+    # in the symmetric matrix). Ignoring the diagonal, we can count the
+    # number of non-zero entries to get the number of reciprocal
+    # connections (each pair of vertices counts as two reciprocal
+    # connections). This only works because `graph` is an adjacency
+    # matrix, and therefore square
+    sym_mat = graph * graph.T                  # create sym. matrix
+    np.fill_diagonal(sym_mat, 0)               # ignore the diagonal
+    reciprocal_ct = np.count_nonzero(sym_mat)  # count r. connections
+
+    # Return the fraction of actual reciprocal connections over the
+    # number of reciprocal connections possible
+    return reciprocal_ct / possible_reciprocal_ct
 
 
 def reciprocity_ei(e_graph, i_graph):
