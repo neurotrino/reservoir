@@ -39,16 +39,20 @@ def calc_density(graph):
 
 
 def out_degree(graph, weighted):
-    """TODO: document function"""
-    # input tranposed graph and you'll get in-degrees instead
-    pre_units = np.shape(graph)[0]
-    degrees = []
-    for i in range(0, pre_units):
-        if weighted:
-            degrees.append(np.sum(graph[i][graph[i] != 0]))
-        else:
-            degrees.append(np.size(graph[i][graph[i] != 0]))
-    return degrees  # for each unit in the graph
+    """TODO: document function
+
+    Providing a transposed graph with provide the in-degree instead.
+
+    Arguments:
+        graph: NumPy array TODO: document parameter
+        weightd: bool TODO: document parameter
+    """
+    axes = tuple(range(1, graph.ndim))
+
+    if weighted:
+        return np.sum(graph, axis=axes)
+    else:
+        return np.count_nonzero(graph, axis=axes)
 
 
 def reciprocity(graph):
