@@ -29,7 +29,6 @@ savedir = "/home/macleanlab/experiments/ccd_save_spikes/analysis/"
 # Compute Stuff
 # ========= ========= ========= ========= ========= ========= =========
 
-
 def calc_density(graph):
     """TODO: document function"""
     ct_nonzero = np.size(graph[graph != 0])
@@ -63,7 +62,7 @@ def reciprocity(graph):
 
     Arguments:
         graph<NumPy Array>: an adjacency matrix of the network whose
-            reciprocity will be calculated.
+            reciprocity is to be calculated.
     """
 
     # Determine the possible number of reciprocal connections
@@ -96,11 +95,10 @@ def reciprocity(graph):
 
 def reciprocity_ei(e_graph, i_graph):
     """Reciprocity for excitatory/inhbitory graphs."""
-    e_units = np.shape(e_graph)[0]
-    i_units = np.shape(i_graph)[0]
 
-    reciprocal_ct = 0
-
+    reciprocal_ct = 0  # counter variable
+    e_units = e_graph.shape[0]
+    i_units = i_graph.shape[0]
     for i in range(0, e_units):
         for j in range(0, i_units):
             if e_graph[i, j] != 0 and i_graph[j, i] != 0:

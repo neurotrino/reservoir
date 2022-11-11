@@ -30,6 +30,11 @@ e_end = 240
 i_end = 300
 savepath = "/data/results/experiment1/"
 
+
+# ========= ========= ========= ========= ========= ========= =========
+# Plot Stuff
+# ========= ========= ========= ========= ========= ========= =========
+
 def plot_input_channels():
     experiments = get_experiments(data_dir, rate_experiment_string)
     for xdir in experiments:
@@ -428,39 +433,54 @@ def nx_plot_clustering_over_time(savepath):
 
 
 def nx_plot_reciprocity_over_time(savepath):
+    """TODO: document function"""
+
+    # Load data
     experiments = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
+
+    # Plotting setup
     fig, ax = plt.subplots(nrows=2, ncols=2)
     ax = ax.flatten()
+
+    # Plot data
     for xdir in experiments:
         recip_ee = []
         recip_ei = []
         recip_ii = []
         recip_all = []
+
+        # TODO: inline docs
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
             w = data["tv1.postweights"]
-            for i in range(np.shape(w)[0]):
-                G = nx.from_numpy_array(w[i], create_using=nx.DiGraph)
+
+            # TODO: inline docs
+            for w_i in w:
+                G = nx.from_numpy_array(w_i, create_using=nx.DiGraph)
                 recip_all.append(nx.reciprocity(G))
                 Ge = nx.from_numpy_array(
-                    w[i][0:e_end, 0:e_end], create_using=nx.DiGraph
+                    w_i[0:e_end, 0:e_end], create_using=nx.DiGraph
                 )
                 recip_ee.append(nx.reciprocity(Ge))
                 recip_ei.append(
                     reciprocity_ei(
-                        w[i][0:e_end, e_end:i_end], w[i][e_end:i_end, 0:e_end]
+                        w_i[0:e_end, e_end:i_end], w_i[e_end:i_end, 0:e_end]
                     )
                 )
                 Gi = nx.from_numpy_array(
-                    w[i][e_end:i_end, e_end:i_end], create_using=nx.DiGraph
+                    w_i[e_end:i_end, e_end:i_end], create_using=nx.DiGraph
                 )
                 recip_ii.append(nx.reciprocity(Gi))
+
+        # TODO: inline docs
         ax[0].plot(recip_ee)
         ax[1].plot(recip_ei)
         ax[2].plot(recip_ii)
         ax[3].plot(recip_all)
+
+    # Title and label everything
     for i in range(4):
         ax[i].set_xlabel("batch")
         ax[i].set_ylabel("reciprocity")
@@ -468,11 +488,14 @@ def nx_plot_reciprocity_over_time(savepath):
     ax[1].set_title("between e and i")
     ax[2].set_title("within i")
     ax[3].set_title("whole network")
-    # Create and save the final figure
     fig.suptitle("experiment set 1 reciprocity")
+
+    # Render and save
     plt.draw()
     plt.subplots_adjust(wspace=0.5, hspace=0.5)
     plt.savefig(os.path.join(savepath, "set_reciprocity_nx.png"), dpi=300)
+
+    # Teardown
     plt.clf()
     plt.close()
 
@@ -699,6 +722,10 @@ def plot_main_copeland_score_over_time(savepath):
     plt.close()
 
 
+# ========= ========= ========= ========= ========= ========= =========
+# Plotting: Degree Metrics
+# ========= ========= ========= ========= ========= ========= =========
+
 # Calculate and plot weighted in/out degree ratio for main rsnn as they evolve over training time
 # within e alone
 # within i alone
@@ -921,6 +948,10 @@ def plot_degree_dist_single_experiments():
             plt.clf()
             plt.close()
 
+
+# ========= ========= ========= ========= ========= ========= =========
+# Plot Stuff
+# ========= ========= ========= ========= ========= ========= =========
 
 # of weights for in, main, out
 # remove zeros for weight distributions, otherwise they take up too much of the density

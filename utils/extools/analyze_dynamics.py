@@ -1,17 +1,18 @@
 """Dynamic (spike) analysis for series of completed experiments"""
 
-# external ----
+# ---- external imports -----------------------------------------------
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import scipy
 import sys
 import seaborn as sns
 import networkx as nx
 
+# ---- internal imports -----------------------------------------------
 sys.path.append("../")
 sys.path.append("../../")
 
-# internal ----
 from utils.misc import filenames
 from utils.misc import generic_filenames
 from utils.misc import get_experiments
@@ -22,6 +23,7 @@ from utils.extools.fn_analysis import calc_density
 from utils.extools.fn_analysis import out_degree
 from utils.extools.MI import simple_confMI
 
+# ---- global variables -----------------------------------------------
 data_dir = "/data/experiments/"
 experiment_string = "run-batch30-specout-onlinerate0.1-savey"
 task_experiment_string = 'run-batch30-onlytaskloss'
@@ -36,9 +38,33 @@ positive_only = False
 bin = 10
 
 
-#######################################################################
+### ADDED (temporarily?) BY CHAD FOR RATE-ONLY GENERATION ###
+recruit_path = '/data/results/experiment1/recruitment_graphs_bin10_full/'
+naive_id = 0
+trained_id = 99
+save_name='recruit_bin10_full'
+coh_lvl = 'coh0'
+LOAD_DIR = "/data/experiments/"
+SAVE_DIR = "/data/results/smith7/rateonly-1"
+MI_path = '/data/results/experiment1/MI_graphs_bin10/'
 
-import scipy
+# Paul Tol's colorblind-friendly palette for scientific visualization
+COLOR_PALETTE = [
+    "#332288",  # indigo
+    "#117733",  # green
+    "#44AA99",  # teal
+    "#88CCEE",  # cyan
+    "#DDCC77",  # sand
+    "#CC6677",  # rose
+    "#AA4499",  # purple
+    "#882255",  # wine
+]
+
+
+
+# ========= ========= ========= ========= ========= ========= =========
+# Utilities
+# ========= ========= ========= ========= ========= ========= =========
 
 def smallify(old_data):
     """Format experiment output so it's smaller on disk when saved.
@@ -80,17 +106,23 @@ def smallify(old_data):
 
     return new_data
 
-#######################################################################
+
+def safely_make_joint_dirpath(*args, **kwargs):
+    """
+    Runs `os.path.join()` with the given arguments, and creates a
+    directory at the path location, iff it does not already exist.
+
+    Returns the filepath, may create a directory as side effect.
+    """
+    path = os.path.join(*args, **kwargs)
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    return path
 
 
-recruit_path = '/data/results/experiment1/recruitment_graphs_bin10_full/'
-naive_id = 0
-trained_id = 99
-save_name='recruit_bin10_full'
-coh_lvl = 'coh0'
-
-MI_path = '/data/results/experiment1/MI_graphs_bin10/'
-
+# ========= ========= ========= ========= ========= ========= =========
+# Plot Stuff
+# ========= ========= ========= ========= ========= ========= =========
 
 def output_projection(save_name,weighted=False,coh_lvl='coh1'):
     # looking at only the units that project to the output
@@ -185,27 +217,54 @@ def output_projection(save_name,weighted=False,coh_lvl='coh1'):
             #trained_i_rest_degrees = np.take(trained_i_rest,trained_i_rest_idx,1)
 
             # plot
-            ax[0].hist(x=naive_e_set_degrees,density=True,alpha=0.7,color="dodgerblue",label="e projection units")
-            ax[0].hist(x=naive_i_set_degrees,density=True,alpha=0.7,color='tomato',label='i projection units')
-            ax[0].hist(x=naive_e_rest_degrees,density=True,alpha=0.7,color="mediumseagreen",label="e other units")
-            ax[0].hist(x=naive_i_rest_degrees,density=True,alpha=0.7,color='darkorange',label='i other units')
+            def _hist(ax, x, c, lbl):
+                """Preconfigured hist plotter."""
+                ax.hist(x=x, color=c, label=lbl, density=True, alpha=0.7)
+
+            # Plot naive
+            _hist(
+                ax[0], naive_e_set_degrees, "dodgerblue", "e projection units"
+            )
+            _hist(
+                ax[0], naive_i_set_degrees, "tomato", "i projection units"
+            )
+            _hist(
+                ax[0], naive_e_rest_degrees, "mediumseagreen", "e other units"
+            )
+            _hist(
+                ax[0], naive_i_rest_degrees, "darkorange", "i other units"
+            )
             ax[0].legend()
             # normalized by the total number of units within that population set (1)those that project and 2)those that don't project to output)
             ax[0].set_xlabel('total unweighted degree')
             ax[0].set_ylabel('density')
             ax[0].set_title('naive (batch 50)')
-            ax[1].hist(x=trained_e_set_degrees,density=True,alpha=0.7,color="dodgerblue",label="e projection units")
-            ax[1].hist(x=trained_i_set_degrees,density=True,alpha=0.7,color='tomato',label='i projection units')
-            ax[1].hist(x=trained_e_rest_degrees,density=True,alpha=0.7,color="mediumseagreen",label="e other units")
-            ax[1].hist(x=trained_i_rest_degrees,density=True,alpha=0.7,color='darkorange',label='i other units')
+
+            # Plot trained
+            _hist(
+                ax[1], trained_e_set_degrees, "dodgerblue", "e projection units"
+            )
+            _hist(
+                ax[1], trained_i_set_degrees, "tomato", "i projection units"
+            )
+            _hist(
+                ax[1], trained_e_rest_degrees, "mediumseagreen", "e other units"
+            )
+            _hist(
+                ax[1], trained_i_rest_degrees, "darkorange", "i other units"
+            )
             ax[1].legend()
             ax[1].set_xlabel('total unweighted degree')
             ax[1].set_ylabel('density')
             ax[1].set_title('trained')
             plt.suptitle('Recruitment graph, coh 1')
+
+            # Draw and save plot
             plt.draw()
             plt.subplots_adjust(wspace=0.5)
             plt.savefig(savepath+'/'+save_name+'_plots/projectionset/'+exp_string+'_ei_recruit_coh1_degree.png')
+
+            # Teardown
             plt.clf()
             plt.close()
 
@@ -441,9 +500,13 @@ def loss_comps_vs_degree(save_name,coh_lvl='coh0',weighted=False):
             ax[1,0].set_ylabel('mean e degree')
             ax[1,0].set_title('Synaptic Graph Degrees')
             plt.subplots_adjust(wspace=0.4, hspace=0.7)
+
+            # Render and save
             plt.draw()
             save_fname = savepath+'/'+save_name+'_plots/lossversus/'+exp_string+'_coh0_e_degree.png'
             plt.savefig(save_fname,dpi=300)
+
+            # Teardown
             plt.clf()
             plt.close()
 
@@ -487,7 +550,8 @@ def synaptic_vs_recruit_weight(save_name, coh_lvl='coh0', e_only=True, weighted=
             degrees = get_degrees(w_100[0:e_end,0:e_end],weighted)
             degrees_w_100 = np.add(degrees[1],degrees[0])
             degrees = get_degrees(w_10000[0:e_end,0:e_end],weighted)
-            degrees_w_10000 = np.add(degrees[1],degrees[0])"""
+            degrees_w_10000 = np.add(degrees[1],degrees[0])
+            """
 
             # for recruitment graphs, mean across coherence level
             recruit_data = np.load(recruit_file_0, allow_pickle=True)
@@ -555,7 +619,8 @@ def synaptic_vs_recruit_weight(save_name, coh_lvl='coh0', e_only=True, weighted=
                     # get degrees for each naive unit
                     degrees = get_degrees(arr[0:e_end,0:e_end],weighted)
                     # returns [in, out]
-                    degrees_rec_10000.append(np.add(degrees[1],degrees[0]))"""
+                    degrees_rec_10000.append(np.add(degrees[1],degrees[0]))
+            """
 
             # now plot correspondingly
             #ax[0,0].scatter(degrees_w_0,np.mean(degrees_rec_0,0), s=2)
@@ -588,11 +653,20 @@ def synaptic_vs_recruit_weight(save_name, coh_lvl='coh0', e_only=True, weighted=
             ax[1,1].set_title('Epoch 10000')
     fig.suptitle('Excitatory synaptic vs. recruitment (coh 0) weight')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
+
+    # Draw and save plot
     plt.draw()
     save_fname = savepath+'/'+save_name+'_plots/synvrecruit/weighted_e_only_coh0_quad.png'
     plt.savefig(save_fname,dpi=300)
+
+    # Teardown
     plt.clf()
     plt.close()
+
+
+# ========= ========= ========= ========= ========= ========= =========
+# Analyze Vertex Degrees
+# ========= ========= ========= ========= ========= ========= =========
 
 def track_synaptic_high_degree_units_over_time(save_name,weighted=True):
     data_dirs = get_experiments(data_dir, experiment_string)
@@ -634,9 +708,13 @@ def track_synaptic_high_degree_units_over_time(save_name,weighted=True):
     ax[1].set_ylabel('trained degree / max')
 
     fig.suptitle('Top 15% of e units with highest synaptic degree')
+
+    # Draw and save plot
     plt.draw()
     save_fname = savepath+'/'+save_name+'_plots/tracking/totaldegree_synaptic_weighted_relative_50.png'
     plt.savefig(save_fname,dpi=300)
+
+    # Teardown
     plt.clf()
     plt.close()
 
@@ -755,9 +833,13 @@ def track_high_degree_units_over_time(save_name,weighted=True):
 
     fig.suptitle('Top 15% of e units with highest weighted degree')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
+
+    # Draw and save plot
     plt.draw()
     save_fname = savepath+'/'+save_name+'_plots/tracking/totaldegree_weighted_relative_50.png'
     plt.savefig(save_fname,dpi=300)
+
+    # Teardown
     plt.clf()
     plt.close()
 
@@ -795,9 +877,13 @@ def synaptic_degree_rate_correspondence(save_name,weighted=False):
     ax[1].set_ylabel('avg total degree')
 
     fig.suptitle('Total synaptic degree vs. rate, final batch')
+
+    # Draw and save plot
     plt.draw()
     save_fname = savepath+'/'+save_name+'_plots/ratevdegree/synaptic_10.png'
     plt.savefig(save_fname,dpi=300)
+
+    # Teardown
     plt.clf()
     plt.close()
 
@@ -916,18 +1002,28 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=False):
 
     fig.suptitle('Weighted total degree vs. rate, final batch')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
+
+    # Draw and save plot
     plt.draw()
     save_fname = savepath+'/'+save_name+'_plots/ratevdegree/recruit_10.png'
     plt.savefig(save_fname,dpi=300)
+
+    # Teardown
     plt.clf()
     plt.close()
 
-def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
 
-    if coh_lvl == 'coh0':
-        coh_str = '15% coherence'
-    elif coh_lvl == 'coh1':
-        coh_str = '100% coherence'
+# ========= ========= ========= ========= ========= ========= =========
+# Analyze Recruitment Networks
+# ========= ========= ========= ========= ========= ========= =========
+
+def plot_recruit_metrics_tribatch(recruit_path, coh_lvl, save_name):
+    """TODO: document function"""
+
+    if coh_lvl == "coh0":
+        coh_str = "15% coherence"
+    elif coh_lvl == "coh1":
+        coh_str = "100% coherence"
 
     # get recruitment graph experiment files
     experiment_paths = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
@@ -935,12 +1031,29 @@ def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
     for exp in experiment_paths:
         exp_string = exp[-8:]
 
-        batch_strings = [exp+'/1-10-batch1.npz', exp+'/1-10-batch10.npz', exp+'/1-10-batch99.npz', exp+'/991-1000-batch99.npz']
-        batch_names = ['batch 1','batch 10','batch100','batch 10000']
-        batch_colors = ['yellowgreen','mediumseagreen','darkturquoise','dodgerblue']
+        batch_strings = [
+            exp+'/1-10-batch1.npz',
+            exp+'/1-10-batch10.npz',
+            exp+'/1-10-batch99.npz',
+            exp+'/991-1000-batch99.npz'
+        ]
+        batch_names = [
+            'batch 1',
+            'batch 10',
+            'batch100',
+            'batch 10000'
+        ]
+        batch_colors = [
+            'yellowgreen',
+            'mediumseagreen',
+            'darkturquoise',
+            'dodgerblue'
+        ]
 
+        # Setup
         plt.figure()
 
+        # Plot data
         for i in range(4): # for each of the three batches
             data = np.load(batch_strings[i], allow_pickle=True)
             coh = data[coh_lvl]
@@ -978,13 +1091,18 @@ def plot_recruit_metrics_tribatch(recruit_path,coh_lvl,save_name):
                     line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
                 )
 
+        # Title and label
         plt.xlabel("absolute weighted clustering coefficient")
         plt.ylabel("density")
         plt.title("Clustering of e units in recruitment graph, "+coh_str)
         plt.legend()
+
+        # Draw and save plot
         plt.draw()
         plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_e_tribatch_clustering.png'
         plt.savefig(plt_name, dpi=300)
+
+        # Teardown
         plt.clf()
         plt.close()
 
@@ -1059,110 +1177,81 @@ def plot_recruit_metrics_single_update(recruit_path,coh_lvl,save_name):
 
         # PLOT WEIGHTS
         plt.figure()
-        sns.histplot(
-            data=w_e,
-            color="blue",
-            label="within e units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
-        sns.histplot(
-            data=w_i,
-            color="red",
-            label="within i units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
+        def _histplot(x, c, lbl):
+            """Preconfigured histplot plotter."""
+            sns.histplot(
+                # stuff what varies
+                data=x,
+                color=c,
+                label=lbl,
+
+                # stuff what stays the same
+                stat="density",
+                bins=30,
+                alpha=0.5,
+                kde=True,
+                edgecolor="white",
+                linewidth=0.5,
+                line_kws={
+                    "color": "black",
+                    "alpha": 0.5,
+                    "linewidth": 1.5
+                }
+            )
+        _histplot(w_e, "blue", "within e units")
+        _histplot(w_i, "red", "within i units")
+
         plt.xlabel("weights")
         plt.ylabel("density")
         plt.title("Weight dist of naive recruitment graph, "+coh_str)
         plt.legend()
+
+        # Draw and save plot
         plt.draw()
         plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_epoch1_weights.png'
         plt.savefig(plt_name, dpi=300)
+
+        # Teardown
         plt.clf()
         plt.close()
 
         # PLOT DENSITY
         plt.figure()
-        sns.histplot(
-            data=dens_e,
-            color="blue",
-            label="within e units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
-        sns.histplot(
-            data=dens_i,
-            color="red",
-            label="within i units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
+
+        _histplot(dens_e, "blue", "within e units")
+        _histplot(dens_i, "red", "within i units")
+
         plt.xlabel("connection density")
         plt.ylabel("density")
         plt.title("Density dist of naive recruitment graph, "+coh_str)
         plt.legend()
+
+        # Draw and save plot
         plt.draw()
         plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_epoch1_density.png'
         plt.savefig(plt_name, dpi=300)
+
+        # Teardown
         plt.clf()
         plt.close()
 
         # PLOT CLUSTERING
         # PLOT DENSITY
         plt.figure()
-        sns.histplot(
-            data=cc_e,
-            color="blue",
-            label="within e units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
-        sns.histplot(
-            data=cc_i,
-            color="red",
-            label="within i units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
+        _histplot(cc_e, "blue", "within e units")
+        _histplot(cc_i, "red", "within i units")
+
         plt.xlabel("absolute weighted clustering")
         plt.ylabel("density")
         plt.title("Clustering dist of naive recruitment graph, "+coh_str)
         plt.legend()
+
+        # Draw and save plot
         plt.draw()
         plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_epoch1_clustering.png'
         plt.savefig(plt_name, dpi=300)
+
+        # Teardown
         plt.clf()
         plt.close()
 
@@ -1237,110 +1326,81 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
 
         # PLOT WEIGHTS
         plt.figure()
-        sns.histplot(
-            data=w_e,
-            color="blue",
-            label="within e units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
-        sns.histplot(
-            data=w_i,
-            color="red",
-            label="within i units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
+        def _histplot(x, c, lbl):
+            """Preconfigured histplot plotter"""
+
+            sns.histplot(
+                # stuff what stays the same
+                data=x,
+                color=c,
+                label=lbl,
+
+                # stuff what changes
+                stat="density"
+                bins=30,
+                alpha=0.5,
+                kde=True,
+                edgecolor="white",
+                linewidth=0.5,
+                line_kws={
+                    "color": "black",
+                    "alpha": 0.5,
+                    "linewidth": 1.5
+                }
+            )
+        _histplot(w_e, "blue", "within e units")
+        _histplot(w_i, "red", "within i units")
+
         plt.xlabel("weights")
         plt.ylabel("density")
         plt.title("Weight dist of naive recruitment graph, "+coh_str)
         plt.legend()
+
+        # Draw and save plot
         plt.draw()
         plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_epoch0_weights.png'
         plt.savefig(plt_name, dpi=300)
+
+        # Teardown
         plt.clf()
         plt.close()
 
         # PLOT DENSITY
         plt.figure()
-        sns.histplot(
-            data=dens_e,
-            color="blue",
-            label="within e units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
-        sns.histplot(
-            data=dens_i,
-            color="red",
-            label="within i units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
+        _histplot(dens_e, "blue", "within e units")
+        _histplot(dens_i, "red", "within i units")
+
         plt.xlabel("connection density")
         plt.ylabel("density")
         plt.title("Density dist of naive recruitment graph, "+coh_str)
         plt.legend()
+
+        # Draw and save plot
         plt.draw()
         plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_epoch0_density.png'
         plt.savefig(plt_name, dpi=300)
+
+        # Teardown
         plt.clf()
         plt.close()
 
         # PLOT CLUSTERING
         # PLOT DENSITY
         plt.figure()
-        sns.histplot(
-            data=cc_e,
-            color="blue",
-            label="within e units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
-        sns.histplot(
-            data=cc_i,
-            color="red",
-            label="within i units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
+        _histplot(cc_e, "blue", "within e units")
+        _histplot(cc_i, "red", "within i units")
+
         plt.xlabel("absolute weighted clustering")
         plt.ylabel("density")
         plt.title("Clustering dist of naive recruitment graph, "+coh_str)
         plt.legend()
+
+        # Draw and save plot
         plt.draw()
         plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_epoch0_clustering.png'
         plt.savefig(plt_name, dpi=300)
+
+        # Teardown
         plt.clf()
         plt.close()
 
@@ -1374,113 +1434,61 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
 
         # PLOT WEIGHTS
         plt.figure()
-        sns.histplot(
-            data=w_e,
-            color="blue",
-            label="within e units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
-        sns.histplot(
-            data=w_i,
-            color="red",
-            label="within i units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
+        _histplot(w_e, "blue", "within e units")
+        _histplot(w_i, "red", "within i units")
+
         plt.xlabel("weights")
         plt.ylabel("density")
         plt.title("Weight dist of trained recruitment graph, "+coh_str)
         plt.legend()
+
+        # Draw and save plot
         plt.draw()
         plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_epoch1000_weights.png'
         plt.savefig(plt_name, dpi=300)
+
+        # Teardown
         plt.clf()
         plt.close()
 
         # PLOT DENSITY
         plt.figure()
-        sns.histplot(
-            data=dens_e,
-            color="blue",
-            label="within e units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
-        sns.histplot(
-            data=dens_i,
-            color="red",
-            label="within i units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
+        _histplot(dens_e, "blue", "within e units")
+        _histplot(dens_i, "red", "within i units")
+
         plt.xlabel("connection density")
         plt.ylabel("density")
         plt.title("Density dist of trained recruitment graph, "+coh_str)
         plt.legend()
+
+        # Draw and save plot
         plt.draw()
         plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_epoch1000_density.png'
         plt.savefig(plt_name, dpi=300)
+
+        # Teardown
         plt.clf()
         plt.close()
 
         # PLOT CLUSTERING
         # PLOT DENSITY
         plt.figure()
-        sns.histplot(
-            data=cc_e,
-            color="blue",
-            label="within e units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
-        sns.histplot(
-            data=cc_i,
-            color="red",
-            label="within i units",
-            stat="density",
-            bins=30,
-            alpha=0.5,
-            kde=True,
-            edgecolor="white",
-            linewidth=0.5,
-            line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-        )
+        _histplot(cc_e, "blue", "within e units")
+        _histplot(cc_i, "red", "within i units")
+
         plt.xlabel("absolute weighted clustering")
         plt.ylabel("density")
         plt.title("Clustering dist of trained recruitment graph, "+coh_str)
         plt.legend()
+
+        # Draw and save plot
         plt.draw()
         plt_name = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_epoch1000_clustering.png'
         plt.savefig(plt_name, dpi=300)
+
+        # Teardown
         plt.clf()
         plt.close()
-
 
 def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
     # plot density, reciprocity, and weighted clustering
@@ -1632,7 +1640,7 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
 
         # save calculated data for this experiment in case sth messes up
         exp_dname = savepath+save_name+'_'+exp_string+'_'+coh_lvl+'_epoch'+epoch_string+'.png'
-        np.savez(
+        np.savez_compressed(
             exp_dname,
             w_ee_mean=w_ee_mean,
             w_ee_std=w_ee_std,
@@ -1674,11 +1682,20 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
         title_str = 'Trained (last 10 epochs) recruitment graphs,'
 
     fig.suptitle(title_str+coh_str)
+
+    # Draw and save plot
     plt.draw()
     save_fname = savepath+save_name+'_'+coh_lvl+'_epoch'+epoch_string+'.png'
     plt.savefig(save_fname,dpi=300)
+
+    # Teardown
     plt.clf()
     plt.close()
+
+
+# ========= ========= ========= ========= ========= ========= =========
+# ...
+# ========= ========= ========= ========= ========= ========= =========
 
 
 def plot_fn_quad_metrics(load_saved=True):
@@ -1710,12 +1727,16 @@ def plot_fn_quad_metrics(load_saved=True):
     for i in range(8):
         ax[i].set_xlabel("epoch")
     fig.suptitle("functional graph metrics for just 4 epochs")
+
+    # Draw and save plot
     plt.draw()
     plt.subplots_adjust(wspace=0.5, hspace=1.5)
     plt.savefig(
         os.path.join(savepath, "set_fn_quad_metrics_withnegative.png"),
         dpi=300,
     )
+
+    # Teardown
     plt.clf()
     plt.close()
 
@@ -1813,9 +1834,13 @@ def plot_fn_w_dist_experiments():
             plt.ylabel("density")
             plt.title(plt_string[i])
             plt.legend()
+
+            # Draw and save plot
             plt.draw()
             plt_name = plt_string[i] + "_fn_wdist.png"
             plt.savefig(os.path.join(savepath, exp_path, plt_name), dpi=300)
+
+            # Teardown
             plt.clf()
             plt.close()
 
@@ -1848,6 +1873,10 @@ def generate_quad_fn(xdir, e_only, positive_only):
     return xdir_quad_fn
 """
 
+
+# ========= ========= ========= ========= ========= ========= =========
+# Graph Generation
+# ========= ========= ========= ========= ========= ========= =========
 
 def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
     # w = synaptic graph
@@ -2045,23 +2074,9 @@ def bin_batch_MI_graphs(
 
 
 
+
+
 #######################################################################
-
-LOAD_DIR = "/data/experiments/"
-SAVE_DIR = "/data/results/smith7/rateonly-1"
-
-
-def safely_make_joint_dirpath(*args, **kwargs):
-    """
-    Runs `os.path.join()` with the given arguments, and creates a
-    directory at the path location, iff it does not already exist.
-
-    Returns the filepath, may create a directory as side effect.
-    """
-    path = os.path.join(*args, **kwargs)
-    if not os.path.isdir(path):
-        os.makedirs(path)
-    return path
 
 
 # THIS IS THE SCRIPT WE CURRENTLY USE TO GENERATE BOTH FUNCTIONAL (MI) AND RECRUITMENT GRAPHS
@@ -2338,6 +2353,8 @@ def generate_naive_trained_recruitment_graphs(
 
 
 
+
+
 """
 # this function generates functional graphs (using confMI) to save
 # so that we'll have them on hand for use in all the analyses we need
@@ -2387,6 +2404,8 @@ def generate_all_functional_graphs(experiment_string, overwrite=False, e_only=Tr
 
 
 def plot_rates_over_time(output_only=True):
+    """TODO: document function"""
+
     # separate into coherence level 1 and coherence level 0
     experiments = get_experiments(data_dir, experiment_string)
     # plot for each experiment, one rate value per coherence level per batch update
@@ -2405,16 +2424,23 @@ def plot_rates_over_time(output_only=True):
         e_1_rate = []
         i_0_rate = []
         i_1_rate = []
+
+        # TODO: add inline documentation
         for filename in data_files:
+
+            # Read data from disk
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
+
+            # Unpack data
             spikes = data["spikes"]
             y = data["true_y"]
             output_w = data["tv2.postweights"]
-            y.resize([np.shape(y)[0], np.shape(y)[1], np.shape(y)[2]])
-            for i in range(
-                np.shape(y)[0]
-            ):  # each file contains 100 batch updates
+            y.resize([y.shape[0], y.shape[1], y.shape[2]])
+
+            # TODO: add inline documentation
+            for i in range(y.shape[0]):
+                # each file contains 100 batch updates
                 # find indices for coherence level 0 and for 1
                 # do this for each of 30 trials bc memory can't accommodate the whole batch
                 # this also circumvents continuity problems for calculating branching etc
@@ -2430,9 +2456,10 @@ def plot_rates_over_time(output_only=True):
                     )
                     e_out_idx = np.squeeze(np.where(batch_w > 0))
                     i_out_idx = np.squeeze(np.where(batch_w < 0))
-                for j in range(
-                    np.shape(y)[1]
-                ):  # each of 30 trials per batch update
+
+                # TODO: add inline documentation
+                for j in range(y.shape[1]):
+                    # each of 30 trials per batch update
                     batch_y = np.squeeze(y[i][j])
                     coh_0_idx = np.squeeze(np.where(batch_y == 0))
                     coh_1_idx = np.squeeze(np.where(batch_y == 1))
@@ -2491,18 +2518,25 @@ def plot_rates_over_time(output_only=True):
         ax[1].plot(e_1_rate)
         ax[2].plot(i_0_rate)
         ax[3].plot(i_1_rate)
+
+    # TODO: add inline documentation
     for i in range(4):
         ax[i].set_xlabel("batch")
         ax[i].set_ylabel("rate")
+
     ax[0].set_title("e-to-output units, coherence 0")
     ax[1].set_title("e-to-output units, coherence 1")
     ax[2].set_title("i-to-output units, coherence 0")
     ax[3].set_title("i-to-output units, coherence 1")
     # Create and save the final figure
     fig.suptitle("experiment set 1.5 rates according to coherence level")
+
+    # Draw and save plot
     plt.draw()
     plt.subplots_adjust(wspace=0.5, hspace=0.5)
     plt.savefig(os.path.join(savepath, "set_output_rates.png"), dpi=300)
+
+    # Teardown
     plt.clf()
     plt.close()
 
@@ -2684,8 +2718,12 @@ def plot_branching_over_time():
     ax[3].set_title("i units, coherence 1")
     # Create and save the final figure
     fig.suptitle("experiment set 1.5 branching according to coherence level")
+
+    # Draw and save plot
     plt.draw()
     plt.subplots_adjust(wspace=0.5, hspace=0.5)
     plt.savefig(os.path.join(savepath, "set_branching.png"), dpi=300)
+
+    # Teardown
     plt.clf()
     plt.close()
