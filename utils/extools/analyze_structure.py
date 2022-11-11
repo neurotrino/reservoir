@@ -22,6 +22,8 @@ from utils.extools.fn_analysis import out_degree
 data_dir = "/data/experiments/"
 #experiment_string = "run-batch30-specout-onlinerate0.1-singlepreweight"
 experiment_string = "run-batch30-specout-onlinerate0.1-savey"
+task_experiment_string = "run-batch30-onlytaskloss"
+rate_experiment_string = "run-batch30-onlyrateloss"
 num_epochs = 1000
 epochs_per_file = 10
 e_end = 240
@@ -29,12 +31,14 @@ i_end = 300
 savepath = "/data/results/experiment1/"
 
 def plot_input_channels():
-    experiments = get_experiments(data_dir, experiment_string)
+    experiments = get_experiments(data_dir, task_experiment_string)
     for xdir in experiments:
         # separately for each experiment
         exp_path = xdir[-9:-1]
-        if not os.path.isdir(os.path.join(savepath, exp_path)):
-            os.makedirs(os.path.join(savepath, exp_path))
+        task_exp_path = 'taskloss_'+exp_path
+        #rate_exp_path = 'rateloss_'+exp_path
+        if not os.path.isdir(os.path.join(savepath, task_exp_path)):
+            os.makedirs(os.path.join(savepath, task_exp_path))
 
         np_dir = os.path.join(data_dir, xdir, "npz-data")
 
@@ -79,10 +83,10 @@ def plot_input_channels():
             ax[1,1].set_title('epoch 1000')
             ax[1,1].set_xlabel('input weights')
 
-            plt.suptitle("Evolution of 16 input channels' weights")
+            plt.suptitle("Evolution of 16 input channels' weights; task loss only")
             plt.draw()
             plt.subplots_adjust(wspace=0.4, hspace=0.7)
-            save_fname = savepath+exp_path+'/'+exp_path+'_input_channel_dist_quad.png'
+            save_fname = savepath+task_exp_path+'/'+exp_path+'_input_channel_dist_quad.png'
             plt.savefig(save_fname,dpi=300)
             plt.clf()
             plt.close()
