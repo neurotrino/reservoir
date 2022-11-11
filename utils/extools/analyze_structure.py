@@ -31,12 +31,11 @@ i_end = 300
 savepath = "/data/results/experiment1/"
 
 def plot_input_channels():
-    experiments = get_experiments(data_dir, task_experiment_string)
+    experiments = get_experiments(data_dir, rate_experiment_string)
     for xdir in experiments:
         # separately for each experiment
         exp_path = xdir[-9:-1]
-        task_exp_path = 'taskloss_'+exp_path
-        #rate_exp_path = 'rateloss_'+exp_path
+        task_exp_path = 'rateloss_'+exp_path
         if not os.path.isdir(os.path.join(savepath, task_exp_path)):
             os.makedirs(os.path.join(savepath, task_exp_path))
 
@@ -83,7 +82,7 @@ def plot_input_channels():
             ax[1,1].set_title('epoch 1000')
             ax[1,1].set_xlabel('input weights')
 
-            plt.suptitle("Evolution of 16 input channels' weights; task loss only")
+            plt.suptitle("Evolution of 16 input channels' weights; rate loss only")
             plt.draw()
             plt.subplots_adjust(wspace=0.4, hspace=0.7)
             save_fname = savepath+task_exp_path+'/'+exp_path+'_input_channel_dist_quad.png'
