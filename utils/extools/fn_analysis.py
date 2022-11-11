@@ -1,15 +1,16 @@
 """Functional analyses on saved model output data."""
 
-# external ----
+# ---- external imports -----------------------------------------------
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import seaborn as sns
 
-# internal ----
-# from utils.extools.MI import generate_mi_graph
+# ---- internal imports -----------------------------------------------
+from utils.extools.MI import generate_mi_graph
 from utils.misc import filenames
 
+# ---- global variables -----------------------------------------------
 xdir = ""
 data_dir = "/home/macleanlab/experiments/ccd_save_spikes/npz-data/"
 start_file = os.path.join(data_dir, "1-10.npz")
@@ -23,8 +24,74 @@ run_dur = 4080
 dt = 1
 savedir = "/home/macleanlab/experiments/ccd_save_spikes/analysis/"
 
-"""
-def compare_syn_fn(data_dir, batch):
+
+# ========= ========= ========= ========= ========= ========= =========
+# Compute Stuff
+# ========= ========= ========= ========= ========= ========= =========
+
+
+def calc_density(graph):
+    """TODO: document function"""
+    ct_nonzero = np.size(graph[graph != 0])
+    ct_total = np.size(graph) - np.shape(graph)[0]
+    density = ct_nonzero / ct_total
+    return density
+
+
+def out_degree(graph, weighted):
+    """TODO: document function"""
+    # input tranposed graph and you'll get in-degrees instead
+    pre_units = np.shape(graph)[0]
+    degrees = []
+    for i in range(0, pre_units):
+        if weighted:
+            degrees.append(np.sum(graph[i][graph[i] != 0]))
+        else:
+            degrees.append(np.size(graph[i][graph[i] != 0]))
+    return degrees  # for each unit in the graph
+
+
+def reciprocity(graph):
+    """Calculate reciprocity."""
+    pre_units = np.shape(graph)[0]
+    post_units = np.shape(graph)[1]
+
+    reciprocal_ct = 0
+
+    for i in range(0, pre_units):
+        for j in range(i + 1, post_units):
+            if graph[i, j] != 0 and graph[j, i] != 0:
+                reciprocal_ct += 2
+
+    possible_reciprocal_ct = np.size(graph[graph != 0])
+    if possible_reciprocal_ct > 0:
+        return reciprocal_ct / possible_reciprocal_ct
+    else:
+        return 0
+
+
+def reciprocity_ei(e_graph, i_graph):
+    """Reciprocity for excitatory/inhbitory graphs."""
+    e_units = np.shape(e_graph)[0]
+    i_units = np.shape(i_graph)[0]
+
+    reciprocal_ct = 0
+
+    for i in range(0, e_units):
+        for j in range(0, i_units):
+            if e_graph[i, j] != 0 and i_graph[j, i] != 0:
+                reciprocal_ct += 1
+
+    possible_reciprocal_ct = np.size(e_graph[e_graph != 0])
+    return reciprocal_ct / possible_reciprocal_ct
+
+
+# ========= ========= ========= ========= ========= ========= =========
+# Plot Stuff
+# ========= ========= ========= ========= ========= ========= =========
+
+def DISABLED_compare_syn_fn(data_dir, batch):  # was commented out
+    """TODO: document function"""
 
     data_files = filenames(num_epochs=200, epochs_per_file=10)
 
@@ -107,10 +174,11 @@ def compare_syn_fn(data_dir, batch):
     plt.legend()
     plt.draw()
     plt.savefig(savedir + "syn_fn_corr.png", dpi=300)
-"""
+
 
 
 def presaved_compare_syn_fn(data_dir, batch):
+    """TODO: document function"""
     epochs = np.arange(10, 201, 10)
     epoch_groups = [
         f"{i - 9}-{i}" for i in epochs  # ["1-10", ..., "191-200"]
@@ -176,15 +244,8 @@ def presaved_compare_syn_fn(data_dir, batch):
     plt.draw()
     plt.savefig(savedir + "syn_fn_corr.png", dpi=300)
 
-
-def calc_density(graph):
-    ct_nonzero = np.size(graph[graph != 0])
-    ct_total = np.size(graph) - np.shape(graph)[0]
-    density = ct_nonzero / ct_total
-    return density
-
-
 def plot_quad_compare(infile, batch, savefile):
+    """TODO: document function"""
     # load correct synaptic graphs
     dt = 1
     data = np.load(infile)
@@ -258,6 +319,7 @@ def plot_quad_compare(infile, batch, savefile):
 def compare_begin_end(
     savedir, start_file, start_batch, mid_file, mid_batch, end_file, end_batch
 ):
+    """TODO: document function"""
     plot_quad_compare(
         start_file, start_batch, savedir + "100_fn_quad_epoch_10.png"
     )
@@ -306,51 +368,3 @@ def gen_heatmap(weights, title, axis, show_value_bounds=True):
     heatmap.set_ylabel("projecting neuron")
 
     return heatmap
-
-
-def out_degree(
-    graph, weighted
-):  # input tranposed graph and you'll get in-degrees instead
-    pre_units = np.shape(graph)[0]
-    degrees = []
-    for i in range(0, pre_units):
-        if weighted:
-            degrees.append(np.sum(graph[i][graph[i] != 0]))
-        else:
-            degrees.append(np.size(graph[i][graph[i] != 0]))
-    return degrees  # for each unit in the graph
-
-
-def reciprocity(graph):
-    """Calculate reciprocity."""
-    pre_units = np.shape(graph)[0]
-    post_units = np.shape(graph)[1]
-
-    reciprocal_ct = 0
-
-    for i in range(0, pre_units):
-        for j in range(i + 1, post_units):
-            if graph[i, j] != 0 and graph[j, i] != 0:
-                reciprocal_ct += 2
-
-    possible_reciprocal_ct = np.size(graph[graph != 0])
-    if possible_reciprocal_ct > 0:
-        return reciprocal_ct / possible_reciprocal_ct
-    else:
-        return 0
-
-
-def reciprocity_ei(e_graph, i_graph):
-    """Reciprocity for excitatory/inhbitory graphs."""
-    e_units = np.shape(e_graph)[0]
-    i_units = np.shape(i_graph)[0]
-
-    reciprocal_ct = 0
-
-    for i in range(0, e_units):
-        for j in range(0, i_units):
-            if e_graph[i, j] != 0 and i_graph[j, i] != 0:
-                reciprocal_ct += 1
-
-    possible_reciprocal_ct = np.size(e_graph[e_graph != 0])
-    return reciprocal_ct / possible_reciprocal_ct

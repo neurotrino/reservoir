@@ -1,3 +1,5 @@
+"""TODO: document module"""
+
 import math
 import numpy as np
 
