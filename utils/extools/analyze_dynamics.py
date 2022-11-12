@@ -1957,10 +1957,10 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
     # for each trial segment (determined by trialends):
     #
     # TODO: perform operations all at once with NumPy then go back and
-    #       divide into segments, if possible
+    #       divide into segments, if possible (might not be bc ragged)
     for (t0, t1) in zip(trialstarts, trialends):
 
-        def firing_buddy_indices(z, m):
+        def firing_buddy_mask(z, m):
             """TODO: document function"""
 
             # Binary matrix where the value at i,j indicates if neurons
@@ -1978,11 +1978,7 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
             # will be 0 if any of the three conditions (i spiked, j
             # spiked, i/j synapse together) are false, otherwise it
             # will be 1. This effectively masks the "firing buddies."
-            b2 = b1 * m
-
-            # Track all i,j indices for each timestep which fulfill
-            # these conditions
-            return np.argwhere(b2 == 1)
+            return b1 * m
 
 
 
@@ -2000,29 +1996,20 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
         # TODO: replace for loop with numpy operation
         for t in range(t0, t1):
 
+            # Adjusted time index to be relative to the start of the
+            # recruitment graph segment, rather than the start of the
+            # entire timeseries
+            offset_t = t - t0
+
             # Indicies of all neurons with synaptic connections that
             # are firing together at this timestep
-            w_idx = firing_buddy_indices(spikes[:, t], w_bool)
+            fb_mask = firing_buddy_mask(spikes[:, t], w_bool)
 
             # if we found at least one nonzero synaptic connection
             # between the active units fill in recruitment graph at
             # those existing active indices using values from
             # thresholded functional graph
-            def _update_rseg(rseg, time_idx, w_idx):
-                """TODO: document function"""
-                w_idx = tuple(w_idx)
-                rseg[time_idx][w_idx] = fn[w_idx]
-
-            time_idx = t - t0
-            if w_idx.size == 2:  # cast to tuple differs for sz=2
-                _update_rseg(recruit_segment, time_idx, w_idx)
-            elif w_idx.size > 2:
-                for wk_idx in w_idx:
-                    _update_rseg(recruit_segment, time_idx, wk_idx)
-            #else:  # TODO: do we need this?
-            #    raise ValueError(
-            #        f"expected w_idx.size >= 2, found {w_idx.size}"
-            #    )
+            recruit_segment[offset_t, ...] = fn * fb_mask
 
         # aggregate for the whole batch, though the dimensions (i.e.
         # duration of each trial segment) will be ragged
