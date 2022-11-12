@@ -61,7 +61,6 @@ COLOR_PALETTE = [
 ]
 
 
-
 # ========= ========= ========= ========= ========= ========= =========
 # Utilities
 # ========= ========= ========= ========= ========= ========= =========
@@ -186,16 +185,21 @@ def output_projection(save_name,weighted=False,coh_lvl='coh1'):
             naive_i_out_idx = np.argwhere(naive_out[e_end:i_end,:]<0)[:,0]
             trained_i_out_idx = np.argwhere(trained_out[e_end:i_end,:]<0)[:,0]
 
-            naive_e_set_degrees = np.take(all_naive_degrees[0:e_end],naive_e_out_idx,0)
+            naive_e_set_degrees = np.take(
+                all_naive_degrees[0:e_end],naive_e_out_idx,0
+            )
+            naive_i_set_degrees = np.take(
+                all_naive_degrees[e_end:i_end],naive_i_out_idx,0
+            )
+            trained_e_set_degrees = np.take(
+                all_trained_degrees[0:e_end],trained_e_out_idx,0
+            )
+            trained_i_set_degrees = np.take(
+                all_trained_degrees[e_end:i_end],trained_i_out_idx,0
+            )
             #naive_e_set_degrees = np.take(naive_e_set,naive_e_out_idx,1)
-
-            naive_i_set_degrees = np.take(all_naive_degrees[e_end:i_end],naive_i_out_idx,0)
             #naive_i_set_degrees = np.take(naive_i_set,naive_i_out_idx,1)
-
-            trained_e_set_degrees = np.take(all_trained_degrees[0:e_end],trained_e_out_idx,0)
             #trained_e_set_degrees = np.take(trained_e_set,trained_e_out_idx,1)
-
-            trained_i_set_degrees = np.take(all_trained_degrees[e_end:i_end],trained_i_out_idx,0)
             #trained_i_set_degrees = np.take(trained_i_set,trained_i_out_idx,1)
 
             # find degrees of the rest of the units (that have 0 projections to output)
@@ -204,65 +208,85 @@ def output_projection(save_name,weighted=False,coh_lvl='coh1'):
             naive_i_rest_idx = np.argwhere(naive_out[e_end:i_end,:]==0)[:,0]
             trained_i_rest_idx = np.argwhere(trained_out[e_end:i_end,:]==0)[:,0]
 
-            naive_e_rest_degrees = np.take(all_naive_degrees[0:e_end],naive_e_rest_idx,0)
+            naive_e_rest_degrees = np.take(
+                all_naive_degrees[0:e_end],naive_e_rest_idx,0
+            )
+            naive_i_rest_degrees = np.take(
+                all_naive_degrees[e_end:i_end],naive_i_rest_idx,0
+            )
+            trained_e_rest_degrees = np.take(
+                all_trained_degrees[0:e_end],trained_e_rest_idx,0
+            )
+            trained_i_rest_degrees = np.take(
+                all_trained_degrees[e_end:i_end],trained_i_rest_idx,0
+            )
             #naive_e_rest_degrees = np.take(naive_e_rest,naive_e_rest_idx,1)
-
-            naive_i_rest_degrees = np.take(all_naive_degrees[e_end:i_end],naive_i_rest_idx,0)
             #naive_i_rest_degrees = np.take(naive_i_rest,naive_i_rest_idx,1)
-
-            trained_e_rest_degrees = np.take(all_trained_degrees[0:e_end],trained_e_rest_idx,0)
             #trained_e_rest_degrees = np.take(trained_e_rest,trained_e_rest_idx,1)
-
-            trained_i_rest_degrees = np.take(all_trained_degrees[e_end:i_end],trained_i_rest_idx,0)
             #trained_i_rest_degrees = np.take(trained_i_rest,trained_i_rest_idx,1)
 
             # plot
-            def _hist(ax, x, c, lbl):
-                """Preconfigured hist plotter."""
-                ax.hist(x=x, color=c, label=lbl, density=True, alpha=0.7)
+            def _multiple_hists(ax, xs, title):
+                """TODO: document function"""
+
+                def _hist(ax, x, c, lbl):
+                    """Preconfigured hist plotter."""
+                    ax.hist(x=x, color=c, label=lbl, density=True, alpha=0.7)
+
+                # normalized by the total number of units within that
+                # population set (1)those that project and 2)those that
+                # don't project to output)
+
+                # Generate histograms for each dataset
+                cs = ["dodgerblue", "tomato", "mediumseagreen", "darkorange"]
+                for ((lbl, x), c) in zip(xs, cs):
+                    _hist(ax, x, c, lbl)
+
+                # Title and label the plot
+                ax.legend()
+                ax.set_xlabel("total unweighted degree")
+                ax.set_ylabel("density")
+                ax.set_title(title)
+
 
             # Plot naive
-            _hist(
-                ax[0], naive_e_set_degrees, "dodgerblue", "e projection units"
+            _multiple_hists(
+                ax=ax[0],
+                xs=[
+                    ("e projection units", naive_e_set_degrees),
+                    ("i projection units", naive_i_set_degrees),
+                    ("e other units", naive_e_rest_degrees),
+                    ("i other units", naive_i_rest_degrees),
+                ],
+                title="naive (batch 50)"
             )
-            _hist(
-                ax[0], naive_i_set_degrees, "tomato", "i projection units"
-            )
-            _hist(
-                ax[0], naive_e_rest_degrees, "mediumseagreen", "e other units"
-            )
-            _hist(
-                ax[0], naive_i_rest_degrees, "darkorange", "i other units"
-            )
-            ax[0].legend()
-            # normalized by the total number of units within that population set (1)those that project and 2)those that don't project to output)
-            ax[0].set_xlabel('total unweighted degree')
-            ax[0].set_ylabel('density')
-            ax[0].set_title('naive (batch 50)')
 
             # Plot trained
-            _hist(
-                ax[1], trained_e_set_degrees, "dodgerblue", "e projection units"
+            _multiple_hists(
+                ax=ax[1],
+                xs=[
+                    ("e projection units", trained_e_set_degrees),
+                    ("i projection units", trained_i_set_degrees),
+                    ("e other units", trained_e_rest_degrees),
+                    ("i other units", trained_i_rest_degrees),
+                ],
+                title="trained"
             )
-            _hist(
-                ax[1], trained_i_set_degrees, "tomato", "i projection units"
-            )
-            _hist(
-                ax[1], trained_e_rest_degrees, "mediumseagreen", "e other units"
-            )
-            _hist(
-                ax[1], trained_i_rest_degrees, "darkorange", "i other units"
-            )
-            ax[1].legend()
-            ax[1].set_xlabel('total unweighted degree')
-            ax[1].set_ylabel('density')
-            ax[1].set_title('trained')
+
+            # Title and label overall plot
             plt.suptitle('Recruitment graph, coh 1')
 
             # Draw and save plot
             plt.draw()
             plt.subplots_adjust(wspace=0.5)
-            plt.savefig(savepath+'/'+save_name+'_plots/projectionset/'+exp_string+'_ei_recruit_coh1_degree.png')
+            plt.savefig(
+                savepath
+                + '/'
+                + save_name
+                + '_plots/projectionset/'
+                + exp_string
+                + '_ei_recruit_coh1_degree.png'
+            )
 
             # Teardown
             plt.clf()
