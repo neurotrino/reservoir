@@ -1955,15 +1955,13 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
     recruit_graphs = []
 
     # for each trial segment (determined by trialends):
+    #
+    # TODO: perform operations all at once with NumPy then go back and
+    #       divide into segments, if possible
     for (t0, t1) in zip(trialstarts, trialends):
 
-
-
-
-        ###############################################################
-
-
         def firing_buddy_indices(z, m):
+            """TODO: document function"""
 
             # Binary matrix where the value at i,j indicates if neurons
             # i and j did (1) or did not (0) *both* spike at time t
@@ -1979,13 +1977,18 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
             # synapse exists between them at time t. The value at i,j
             # will be 0 if any of the three conditions (i spiked, j
             # spiked, i/j synapse together) are false, otherwise it
-            # will be 1.
+            # will be 1. This effectively masks the "firing buddies."
             b2 = b1 * m
 
             # Track all i,j indices for each timestep which fulfill
             # these conditions
             return np.argwhere(b2 == 1)
 
+
+
+
+
+        ###############################################################
 
         # aggregate recruitment graphs for this segment
         segment_dur = t1 - t0
@@ -2000,10 +2003,6 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
             # Indicies of all neurons with synaptic connections that
             # are firing together at this timestep
             w_idx = firing_buddy_indices(spikes[:, t], w_bool)
-
-
-
-
 
             # if we found at least one nonzero synaptic connection
             # between the active units fill in recruitment graph at
@@ -2025,13 +2024,12 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
             #        f"expected w_idx.size >= 2, found {w_idx.size}"
             #    )
 
-
-
         # aggregate for the whole batch, though the dimensions (i.e.
         # duration of each trial segment) will be ragged
         recruit_graphs.append(recruit_segment)
 
         ###############################################################
+
 
 
 
