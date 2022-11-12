@@ -2004,33 +2004,112 @@ def get_binned_spikes_trialends(e_only, true_y, spikes, bin):
         coh_1_idx = np.squeeze(np.where(trial_y == 1))
 
         # TODO: inline docs
-        if np.size(coh_0_idx) > 0:
+        if coh_0_idx.size > 0:
+            # get spike data for relevant time range
+
             # if the start of a new coherence level happens in the
             # middle of the trial
             if not (0 in coh_0_idx):
-                # remove the first 50 ms
+                # ^ if time indices for "coh0 active" do not include
+                #   the first timestep...
+                #
+                # v ...remove the first 50 ms
                 coh_0_idx = coh_0_idx[50:]
             z_coh0 = spikes_trial[:, coh_0_idx]
-            # bin spikes into 10 ms, discarding trailing ms
-            trial_n_bins = int(
-                np.math.floor(np.shape(z_coh0)[1] / bin)
-            )  # (count of bins for this coherence level's spikes)
-            trial_binned_z = np.zeros(
-                [n_units, trial_n_bins]
-            )  # holder for this trial's binned spikes
 
-            # TODO: inline docs
-            for t in range(trial_n_bins):  # for each 10-ms bin
-                # the only spikes we are looking at (within this 10-ms bin)
-                z_in_bin = z_coh0[:, t * bin : (t + 1) * bin - 1]
-                for j in range(n_units):  # for each neuron
-                    if 1 in z_in_bin[j, :]:
-                        # if spiked at all, put in a 1
-                        trial_binned_z[j, t] = 1
+
+            # bin spikes into 10 ms, discarding trailing ms
+
+            # get number of bins to use
+            num_timesteps = z_coh0.shape[1]
+            trial_n_bins = np.math.floor(num_timesteps / bin)
+            # (count of bins for this coherence level's spikes)
+
+
+
+            # -- BINNING ----------------------------------------------
+            def _fastbin(z, bin_sz, num_units):
+                """MUCH faster version of the following code:
+
+                ```
+                def slowbin(z, bin_sz, num_units):
+                    num_timesteps = z.shape[1]
+
+                    num_bins = np.math.floor(num_timesteps / bin_sz)
+                    r = np.zeros([num_units, num_bins])
+
+                    for t in range(num_bins):
+                        t0 = t * bin_sz
+                        t1 = (t + 1) * bin_sz
+                        spikes_in_bin = z[:, t0:t1]
+
+                        for j in range(num_units):
+                            if 1 in spikes_in_bin[j, :]:
+                                r[j, t] = 1
+                    return r
+                ```
+
+                The following code provides a more intuitive example of
+                what this code does, but is not generalized for more
+                than one dimension:
+
+                ```
+                def spike_bin_1d(z, binsize):
+                    # This code can be broken down into two steps:
+                    #
+                    # (1) reshape the spike train so that each row is
+                    #     a bin
+                    #
+                    # (2) compute the maximum value for each row. This
+                    #     will be either 1 or 0 (as it's a binary
+                    #     matrix), indicating whether or not a spike
+                    #     occurred in that bin
+                    #
+                    return z.reshape(-1, binsize).max(axis=1)
+
+                z = np.array([0,0,0,  1,1,1,  1,0,0,  0,0,1])
+                assert(spike_bin_1d(z, binsize=3) == [0,1,1,1]
+
+                z = [0,0,0,1,  1,1,1,0,  0,0,0,1]
+                assert(spike_bin_1d(z, binsize=4) == [0,1,1]
+
+                z = [0,0,  0,1,  1,1,  1,0,  0,0,  0,1]
+                assert(spike_bin_1d(z, binsize=2) == [0,1,1,1,0,1]
+                ```
+
+                To reiterate, the above code is for a single neuron's
+                spiking activity. The operation performed on that
+                single neuron in this simplified example is performed
+                simultaneously on all neurons in the code generalized
+                for higher dimensions.
+
+                Assumes z[1] is the timestep axis. Assumes z is a
+                binary matrix. Assumes z[0] is the neuron-index axis.
+                Code should work generalize to any circumstance where
+                these assumptions are met and the arguments are
+                appropriate (z is a non-jagged NumPy array, bin_sz is
+                a positive integer factor of the number of timesteps,
+                num_units is a non-negative integer).
+
+                TODO: add defined behavior for bin_sz not a factor of
+                      num_timesteps
+                """
+                if z.ndim <= 2:
+                    d2 = bin_sz
+                else:
+                    d2 = bin_sz * np.prod(z.shape[2:])
+                return z.reshape(num_units, -1, d2).max(axis=2)
+
+            trial_binned_z = _fastbin(z_coh0, bin, n_units)
+
 
             binned_spikes_coh0 = np.hstack(
                 [binned_spikes_coh0, trial_binned_z]
             )
+            # -- BINNING ----------------------------------------------
+
+
+
             # get all the spikes for each coherence level strung together
             trialends_coh0.append(np.shape(binned_spikes_coh0)[1] - 1)
             # keep sight of new trial_end_indices relative to newly binned spikes
