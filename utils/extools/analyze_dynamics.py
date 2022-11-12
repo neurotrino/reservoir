@@ -1929,18 +1929,24 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
             `fnet`
         """
         if thr == 0:
-            mask = True  # mask all values
+            mask = True  # mask all values (0th percentile)
         elif thr == 1:
-            mask = False  # mask no values
+            mask = False  # mask no values (100th percentile)
         else:
             magnitude_fnet = np.abs(fnet)
             mask = magnitude_fnet < np.quantile(magnitude_fnet, thr)
         return ma.masked_array(fnet, mask, copy=copy, fill_value=0)
 
 
-    # TODO: not sure we need the `.filled()`, could maybe just use
-    #       masked array
-    upper_fn = threshold_fnet(fn, threshold).filled()
+    # NOTE: `copy` is currently `False` because the `.filled()` method
+    #       creates a deep copy implicitly, thus doing so again in
+    #       `threshold_fnet` would be wasteful. If you rewrite this
+    #       code to use the masked array directly (instead of the
+    #       array output by `.filled()`), be deliberate about how you
+    #       set the `copy` flag to avoid issues with propagating
+    #       changes back up the stack via side effects. If you're at
+    #       all unsure, leave `copy=True`.
+    fn = threshold_fnet(fn, threshold, copy=False).filled()
 
     # mask of 0's and 1's for whether actual synaptic connections exist
     w_bool = np.where(w != 0, 1, 0)
@@ -1954,25 +1960,40 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
 
         # aggregate recruitment graphs for this segment
         segment_dur = t1 - t0
-        recruit_segment = np.zeros(
-            [segment_dur, fn.shape[0], fn.shape[1]], dtype=object
-        )  # return variable
+        recruit_segment = np.zeros(  # return variable
+            (segment_dur, fn.shape[0], fn.shape[1]),
+            dtype=object
+        )
         # for each timestep within that segment:
+        # TODO: replace for loop with numpy operation
         for t in range(t0, t1):
-            # find which units spiked in this timestep
-            spike_idx = np.argwhere(spikes[:, t] == 1)
-            if spike_idx.size == 0:
-                continue
-                # at least one unit spiked:
 
-            # find nonzero synaptic connections between the active
-            # units
-            w_idx = []
-            for u in spike_idx:
-                for v in spike_idx:
-                    if w_bool[u, v] == 1:
-                        w_idx.append([u, v])  # TODO: speed this up
-            w_idx = np.squeeze(w_idx)
+            z = spikes[:, t]
+
+            # Binary matrix where the value at i,j indicates if neurons
+            # i and j did (1) or did not (0) *both* spike at time t
+            #
+            # NOTE: I assumed w_bool was one-dimensional (unit axis)
+            #       and that spikes was two-dimensionsional (unit axis,
+            #       time axis)
+            b1 = np.tile(z, (*z.shape, 1))
+            b1 = b1.T * z
+
+            # Binary matrix where the value at i,j indicates if neurons
+            # i and j simultaneously spiked at time t *and* that a
+            # synapse exists between them at time t. The value at i,j
+            # will be 0 if any of the three conditions (i spiked, j
+            # spiked, i/j synapse together) are false, otherwise it
+            # will be 1.
+            b2 = b1 * w_bool
+
+            # Track all i,j indices for each timestep which fulfill
+            # these conditions
+            w_idx = np.argwhere(b2 == 1)
+
+
+
+
 
             # if we found at least one nonzero synaptic connection
             # between the active units fill in recruitment graph at
@@ -1981,11 +2002,7 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
             def _update_rseg(rseg, time_idx, w_idx):
                 """TODO: document function"""
                 w_idx = tuple(w_idx)
-
-                if threshold < 1:
-                    rseg[time_idx][w_idx] = upper_fn[w_idx]
-                else:
-                    rseg[time_idx][w_idx] = fn[w_idx]
+                rseg[time_idx][w_idx] = fn[w_idx]
 
             time_idx = t - t0
             if w_idx.size == 2:  # cast to tuple differs for sz=2
@@ -1997,6 +2014,7 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
             #    raise ValueError(
             #        f"expected w_idx.size >= 2, found {w_idx.size}"
             #    )
+
 
         # aggregate for the whole batch, though the dimensions (i.e.
         # duration of each trial segment) will be ragged
@@ -2079,8 +2097,11 @@ def get_binned_spikes_trialends(e_only, true_y, spikes, bin):
         Code should work generalize to any circumstance where
         these assumptions are met and the arguments are
         appropriate (z is a non-jagged NumPy array, bin_sz is
-        a positive integer factor of the number of timesteps,
+        a positive integer factor,
         num_units is a non-negative integer).
+
+        Binning behavior note: truncates timesteps at the end if there
+        are not enough for a complete bin
 
         TODO: confirm with YQ this is desired timestep/bin-size
             handling
