@@ -149,27 +149,18 @@ def output_projection(save_name,weighted=False,coh_lvl='coh1'):
             #trained_w = data['tv1.postweights'][99]
             trained_out = data['tv2.postweights'][99]
 
-            # time to do average of all recruitment graphs!
-            mean_recruit = []
-            # get naive recruitment graphs
-            recruit_file = exp + '/1-10-batch50.npz'
-            recruit_data = np.load(recruit_file, allow_pickle=True)
-            recruit = recruit_data[coh_lvl]
-            for i in range(np.shape(recruit)[0]): # for each trial
-                for j in range(np.shape(recruit[i])[0]): # for each timepoint
-                    mean_recruit.append(recruit[i][j])
-            naive_w = np.mean(mean_recruit,0)
 
-            mean_recruit = []
-            # get trained recruitment graphs
-            recruit_file = final_recruit_file
-            recruit_data = np.load(recruit_file, allow_pickle=True)
-            recruit = recruit_data[coh_lvl]
-            for i in range(np.shape(recruit)[0]): # for each trial
-                for j in range(np.shape(recruit[i])[0]): # for each timepoint
-                    arr = recruit[i][j]
-                    mean_recruit.append(arr)
-            trained_w = np.mean(mean_recruit,0)
+            # time to do average of all recruitment graphs!
+            def _rgraph_avg(rfile):
+                """TODO: document function"""
+                rdata = np.load(rfile, allow_pickle=True)
+                rnets = rdata[coh_lvl]
+                return np.mean(rnets, axis=(0, 1))
+
+
+            naive_w = _rgraph_avg(os.path.join(exp, "1-10-batch50.npz"))
+            trained_w = _rgraph_avg(final_recruit_file)
+
 
             # you should calculate all degrees beforehand... and then get the
             # identities of the units afterwards. that way you don't need to do
@@ -186,16 +177,16 @@ def output_projection(save_name,weighted=False,coh_lvl='coh1'):
             trained_i_out_idx = np.argwhere(trained_out[e_end:i_end,:]<0)[:,0]
 
             naive_e_set_degrees = np.take(
-                all_naive_degrees[0:e_end],naive_e_out_idx,0
+                all_naive_degrees[0:e_end], naive_e_out_idx, 0
             )
             naive_i_set_degrees = np.take(
-                all_naive_degrees[e_end:i_end],naive_i_out_idx,0
+                all_naive_degrees[e_end:i_end], naive_i_out_idx, 0
             )
             trained_e_set_degrees = np.take(
-                all_trained_degrees[0:e_end],trained_e_out_idx,0
+                all_trained_degrees[0:e_end], trained_e_out_idx, 0
             )
             trained_i_set_degrees = np.take(
-                all_trained_degrees[e_end:i_end],trained_i_out_idx,0
+                all_trained_degrees[e_end:i_end], trained_i_out_idx, 0
             )
             #naive_e_set_degrees = np.take(naive_e_set,naive_e_out_idx,1)
             #naive_i_set_degrees = np.take(naive_i_set,naive_i_out_idx,1)
@@ -209,16 +200,16 @@ def output_projection(save_name,weighted=False,coh_lvl='coh1'):
             trained_i_rest_idx = np.argwhere(trained_out[e_end:i_end,:]==0)[:,0]
 
             naive_e_rest_degrees = np.take(
-                all_naive_degrees[0:e_end],naive_e_rest_idx,0
+                all_naive_degrees[0:e_end], naive_e_rest_idx, 0
             )
             naive_i_rest_degrees = np.take(
-                all_naive_degrees[e_end:i_end],naive_i_rest_idx,0
+                all_naive_degrees[e_end:i_end], naive_i_rest_idx, 0
             )
             trained_e_rest_degrees = np.take(
-                all_trained_degrees[0:e_end],trained_e_rest_idx,0
+                all_trained_degrees[0:e_end], trained_e_rest_idx, 0
             )
             trained_i_rest_degrees = np.take(
-                all_trained_degrees[e_end:i_end],trained_i_rest_idx,0
+                all_trained_degrees[e_end:i_end], trained_i_rest_idx, 0
             )
             #naive_e_rest_degrees = np.take(naive_e_rest,naive_e_rest_idx,1)
             #naive_i_rest_degrees = np.take(naive_i_rest,naive_i_rest_idx,1)
