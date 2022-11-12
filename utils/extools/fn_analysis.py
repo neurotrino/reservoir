@@ -7,7 +7,7 @@ import os
 import seaborn as sns
 
 # ---- internal imports -----------------------------------------------
-from utils.extools.MI import generate_mi_graph
+#from utils.extools.MI import generate_mi_graph
 from utils.misc import filenames
 
 # ---- global variables -----------------------------------------------
