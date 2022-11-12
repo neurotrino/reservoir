@@ -3,6 +3,7 @@
 # ---- external imports -----------------------------------------------
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.ma as ma
 import os
 import scipy
 import sys
@@ -1908,21 +1909,38 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
         threshold: 0.25 meaning we only use the top quartile of
             functional weights; otherwise we have a fully dense graph
     """
+    def thresholded_fnet(fnet, thr, copy=True):
+        """Mask lower-magnitude values in a functional network.
+
+        Masks all entries in functional network `fnet` whose absolute
+        value falls outside specificed quantile `thr` of absolute
+        values in said network.
+
+        Arguments:
+            fnet: functional network (NumPy array)
+            thr: floating point value in [0, 1] indicating percentile
+                cutoff (e.g. thr=0.25 keeps only the top quartile)
+
+        Returns:
+            Masked NumPy array masking all values in `fnet` outside the
+            specified quantile. If `copy` is `True`, this array will be
+            a deep copy. Otherwise, it will maintain a reference to
+            `fnet`
+        """
+        magnitude_fnet = np.abs(fnet)
+        mask = magnitude_fnet < np.quantile(magnitude_fnet, thr)
+        return ma.masked_array(fnet, mask, copy=copy, fill_value=0)
 
     if threshold < 1:
         # threshold the functional graph;
         # find the value of the top quartile for the fn;
         # do so for both negative and positive values, so taking
-        # absolute value of the graph
-        sorted_pos_fn = np.abs(np.unique(fn[fn != 0]))
-        # ^ sorted unique elements, not including 0
-        threshold_idx = int((1 - threshold) * sorted_pos_fn.size)
-        threshold_val = sorted_pos_fn[threshold_idx]
-
-        # return fn value wherever its absolute value is greater than
-        # threshold value, otherwise return 0
-        upper_fn = np.where(np.abs(fn) >= threshold_val, fn, 0)
-        # so we could still get negative values
+        # absolute value of the graph -- but also we actually still
+        # have negative values, we just abs for quartile calculation
+        #
+        # TODO: not sure we need the filled, could maybe just use
+        #       masked array
+        upper_fn = thresholded_fnet(fn, threshold).filled()
 
     # mask of 0's and 1's for whether actual synaptic connections exist
     w_bool = np.where(w != 0, 1, 0)
@@ -1932,52 +1950,63 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
 
     # for each trial segment (determined by trialends):
     for (t0, t1) in zip(trialstarts, trialends):
+
+
+
+        # v0 --------
+
         # aggregate recruitment graphs for this segment
         segment_dur = t1 - t0
         recruit_segment = np.zeros(
             [segment_dur, fn.shape[0], fn.shape[1]], dtype=object
-        )
+        )  # return variable
         # for each timestep within that segment:
         for t in range(t0, t1):
             # find which units spiked in this timestep
             spike_idx = np.argwhere(spikes[:, t] == 1)
-            if spike_idx.size > 0:  # at least one unit spiked
-                # find nonzero synaptic connections between the active
-                # units
-                w_idx = []
-                for u in spike_idx:
-                    for v in spike_idx:
-                        if w_bool[u, v] == 1:
-                            w_idx.append([u, v])
-                w_idx = np.squeeze(w_idx)
+            if spike_idx.size == 0:
+                continue
+                # at least one unit spiked:
 
-                # if we found at least one nonzero synaptic connection
-                # between the active units fill in recruitment graph at
-                # those existing active indices using values from
-                # thresholded functional graph
-                def _update_rseg(rseg, time_idx, w_idx):
-                    """TODO: document function"""
-                    w_idx = tuple(w_idx)
+            # find nonzero synaptic connections between the active
+            # units
+            w_idx = []
+            for u in spike_idx:
+                for v in spike_idx:
+                    if w_bool[u, v] == 1:
+                        w_idx.append([u, v])  # TODO: speed this up
+            w_idx = np.squeeze(w_idx)
 
-                    if threshold < 1:
-                        rseg[time_idx][w_idx] = upper_fn[w_idx]
-                    else:
-                        rseg[time_idx][w_idx] = fn[w_idx]
+            # if we found at least one nonzero synaptic connection
+            # between the active units fill in recruitment graph at
+            # those existing active indices using values from
+            # thresholded functional graph
+            def _update_rseg(rseg, time_idx, w_idx):
+                """TODO: document function"""
+                w_idx = tuple(w_idx)
 
-                time_idx = t - t0
-                if w_idx.size == 2:  # cast to tuple differs for sz=2
-                    _update_rseg(recruit_segment, time_idx, w_idx)
-                elif w_idx.size > 2:
-                    for wk_idx in w_idx:
-                        _update_rseg(recruit_segment, time_idx, wk_idx)
-                #else:  # TODO: do we need this?
-                #    raise ValueError(
-                #        f"expected w_idx.size >= 2, found {w_idx.size}"
-                #    )
+                if threshold < 1:
+                    rseg[time_idx][w_idx] = upper_fn[w_idx]
+                else:
+                    rseg[time_idx][w_idx] = fn[w_idx]
+
+            time_idx = t - t0
+            if w_idx.size == 2:  # cast to tuple differs for sz=2
+                _update_rseg(recruit_segment, time_idx, w_idx)
+            elif w_idx.size > 2:
+                for wk_idx in w_idx:
+                    _update_rseg(recruit_segment, time_idx, wk_idx)
+            #else:  # TODO: do we need this?
+            #    raise ValueError(
+            #        f"expected w_idx.size >= 2, found {w_idx.size}"
+            #    )
 
         # aggregate for the whole batch, though the dimensions (i.e.
         # duration of each trial segment) will be ragged
         recruit_graphs.append(recruit_segment)
+
+        # v0 ^^^^
+
 
     return recruit_graphs
 
@@ -2358,7 +2387,7 @@ def generate_naive_trained_recruitment_graphs(
                     # save batchwise recruitment graphs
                     rn_coh0 = np.array(rn_coh0, dtype=object)
                     rn_coh1 = np.array(rn_coh1, dtype=object)
-                    np.savez(
+                    np.savez_compressed(
                         recruit_batch_savepath,
                         coh0=rn_coh0,
                         coh1=rn_coh1,
