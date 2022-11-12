@@ -1909,7 +1909,8 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
         threshold: 0.25 meaning we only use the top quartile of
             functional weights; otherwise we have a fully dense graph
     """
-    def thresholded_fnet(fnet, thr, copy=True):
+
+    def threshold_fnet(fnet, thr, copy=True):
         """Mask lower-magnitude values in a functional network.
 
         Masks all entries in functional network `fnet` whose absolute
@@ -1927,20 +1928,19 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
             a deep copy. Otherwise, it will maintain a reference to
             `fnet`
         """
-        magnitude_fnet = np.abs(fnet)
-        mask = magnitude_fnet < np.quantile(magnitude_fnet, thr)
+        if thr == 0:
+            mask = True  # mask all values
+        elif thr == 1:
+            mask = False  # mask no values
+        else:
+            magnitude_fnet = np.abs(fnet)
+            mask = magnitude_fnet < np.quantile(magnitude_fnet, thr)
         return ma.masked_array(fnet, mask, copy=copy, fill_value=0)
 
-    if threshold < 1:
-        # threshold the functional graph;
-        # find the value of the top quartile for the fn;
-        # do so for both negative and positive values, so taking
-        # absolute value of the graph -- but also we actually still
-        # have negative values, we just abs for quartile calculation
-        #
-        # TODO: not sure we need the filled, could maybe just use
-        #       masked array
-        upper_fn = thresholded_fnet(fn, threshold).filled()
+
+    # TODO: not sure we need the `.filled()`, could maybe just use
+    #       masked array
+    upper_fn = threshold_fnet(fn, threshold).filled()
 
     # mask of 0's and 1's for whether actual synaptic connections exist
     w_bool = np.where(w != 0, 1, 0)
@@ -1951,9 +1951,6 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
     # for each trial segment (determined by trialends):
     for (t0, t1) in zip(trialstarts, trialends):
 
-
-
-        # v0 --------
 
         # aggregate recruitment graphs for this segment
         segment_dur = t1 - t0
@@ -2004,9 +2001,6 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
         # aggregate for the whole batch, though the dimensions (i.e.
         # duration of each trial segment) will be ragged
         recruit_graphs.append(recruit_segment)
-
-        # v0 ^^^^
-
 
     return recruit_graphs
 
