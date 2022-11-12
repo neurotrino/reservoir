@@ -46,7 +46,7 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 LOAD_DIR = "/data/experiments/"
-SAVE_DIR = "/data/results/smith7/rateonly-1"
+SAVE_DIR = "/data/results/smith7/rateonly-4"
 MI_path = '/data/results/experiment1/MI_graphs_bin10/'
 
 # Paul Tol's colorblind-friendly palette for scientific visualization
@@ -1958,17 +1958,12 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
     for (t0, t1) in zip(trialstarts, trialends):
 
 
-        # aggregate recruitment graphs for this segment
-        segment_dur = t1 - t0
-        recruit_segment = np.zeros(  # return variable
-            (segment_dur, fn.shape[0], fn.shape[1]),
-            dtype=object
-        )
-        # for each timestep within that segment:
-        # TODO: replace for loop with numpy operation
-        for t in range(t0, t1):
 
-            z = spikes[:, t]
+
+        ###############################################################
+
+
+        def firing_buddy_indices(z, m):
 
             # Binary matrix where the value at i,j indicates if neurons
             # i and j did (1) or did not (0) *both* spike at time t
@@ -1985,11 +1980,26 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
             # will be 0 if any of the three conditions (i spiked, j
             # spiked, i/j synapse together) are false, otherwise it
             # will be 1.
-            b2 = b1 * w_bool
+            b2 = b1 * m
 
             # Track all i,j indices for each timestep which fulfill
             # these conditions
-            w_idx = np.argwhere(b2 == 1)
+            return np.argwhere(b2 == 1)
+
+
+        # aggregate recruitment graphs for this segment
+        segment_dur = t1 - t0
+        recruit_segment = np.zeros(  # return variable
+            (segment_dur, fn.shape[0], fn.shape[1]),
+            dtype=object
+        )
+        # for each timestep within that segment:
+        # TODO: replace for loop with numpy operation
+        for t in range(t0, t1):
+
+            # Indicies of all neurons with synaptic connections that
+            # are firing together at this timestep
+            w_idx = firing_buddy_indices(spikes[:, t], w_bool)
 
 
 
@@ -2016,9 +2026,15 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
             #    )
 
 
+
         # aggregate for the whole batch, though the dimensions (i.e.
         # duration of each trial segment) will be ragged
         recruit_graphs.append(recruit_segment)
+
+        ###############################################################
+
+
+
 
     return recruit_graphs
 
