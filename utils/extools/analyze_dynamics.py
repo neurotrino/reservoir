@@ -2017,21 +2017,24 @@ def get_binned_spikes_trialends(e_only, true_y, spikes, bin):
             # get all the spikes for each coherence level strung together
             trialends_coh0.append(np.shape(binned_spikes_coh0)[1] - 1)
             # keep sight of new trial_end_indices relative to newly binned spikes
-        if np.size(coh_1_idx) > 0:
-            if not (0 in coh_1_idx):
-                coh_1_idx = coh_1_idx[50:]
-            z_coh1 = spikes_trial[:, coh_1_idx]
-            trial_n_bins = int(np.math.floor(np.shape(z_coh1)[1] / bin))
-            trial_binned_z = np.zeros([n_units, trial_n_bins])
-            for t in range(trial_n_bins):
-                z_in_bin = z_coh1[:, t * bin : (t + 1) * bin - 1]
-                for j in range(n_units):
-                    if 1 in z_in_bin[j, :]:
-                        trial_binned_z[j, t] = 1
-            binned_spikes_coh1 = np.hstack(
-                [binned_spikes_coh1, trial_binned_z]
-            )
-            trialends_coh1.append(np.shape(binned_spikes_coh1)[1] - 1)
+
+        if coh_1_idx.size <= 0:
+            continue
+
+        if not (0 in coh_1_idx):
+            coh_1_idx = coh_1_idx[50:]
+        z_coh1 = spikes_trial[:, coh_1_idx]
+        trial_n_bins = int(np.math.floor(np.shape(z_coh1)[1] / bin))
+        trial_binned_z = np.zeros([n_units, trial_n_bins])
+        for t in range(trial_n_bins):
+            z_in_bin = z_coh1[:, t * bin : (t + 1) * bin - 1]
+            for j in range(n_units):
+                if 1 in z_in_bin[j, :]:
+                    trial_binned_z[j, t] = 1
+        binned_spikes_coh1 = np.hstack(
+            [binned_spikes_coh1, trial_binned_z]
+        )
+        trialends_coh1.append(np.shape(binned_spikes_coh1)[1] - 1)
 
     return [
         [binned_spikes_coh0, binned_spikes_coh1],
@@ -2226,7 +2229,7 @@ def generate_naive_trained_recruitment_graphs(
                 w = data["tv1.postweights"]
 
                 # generate recruitment graphs
-                for batch in range(np.shape(true_y)[0]):
+                for batch in range(true_y.shape[0]):
                     # paths for saving recruitment graphs
                     epoch_string = data_files[file_idx][:-4]
                     batch_string = (
