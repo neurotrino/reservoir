@@ -1943,39 +1943,31 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
                             w_idx.append([u, v])
                 w_idx = np.squeeze(w_idx)
 
+                def _update_rseg(rseg, time_idx, w_idx):
+                    """TODO: document function"""
+                    w_idx = tuple(w_idx)
 
-                # Case 1: TODO: inline docs
-                #
+                    if threshold < 1:
+                        rseg[time_idx][w_idx] = upper_fn(w_idx)
+                    else:
+                        rseg[time_idx][w_idx] = fn(w_idx)
+
+
                 # if we found at least one nonzero synaptic connection
                 # between the active units fill in recruitment graph at
                 # those existing active indices using values from
                 # thresholded functional graph
-                if w_idx.size == 2:  # tuple-ing doesn't work the same way
-                    time_idx = t - trialstarts[i]
-                    if threshold < 1:
-                        recruit_segment[time_idx][tuple(w_idx)] = upper_fn[
-                            tuple(w_idx)
-                        ]
-                    else:
-                        recruit_segment[time_idx][tuple(w_idx)] = fn[
-                            tuple(w_idx)
-                        ]
-
-
-                # Case 2: TODO: inline docs
+                time_idx = t - trialstarts[i]
+                if w_idx.size == 2:  # cast to tuple differs for sz=2
+                    _update_rseg(recruit_segment, time_idx, w_idx)
                 elif w_idx.size > 2:
-                    for k in range(w_idx.shape[0]):
-                        time_idx = t - trialstarts[i]
-                        if threshold < 1:
-                            recruit_segment[time_idx][
-                                tuple(w_idx[k])
-                            ] = upper_fn[
-                                tuple(w_idx[k])
-                            ]  # for each trial segment (less than 30)
-                        else:
-                            recruit_segment[time_idx][tuple(w_idx[k])] = fn[
-                                tuple(w_idx[k])
-                            ]
+                    for wk_idx in w_idx:
+                        _update_rseg(recruit_segment, time_idx, wk_idx)
+                else:
+                    raise ValueError(
+                        f"expected w_idx.size >= 2, found {w_idx.size}"
+                    )
+
         recruit_graphs.append(
             recruit_segment
         )  # aggregate for the whole batch, though the dimensions (i.e. duration of each trial segment) will be ragged
