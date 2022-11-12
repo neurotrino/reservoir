@@ -46,7 +46,7 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 LOAD_DIR = "/data/experiments/"
-SAVE_DIR = "/data/results/smith7/rateonly-4"
+SAVE_DIR = "/data/results/smith7/rateonly-5"
 MI_path = '/data/results/experiment1/MI_graphs_bin10/'
 
 # Paul Tol's colorblind-friendly palette for scientific visualization
@@ -1928,6 +1928,8 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
             a deep copy. Otherwise, it will maintain a reference to
             `fnet`
         """
+
+        # Determine which entries to mask
         if thr == 0:
             mask = True  # mask all values (0th percentile)
         elif thr == 1:
@@ -1935,7 +1937,30 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
         else:
             magnitude_fnet = np.abs(fnet)
             mask = magnitude_fnet < np.quantile(magnitude_fnet, thr)
+
+        # Mask the array
         return ma.masked_array(fnet, mask, copy=copy, fill_value=0)
+
+
+    def firing_buddy_mask(z, m):
+        """TODO: document function"""
+
+        # Binary matrix where the value at i,j indicates if neurons
+        # i and j did (1) or did not (0) *both* spike at time t
+        #
+        # NOTE: I assumed w_bool was one-dimensional (unit axis)
+        #       and that spikes was two-dimensionsional (unit axis,
+        #       time axis)
+        b1 = np.tile(z, (*z.shape, 1))
+        b1 = b1.T * z
+
+        # Binary matrix where the value at i,j indicates if neurons
+        # i and j simultaneously spiked at time t *and* that a
+        # synapse exists between them at time t. The value at i,j
+        # will be 0 if any of the three conditions (i spiked, j
+        # spiked, i/j synapse together) are false, otherwise it
+        # will be 1. This effectively masks the "firing buddies."
+        return b1 * m
 
 
     # NOTE: `copy` is currently `False` because the `.filled()` method
@@ -1955,36 +1980,7 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
     recruit_graphs = []
 
     # for each trial segment (determined by trialends):
-    #
-    # TODO: perform operations all at once with NumPy then go back and
-    #       divide into segments, if possible (might not be bc ragged)
     for (t0, t1) in zip(trialstarts, trialends):
-
-        def firing_buddy_mask(z, m):
-            """TODO: document function"""
-
-            # Binary matrix where the value at i,j indicates if neurons
-            # i and j did (1) or did not (0) *both* spike at time t
-            #
-            # NOTE: I assumed w_bool was one-dimensional (unit axis)
-            #       and that spikes was two-dimensionsional (unit axis,
-            #       time axis)
-            b1 = np.tile(z, (*z.shape, 1))
-            b1 = b1.T * z
-
-            # Binary matrix where the value at i,j indicates if neurons
-            # i and j simultaneously spiked at time t *and* that a
-            # synapse exists between them at time t. The value at i,j
-            # will be 0 if any of the three conditions (i spiked, j
-            # spiked, i/j synapse together) are false, otherwise it
-            # will be 1. This effectively masks the "firing buddies."
-            return b1 * m
-
-
-
-
-
-        ###############################################################
 
         # aggregate recruitment graphs for this segment
         segment_dur = t1 - t0
@@ -1992,10 +1988,7 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
             (segment_dur, fn.shape[0], fn.shape[1]),
             dtype=object
         )
-        # for each timestep within that segment:
-        # TODO: replace for loop with numpy operation
         for t in range(t0, t1):
-
             # Adjusted time index to be relative to the start of the
             # recruitment graph segment, rather than the start of the
             # entire timeseries
@@ -2014,11 +2007,6 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
         # aggregate for the whole batch, though the dimensions (i.e.
         # duration of each trial segment) will be ragged
         recruit_graphs.append(recruit_segment)
-
-        ###############################################################
-
-
-
 
 
     return recruit_graphs
