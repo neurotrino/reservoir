@@ -1894,26 +1894,33 @@ def generate_quad_fn(xdir, e_only, positive_only):
 # ========= ========= ========= ========= ========= ========= =========
 
 def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
-    """TODO: document function"""
+    """TODO: document function
 
-    # w = synaptic graph
-    # fn = functional network for a particular batch (and coherence level)
-    # spikes = binned spikes for 30 trials of a particular batch (and coherence level)
-    # trialends = the indices for which spikes reach a discontinuity
-    # thus, the returned recruitment graphs will be shaped [trial(segment), timestep, pre units, post units]
-    # threshold = 0.25 meaning we only use the top quartile of functional weights
-    # otherwise we have a fully dense graph
+    Arguments:
+        w: synaptic graph (300x300, usually)
+        fn: functional network for a particular batch and coherence
+            level
+        spikes: binned spikes for 30 trials of a particular batch and
+            coherence level
+        trialends = indices for which spikes reach a discontinuity. It
+            follows the returned recruitment graphs will be have shape
+            (trial(segment), timestep, pre units, post units)
+        threshold: 0.25 meaning we only use the top quartile of
+            functional weights; otherwise we have a fully dense graph
+    """
 
     if threshold < 1:
-        # threshold the functional graph
-        # find the value of the top quartile for the fn
-        # do so for both negative and positive values, so taking absolute value of the graph
+        # threshold the functional graph;
+        # find the value of the top quartile for the fn;
+        # do so for both negative and positive values, so taking
+        # absolute value of the graph
         sorted_pos_fn = np.abs(np.unique(fn[fn != 0]))
         # ^ sorted unique elements, not including 0
         threshold_idx = int((1 - threshold) * sorted_pos_fn.size)
         threshold_val = sorted_pos_fn[threshold_idx]
 
-        # return fn value wherever its absolute value is greater than threshold value, otherwise return 0
+        # return fn value wherever its absolute value is greater than
+        # threshold value, otherwise return 0
         upper_fn = np.where(np.abs(fn) >= threshold_val, fn, 0)
         # so we could still get negative values
 
@@ -1924,18 +1931,19 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
     recruit_graphs = []
 
     # for each trial segment (determined by trialends):
-    for i in range(trialstarts.size):
+    for (t0, t1) in zip(trialstarts, trialends):
         # aggregate recruitment graphs for this segment
-        segment_dur = trialends[i] - trialstarts[i]
+        segment_dur = t1 - t0
         recruit_segment = np.zeros(
-            [segment_dur, np.shape(fn)[0], np.shape(fn)[1]], dtype=object
+            [segment_dur, fn.shape[0], fn.shape[1]], dtype=object
         )
         # for each timestep within that segment:
-        for t in range(trialstarts[i], trialends[i]):
+        for t in range(t0, t1):
             # find which units spiked in this timestep
             spike_idx = np.argwhere(spikes[:, t] == 1)
             if spike_idx.size > 0:  # at least one unit spiked
-                # find nonzero synaptic connections between the active units
+                # find nonzero synaptic connections between the active
+                # units
                 w_idx = []
                 for u in spike_idx:
                     for v in spike_idx:
@@ -1943,6 +1951,10 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
                             w_idx.append([u, v])
                 w_idx = np.squeeze(w_idx)
 
+                # if we found at least one nonzero synaptic connection
+                # between the active units fill in recruitment graph at
+                # those existing active indices using values from
+                # thresholded functional graph
                 def _update_rseg(rseg, time_idx, w_idx):
                     """TODO: document function"""
                     w_idx = tuple(w_idx)
@@ -1952,12 +1964,7 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
                     else:
                         rseg[time_idx][w_idx] = fn(w_idx)
 
-
-                # if we found at least one nonzero synaptic connection
-                # between the active units fill in recruitment graph at
-                # those existing active indices using values from
-                # thresholded functional graph
-                time_idx = t - trialstarts[i]
+                time_idx = t - t0
                 if w_idx.size == 2:  # cast to tuple differs for sz=2
                     _update_rseg(recruit_segment, time_idx, w_idx)
                 elif w_idx.size > 2:
@@ -1968,9 +1975,9 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
                         f"expected w_idx.size >= 2, found {w_idx.size}"
                     )
 
-        recruit_graphs.append(
-            recruit_segment
-        )  # aggregate for the whole batch, though the dimensions (i.e. duration of each trial segment) will be ragged
+        # aggregate for the whole batch, though the dimensions (i.e.
+        # duration of each trial segment) will be ragged
+        recruit_graphs.append(recruit_segment)
 
     return recruit_graphs
 
