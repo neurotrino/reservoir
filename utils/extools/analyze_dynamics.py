@@ -1894,6 +1894,8 @@ def generate_quad_fn(xdir, e_only, positive_only):
 # ========= ========= ========= ========= ========= ========= =========
 
 def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
+    """TODO: document function"""
+
     # w = synaptic graph
     # fn = functional network for a particular batch (and coherence level)
     # spikes = binned spikes for 30 trials of a particular batch (and coherence level)
@@ -1906,10 +1908,9 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
         # threshold the functional graph
         # find the value of the top quartile for the fn
         # do so for both negative and positive values, so taking absolute value of the graph
-        sorted_pos_fn = np.abs(
-            np.unique(fn[fn != 0])
-        )  # sorted unique elements, not including 0
-        threshold_idx = int((1 - threshold) * np.size(sorted_pos_fn))
+        sorted_pos_fn = np.abs(np.unique(fn[fn != 0]))
+        # ^ sorted unique elements, not including 0
+        threshold_idx = int((1 - threshold) * sorted_pos_fn.size)
         threshold_val = sorted_pos_fn[threshold_idx]
 
         # return fn value wherever its absolute value is greater than threshold value, otherwise return 0
@@ -1923,7 +1924,7 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
     recruit_graphs = []
 
     # for each trial segment (determined by trialends):
-    for i in range(np.size(trialstarts)):
+    for i in range(trialstarts.size):
         # aggregate recruitment graphs for this segment
         segment_dur = trialends[i] - trialstarts[i]
         recruit_segment = np.zeros(
@@ -1941,8 +1942,14 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
                         if w_bool[u, v] == 1:
                             w_idx.append([u, v])
                 w_idx = np.squeeze(w_idx)
-                # if we found at least one nonzero synaptic connection between the active units
-                # fill in recruitment graph at those existing active indices using values from tresholded functional graph
+
+
+                # Case 1: TODO: inline docs
+                #
+                # if we found at least one nonzero synaptic connection
+                # between the active units fill in recruitment graph at
+                # those existing active indices using values from
+                # thresholded functional graph
                 if w_idx.size == 2:  # tuple-ing doesn't work the same way
                     time_idx = t - trialstarts[i]
                     if threshold < 1:
@@ -1953,8 +1960,11 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
                         recruit_segment[time_idx][tuple(w_idx)] = fn[
                             tuple(w_idx)
                         ]
+
+
+                # Case 2: TODO: inline docs
                 elif w_idx.size > 2:
-                    for k in range(np.shape(w_idx)[0]):
+                    for k in range(w_idx.shape[0]):
                         time_idx = t - trialstarts[i]
                         if threshold < 1:
                             recruit_segment[time_idx][
@@ -1974,25 +1984,30 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
 
 
 def get_binned_spikes_trialends(e_only, true_y, spikes, bin):
+    """TODO: document function"""
+
     if e_only:
         n_units = e_end
     else:
         n_units = i_end
+
     binned_spikes_coh0 = np.empty([n_units, 0])
     trialends_coh0 = []
     binned_spikes_coh1 = np.empty([n_units, 0])
     trialends_coh1 = []
-    for trial in range(
-        np.shape(true_y)[0]
-    ):  # each of 30 trials per batch update
+
+    for trial in range(true_y.shape[0]):
+        # each of 30 trials per batch update
         spikes_trial = np.transpose(spikes[trial])
         trial_y = np.squeeze(true_y[trial])
         # separate spikes according to coherence level
         coh_0_idx = np.squeeze(np.where(trial_y == 0))
         coh_1_idx = np.squeeze(np.where(trial_y == 1))
 
+        # TODO: inline docs
         if np.size(coh_0_idx) > 0:
-            # if the start of a new coherence level happens in the middle of the trial
+            # if the start of a new coherence level happens in the
+            # middle of the trial
             if not (0 in coh_0_idx):
                 # remove the first 50 ms
                 coh_0_idx = coh_0_idx[50:]
@@ -2004,6 +2019,8 @@ def get_binned_spikes_trialends(e_only, true_y, spikes, bin):
             trial_binned_z = np.zeros(
                 [n_units, trial_n_bins]
             )  # holder for this trial's binned spikes
+
+            # TODO: inline docs
             for t in range(trial_n_bins):  # for each 10-ms bin
                 # the only spikes we are looking at (within this 10-ms bin)
                 z_in_bin = z_coh0[:, t * bin : (t + 1) * bin - 1]
@@ -2011,6 +2028,7 @@ def get_binned_spikes_trialends(e_only, true_y, spikes, bin):
                     if 1 in z_in_bin[j, :]:
                         # if spiked at all, put in a 1
                         trial_binned_z[j, t] = 1
+
             binned_spikes_coh0 = np.hstack(
                 [binned_spikes_coh0, trial_binned_z]
             )
@@ -2023,6 +2041,8 @@ def get_binned_spikes_trialends(e_only, true_y, spikes, bin):
 
         if not (0 in coh_1_idx):
             coh_1_idx = coh_1_idx[50:]
+
+        # TODO: inline docs
         z_coh1 = spikes_trial[:, coh_1_idx]
         trial_n_bins = int(np.math.floor(np.shape(z_coh1)[1] / bin))
         trial_binned_z = np.zeros([n_units, trial_n_bins])
@@ -2031,9 +2051,7 @@ def get_binned_spikes_trialends(e_only, true_y, spikes, bin):
             for j in range(n_units):
                 if 1 in z_in_bin[j, :]:
                     trial_binned_z[j, t] = 1
-        binned_spikes_coh1 = np.hstack(
-            [binned_spikes_coh1, trial_binned_z]
-        )
+        binned_spikes_coh1 = np.hstack([binned_spikes_coh1, trial_binned_z])
         trialends_coh1.append(np.shape(binned_spikes_coh1)[1] - 1)
 
     return [
