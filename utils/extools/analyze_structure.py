@@ -105,14 +105,12 @@ def _nets_from_weights(w, num_exci=240):
         num_exci <int> : Number of excitatory units in `w`.
 
     Returns:
-        G <NumPy Array> : Network of both excitatory and inhibitory
-            connections from `w`.
-
-        Ge <NumPy Array> : Network of only excitatory connections from
+        G : Network of both excitatory and inhibitory connections from
             `w`.
 
-        Gi <NumPy Array> : Network of only inhibitory connections from
-            `w`.
+        Ge : Network of only excitatory connections from`w`.
+
+        Gi : Network of only inhibitory connections from`w`.
     """
 
     # Select excitatory and inhibitory synapses
@@ -438,10 +436,15 @@ def plot_clustering_dist_experiments():
 def nx_plot_clustering_over_time(savepath):
     """TODO: document function"""
 
+    # Load data
     experiments = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
+
+    # Setup
     fig, ax = plt.subplots(nrows=2, ncols=2)
     ax = ax.flatten()
+
+    # Plot
     for xdir in experiments:
         cc_e = []
         cc_i = []
@@ -450,26 +453,19 @@ def nx_plot_clustering_over_time(savepath):
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
-            w = data["tv1.postweights"]
+            ws = data["tv1.postweights"]
             loss.append(
                 np.add(
                     data["step_task_loss"], data["step_rate_loss"]
                 ).tolist()
             )
-            for i in range(np.shape(w)[0]):
-                G = nx.from_numpy_array(np.abs(w[i]), create_using=nx.DiGraph)
+            for w in ws:
+                G, Ge, Gi = _nets_from_weights(np.abs(w))
                 cc_all.append(
                     nx.average_clustering(G, nodes=G.nodes, weight="weight")
                 )
-                Ge = nx.from_numpy_array(
-                    w[i][0:e_end, 0:e_end], create_using=nx.DiGraph
-                )
                 cc_e.append(
                     nx.average_clustering(Ge, nodes=Ge.nodes, weight="weight")
-                )
-                Gi = nx.from_numpy_array(
-                    np.abs(w[i][e_end:i_end, e_end:i_end]),
-                    create_using=nx.DiGraph,
                 )
                 cc_i.append(
                     nx.average_clustering(Gi, nodes=Gi.nodes, weight="weight")
@@ -478,6 +474,8 @@ def nx_plot_clustering_over_time(savepath):
         ax[1].plot(cc_e)
         ax[2].plot(cc_i)
         ax[3].plot(loss)
+
+    # Label and title
     for i in range(4):
         ax[i].set_xlabel("batch")
         ax[i].set_ylabel("absolute weighted clustering coefficient")
@@ -487,9 +485,13 @@ def nx_plot_clustering_over_time(savepath):
     ax[3].set_title("loss")
     ax[3].set_ylabel("total loss")
     fig.suptitle("experiment set 1 synaptic clustering")
+
+    # Draw and save
     plt.draw()
     plt.subplots_adjust(wspace=0.5, hspace=0.5)
     plt.savefig(os.path.join(savepath, "set_wcc.png"), dpi=300)
+
+    # Teardown
     plt.clf()
     plt.close()
 
