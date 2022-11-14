@@ -1592,11 +1592,6 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
         exp_string = exp[-8:]
 
         # each of these will be plotted per experiment
-        w_ee_std = []
-        w_ee_mean = []
-        w_ii_std = []
-        w_ii_mean = []
-
         dens_ee_std = []
         dens_ee_mean = []
         dens_ii_std = []
@@ -1609,14 +1604,27 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
 
         # for each batch update
         for batch in range(100):
-            batch_string = exp+'/'+epoch_string+'-batch'+str(batch)+'.npz'
-            data = np.load(batch_string,allow_pickle=True)
+
+            # Read data from disk
+            batch_string = os.path.join(
+                exp, f"{epoch_string}-batch{batch}.npz"
+            )
+            data = np.load(batch_string, allow_pickle=True)
             coh = data[coh_lvl]
 
-            # get the average over the several trials and timepoints
-            trial_w_e = []
-            trial_w_i = []
+            # Separate out excitatory and inhibitory connections
+            exci_data = coh[..., :e_end, :e_end]
+            inhi_data = coh[..., e_end:, e_end:]
 
+            # Compute mean weights over trials
+            w_ee_mean.append(np.mean(exci_data))
+            w_ii_mean.append(np.mean(inhi_data))
+
+            # Compute standard deviations of weights over trials
+            w_ee_std.append(np.std(np.mean(exci_data, axis=coh.ndims[1:])))
+            w_ee_std.append(np.std(np.mean(inhi_data, axis=coh.ndims[1:])))
+
+            # get the average over the several trials and timepoints
             trial_dens_e = []
             trial_dens_i = []
 
@@ -1625,9 +1633,6 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
 
             for trial in coh:
                 # for the timesteps in this trial
-                time_w_e = []
-                time_w_i = []
-
                 time_dens_e = []
                 time_dens_i = []
 
@@ -1639,11 +1644,9 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
                     exci_synapses = timestep[:e_end, :e_end]
                     inhi_synapses = timestep[e_end:, e_end:]
 
-                    time_w_e.append(np.mean(exci_synapses))
                     time_dens_e.append(calc_density(exci_synapses))
                     #recip_e = reciprocity(timestep[0:e_end,0:e_end])
 
-                    time_w_i.append(np.mean(inhi_synapses))
                     time_dens_i.append(calc_density(inhi_synapses))
                     #recip_i = reciprocity(timestep[e_end:i_end,e_end:i_end])
 
@@ -1663,9 +1666,6 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
 
                 # collect and average over timesteps
                 # across all timesteps of a trial, get the mean metric value
-                trial_w_e.append(np.mean(time_w_e))
-                trial_w_i.append(np.mean(time_w_i))
-
                 trial_dens_e.append(np.mean(time_dens_e))
                 trial_dens_i.append(np.mean(time_dens_i))
 
@@ -1674,15 +1674,11 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
 
             # collect over trials
             # across all trials for a batch, stack em together
-            w_ee_std.append(np.std(trial_w_e))
-            w_ee_mean.append(np.mean(trial_w_e))
-            w_ii_std.append(np.std(trial_w_i))
-            w_ii_mean.append(np.mean(trial_w_i))
+            dens_ee_mean.append(np.mean(trial_dens_e))
+            dens_ii_mean.append(np.mean(trial_dens_i))
 
             dens_ee_std.append(np.std(trial_dens_e))
-            dens_ee_mean.append(np.mean(trial_dens_e))
             dens_ii_std.append(np.std(trial_dens_i))
-            dens_ii_mean.append(np.mean(trial_dens_i))
 
             cc_ee_std.append(np.std(trial_cc_e))
             cc_ee_mean.append(np.mean(trial_cc_e))
