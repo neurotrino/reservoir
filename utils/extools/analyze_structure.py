@@ -139,6 +139,7 @@ def plot_input_channels():
             ax[1,0].hist(late_in[i,:],bins=50,histtype='step')
             ax[1,1].hist(trained_in[i,:],bins=50,histtype='step')
 
+        # Label and title
         ax[0,0].set_title('epoch 0')
         ax[0,0].set_xlabel('input weights')
         ax[0,1].set_title('epoch 50')
@@ -149,10 +150,10 @@ def plot_input_channels():
         ax[1,1].set_xlabel('input weights')
 
         plt.suptitle("Evolution of 16 input channels' weights; rate loss only")
-        plt.draw()
-        plt.subplots_adjust(wspace=0.4, hspace=0.7)
 
         # Draw and save
+        plt.draw()
+        plt.subplots_adjust(wspace=0.4, hspace=0.7)
         save_fname = savepath+task_exp_path+'/'+exp_path+'_input_channel_dist_quad.png'
         plt.savefig(save_fname,dpi=300)
 
@@ -179,6 +180,13 @@ def get_degrees(arr, weighted):
 def plot_recip_dist_experiments():
     """TODO: document function"""
 
+    def _histplot_reciprocity(g, c, lbl):
+        """Plot graph reciprocity."""
+        result = list(nx.reciprocity(g, g.nodes).items())
+        recip = np.array(result)[:, 1]
+        _histplot_by_bin_count(np.ravel(recip), c, lbl)
+
+
     experiments = get_experiments(data_dir, experiment_string)
     plt_string = ["epoch0", "epoch10", "epoch100", "epoch1000"]
 
@@ -198,46 +206,45 @@ def plot_recip_dist_experiments():
             os.path.join(data_dir, xdir, "npz-data/991-1000.npz")
         )
 
-        w = []
+        ws = []
         # load naive weights
-        w.append(np.load(data_files[0]))
+        ws.append(np.load(data_files[0]))
         for i in range(1, 4):  # load other weights
             data = np.load(data_files[i])
-            w.append(data["tv1.postweights"][99])
+            ws.append(data["tv1.postweights"][99])
 
-        for i in range(4):
-            plt.figure()
-            G = nx.from_numpy_array(w[i], create_using=nx.DiGraph)
+
+        for (w, lbl) in zip(ws, plt_string):
+
+            # Format weights as a network
+            G = nx.from_numpy_array(w, create_using=nx.DiGraph)
             Ge = nx.from_numpy_array(
-                w[i][0:e_end, 0:e_end], create_using=nx.DiGraph
+                w[0:e_end, 0:e_end], create_using=nx.DiGraph
             )
             Gi = nx.from_numpy_array(
-                w[i][e_end:i_end, e_end:i_end], create_using=nx.DiGraph
+                w[e_end:i_end, e_end:i_end], create_using=nx.DiGraph
             )
 
-            # plot reciprocity between e units
-            result = list(nx.reciprocity(Ge, Ge.nodes).items())
-            e_recip = np.array(result)[:, 1]
-            _histplot_by_bin_count(np.ravel(e_recip), "blue", "within e units")
+            # Setup
+            plt.figure()
 
-            # plot reciprocity between i units
-            result = list(nx.reciprocity(Gi, Gi.nodes).items())
-            i_recip = np.array(result)[:, 1]
-            _histplot_by_bin_count(np.ravel(i_recip), "red", "within i units")
+            # Plot reciprocity:
+            # - between e units
+            # - between i units
+            # - for the whole network
+            _histplot_reciprocity(Ge, "blue", "within e units")
+            _histplot_reciprocity(Gi, "red", "within i units")
+            _histplot_reciprocity(G, "black", "whole network")
 
-            # plot whole-network reciprocity
-            result = list(nx.reciprocity(G, G.nodes).items())
-            recip = np.array(result)[:, 1]
-            _histplot_by_bin_count(np.ravel(recip), "black", "whole network")
-
+            # Label and title
             plt.xlabel("node reciprocity for recurrent layer")
             plt.ylabel("density")
-            plt.title(plt_string[i])
+            plt.title(lbl)
             plt.legend()
 
             # Draw and save
             plt.draw()
-            plt_name = plt_string[i] + "_recip_dist_exp.png"
+            plt_name = lbl + "_recip_dist_exp.png"
             plt.savefig(os.path.join(savepath, exp_path, plt_name), dpi=300)
 
             # Teardown
@@ -248,6 +255,18 @@ def plot_recip_dist_experiments():
 def plot_eigvc_dist_experiments():
     """TODO: document function"""
 
+    def _histplot_centrality(g, c, lbl):
+        """Plot graph centrality."""
+
+        # Compute/format eigenvector centrality
+        evc = nx.eigenvector_centrality_numpy(g, weight="weight")
+        evc = list(evc.items())
+        evc = np.array(evc)[:, 1]
+
+        # Plot
+        _histplot_by_bin_count(np.ravel(evc), c, lbl)
+
+
     experiments = get_experiments(data_dir, experiment_string)
     plt_string = ["epoch0", "epoch10", "epoch100", "epoch1000"]
 
@@ -284,31 +303,32 @@ def plot_eigvc_dist_experiments():
                 np.abs(w[i][e_end:i_end, e_end:i_end]),
                 create_using=nx.DiGraph,
             )
-            # plot centrality between e units
-            result = list(
-                nx.eigenvector_centrality_numpy(Ge, weight="weight").items()
-            )
-            e_eigvc = np.array(result)[:, 1]
-            _histplot_by_bin_count(np.ravel(e_eigvc), "blue", "within e units")
-            # plot centrality between i units
-            result = list(
-                nx.eigenvector_centrality_numpy(Gi, weight="weight").items()
-            )
-            i_eigvc = np.array(result)[:, 1]
-            _histplot_by_bin_count(np.ravel(i_eigvc), "red", "within i units")
-            # plot whole network clustering
+
+            # Plot reciprocity:
+            # - between e units
+            # - between i units
+            _histplot_centrality(Ge, "blue", "within e units")
+            _histplot_centrality(Gi, "red", "within i units")
+
+            # Plot whole-network clustering
             # result = list(nx.clustering(G,nodes=G.nodes,weight='weight').items())
             # cc = np.array(result)[:,1]
             # sns.histplot(data=np.ravel(cc), bins=30, color='black', label='whole network', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+
+            # Label and title
             plt.xlabel(
                 "absolute weighted eigenvector centrality for recurrent layer"
             )
             plt.ylabel("density")
             plt.title(plt_string[i])
             plt.legend()
+
+            # Draw and save
             plt.draw()
             plt_name = plt_string[i] + "_eigvc_dist_exp.png"
             plt.savefig(os.path.join(savepath, exp_path, plt_name), dpi=300)
+
+            # Teardown
             plt.clf()
             plt.close()
 
@@ -316,6 +336,18 @@ def plot_eigvc_dist_experiments():
 def plot_clustering_dist_experiments():
     """TODO: document function"""
 
+    def _histplot_clustering(g, c, lbl):
+        """Plot graph clustering."""
+
+        # Compute/format clustering
+        clustering = nx.clustering(g, nodes=g.nodes, weight="weight")
+        clustering = list(clustering.items())
+        clustering = np.array(clustering)[:, 1]
+
+        # Plot
+        _histplot_by_bin_count(np.ravel(clustering), c, lbl)
+
+
     experiments = get_experiments(data_dir, experiment_string)
     plt_string = ["epoch0", "epoch10", "epoch100", "epoch1000"]
 
@@ -352,29 +384,30 @@ def plot_clustering_dist_experiments():
                 np.abs(w[i][e_end:i_end, e_end:i_end]),
                 create_using=nx.DiGraph,
             )
-            # plot clustering between e units
-            result = list(
-                nx.clustering(Ge, nodes=Ge.nodes, weight="weight").items()
-            )
-            e_cc = np.array(result)[:, 1]
-            _histplot_by_bin_count(np.ravel(e_cc), "blue", "within e units")
-            # plot clustering between i units
-            result = list(
-                nx.clustering(Gi, nodes=Gi.nodes, weight="weight").items()
-            )
-            i_cc = np.array(result)[:, 1]
-            _histplot_by_bin_count(np.ravel(i_cc), "red", "within i units")
+
+            # Plot clustering:
+            # - between e units
+            # - between i units
+            _histplot_clustering(Ge, "blue", "within e units")
+            _histplot_clustering(Gi, "red", "within i units")
+
             # plot whole network clustering
             # result = list(nx.clustering(G,nodes=G.nodes,weight='weight').items())
             # cc = np.array(result)[:,1]
             # sns.histplot(data=np.ravel(cc), bins=30, color='black', label='whole network', stat='density', alpha=0.5, kde=True, edgecolor='white', linewidth=0.5, line_kws=dict(color='black', alpha=0.5, linewidth=1.5))
+
+            # Label and title
             plt.xlabel("absolute weighted clustering for recurrent layer")
             plt.ylabel("density")
             plt.title(plt_string[i])
             plt.legend()
+
+            # Draw and save
             plt.draw()
             plt_name = plt_string[i] + "_wcc_dist_exp.png"
             plt.savefig(os.path.join(savepath, exp_path, plt_name), dpi=300)
+
+            # Teardown
             plt.clf()
             plt.close()
 
@@ -765,9 +798,8 @@ def plot_main_degree_over_time(savepath):
             data = np.load(filepath)
             w = data["tv1.postweights"]
 
-            for i in range(
-                np.shape(w)[0]
-            ):  # for each graph (1 graph each for 100 batches per file), get mean degrees across graph
+            # for each graph (1 graph each for 100 batches per file), get mean degrees across graph
+            for i in range(np.shape(w)[0]):
                 ee_out = np.mean(
                     out_degree(w[i][0:e_end, 0:e_end], weighted=True)
                 )
