@@ -1,6 +1,6 @@
 """Graph (structural) analysis for series of completed experiments"""
 
-# external ----
+# ---- external imports -----------------------------------------------
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -8,10 +8,11 @@ import sys
 import seaborn as sns
 import networkx as nx
 
+
+# ---- internal imports -----------------------------------------------
 sys.path.append("../")
 sys.path.append("../../")
 
-# internal ----
 from utils.misc import filenames
 from utils.misc import get_experiments
 from utils.extools.fn_analysis import reciprocity
@@ -19,6 +20,7 @@ from utils.extools.fn_analysis import reciprocity_ei
 from utils.extools.fn_analysis import calc_density
 from utils.extools.fn_analysis import out_degree
 
+# ---- global variables -----------------------------------------------
 data_dir = "/data/experiments/"
 #experiment_string = "run-batch30-specout-onlinerate0.1-singlepreweight"
 experiment_string = "run-batch30-specout-onlinerate0.1-savey"
@@ -29,6 +31,62 @@ epochs_per_file = 10
 e_end = 240
 i_end = 300
 savepath = "/data/results/experiment1/"
+
+# Paul Tol's colorblind-friendly palette for scientific visualization
+COLORS = [
+    "#332288",  # indigo
+    "#117733",  # green
+    "#44AA99",  # teal
+    "#88CCEE",  # cyan
+    "#DDCC77",  # sand
+    "#CC6677",  # rose
+    "#AA4499",  # purple
+    "#882255",  # wine
+]
+
+
+# ========= ========= ========= ========= ========= ========= =========
+# Utilities
+# ========= ========= ========= ========= ========= ========= =========
+
+def _histplot_by_bin_count(x, c, lbl, bins=30):
+    """Preconfigured histplot plotter."""
+    sns.histplot(
+        data=x,
+        color=c,
+        label=lbl,
+        bins=bins,
+        stat="density",
+        alpha=0.5,
+        kde=True,
+        edgecolor="white",
+        linewidth=0.5,
+        line_kws=dict(
+            color="black",
+            alpha=0.5,
+            linewidth=1.5
+        ),
+    )
+
+
+def _histplot_by_bin_width(x, c, lbl, binwidth=0.1):
+    """Another preconfigured histplot."""
+    sns.histplot(
+        data=x,
+        color=c,
+        label=lbl,
+        binwidth=binwidth,
+        stat="density",
+        alpha=0.5,
+        kde=True,
+        edgecolor="white",
+        linewidth=0.5,
+        line_kws=dict(
+            color="black",
+            alpha=0.5,
+            linewidth=1.5
+        ),
+    )
 
 
 # ========= ========= ========= ========= ========= ========= =========
@@ -99,7 +157,7 @@ def get_degrees(arr, weighted):
     out_degree = []
     in_degree = []
 
-    for i in range(np.shape(arr)[0]): # calculate degrees for each unit
+    for i in range(arr.shape[0]): # calculate degrees for each unit
         if not weighted:
             out_degree.append(np.size(np.where(arr[i,:]!=0)))
             in_degree.append(np.size(np.where(arr[:,i]!=0)))
@@ -110,6 +168,8 @@ def get_degrees(arr, weighted):
     return [in_degree, out_degree]
 
 def plot_recip_dist_experiments():
+    """TODO: document function"""
+
     experiments = get_experiments(data_dir, experiment_string)
     plt_string = ["epoch0", "epoch10", "epoch100", "epoch1000"]
 
@@ -145,51 +205,22 @@ def plot_recip_dist_experiments():
             Gi = nx.from_numpy_array(
                 w[i][e_end:i_end, e_end:i_end], create_using=nx.DiGraph
             )
+
             # plot reciprocity between e units
             result = list(nx.reciprocity(Ge, Ge.nodes).items())
             e_recip = np.array(result)[:, 1]
-            sns.histplot(
-                data=np.ravel(e_recip),
-                bins=30,
-                color="blue",
-                label="within e units",
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-            )
+            _histplot_by_bin_count(np.ravel(e_recip), "blue", "within e units")
+
             # plot reciprocity between i units
             result = list(nx.reciprocity(Gi, Gi.nodes).items())
             i_recip = np.array(result)[:, 1]
-            sns.histplot(
-                data=np.ravel(i_recip),
-                bins=30,
-                color="red",
-                label="within i units",
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-            )
-            # plot whole network reciprocity
+            _histplot_by_bin_count(np.ravel(i_recip), "red", "within i units")
+
+            # plot whole-network reciprocity
             result = list(nx.reciprocity(G, G.nodes).items())
             recip = np.array(result)[:, 1]
-            sns.histplot(
-                data=np.ravel(recip),
-                bins=30,
-                color="black",
-                label="whole network",
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-            )
+            _histplot_by_bin_count(np.ravel(recip), "black", "whole network")
+
             plt.xlabel("node reciprocity for recurrent layer")
             plt.ylabel("density")
             plt.title(plt_string[i])
@@ -202,6 +233,9 @@ def plot_recip_dist_experiments():
 
 
 def plot_eigvc_dist_experiments():
+    """TODO: document function"""
+
+
     experiments = get_experiments(data_dir, experiment_string)
     plt_string = ["epoch0", "epoch10", "epoch100", "epoch1000"]
 
@@ -243,35 +277,13 @@ def plot_eigvc_dist_experiments():
                 nx.eigenvector_centrality_numpy(Ge, weight="weight").items()
             )
             e_eigvc = np.array(result)[:, 1]
-            sns.histplot(
-                data=np.ravel(e_eigvc),
-                bins=30,
-                color="blue",
-                label="within e units",
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-            )
+            _histplot_by_bin_count(np.ravel(e_eigvc), "blue", "within e units")
             # plot centrality between i units
             result = list(
                 nx.eigenvector_centrality_numpy(Gi, weight="weight").items()
             )
             i_eigvc = np.array(result)[:, 1]
-            sns.histplot(
-                data=np.ravel(i_eigvc),
-                bins=30,
-                color="red",
-                label="within i units",
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-            )
+            _histplot_by_bin_count(np.ravel(i_eigvc), "red", "within i units")
             # plot whole network clustering
             # result = list(nx.clustering(G,nodes=G.nodes,weight='weight').items())
             # cc = np.array(result)[:,1]
@@ -331,35 +343,13 @@ def plot_clustering_dist_experiments():
                 nx.clustering(Ge, nodes=Ge.nodes, weight="weight").items()
             )
             e_cc = np.array(result)[:, 1]
-            sns.histplot(
-                data=np.ravel(e_cc),
-                bins=30,
-                color="blue",
-                label="within e units",
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-            )
+            _histplot_by_bin_count(np.ravel(e_cc), "blue", "within e units")
             # plot clustering between i units
             result = list(
                 nx.clustering(Gi, nodes=Gi.nodes, weight="weight").items()
             )
             i_cc = np.array(result)[:, 1]
-            sns.histplot(
-                data=np.ravel(i_cc),
-                bins=30,
-                color="red",
-                label="within i units",
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-            )
+            _histplot_by_bin_count(np.ravel(i_cc), "red", "within i units")
             # plot whole network clustering
             # result = list(nx.clustering(G,nodes=G.nodes,weight='weight').items())
             # cc = np.array(result)[:,1]
@@ -868,6 +858,9 @@ def plot_main_out_degree_over_time(savepath):
 # Naive distribution, epoch 10 distribution, epoch 100 distribution, epoch 1000 distribution
 # of in and out degree
 def plot_degree_dist_single_experiments():
+    """TODO: document function"""
+
+
     # 4 subplots
     experiments = get_experiments(data_dir, experiment_string)
     # first for naive distribution
@@ -906,36 +899,18 @@ def plot_degree_dist_single_experiments():
             d_in = out_degree(
                 np.transpose(w[i][0:e_end, 0:e_end]), weighted=True
             )
-            # plot distribution of degree ratios for all units in the graph of that particular batch
-            sns.histplot(
-                data=np.divide(d_in, d_out),
-                binwidth=0.1,
-                color="blue",
-                label="within e units",
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-            )
+
+            # plot distribution of degree ratios for all units in the
+            # graph of that particular batch
+            _histplot_by_bin_width(np.divide(d_in, d_out), "blue", "within e units")
+
             # plot for within i units
             d_out = out_degree(w[i][e_end:i_end, e_end:i_end], weighted=True)
             d_in = out_degree(
                 np.transpose(w[i][e_end:i_end, e_end:i_end]), weighted=True
             )
-            sns.histplot(
-                data=np.divide(d_in, d_out),
-                binwidth=0.1,
-                color="red",
-                label="within i units",
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-            )
+            _histplot_by_bin_width(np.divide(d_in, d_out), "red", "within i units")
+
             plt.xlabel("weighted in/out-degree ratio for main rsnn")
             plt.ylabel("density")
             plt.title(plt_string[i])
@@ -992,32 +967,23 @@ def plot_output_w_dist_experiments():
             plt.figure()
             e_to_out = w[i][0:e_end, :]
             i_to_out = w[i][e_end:i_end, :]
+
             # plot nonzero e-to-output
-            sns.histplot(
-                data=np.ravel(e_to_out[e_to_out != 0]),
-                binwidth=0.05,
-                color="blue",
-                label="from e units",
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
+            _histplot_by_bin_width(
+                x=np.ravel(e_to_out[e_to_out != 0]),
+                c="blue",
+                lbl="from e units",
+                binwidth=0.05
             )
+
             # plot nonzero i-to-output
-            sns.histplot(
-                data=np.ravel(i_to_out[i_to_out != 0]),
-                binwidth=0.05,
-                color="red",
-                label="from i units",
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
+            _histplot_by_bin_width(
+                x=np.ravel(i_to_out[i_to_out != 0]),
+                c="red",
+                lbl="from i units",
+                binwidth=0.05
             )
+
             plt.xlabel("nonzero output weight distribution")
             plt.ylabel("density")
             plt.title(plt_string[i])
@@ -1064,30 +1030,8 @@ def plot_input_w_dist_experiments():
             plt.figure()
             in_to_e = w[i][:, 0:e_end]
             in_to_i = w[i][:, e_end:i_end]
-            sns.histplot(
-                data=np.ravel(in_to_e),
-                bins=30,
-                color="blue",
-                label="to e units",
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-            )
-            sns.histplot(
-                data=np.ravel(in_to_i),
-                bins=30,
-                color="red",
-                label="to i units",
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-            )
+            _histplot_by_bin_count(np.ravel(in_to_e), "blue", "to e units")
+            _histplot_by_bin_count(np.ravel(in_to_i), "red", "to i units")
             plt.xlabel("input weight distribution")
             plt.ylabel("density")
             plt.title(plt_string[i])
@@ -1135,30 +1079,18 @@ def plot_main_w_dist_experiments():
             from_e = w[i][0:e_end, :]
             from_i = w[i][e_end:i_end, :]
             # plot distribution of excitatory (to e and i) weights
-            sns.histplot(
-                data=np.ravel(from_e[from_e != 0]),
-                binwidth=0.5,
-                color="blue",
-                label="from e units to all",
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
+            _histplot_by_bin_width(
+                x=np.ravel(from_e[from_e != 0]),
+                c="blue",
+                lbl="from e units to all",
+                binwidth=0.5
             )
             # plot distribution of inhibitory (to e and i) weights
-            sns.histplot(
-                data=np.ravel(from_i[from_i != 0]),
-                binwidth=0.5,
-                color="red",
-                label="from i units to all",
-                stat="density",
-                alpha=0.5,
-                kde=True,
-                edgecolor="white",
-                linewidth=0.5,
-                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
+            _histplot_by_bin_width(
+                x=np.ravel(from_i[from_i != 0]),
+                c="red",
+                lbl="from i units to all",
+                binwidth=0.5
             )
             plt.xlabel("nonzero weights for recurrent layer")
             plt.ylabel("density")
