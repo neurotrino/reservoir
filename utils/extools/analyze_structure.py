@@ -89,6 +89,44 @@ def _histplot_by_bin_width(x, c, lbl, binwidth=0.1):
     )
 
 
+def _nets_from_weights(w, num_exci=240):
+    """Return connection networks for a weight matrix.
+
+    Arguments:
+        w <NumPy Array> : Two-dimensional array of synaptic weights,
+            i.e. an NxN weighted adjacency matrix, where N is the
+            number of units in the network. Excitatory units should
+            occupy the lower indices of the matrix. For example, a
+            100-unit matrix with 80 exitatory units must have those
+            units correspond to indices [0, 1, ..., 78, 79] along
+            each axis, while the indices [80, 81, ..., 98, 99] will
+            correspond to inhibitory units.
+
+        num_exci <int> : Number of excitatory units in `w`.
+
+    Returns:
+        G <NumPy Array> : Network of both excitatory and inhibitory
+            connections from `w`.
+
+        Ge <NumPy Array> : Network of only excitatory connections from
+            `w`.
+
+        Gi <NumPy Array> : Network of only inhibitory connections from
+            `w`.
+    """
+
+    # Select excitatory and inhibitory synapses
+    exci_synapses = w[0:num_exci, 0:num_exci]
+    inhi_synapses = w[num_exci:, num_exci:]
+
+    # Generate network objects (whole-network, excitatory, inhibitory)
+    full_net = nx.from_numpy_array(w, create_using=nx.DiGraph)
+    exci_net = nx.from_numpy_array(exci_synapses, create_using=nx.DiGraph)
+    inhi_net = nx.from_numpy_array(inhi_synapses, create_using=nx.DiGraph)
+
+    return full_net, exci_net, inhi_net
+
+
 # ========= ========= ========= ========= ========= ========= =========
 # Plot Stuff
 # ========= ========= ========= ========= ========= ========= =========
@@ -215,15 +253,8 @@ def plot_recip_dist_experiments():
 
 
         for (w, lbl) in zip(ws, plt_string):
-
-            # Format weights as a network
-            G = nx.from_numpy_array(w, create_using=nx.DiGraph)
-            Ge = nx.from_numpy_array(
-                w[0:e_end, 0:e_end], create_using=nx.DiGraph
-            )
-            Gi = nx.from_numpy_array(
-                w[e_end:i_end, e_end:i_end], create_using=nx.DiGraph
-            )
+            # Get synaptic graphs from the weight matrix
+            G, Ge, Gi = _nets_from_weights(w)
 
             # Setup
             plt.figure()
@@ -286,23 +317,19 @@ def plot_eigvc_dist_experiments():
             os.path.join(data_dir, xdir, "npz-data/991-1000.npz")
         )
 
-        w = []
+        ws = []
         # load naive weights
-        w.append(np.load(data_files[0]))
+        ws.append(np.load(data_files[0]))
         for i in range(1, 4):  # load other weights
             data = np.load(data_files[i])
-            w.append(data["tv1.postweights"][99])
+            ws.append(data["tv1.postweights"][99])
 
-        for i in range(4):
+        for (w, lbl) in zip(ws, plt_string):
+            # Get synaptic graphs from the weight matrix
+            _, Ge, Gi = _nets_from_weights(w)
+
+            # Setup
             plt.figure()
-            # G = nx.from_numpy_array(w[i],create_using=nx.DiGraph)
-            Ge = nx.from_numpy_array(
-                w[i][0:e_end, 0:e_end], create_using=nx.DiGraph
-            )
-            Gi = nx.from_numpy_array(
-                np.abs(w[i][e_end:i_end, e_end:i_end]),
-                create_using=nx.DiGraph,
-            )
 
             # Plot reciprocity:
             # - between e units
@@ -320,12 +347,12 @@ def plot_eigvc_dist_experiments():
                 "absolute weighted eigenvector centrality for recurrent layer"
             )
             plt.ylabel("density")
-            plt.title(plt_string[i])
+            plt.title(lbl)
             plt.legend()
 
             # Draw and save
             plt.draw()
-            plt_name = plt_string[i] + "_eigvc_dist_exp.png"
+            plt_name = lbl + "_eigvc_dist_exp.png"
             plt.savefig(os.path.join(savepath, exp_path, plt_name), dpi=300)
 
             # Teardown
@@ -375,15 +402,11 @@ def plot_clustering_dist_experiments():
             w.append(data["tv1.postweights"][99])
 
         for i in range(4):
+            # Get synaptic graphs from the weight matrix
+            _, Ge, Gi = _nets_from_weights(w[i])
+
+            # Setup
             plt.figure()
-            # G = nx.from_numpy_array(w[i],create_using=nx.DiGraph)
-            Ge = nx.from_numpy_array(
-                w[i][0:e_end, 0:e_end], create_using=nx.DiGraph
-            )
-            Gi = nx.from_numpy_array(
-                np.abs(w[i][e_end:i_end, e_end:i_end]),
-                create_using=nx.DiGraph,
-            )
 
             # Plot clustering:
             # - between e units
@@ -497,20 +520,14 @@ def nx_plot_reciprocity_over_time(savepath):
 
             # TODO: inline docs
             for w_i in w:
-                G = nx.from_numpy_array(w_i, create_using=nx.DiGraph)
-                recip_all.append(nx.reciprocity(G))
-                Ge = nx.from_numpy_array(
-                    w_i[0:e_end, 0:e_end], create_using=nx.DiGraph
-                )
-                recip_ee.append(nx.reciprocity(Ge))
+                G, Ge, Gi = _nets_from_weights(w_i)
                 recip_ei.append(
                     reciprocity_ei(
                         w_i[0:e_end, e_end:i_end], w_i[e_end:i_end, 0:e_end]
                     )
                 )
-                Gi = nx.from_numpy_array(
-                    w_i[e_end:i_end, e_end:i_end], create_using=nx.DiGraph
-                )
+                recip_all.append(nx.reciprocity(G))
+                recip_ee.append(nx.reciprocity(Ge))
                 recip_ii.append(nx.reciprocity(Gi))
 
         # TODO: inline docs
