@@ -94,6 +94,8 @@ def _histplot_by_bin_width(x, c, lbl, binwidth=0.1):
 # ========= ========= ========= ========= ========= ========= =========
 
 def plot_input_channels():
+    """TODO: document function"""
+
     experiments = get_experiments(data_dir, rate_experiment_string)
     for xdir in experiments:
         # separately for each experiment
@@ -104,54 +106,60 @@ def plot_input_channels():
 
         np_dir = os.path.join(data_dir, xdir, "npz-data")
 
-        if os.path.isfile(os.path.join(np_dir, "991-1000.npz")):
+        if not os.path.isfile(os.path.join(np_dir, "991-1000.npz")):
+            continue
 
-            fig, ax = plt.subplots(nrows=2, ncols=2)
+        _, ax = plt.subplots(nrows=2, ncols=2)
 
-            naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
-            early_data = np.load(os.path.join(np_dir, "41-50.npz"))
-            late_data = np.load(os.path.join(np_dir, "241-250.npz"))
-            trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+        naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
+        early_data = np.load(os.path.join(np_dir, "41-50.npz"))
+        late_data = np.load(os.path.join(np_dir, "241-250.npz"))
+        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
 
-            naive_in = naive_data['tv0.postweights'][0]
-            early_in = early_data['tv0.postweights'][0]
-            late_in = late_data['tv0.postweights'][0]
-            trained_in = trained_data['tv0.postweights'][0]
+        naive_in = naive_data['tv0.postweights'][0]
+        early_in = early_data['tv0.postweights'][0]
+        late_in = late_data['tv0.postweights'][0]
+        trained_in = trained_data['tv0.postweights'][0]
 
-            # plot each channel's distribution
-            for i in range(np.shape(naive_in)[0]):
-                """
-                sns.histplot(
-                    data=np.ravel(naive_in[i,:]),
-                    bins=30,
-                    stat="density",
-                    alpha=0.5,
-                    kde=True,
-                    edgecolor="white",
-                    linewidth=0.5,
-                    line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
-                )"""
-                ax[0,0].hist(naive_in[i,:],bins=50,histtype='step')
-                ax[0,1].hist(early_in[i,:],bins=50,histtype='step')
-                ax[1,0].hist(late_in[i,:],bins=50,histtype='step')
-                ax[1,1].hist(trained_in[i,:],bins=50,histtype='step')
+        # plot each channel's distribution
+        for i in range(np.shape(naive_in)[0]):
+            """
+            sns.histplot(
+                data=np.ravel(naive_in[i,:]),
+                bins=30,
+                stat="density",
+                alpha=0.5,
+                kde=True,
+                edgecolor="white",
+                linewidth=0.5,
+                line_kws=dict(color="black", alpha=0.5, linewidth=1.5),
+            )"""
+            ax[0,0].hist(naive_in[i,:],bins=50,histtype='step')
+            ax[0,1].hist(early_in[i,:],bins=50,histtype='step')
+            ax[1,0].hist(late_in[i,:],bins=50,histtype='step')
+            ax[1,1].hist(trained_in[i,:],bins=50,histtype='step')
 
-            ax[0,0].set_title('epoch 0')
-            ax[0,0].set_xlabel('input weights')
-            ax[0,1].set_title('epoch 50')
-            ax[0,1].set_xlabel('input weights')
-            ax[1,0].set_title('epoch 250')
-            ax[1,0].set_xlabel('input weights')
-            ax[1,1].set_title('epoch 1000')
-            ax[1,1].set_xlabel('input weights')
+        ax[0,0].set_title('epoch 0')
+        ax[0,0].set_xlabel('input weights')
+        ax[0,1].set_title('epoch 50')
+        ax[0,1].set_xlabel('input weights')
+        ax[1,0].set_title('epoch 250')
+        ax[1,0].set_xlabel('input weights')
+        ax[1,1].set_title('epoch 1000')
+        ax[1,1].set_xlabel('input weights')
 
-            plt.suptitle("Evolution of 16 input channels' weights; rate loss only")
-            plt.draw()
-            plt.subplots_adjust(wspace=0.4, hspace=0.7)
-            save_fname = savepath+task_exp_path+'/'+exp_path+'_input_channel_dist_quad.png'
-            plt.savefig(save_fname,dpi=300)
-            plt.clf()
-            plt.close()
+        plt.suptitle("Evolution of 16 input channels' weights; rate loss only")
+        plt.draw()
+        plt.subplots_adjust(wspace=0.4, hspace=0.7)
+
+        # Draw and save
+        save_fname = savepath+task_exp_path+'/'+exp_path+'_input_channel_dist_quad.png'
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
+
 
 def get_degrees(arr, weighted):
     out_degree = []
@@ -166,6 +174,7 @@ def get_degrees(arr, weighted):
             in_degree.append(np.sum(np.abs(arr[:,i])))
 
     return [in_degree, out_degree]
+
 
 def plot_recip_dist_experiments():
     """TODO: document function"""
@@ -225,16 +234,19 @@ def plot_recip_dist_experiments():
             plt.ylabel("density")
             plt.title(plt_string[i])
             plt.legend()
+
+            # Draw and save
             plt.draw()
             plt_name = plt_string[i] + "_recip_dist_exp.png"
             plt.savefig(os.path.join(savepath, exp_path, plt_name), dpi=300)
+
+            # Teardown
             plt.clf()
             plt.close()
 
 
 def plot_eigvc_dist_experiments():
     """TODO: document function"""
-
 
     experiments = get_experiments(data_dir, experiment_string)
     plt_string = ["epoch0", "epoch10", "epoch100", "epoch1000"]
@@ -302,6 +314,8 @@ def plot_eigvc_dist_experiments():
 
 
 def plot_clustering_dist_experiments():
+    """TODO: document function"""
+
     experiments = get_experiments(data_dir, experiment_string)
     plt_string = ["epoch0", "epoch10", "epoch100", "epoch1000"]
 
@@ -366,6 +380,8 @@ def plot_clustering_dist_experiments():
 
 
 def nx_plot_clustering_over_time(savepath):
+    """TODO: document function"""
+
     experiments = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
     fig, ax = plt.subplots(nrows=2, ncols=2)
@@ -493,6 +509,8 @@ def nx_plot_reciprocity_over_time(savepath):
 # Calculate and plot main rsnn reciprocity as it evolves over training time
 # subplots each for e-e, e-i, i-e, and i-i
 def plot_reciprocity_over_time(savepath):
+    """TODO: document function"""
+
     experiments = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
     fig, ax = plt.subplots(nrows=2, ncols=2)
@@ -551,6 +569,8 @@ def plot_reciprocity_over_time(savepath):
 
 # Calculate and plot in and out mean connection strength as they evolve over training time
 def plot_aux_w_over_time(savepath):
+    """TODO: document function"""
+
     experiments = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
     # input to main
@@ -598,6 +618,8 @@ def plot_aux_w_over_time(savepath):
 
 # Calculate and plot main mean connection strength as it evolves over training time
 def plot_main_w_over_time(savepath):
+    """TODO: document function"""
+
     experiments = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
     # main network e-e, e-i, i-e, and i-i (don't consider 0's)
@@ -650,6 +672,8 @@ def plot_main_w_over_time(savepath):
 
 # Calculate and plot unweighted in/out degree difference for main nodes (Copeland score)
 def plot_main_copeland_score_over_time(savepath):
+    """TODO: document function"""
+
     experiments = get_experiments(data_dir, experiment_string)
     data_files = filenames(num_epochs, epochs_per_file)
     fig, ax = plt.subplots(nrows=3, ncols=1)
@@ -706,8 +730,12 @@ def plot_main_copeland_score_over_time(savepath):
         ax[i].set_ylabel("Copeland score (out-degree minus in-degree)")
 
     fig.suptitle("experiment set 1 weighted in/out degree ratios")
+
+    # Draw and save plot
     plt.draw()
     plt.savefig(os.path.join(savepath, "set_copelands.png"), dpi=300)
+
+    # Teardown
     plt.clf()
     plt.close()
 
@@ -789,9 +817,13 @@ def plot_main_degree_over_time(savepath):
         ax[i].set_ylabel("in/out-degree ratio")
 
     fig.suptitle("experiment set 1 weighted in/out degree ratios")
+
+    # Draw and save plot
     plt.draw()
     plt.subplots_adjust(wspace=0.5, hspace=0.5)
     plt.savefig(os.path.join(savepath, "set_degrees.png"), dpi=300)
+
+    # Teardown
     plt.clf()
     plt.close()
 
@@ -848,9 +880,13 @@ def plot_main_out_degree_over_time(savepath):
         ax[i].set_ylabel("out-degrees")
 
     fig.suptitle("experiment set 1 weighted out degrees")
+
+    # Draw and save plot
     plt.draw()
     plt.subplots_adjust(wspace=0.5, hspace=0.5)
     plt.savefig(os.path.join(savepath, "set_out_degrees.png"), dpi=300)
+
+    # Teardown
     plt.clf()
     plt.close()
 
@@ -915,11 +951,15 @@ def plot_degree_dist_single_experiments():
             plt.ylabel("density")
             plt.title(plt_string[i])
             plt.legend()
+
+            # Draw and save plot
             plt.draw()
             plt_name = plt_string[i] + "_degree_dist_exp.png"
             plt.savefig(
                 os.path.join(savepath, exp_path, plt_name), dpi=300
             )  # saved in indiv exp folders
+
+            # Teardown
             plt.clf()
             plt.close()
 
@@ -988,9 +1028,13 @@ def plot_output_w_dist_experiments():
             plt.ylabel("density")
             plt.title(plt_string[i])
             plt.legend()
+
+            # Draw and save plot
             plt.draw()
             plt_name = plt_string[i] + "_output_w_dist_exp.png"
             plt.savefig(os.path.join(savepath, exp_path, plt_name), dpi=300)
+
+            # Teardown
             plt.clf()
             plt.close()
 
@@ -1036,9 +1080,13 @@ def plot_input_w_dist_experiments():
             plt.ylabel("density")
             plt.title(plt_string[i])
             plt.legend()
+
+            # Draw and save plot
             plt.draw()
             plt_name = plt_string[i] + "_input_w_dist_exp.png"
             plt.savefig(os.path.join(savepath, exp_path, plt_name), dpi=300)
+
+            # Teardown
             plt.clf()
             plt.close()
 
@@ -1096,8 +1144,12 @@ def plot_main_w_dist_experiments():
             plt.ylabel("density")
             plt.title(plt_string[i])
             plt.legend()
+
+            # Draw and save plot
             plt.draw()
             plt_name = plt_string[i] + "_main_w_dist_exp.png"
             plt.savefig(os.path.join(savepath, exp_path, plt_name), dpi=300)
+
+            # Teardown
             plt.clf()
             plt.close()
