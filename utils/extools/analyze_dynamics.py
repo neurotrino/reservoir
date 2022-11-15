@@ -1575,6 +1575,41 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
         return np_mean, np_stddev
 
 
+    def _trialwise_density(w):
+        """TODO: document function
+
+        Arguments:
+            w <NumPy Array> : Matrix whose axes are, in order: trial,
+                timestep, projecting unit, target unit. The last two
+                dimensions are equivalent (indicating a weighted
+                adjacency matrix for synaptic connections).
+
+        Returns:
+            densities <NumPy Array> : Matrix of densities of w with
+                shape (num_trials, num_timesteps)
+        """
+        # The number of units is also the length of the diagonals of
+        # the adjacency matrices. Because self-connections (the values
+        # along the diagonal) are discounted, we subtract this value
+        # from the number of connections possible in a synaptic graph.
+        num_units = w.shape[-1]
+        possible_nonzeros = num_units * num_units - num_units
+
+        # Reduce each synaptic graph at each timestep to the number of
+        # nonzero values
+        #
+        # Axes (-2, -1) indicate the synaptic graphs.
+        #
+        # Shape: (num_trials, num_timesteps)
+        actual_nonzeros = np.count_nonzero(w, axis=(-2, -1))
+
+        # Mean density of the synaptic graph over the course of the
+        # trial
+        #
+        # Shape: (num_trials,)
+        return np.mean(actual_nonzeros / possible_nonzeros, axis=1)
+
+
     # plot density, reciprocity, and weighted clustering
     fig, ax = plt.subplots(nrows=3, ncols=2)
 
@@ -1621,16 +1656,23 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
             w_ii_mean.append(np.mean(inhi_data))
 
             # Compute standard deviations of weights over trials
-            w_ee_std.append(np.std(np.mean(exci_data, axis=coh.ndims[1:])))
-            w_ee_std.append(np.std(np.mean(inhi_data, axis=coh.ndims[1:])))
+            non_trial_axes = range(1, coh.ndims)
+            w_ee_std.append(np.std(np.mean(exci_data, axis=non_trial_axes)))
+            w_ii_std.append(np.std(np.mean(inhi_data, axis=non_trial_axes)))
 
-            # get the average over the several trials and timepoints
-            trial_dens_e = []
-            trial_dens_i = []
+            # Compute mean and stddev for densities over trials
+            exci_density = _trialwise_density(exci_data)
+            inhi_density = _trialwise_density(inhi_data)
 
+            dens_ee_mean.append(np.mean(exci_density))
+            dens_ii_mean.append(np.mean(inhi_density))
+
+            dens_ee_std.append(np.std(exci_density))
+            dens_ii_std.append(np.std(inhi_density))
+
+            # Compute mean and stddev for clustering
             trial_cc_e = []
             trial_cc_i = []
-
             for trial in coh:
                 # for the timesteps in this trial
                 time_dens_e = []
@@ -1641,13 +1683,7 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
 
                 for timestep in trial:
 
-                    exci_synapses = timestep[:e_end, :e_end]
-                    inhi_synapses = timestep[e_end:, e_end:]
-
-                    time_dens_e.append(calc_density(exci_synapses))
                     #recip_e = reciprocity(timestep[0:e_end,0:e_end])
-
-                    time_dens_i.append(calc_density(inhi_synapses))
                     #recip_i = reciprocity(timestep[e_end:i_end,e_end:i_end])
 
                     # still does not support negative weights, so take abs
@@ -1666,24 +1702,16 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
 
                 # collect and average over timesteps
                 # across all timesteps of a trial, get the mean metric value
-                trial_dens_e.append(np.mean(time_dens_e))
-                trial_dens_i.append(np.mean(time_dens_i))
-
                 trial_cc_e.append(np.mean(time_cc_e))
                 trial_cc_i.append(np.mean(time_cc_i))
 
             # collect over trials
             # across all trials for a batch, stack em together
-            dens_ee_mean.append(np.mean(trial_dens_e))
-            dens_ii_mean.append(np.mean(trial_dens_i))
-
-            dens_ee_std.append(np.std(trial_dens_e))
-            dens_ii_std.append(np.std(trial_dens_i))
-
             cc_ee_std.append(np.std(trial_cc_e))
             cc_ee_mean.append(np.mean(trial_cc_e))
             cc_ii_std.append(np.std(trial_cc_i))
             cc_ii_mean.append(np.mean(trial_cc_i))
+
 
         # Plot weights over batches
         w_ee_mean, w_ee_std = _plot_mean_and_stddev(
