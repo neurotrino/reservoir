@@ -40,13 +40,16 @@ bin = 10
 
 
 ### ADDED (temporarily?) BY CHAD FOR RATE-ONLY GENERATION ###
-recruit_path = '/data/results/smith7/rateonly-fast-01/recruitment_graphs_bin10_full/'
+RECRUIT_PATH = '/data/results/smith7/rateonly-fast-01/recruitment_graphs_bin10_full/'
 naive_id = 0
 trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
+NUM_EXCI = 240
+SAVE_NAME='recruit_bin10_full'
 LOAD_DIR = "/data/experiments/"
 SAVE_DIR = "/data/results/smith7/rateonly-5"
+XSTR = "run-batch30-specout-onlinerate0.1-savey"
 MI_path = '/data/results/experiment1/MI_graphs_bin10/'
 
 # Paul Tol's colorblind-friendly palette for scientific visualization
@@ -156,7 +159,15 @@ def safely_make_joint_dirpath(*args, **kwargs):
 #  Plot Stuff
 # =============================================================================
 
-def output_projection(save_name, weighted=False, coh_lvl='coh1'):
+def output_projection(
+    data_dir=LOAD_DIR,
+    experiment_string=XSTR,
+    recruit_path=RECRUIT_PATH,
+    save_name=SAVE_NAME,
+    weighted=False,
+    coh_lvl="coh1",
+    e_end=NUM_EXCI
+):
     """TODO: document function
 
     Looking at only the units that project to the output, find their
@@ -214,10 +225,11 @@ def output_projection(save_name, weighted=False, coh_lvl='coh1'):
         for dir in data_dirs:
             if (exp_string in dir):
                 exp_data_dir = dir
+        npz_data_dir = os.path.join(exp_data_dir, "npz-data")
 
         # Load naive and trained data
-        naive_data = np.load(exp_data_dir + '/npz-data/1-10.npz')
-        train_data = np.load(exp_data_dir + '/npz-data/991-1000.npz')
+        naive_data = np.load(os.path.join(npz_data_dir, "1-10.npz"))
+        train_data = np.load(os.path.join(npz_data_dir, "991-1000.npz"))
 
         naive_out = naive_data['tv2.postweights'][0]
         train_out = train_data['tv2.postweights'][99]
@@ -315,7 +327,7 @@ def output_projection(save_name, weighted=False, coh_lvl='coh1'):
         )
 
         # Label and title overall plot
-        plt.suptitle('Recruitment graph, coh 1')
+        plt.suptitle(f"Recruitment graph, {coh_lvl}")
 
         # Draw and save plot
         plt.draw()
@@ -324,7 +336,7 @@ def output_projection(save_name, weighted=False, coh_lvl='coh1'):
             savepath,
             f"{save_name}_plots",
             f"projectionset",
-            f"{exp_string}_ei_recruit_coh1_degree.png"
+            f"{exp_string}_ei_recruit_{coh_lvl}_degree.png"
         ))
 
         # Teardown
