@@ -40,7 +40,7 @@ bin = 10
 
 
 ### ADDED (temporarily?) BY CHAD FOR RATE-ONLY GENERATION ###
-recruit_path = '/data/results/experiment1/recruitment_graphs_bin10_full/'
+recruit_path = '/data/results/smith7/rateonly-fast-01/recruitment_graphs_bin10_full/'
 naive_id = 0
 trained_id = 99
 save_name='recruit_bin10_full'
@@ -156,165 +156,181 @@ def safely_make_joint_dirpath(*args, **kwargs):
 #  Plot Stuff
 # =============================================================================
 
-def output_projection(save_name,weighted=False,coh_lvl='coh1'):
-    # looking at only the units that project to the output
-    # find their interconnected density
-    # plot their degrees relative to the degrees of the rest of the network
+def output_projection(save_name, weighted=False, coh_lvl='coh1'):
+    """TODO: document function
+
+    Looking at only the units that project to the output, find their
+    interconnected density and plot their degrees relative to the
+    degrees of the rest of the network.
+    """
+
+    def _rgraph_avg(rfile):
+        """TODO: document function"""
+        rdata = np.load(rfile, allow_pickle=True)
+        rnets = rdata[coh_lvl]
+        return np.mean(rnets, axis=(0, 1))
+
+
+    def _multiple_hists(ax, xs, title):
+        """TODO: document function"""
+
+        def _hist(ax, x, c, lbl):
+            """Preconfigured hist plotter."""
+            ax.hist(x=x, color=c, label=lbl, density=True, alpha=0.7)
+
+        # normalized by the total number of units within that
+        # population set (1)those that project and 2)those that
+        # don't project to output)
+
+        # Generate histograms for each dataset
+        cs = ["dodgerblue", "tomato", "mediumseagreen", "darkorange"]
+        for ((lbl, x), c) in zip(xs, cs):
+            _hist(ax, x, c, lbl)
+
+        # Title and label the plot
+        ax.legend()
+        ax.set_xlabel("total unweighted degree")
+        ax.set_ylabel("density")
+        ax.set_title(title)
+
+
+    # Plot output projection degrees (vs the rest of the network's
+    # degrees) for each experiment specified
     data_dirs = get_experiments(data_dir, experiment_string)
     recruit_dirs = [f.path for f in os.scandir(recruit_path)]
-
     for exp in recruit_dirs:
-        final_recruit_file = exp + '/991-1000-batch99.npz'
-        if os.path.isfile(final_recruit_file):
 
-            fig, ax = plt.subplots(nrows=1, ncols=2)
+        # -------------------------------------------------------------
+        #  Setup
+        # -------------------------------------------------------------
 
-            # get original data
+        # Confirm target recruitment graph exists
+        final_recruit_file = os.path.join(exp, "991-1000-batch99.npz")
+        if not os.path.isfile(final_recruit_file):
+            continue
 
-            exp_string = exp[-8:]
-            for dir in data_dirs:
-                if (exp_string in dir):
-                    exp_data_dir = dir
-            data = np.load(exp_data_dir + '/npz-data/1-10.npz')
-            #naive_w = data['tv1.postweights'][0]
-            naive_out = data['tv2.postweights'][0]
-            data = np.load(exp_data_dir + '/npz-data/991-1000.npz')
-            #trained_w = data['tv1.postweights'][99]
-            trained_out = data['tv2.postweights'][99]
+        # Find experiment directory
+        exp_string = exp[-8:]  # timestamp (used as unique identifier)
+        for dir in data_dirs:
+            if (exp_string in dir):
+                exp_data_dir = dir
 
+        # Load naive and trained data
+        naive_data = np.load(exp_data_dir + '/npz-data/1-10.npz')
+        train_data = np.load(exp_data_dir + '/npz-data/991-1000.npz')
 
-            # time to do average of all recruitment graphs!
-            def _rgraph_avg(rfile):
-                """TODO: document function"""
-                rdata = np.load(rfile, allow_pickle=True)
-                rnets = rdata[coh_lvl]
-                return np.mean(rnets, axis=(0, 1))
+        naive_out = naive_data['tv2.postweights'][0]
+        train_out = train_data['tv2.postweights'][99]
 
+        # Instantiate plot
+        _, ax = plt.subplots(nrows=1, ncols=2)
 
-            naive_w = _rgraph_avg(os.path.join(exp, "1-10-batch50.npz"))
-            trained_w = _rgraph_avg(final_recruit_file)
+        # -------------------------------------------------------------
+        #  Calculate Degree Values
+        # -------------------------------------------------------------
 
+        # Average all recruitment graphs
+        naive_w = _rgraph_avg(os.path.join(exp, "1-10-batch50.npz"))
+        train_w = _rgraph_avg(final_recruit_file)
 
-            # you should calculate all degrees beforehand... and then get the
-            # identities of the units afterwards. that way you don't need to do
-            # the funny normalizing thing you've been doing.
-            degrees = get_degrees(naive_w,weighted)
-            all_naive_degrees = np.add(degrees[1],degrees[0])
-            degrees = get_degrees(trained_w,weighted)
-            all_trained_degrees = np.add(degrees[1],degrees[0])
+        # Calculate degree values
+        naive_degrees = get_degrees(naive_w, weighted)
+        train_degrees = get_degrees(train_w, weighted)
 
-            # find the indices of the units that project to output
-            naive_e_out_idx = np.argwhere(naive_out[0:e_end,:]>0)[:,0]
-            trained_e_out_idx = np.argwhere(trained_out[0:e_end,:]>0)[:,0]
-            naive_i_out_idx = np.argwhere(naive_out[e_end:i_end,:]<0)[:,0]
-            trained_i_out_idx = np.argwhere(trained_out[e_end:i_end,:]<0)[:,0]
+        all_naive_degrees = np.add(naive_degrees[1], naive_degrees[0])
+        all_train_degrees = np.add(train_degrees[1], train_degrees[0])
 
-            naive_e_set_degrees = np.take(
-                all_naive_degrees[0:e_end], naive_e_out_idx, 0
-            )
-            naive_i_set_degrees = np.take(
-                all_naive_degrees[e_end:i_end], naive_i_out_idx, 0
-            )
-            trained_e_set_degrees = np.take(
-                all_trained_degrees[0:e_end], trained_e_out_idx, 0
-            )
-            trained_i_set_degrees = np.take(
-                all_trained_degrees[e_end:i_end], trained_i_out_idx, 0
-            )
-            #naive_e_set_degrees = np.take(naive_e_set,naive_e_out_idx,1)
-            #naive_i_set_degrees = np.take(naive_i_set,naive_i_out_idx,1)
-            #trained_e_set_degrees = np.take(trained_e_set,trained_e_out_idx,1)
-            #trained_i_set_degrees = np.take(trained_i_set,trained_i_out_idx,1)
+        # -------------------------------------------------------------
+        #  Find the Degree of Units Which Project to Output
+        # -------------------------------------------------------------
 
-            # find degrees of the rest of the units (that have 0 projections to output)
-            naive_e_rest_idx = np.argwhere(naive_out[0:e_end,:]==0)[:,0]
-            trained_e_rest_idx = np.argwhere(trained_out[0:e_end,:]==0)[:,0]
-            naive_i_rest_idx = np.argwhere(naive_out[e_end:i_end,:]==0)[:,0]
-            trained_i_rest_idx = np.argwhere(trained_out[e_end:i_end,:]==0)[:,0]
+        # Find the indices of units which project to output
+        naive_e_out_idx = np.argwhere(naive_out[:e_end, :] > 0)[:, 0]
+        train_e_out_idx = np.argwhere(train_out[:e_end, :] > 0)[:, 0]
+        naive_i_out_idx = np.argwhere(naive_out[e_end:, :] < 0)[:, 0]
+        train_i_out_idx = np.argwhere(train_out[e_end:, :] < 0)[:, 0]
 
-            naive_e_rest_degrees = np.take(
-                all_naive_degrees[0:e_end], naive_e_rest_idx, 0
-            )
-            naive_i_rest_degrees = np.take(
-                all_naive_degrees[e_end:i_end], naive_i_rest_idx, 0
-            )
-            trained_e_rest_degrees = np.take(
-                all_trained_degrees[0:e_end], trained_e_rest_idx, 0
-            )
-            trained_i_rest_degrees = np.take(
-                all_trained_degrees[e_end:i_end], trained_i_rest_idx, 0
-            )
-            #naive_e_rest_degrees = np.take(naive_e_rest,naive_e_rest_idx,1)
-            #naive_i_rest_degrees = np.take(naive_i_rest,naive_i_rest_idx,1)
-            #trained_e_rest_degrees = np.take(trained_e_rest,trained_e_rest_idx,1)
-            #trained_i_rest_degrees = np.take(trained_i_rest,trained_i_rest_idx,1)
+        # Find degree values for units which project to output
+        naive_e_set_degrees = np.take(
+            all_naive_degrees[:e_end], naive_e_out_idx, 0
+        )
+        naive_i_set_degrees = np.take(
+            all_naive_degrees[e_end:], naive_i_out_idx, 0
+        )
+        train_e_set_degrees = np.take(
+            all_train_degrees[:e_end], train_e_out_idx, 0
+        )
+        train_i_set_degrees = np.take(
+            all_train_degrees[e_end:], train_i_out_idx, 0
+        )
 
-            # plot
-            def _multiple_hists(ax, xs, title):
-                """TODO: document function"""
+        # -------------------------------------------------------------
+        #  Find the Degree of Units Which Do Not Project to Output
+        # -------------------------------------------------------------
 
-                def _hist(ax, x, c, lbl):
-                    """Preconfigured hist plotter."""
-                    ax.hist(x=x, color=c, label=lbl, density=True, alpha=0.7)
+        # Find the indices of units which do not project to output
+        naive_e_rest_idx = np.argwhere(naive_out[:e_end, :] == 0)[:, 0]
+        train_e_rest_idx = np.argwhere(train_out[:e_end, :] == 0)[:, 0]
+        naive_i_rest_idx = np.argwhere(naive_out[e_end:, :] == 0)[:, 0]
+        train_i_rest_idx = np.argwhere(train_out[e_end:, :] == 0)[:, 0]
 
-                # normalized by the total number of units within that
-                # population set (1)those that project and 2)those that
-                # don't project to output)
+        # Find degree values for units which do not project to output
+        naive_e_rest_degrees = np.take(
+            all_naive_degrees[:e_end], naive_e_rest_idx, 0
+        )
+        naive_i_rest_degrees = np.take(
+            all_naive_degrees[e_end:], naive_i_rest_idx, 0
+        )
+        train_e_rest_degrees = np.take(
+            all_train_degrees[:e_end], train_e_rest_idx, 0
+        )
+        train_i_rest_degrees = np.take(
+            all_train_degrees[e_end:], train_i_rest_idx, 0
+        )
 
-                # Generate histograms for each dataset
-                cs = ["dodgerblue", "tomato", "mediumseagreen", "darkorange"]
-                for ((lbl, x), c) in zip(xs, cs):
-                    _hist(ax, x, c, lbl)
+        # -------------------------------------------------------------
+        #  Generate Plots
+        # -------------------------------------------------------------
 
-                # Title and label the plot
-                ax.legend()
-                ax.set_xlabel("total unweighted degree")
-                ax.set_ylabel("density")
-                ax.set_title(title)
+        # Plot datasets
+        _multiple_hists(  # naive
+            ax=ax[0],
+            xs=[
+                ("e projection units", naive_e_set_degrees),
+                ("i projection units", naive_i_set_degrees),
+                ("e other units", naive_e_rest_degrees),
+                ("i other units", naive_i_rest_degrees),
+            ],
+            title="naive (batch 50)"
+        )
+        _multiple_hists(  # trained
+            ax=ax[1],
+            xs=[
+                ("e projection units", train_e_set_degrees),
+                ("i projection units", train_i_set_degrees),
+                ("e other units", train_e_rest_degrees),
+                ("i other units", train_i_rest_degrees),
+            ],
+            title="trained"
+        )
 
+        # Label and title overall plot
+        plt.suptitle('Recruitment graph, coh 1')
 
-            # Plot naive
-            _multiple_hists(
-                ax=ax[0],
-                xs=[
-                    ("e projection units", naive_e_set_degrees),
-                    ("i projection units", naive_i_set_degrees),
-                    ("e other units", naive_e_rest_degrees),
-                    ("i other units", naive_i_rest_degrees),
-                ],
-                title="naive (batch 50)"
-            )
+        # Draw and save plot
+        plt.draw()
+        plt.subplots_adjust(wspace=0.5)
+        plt.savefig(os.path.join(
+            savepath,
+            f"{save_name}_plots",
+            f"projectionset",
+            f"{exp_string}_ei_recruit_coh1_degree.png"
+        ))
 
-            # Plot trained
-            _multiple_hists(
-                ax=ax[1],
-                xs=[
-                    ("e projection units", trained_e_set_degrees),
-                    ("i projection units", trained_i_set_degrees),
-                    ("e other units", trained_e_rest_degrees),
-                    ("i other units", trained_i_rest_degrees),
-                ],
-                title="trained"
-            )
+        # Teardown
+        plt.clf()
+        plt.close()
 
-            # Title and label overall plot
-            plt.suptitle('Recruitment graph, coh 1')
-
-            # Draw and save plot
-            plt.draw()
-            plt.subplots_adjust(wspace=0.5)
-            plt.savefig(
-                savepath
-                + '/'
-                + save_name
-                + '_plots/projectionset/'
-                + exp_string
-                + '_ei_recruit_coh1_degree.png'
-            )
-
-            # Teardown
-            plt.clf()
-            plt.close()
 
 def loss_comps_over_all_time(save_name):
     # load in all experiments and plot their losses over time on the same plot
@@ -1817,30 +1833,30 @@ def plot_recruit_metrics(recruit_path, epoch_id, coh_lvl, save_name):
     #  Plot Calculated Statistics (per experiment)
     # -----------------------------------------------------------------
 
-    ax[0, 0].set_title('e-to-e weights')
-    ax[0, 0].set_xlabel('batch')
-    ax[0, 0].set_ylabel('weight')
-    ax[1, 0].set_title('e-to-e density')
-    ax[1, 0].set_xlabel('batch')
-    ax[1, 0].set_ylabel('density')
-    ax[2, 0].set_title('e-to-e clustering')
-    ax[2, 0].set_xlabel('batch')
-    ax[2, 0].set_ylabel('abs weighted clustering')
+    ax[0, 0].set_title("e-to-e weights")
+    ax[0, 0].set_xlabel("batch")
+    ax[0, 0].set_ylabel("weight")
+    ax[1, 0].set_title("e-to-e density")
+    ax[1, 0].set_xlabel("batch")
+    ax[1, 0].set_ylabel("density")
+    ax[2, 0].set_title("e-to-e clustering")
+    ax[2, 0].set_xlabel("batch")
+    ax[2, 0].set_ylabel("abs weighted clustering")
 
-    ax[0, 1].set_title('i-to-i weights')
-    ax[0, 1].set_xlabel('batch')
-    ax[0, 1].set_ylabel('weight')
-    ax[1, 1].set_title('i-to-i density')
-    ax[1, 1].set_xlabel('batch')
-    ax[1, 1].set_ylabel('density')
-    ax[2, 1].set_title('i-to-i clustering')
-    ax[2, 1].set_xlabel('batch')
-    ax[2, 1].set_ylabel('abs weighted clustering')
+    ax[0, 1].set_title("i-to-i weights")
+    ax[0, 1].set_xlabel("batch")
+    ax[0, 1].set_ylabel("weight")
+    ax[1, 1].set_title("i-to-i density")
+    ax[1, 1].set_xlabel("batch")
+    ax[1, 1].set_ylabel("density")
+    ax[2, 1].set_title("i-to-i clustering")
+    ax[2, 1].set_xlabel("batch")
+    ax[2, 1].set_ylabel("abs weighted clustering")
 
     if epoch_id == 0:
-        title_str = 'Naive (first 10 epochs) recruitment graphs,'
+        title_str = "Naive (first 10 epochs) recruitment graphs,"
     elif epoch_id == 99:
-        title_str = 'Trained (last 10 epochs) recruitment graphs,'
+        title_str = "Trained (last 10 epochs) recruitment graphs,"
 
     fig.suptitle(title_str + coh_str)
 
