@@ -46,11 +46,11 @@ trained_id = 99
 save_name='recruit_bin10_full'
 coh_lvl = 'coh0'
 NUM_EXCI = 240
-SAVE_NAME='recruit_bin10_full'
+SAVE_NAME="recruit_bin10_full"
 LOAD_DIR = "/data/experiments/"
 SAVE_DIR = "/data/results/smith7/rateonly-5"
-XSTR = "run-batch30-specout-onlinerate0.1-savey"
-MI_path = '/data/results/experiment1/MI_graphs_bin10/'
+XSTR = "run-batch30-onlyrateloss"
+MI_path = "/data/results/smith7/rateonly-fast-01/MI_graphs_bin10/"
 
 # Paul Tol's colorblind-friendly palette for scientific visualization
 COLOR_PALETTE = [
@@ -142,6 +142,18 @@ def smallify(old_data):
     return new_data
 
 
+def biggify(smallified_data):
+    shapes = smallified_data["shapes"][()]
+
+    for cohX in shapes:
+        for (i, (jmax, N, _)) in enumerate(shapes[cohX]):
+            for j in range(jmax):
+                label = f"{cohX}-{i}-{j}"
+                matrix = smallified_data[label][()].todense()
+
+
+
+
 def safely_make_joint_dirpath(*args, **kwargs):
     """
     Runs `os.path.join()` with the given arguments, and creates a
@@ -225,7 +237,10 @@ def output_projection(
         for dir in data_dirs:
             if (exp_string in dir):
                 exp_data_dir = dir
-        npz_data_dir = os.path.join(exp_data_dir, "npz-data")
+        try:
+            npz_data_dir = os.path.join(exp_data_dir, "npz-data")
+        except UnboundLocalError:
+            continue
 
         # Load naive and trained data
         naive_data = np.load(os.path.join(npz_data_dir, "1-10.npz"))
