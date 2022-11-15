@@ -1,6 +1,6 @@
 """Dynamic (spike) analysis for series of completed experiments"""
 
-# ---- external imports -----------------------------------------------
+# ---- external imports -------------------------------------------------------
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.ma as ma
@@ -10,7 +10,7 @@ import sys
 import seaborn as sns
 import networkx as nx
 
-# ---- internal imports -----------------------------------------------
+# ---- internal imports -------------------------------------------------------
 sys.path.append("../")
 sys.path.append("../../")
 
@@ -24,7 +24,7 @@ from utils.extools.fn_analysis import calc_density
 from utils.extools.fn_analysis import out_degree
 from utils.extools.MI import simple_confMI
 
-# ---- global variables -----------------------------------------------
+# ---- global variables -------------------------------------------------------
 data_dir = "/data/experiments/"
 experiment_string = "run-batch30-specout-onlinerate0.1-savey"
 task_experiment_string = 'run-batch30-onlytaskloss'
@@ -62,10 +62,9 @@ COLOR_PALETTE = [
 ]
 
 
-# ========= ========= ========= ========= ========= ========= =========
-# Utilities
-# ========= ========= ========= ========= ========= ========= =========
-
+# =============================================================================
+#  Utilities
+# =============================================================================
 
 def _nets_from_weights(w, num_exci=240):
     """Return connection networks for a weight matrix.
@@ -153,9 +152,9 @@ def safely_make_joint_dirpath(*args, **kwargs):
     return path
 
 
-# ========= ========= ========= ========= ========= ========= =========
-# Plot Stuff
-# ========= ========= ========= ========= ========= ========= =========
+# =============================================================================
+#  Plot Stuff
+# =============================================================================
 
 def output_projection(save_name,weighted=False,coh_lvl='coh1'):
     # looking at only the units that project to the output
@@ -713,9 +712,9 @@ def synaptic_vs_recruit_weight(save_name, coh_lvl='coh0', e_only=True, weighted=
     plt.close()
 
 
-# ========= ========= ========= ========= ========= ========= =========
-# Analyze Vertex Degrees
-# ========= ========= ========= ========= ========= ========= =========
+# =============================================================================
+#  Analyze Vertex Degrees
+# =============================================================================
 
 def track_synaptic_high_degree_units_over_time(save_name,weighted=True):
     data_dirs = get_experiments(data_dir, experiment_string)
@@ -1062,9 +1061,9 @@ def degree_rate_correspondence(recruit_path,save_name,weighted=False):
     plt.close()
 
 
-# ========= ========= ========= ========= ========= ========= =========
-# Analyze Recruitment Networks
-# ========= ========= ========= ========= ========= ========= =========
+# =============================================================================
+#  Analyze Recruitment Networks
+# =============================================================================
 
 def plot_recruit_metrics_tribatch(recruit_path, coh_lvl, save_name):
     """TODO: document function"""
@@ -1558,21 +1557,28 @@ def plot_recruit_metrics_naive_trained(recruit_path,coh_lvl,save_name):
         plt.clf()
         plt.close()
 
-def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
+def plot_recruit_metrics(recruit_path, epoch_id, coh_lvl, save_name):
     """TODO: document function"""
 
-    def _plot_mean_and_stddev(ax, mean, stddev):
-        """TODO: document function"""
-        np_mean = np.array(mean)
-        np_stddev = np.array(stddev)
+    # -----------------------------------------------------------------
+    #  Utility Functions
+    # -----------------------------------------------------------------
 
-        ax.plot(np_mean)
-        ax.fill_between(
-            np_mean - np_stddev,
-            np_mean + np_stddev,
-            alpha=0.5
-        )
-        return np_mean, np_stddev
+    def _trialwise_weights(w):
+        """Compute the trialwise mean of a dataset's weights.
+
+        Arguments:
+            w <NumPy Array> : Matrix whose axes are, in order: trial,
+                timestep, projecting unit, target unit. The last two
+                dimensions are equivalent (indicating a weighted
+                adjacency matrix for synaptic connections).
+
+        Returns:
+            weights <NumPy Array> : Matrix of mean weights of w with
+                shape (num_trials,)
+        """
+        non_trial_axes = tuple(range(1, w.ndims))
+        return np.mean(w, axis=non_trial_axes)
 
 
     def _trialwise_density(w):
@@ -1586,7 +1592,7 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
 
         Returns:
             densities <NumPy Array> : Matrix of densities of w with
-                shape (num_trials, num_timesteps)
+                shape (num_trials,)
         """
         # The number of units is also the length of the diagonals of
         # the adjacency matrices. Because self-connections (the values
@@ -1610,35 +1616,97 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
         return np.mean(actual_nonzeros / possible_nonzeros, axis=1)
 
 
-    # plot density, reciprocity, and weighted clustering
+    def _trialwise_clustering(coh):
+        """TODO: document function"""
+
+        # Compute mean and stddev for clustering
+        trial_cc_e = []
+        trial_cc_i = []
+        for trial in coh:
+            # for the timesteps in this trial
+            time_cc_e = []
+            time_cc_i = []
+
+            for timestep in trial:
+
+                #recip_e = reciprocity(timestep[0:e_end,0:e_end])
+                #recip_i = reciprocity(timestep[e_end:i_end,e_end:i_end])
+
+                # still does not support negative weights, so take abs
+                # convert from object to float array
+                arr = np.abs(timestep)
+                float_arr = np.vstack(arr[:, :]).astype(np.float)
+
+                Ge, Gi = _nets_from_weights(float_arr, e_end)
+
+                time_cc_e.append(nx.average_clustering(
+                    Ge, nodes=Ge.nodes, weight='weight'
+                ))
+                time_cc_i.append(nx.average_clustering(
+                    Gi, nodes=Gi.nodes, weight='weight'
+                ))
+
+            # collect and average over timesteps
+            # across all timesteps of a trial, get the mean metric value
+            trial_cc_e.append(np.mean(time_cc_e))
+            trial_cc_i.append(np.mean(time_cc_i))
+
+        return trial_cc_e, trial_cc_i
+
+
+    def _plot_mean_and_stddev(ax, mean, stddev):
+        """TODO: document function"""
+        ax.plot(mean)
+        ax.fill_between(
+            mean - stddev,
+            mean + stddev,
+            alpha=0.5
+        )
+
+    # -----------------------------------------------------------------
+    #  Setup
+    # -----------------------------------------------------------------
+
+    # Get data file names
+    experiment_paths = [
+        f.path for f in os.scandir(recruit_path) if f.is_dir()
+    ]
+    data_files = filenames(num_epochs, epochs_per_file)
+
+    # Get strings for naming
+    epoch_string = data_files[epoch_id][:-4]
+
+    if coh_lvl == "coh0":
+        coh_str = " 15% coherence"
+    elif coh_lvl == "coh1":
+        coh_str = " 100% coherence"
+
+    # Instantiate plot
     fig, ax = plt.subplots(nrows=3, ncols=2)
 
-    if coh_lvl == 'coh0':
-        coh_str = ' 15% coherence'
-    elif coh_lvl == 'coh1':
-        coh_str = ' 100% coherence'
-
-    # get recruitment graphs
-    data_files = filenames(num_epochs, epochs_per_file)
-    epoch_string = data_files[epoch_id][:-4]
-    experiment_paths = [f.path for f in os.scandir(recruit_path) if f.is_dir()]
+    # -----------------------------------------------------------------
+    #  Calculate Various Network Statistics
+    # -----------------------------------------------------------------
 
     for exp in experiment_paths:
         exp_string = exp[-8:]
 
         # each of these will be plotted per experiment
-        dens_ee_std = []
-        dens_ee_mean = []
-        dens_ii_std = []
-        dens_ii_mean = []
-
-        cc_ee_std = []
-        cc_ee_mean = []
-        cc_ii_std = []
-        cc_ii_mean = []
-
-        # for each batch update
-        for batch in range(100):
+        stats = {
+            "w_ee_mean": [],     # weights, excitatory mean
+            "w_ee_std": [],      # weights, excitatory stddev
+            "w_ii_mean": [],     # weights, inhibitory mean
+            "w_ii_std": [],      # weights, inhibitory stddev
+            "dens_ee_mean": [],  # density, excitatory mean
+            "dens_ee_std": [],   # density, excitatory stddev
+            "dens_ii_mean": [],  # density, inhibitory mean
+            "dens_ii_std": [],   # density, inhibitory stddev
+            "cc_ee_mean": [],    # clustering, excitatory mean
+            "cc_ee_std": [],     # clustering, excitatory stddev
+            "cc_ii_mean": [],    # clustering, inhibitory mean
+            "cc_ii_std": [],     # clustering, inhibitory stddev
+        }
+        for batch in range(100):  # for each batch update..
 
             # Read data from disk
             batch_string = os.path.join(
@@ -1651,112 +1719,103 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
             exci_data = coh[..., :e_end, :e_end]
             inhi_data = coh[..., e_end:, e_end:]
 
-            # Compute mean weights over trials
-            w_ee_mean.append(np.mean(exci_data))
-            w_ii_mean.append(np.mean(inhi_data))
+            # ---------------------------------------------------------
+            #  Calculate Weight Statistics
+            # ---------------------------------------------------------
 
-            # Compute standard deviations of weights over trials
-            non_trial_axes = range(1, coh.ndims)
-            w_ee_std.append(np.std(np.mean(exci_data, axis=non_trial_axes)))
-            w_ii_std.append(np.std(np.mean(inhi_data, axis=non_trial_axes)))
+            # Get mean weight of every trial
+            exci_weights = _trialwise_weights(exci_data)
+            inhi_weights = _trialwise_weights(inhi_data)
 
-            # Compute mean and stddev for densities over trials
+            # Compute mean value of trials' mean weights
+            stats["w_ee_mean"].append(np.mean(exci_weights))
+            stats["w_ii_mean"].append(np.mean(inhi_weights))
+
+            # Compute standard deviation of trials' mean weights
+            stats["w_ee_std"].append(np.std(exci_weights))
+            stats["w_ii_std"].append(np.std(inhi_weights))
+
+            # ---------------------------------------------------------
+            #  Calculate Density Statistics
+            # ---------------------------------------------------------
+
+            # Get mean density of every trial
             exci_density = _trialwise_density(exci_data)
             inhi_density = _trialwise_density(inhi_data)
 
-            dens_ee_mean.append(np.mean(exci_density))
-            dens_ii_mean.append(np.mean(inhi_density))
+            # Compute mean value of trials' mean densities
+            stats["dens_ee_mean"].append(np.mean(exci_density))
+            stats["dens_ii_mean"].append(np.mean(inhi_density))
 
-            dens_ee_std.append(np.std(exci_density))
-            dens_ii_std.append(np.std(inhi_density))
+            # Compute standard deviation of trials' mean densities
+            stats["dens_ee_std"].append(np.std(exci_density))
+            stats["dens_ii_std"].append(np.std(inhi_density))
 
-            # Compute mean and stddev for clustering
-            trial_cc_e = []
-            trial_cc_i = []
-            for trial in coh:
-                # for the timesteps in this trial
-                time_dens_e = []
-                time_dens_i = []
+            # ---------------------------------------------------------
+            #  Calculate Clustering Statistics
+            # ---------------------------------------------------------
 
-                time_cc_e = []
-                time_cc_i = []
+            # Get mean clustering coefficient of every trial
+            exci_clustering, inhi_clustering = _trialwise_clustering(
+                exci_data
+            )
 
-                for timestep in trial:
+            # Compute mean value of trials' mean CCs
+            stats["cc_ee_mean"].append(np.mean(exci_clustering))
+            stats["cc_ii_mean"].append(np.mean(inhi_clustering))
 
-                    #recip_e = reciprocity(timestep[0:e_end,0:e_end])
-                    #recip_i = reciprocity(timestep[e_end:i_end,e_end:i_end])
+            # Compute standard deviation of trial's mean CCs
+            stats["cc_ee_std"].append(np.std(exci_clustering))
+            stats["cc_ee_std"].append(np.std(inhi_clustering))
 
-                    # still does not support negative weights, so take abs
-                    # convert from object to float array
-                    arr = np.abs(timestep)
-                    float_arr = np.vstack(arr[:, :]).astype(np.float)
+        # -------------------------------------------------------------
+        #  Save Calculated Statistics
+        # -------------------------------------------------------------
 
-                    Ge, Gi = _nets_from_weights(float_arr, e_end)
-
-                    time_cc_e.append(nx.average_clustering(
-                        Ge, nodes=Ge.nodes, weight='weight'
-                    ))
-                    time_cc_i.append(nx.average_clustering(
-                        Gi, nodes=Gi.nodes, weight='weight'
-                    ))
-
-                # collect and average over timesteps
-                # across all timesteps of a trial, get the mean metric value
-                trial_cc_e.append(np.mean(time_cc_e))
-                trial_cc_i.append(np.mean(time_cc_i))
-
-            # collect over trials
-            # across all trials for a batch, stack em together
-            cc_ee_std.append(np.std(trial_cc_e))
-            cc_ee_mean.append(np.mean(trial_cc_e))
-            cc_ii_std.append(np.std(trial_cc_i))
-            cc_ii_mean.append(np.mean(trial_cc_i))
-
-
-        # Plot weights over batches
-        w_ee_mean, w_ee_std = _plot_mean_and_stddev(
-            ax[0, 0], w_ee_mean, w_ee_std
-        )
-        w_ii_mean, w_ii_std = _plot_mean_and_stddev(
-            ax[0, 1], w_ii_mean, w_ii_std
-        )
-
-        # Plot density over batches
-        dens_ee_mean, dens_ee_std = _plot_mean_and_stddev(
-            ax[1, 0], dens_ee_mean, dens_ee_std
-        )
-        dens_ii_mean, dens_ii_std = _plot_mean_and_stddev(
-            ax[1, 1], dens_ii_mean, dens_ii_std
-        )
-
-        # Plot clustering over batches
-        cc_ee_mean, cc_ee_std = _plot_mean_and_stddev(
-            ax[2, 0], cc_ee_mean, cc_ee_std
-        )
-        cc_ii_mean, cc_ii_std = _plot_mean_and_stddev(
-            ax[2, 1], cc_ii_mean, cc_ii_std
-        )
-
-        # save calculated data for this experiment in case sth messes up
-        ofile = os.path.join(
+        savefile = os.path.join(
             savepath,
             f"{save_name}_{exp_string}_{coh_lvl}_epoch{epoch_string}"
         )
-        np.savez_compressed(
-            ofile,
-            w_ee_mean=w_ee_mean,
-            w_ee_std=w_ee_std,
-            w_ii_mean=w_ii_mean,
-            w_ii_std=w_ii_std,
-            dens_ee_mean=dens_ee_mean,
-            dens_ee_std=dens_ee_std,
-            dens_ii_mean=dens_ii_mean,
-            dens_ii_std=dens_ii_std,
-            cc_ee_mean=cc_ee_mean,
-            cc_ee_std=cc_ee_std,
-            cc_ii_mean=cc_ii_mean,
-            cc_ii_std=cc_ii_std
+        np.savez_compressed(savefile, **stats)
+
+        # -------------------------------------------------------------
+        #  Plot Calculated Statistics (per file)
+        # -------------------------------------------------------------
+
+        _plot_mean_and_stddev(      # plot e. weight statistics
+            ax[0, 0],
+            stats["w_ee_mean"],
+            stats["w_ee_std"]
         )
+        _plot_mean_and_stddev(      # plot i. weight statistics
+            ax[0, 1],
+            stats["w_ii_mean"],
+            stats["w_ii_std"]
+        )
+        _plot_mean_and_stddev(      # plot e. density statistics
+            ax[1, 0],
+            stats["dens_ee_mean"],
+            stats["dens_ee_std"]
+        )
+        _plot_mean_and_stddev(      # plot i. density statistics
+            ax[1, 1],
+            stats["dens_ii_mean"],
+            stats["dens_ii_std"]
+        )
+        _plot_mean_and_stddev(      # plot e. clustering statistics
+            ax[2, 0],
+            stats["cc_ee_mean"],
+            stats["cc_ee_std"]
+        )
+        _plot_mean_and_stddev(      # plot i. clustering statistics
+            ax[2, 1],
+            stats["cc_ii_mean"],
+            stats["cc_ii_std"]
+        )
+
+    # -----------------------------------------------------------------
+    #  Plot Calculated Statistics (per experiment)
+    # -----------------------------------------------------------------
 
     ax[0, 0].set_title('e-to-e weights')
     ax[0, 0].set_xlabel('batch')
@@ -1783,7 +1842,7 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
     elif epoch_id == 99:
         title_str = 'Trained (last 10 epochs) recruitment graphs,'
 
-    fig.suptitle(title_str+coh_str)
+    fig.suptitle(title_str + coh_str)
 
     # Draw and save plot
     plt.draw()
@@ -1798,10 +1857,9 @@ def plot_recruit_metrics(recruit_path,epoch_id,coh_lvl,save_name):
     plt.close()
 
 
-# ========= ========= ========= ========= ========= ========= =========
+# =============================================================================
 # ...
-# ========= ========= ========= ========= ========= ========= =========
-
+# =============================================================================
 
 def plot_fn_quad_metrics(load_saved=True):
     # even though it's so simple (just 4 values per xdir),
@@ -1979,9 +2037,9 @@ def generate_quad_fn(xdir, e_only, positive_only):
 """
 
 
-# ========= ========= ========= ========= ========= ========= =========
+# =============================================================================
 # Graph Generation
-# ========= ========= ========= ========= ========= ========= =========
+# =============================================================================
 
 def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
     """TODO: document function
