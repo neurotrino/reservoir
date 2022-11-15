@@ -144,12 +144,19 @@ def smallify(old_data):
 
 def biggify(smallified_data):
     shapes = smallified_data["shapes"][()]
+    biggified_data = {}
 
     for cohX in shapes:
+        m = []
         for (i, (jmax, N, _)) in enumerate(shapes[cohX]):
+            n = []
             for j in range(jmax):
                 label = f"{cohX}-{i}-{j}"
-                matrix = smallified_data[label][()].todense()
+                n.append(np.array(smallified_data[label][()].todense()))
+            m.append(np.stack(n))
+        biggified_data[cohX] = np.array(m, dtype=object)
+
+    return biggified_data
 
 
 
@@ -190,8 +197,17 @@ def output_projection(
     def _rgraph_avg(rfile):
         """TODO: document function"""
         rdata = np.load(rfile, allow_pickle=True)
-        rnets = rdata[coh_lvl]
-        return np.mean(rnets, axis=(0, 1))
+        try:
+            # Data is not smallified
+            rnets = rdata[coh_lvl]
+        except KeyError:
+            # Data is smallified
+            rnets = biggify(rdata)[coh_lvl]
+
+        #return np.mean(rnets, axis=(0, 1))  # can't do axes bc jagged
+        m = np.row_stack(rnets)
+        return np.mean(m, 0)
+
 
 
     def _multiple_hists(ax, xs, title):
@@ -2388,10 +2404,10 @@ def bin_batch_MI_graphs(
     rn_coh1 = np.array(rn_coh1, dtype=object)
     np.savez_compressed(
         recruit_batch_savepath,
-        **smallify({
+        **{
             "coh0": rn_coh0,
             "coh1": rn_coh1
-        })
+        }
     )
     return [fn_coh0, fn_coh1]
 
@@ -2665,10 +2681,10 @@ def generate_naive_trained_recruitment_graphs(
                 os.path.join(
                     MI_savepath, exp_path, data_files[file_idx]
                 ),
-                **smallify({
+                **{
                     "coh0": fns_coh0,
                     "coh1": fns_coh1
-                })
+                }
             )
 
 
