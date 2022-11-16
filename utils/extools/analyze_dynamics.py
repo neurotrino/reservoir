@@ -2985,7 +2985,7 @@ def weird_division(n, d):
             divided[i] = 0
     return divided
 
-def plot_branching_over_time(experiment_string=experiment_string):
+def plot_branching_over_time(experiment_string=task_experiment_string):
     # count spikes in adjacent time bins
     # or should they be not adjacent?
     bin_size = 10  # for now adjacent pre-post bins are just adjacent ms
@@ -3011,9 +3011,15 @@ def plot_branching_over_time(experiment_string=experiment_string):
     # of 30 trials) over training time
 
     for xdir in experiments:
-        exp_string = xdir[-9:-1]
-        if not os.path.isdir(os.path.join(savepath, exp_string)):
-            os.makedirs(os.path.join(savepath, exp_string))
+        exp_path = xdir[-9:-1]
+        task_exp_path = 'taskloss_'+exp_path
+        #rate_exp_path = 'rateloss_'+exp_path
+        if not os.path.isdir(os.path.join(savepath, task_exp_path)):
+            os.makedirs(os.path.join(savepath, task_exp_path))
+        #if not os.path.isdir(os.path.join(savepath, exp_path)):
+        #    os.makedirs(os.path.join(savepath, exp_path))
+        #if not os.path.isdir(os.path.join(savepath, rate_exp_path)):
+        #    os.makedirs(os.path.join(savepath, rate_exp_path))
         # plot and save separately for each experiment (lest we take forever)
         #fig, ax = plt.subplots(nrows=2, ncols=1)
         e_0_branch = []
@@ -3066,9 +3072,9 @@ def plot_branching_over_time(experiment_string=experiment_string):
         plt.legend(["coherence 0","coherence 1"])
         plt.xlabel('batch')
         plt.ylabel('branching param')
-        plt.title('excitatory branching over training')
+        plt.title('excitatory branching over task-only-training')
         plt.draw()
-        save_fname = savepath+exp_string+'/'+exp_string+'_e_branching.png'
+        save_fname = savepath+task_exp_path+'/'+exp_path+'_e_branching.png'
         plt.savefig(save_fname, dpi=300)
 
         # Teardown
