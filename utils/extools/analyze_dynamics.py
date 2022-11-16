@@ -25,14 +25,15 @@ from utils.extools.fn_analysis import out_degree
 from utils.extools.MI import simple_confMI
 
 # ---- global variables -------------------------------------------------------
-data_dir = "/data/experiments/"
-experiment_string = "run-batch30-specout-onlinerate0.1-savey"
+data_dir = '/data/experiments/'
+experiment_string = 'run-batch30-specout-onlinerate0.1-savey'
 task_experiment_string = 'run-batch30-onlytaskloss'
+rate_experiment_string = 'run-batch30-onlyrateloss'
 num_epochs = 1000
 epochs_per_file = 10
 e_end = 241
 i_end = 300
-savepath = "/data/results/experiment1/"
+savepath = '/data/results/experiment1/'
 
 e_only = True
 positive_only = False
@@ -2926,12 +2927,27 @@ def branching_param(bin_size,spikes): # spikes in shape of [units, time]
     net_bscore = np.sum(dratio*pd)
     return net_bscore"""
 
+def get_binned_spikes(z, bin_sz):
+    # Perform actual binning
+    if z.ndim <= 2:
+        d2 = bin_sz
+    else:
+        d2 = bin_sz * np.prod(z.shape[2:])
+    return z.reshape(np.shape(z)[0], -1, d2).max(axis=2)
 
 def simple_branching_param(
     bin_size, spikes
 ):  # spikes in shape of [units, time]
-    run_time = np.shape(spikes)[1]
-    nbins = int(np.round(run_time / bin_size))
+
+    # Correct for timestep dimensions misaligned with the bin size
+    leftover_timesteps = spikes.shape[1] % bin_size
+    if leftover_timesteps > 0:
+        spikes = spikes[:, :-leftover_timesteps, ...]
+
+    # get binned spikes
+    spikes = get_binned_spikes(spikes, bin_size)
+
+    nbins = np.shape(spikes)[1]
 
     # for every pair of timesteps, determine the number of ancestors
     # and the number of descendants
@@ -2940,12 +2956,12 @@ def simple_branching_param(
     numD = np.zeros([nbins - 1])
     # number of descendants for each ancestral bin
 
-    for i in range(nbins - 1):
+    for i in range(nbins - 1): # stepping through each adjacent bin of 10ms
         numA[i] = np.size(np.argwhere(spikes[:, i] == 1))
-        numD[i] = np.size(np.argwhere(spikes[:, i + bin_size] == 1))
+        numD[i] = np.size(np.argwhere(spikes[:, i + 1] == 1))
 
     # the ratio of descendants per ancestor
-    d = numD / numA
+    d = weird_division(numD,numA)
     # if we get a nan, that means there were no ancestors in the
     # previous time point;
     # in that case it probably means our choice of bin size is wrong
@@ -2960,11 +2976,19 @@ def simple_branching_param(
 
     return bscore
 
+def weird_division(n, d):
+    divided = np.copy(n)
+    for i in range(len(divided)):
+        if d[i]!=0:
+            divided[i] = n[i] / d[i]
+        else:
+            divided[i] = 0
+    return divided
 
-def plot_branching_over_time():
+def plot_branching_over_time(experiment_string=experiment_string):
     # count spikes in adjacent time bins
     # or should they be not adjacent?
-    bin_size = 1  # for now adjacent pre-post bins are just adjacent ms
+    bin_size = 10  # for now adjacent pre-post bins are just adjacent ms
     # separate into coherence level 1 and coherence level 0
     experiments = get_experiments(data_dir, experiment_string)
     # plot for each experiment, one branching value per coherence level
@@ -2973,8 +2997,6 @@ def plot_branching_over_time():
     # this means branching params are averaged over entire runs (or
     # section of a run by coherence level) and 30 trials for each update
     data_files = filenames(num_epochs, epochs_per_file)
-    fig, ax = plt.subplots(nrows=2, ncols=2)
-    ax = ax.flatten()
 
     # subplot 0: coherence level 0, e units, avg branching (for batch
     # of 30 trials) over training time
@@ -2989,17 +3011,20 @@ def plot_branching_over_time():
     # of 30 trials) over training time
 
     for xdir in experiments:
+        exp_string = xdir[-9:-1]
+        if not os.path.isdir(os.path.join(savepath, exp_string)):
+            os.makedirs(os.path.join(savepath, exp_string))
+        # plot and save separately for each experiment (lest we take forever)
+        #fig, ax = plt.subplots(nrows=2, ncols=1)
         e_0_branch = []
         e_1_branch = []
-        i_0_branch = []
-        i_1_branch = []
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
             spikes = data["spikes"]
             y = data["true_y"]
             y.resize(y.shape[:3])  # remove trailing dimension
-            for i in range(y.shape[0]):
+            for i in range(y.shape[0]): # for each batch
                 # each file contains 100 batch updates
                 # find indices for coherence level 0 and for 1
                 # do this for each of 30 trials bc memory can't
@@ -3008,59 +3033,45 @@ def plot_branching_over_time():
                 # calculating branching etc
                 # then calculate rate of spikes for each trial
                 # according to coherence level idx
+
+                # average according to batch
+                # (since it is a single update)
                 batch_e_0_branch = []
                 batch_e_1_branch = []
-                batch_i_0_branch = []
-                batch_i_1_branch = []
-                for j in range(y.shape[1]):
+                for j in range(y.shape[1]): # for each trial
                     coh_0_idx = np.argwhere(y[i][j] == 0)
                     coh_1_idx = np.argwhere(y[i][j] == 1)
                     spikes_trial = np.transpose(spikes[i][j])
-                    if np.size(coh_0_idx) != 0:
+                    if np.size(coh_0_idx) > 0:
+                        # remove trailing dim
+                        coh_0_idx.resize(coh_0_idx.shape[:1])
                         batch_e_0_branch.append(
                             simple_branching_param(
                                 bin_size, spikes_trial[0:e_end, coh_0_idx]
                             )
                         )
-                        batch_i_0_branch.append(
-                            simple_branching_param(
-                                bin_size, spikes_trial[e_end:i_end, coh_0_idx]
-                            )
-                        )
-                    if np.size(coh_1_idx) != 0:
+                    if np.size(coh_1_idx) > 0:
+                        # remove trailing dim
+                        coh_1_idx.resize(coh_1_idx.shape[:1])
                         batch_e_1_branch.append(
                             simple_branching_param(
                                 bin_size, spikes_trial[0:e_end, coh_1_idx]
                             )
                         )
-                        batch_i_1_branch.append(
-                            simple_branching_param(
-                                bin_size, spikes_trial[e_end:i_end, coh_1_idx]
-                            )
-                        )
                 e_0_branch.append(np.mean(batch_e_0_branch))
                 e_1_branch.append(np.mean(batch_e_1_branch))
-                i_0_branch.append(np.mean(batch_i_0_branch))
-                i_1_branch.append(np.mean(batch_i_1_branch))
-        ax[0].plot(e_0_branch)
-        ax[1].plot(e_1_branch)
-        ax[2].plot(i_0_branch)
-        ax[3].plot(i_1_branch)
-    for i in range(4):
-        ax[i].set_xlabel("batch")
-        ax[i].set_ylabel("branching parameter")
-    ax[0].set_title("e units, coherence 0")
-    ax[1].set_title("e units, coherence 1")
-    ax[2].set_title("i units, coherence 0")
-    ax[3].set_title("i units, coherence 1")
-    # Create and save the final figure
-    fig.suptitle("experiment set 1.5 branching according to coherence level")
+        plt.figure()
+        plt.plot(e_0_branch)
+        plt.plot(e_1_branch)
+        plt.legend(["coherence 0","coherence 1"])
+        plt.xlabel('batch')
+        plt.ylabel('branching param')
+        plt.title('excitatory branching over training')
+        plt.draw()
+        save_fname = savepath+exp_string+'/'+exp_string+'_e_branching.png'
+        plt.savefig(save_fname, dpi=300)
 
-    # Draw and save plot
-    plt.draw()
-    plt.subplots_adjust(wspace=0.5, hspace=0.5)
-    plt.savefig(os.path.join(savepath, "set_branching.png"), dpi=300)
-
-    # Teardown
-    plt.clf()
-    plt.close()
+        # Teardown
+        plt.clf()
+        plt.close()
+        # now on to the next experiment
