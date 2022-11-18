@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/run-batch30-onlyrateloss
+        exp_dir: /data/experiments/run-batch30-dualloss-swaplabels
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -191,6 +191,7 @@
             // output schemes
             categorical_output: false
             likelihood_output: false
+            swap_output_labels: true
         }
     }
 
@@ -352,7 +353,7 @@
         // number of epochs the model is fit over
         n_epochs: 1000
 
-        include_task_loss: false
+        include_task_loss: true
 
         include_rate_loss: true
 

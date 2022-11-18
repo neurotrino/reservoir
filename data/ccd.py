@@ -57,6 +57,11 @@ class DataGenerator(BaseDataGenerator):
             # therefore one coherence level does not create greater overall activity than the other
             y = cat
 
+        if cfg["model"].cell.swap_output_labels:
+            y[y==0] = 2 # zeros become twos
+            y[y==1] = 0 # ones become zeros
+            y[y==2] = 1 # twos (originally zeros) become ones; swap successful 
+
         self.dataset = (
             tf.data.Dataset.from_tensor_slices((x, y))
             .repeat(count=1)
