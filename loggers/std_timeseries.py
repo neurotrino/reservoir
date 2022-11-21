@@ -366,7 +366,7 @@ class Logger(BaseLogger):
         try:
             save_weight_hist(
                 weight_distr_filename,
-                self.logvars["tv0.postweights"][idx],
+                self.logvars["tv1.postweights"][idx],
                 title=(
                     "Distribution of Weights in the Recurrent Layer\n"
                     + f"(epoch={self.cur_epoch})"
