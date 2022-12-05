@@ -197,6 +197,87 @@ def plot_input_channels():
         plt.clf()
         plt.close()
 
+def plot_input_populations(): # to those units in the RSNN that send to output vs ones that do not
+
+    experiments = get_experiments(data_dir, experiment_string)
+    for xdir in experiments:
+        # separately for each experiment
+        exp_path = xdir[-9:-1]
+        if not os.path.isdir(os.path.join(savepath, exp_path)):
+            os.makedirs(os.path.join(savepath, exp_path))
+
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        if not os.path.isfile(os.path.join(np_dir, "991-1000.npz")):
+            continue
+
+        _, ax = plt.subplots(nrows=2, ncols=2)
+
+        naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
+        early_data = np.load(os.path.join(np_dir, "41-50.npz"))
+        late_data = np.load(os.path.join(np_dir, "241-250.npz"))
+        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+
+        naive_in = naive_data['tv0.postweights'][0]
+        early_in = early_data['tv0.postweights'][0]
+        late_in = late_data['tv0.postweights'][0]
+        trained_in = trained_data['tv0.postweights'][0]
+
+        naive_out = naive_data['tv2.postweights'][0]
+        early_out = early_data['tv2.postweights'][0]
+        late_out = late_data['tv2.postweights'][0]
+        trained_out = trained_data['tv2.postweights'][0]
+
+        # find the unit IDs which do project to output vs don't
+        naive_not_id = np.where(naive_out==0)[0]
+        naive_out_id = np.where(naive_out!=0)[0]
+
+        early_not_id = np.where(early_out==0)[0]
+        early_out_id = np.where(early_out!=0)[0]
+
+        late_not_id = np.where(late_out==0)[0]
+        late_out_id = np.where(late_out!=0)[0]
+
+        trained_not_id = np.where(trained_out==0)[0]
+        trained_out_id = np.where(trained_out!=0)[0]
+
+        ax[0,0].hist(naive_in[:,naive_not_id],bins=50,histtype='step',label='no output conn')
+        ax[0,0].hist(naive_in[:,naive_out_id],bins=50,histtype='step',label='output conn')
+
+        ax[0,1].hist(early_in[:,early_not_id],bins=50,histtype='step',label='no output conn')
+        ax[0,1].hist(early_in[:,early_out_id],bins=50,histtype='step',label='output conn')
+
+        ax[1,0].hist(late_in[:,late_not_id],bins=50,histtype='step',label='no output conn')
+        ax[1,0].hist(late_in[:,late_out_id],bins=50,histtype='step',label='output conn')
+
+        ax[1,1].hist(trained_in[:,trained_not_id],bins=50,histtype='step',label='no output conn')
+        ax[1,1].hist(trained_in[:,trained_out_id],bins=50,histtype='step',label='output conn')
+
+        # Label and title
+        ax[0,0].set_title('epoch 0')
+        ax[0,0].set_xlabel('input weights')
+        ax[0,0].legend()
+        ax[0,1].set_title('epoch 50')
+        ax[0,1].set_xlabel('input weights')
+        ax[0,1].legend()
+        ax[1,0].set_title('epoch 250')
+        ax[1,0].set_xlabel('input weights')
+        ax[1,0].legend()
+        ax[1,1].set_title('epoch 1000')
+        ax[1,1].set_xlabel('input weights')
+        ax[1,1].legend()
+
+        plt.suptitle("Evolution of input weights based on output projection")
+
+        # Draw and save
+        plt.draw()
+        plt.subplots_adjust(wspace=0.4, hspace=0.7)
+        save_fname = savepath+exp_path+'/input_dist_by_out_quad.png'
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
 
 def get_degrees(arr, weighted):
     out_degree = []
