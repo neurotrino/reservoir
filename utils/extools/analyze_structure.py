@@ -306,17 +306,17 @@ def plot_input_populations(): # to those units in the RSNN that send to output v
         trained_not_id = np.where(trained_out==0)[0]
         trained_out_id = np.where(trained_out!=0)[0]
 
-        ax[0,0].hist(np.concatenate(naive_in[:,naive_not_id]),bins=50,histtype='step',label='no output conn')
-        ax[0,0].hist(np.concatenate(naive_in[:,naive_out_id]),bins=50,histtype='step',label='output conn')
+        ax[0,0].hist(np.concatenate(naive_in[:,naive_not_id]),histtype='step',label='no output conn')
+        ax[0,0].hist(np.concatenate(naive_in[:,naive_out_id]),histtype='step',label='output conn')
 
-        ax[0,1].hist(np.concatenate(early_in[:,early_not_id]),bins=50,histtype='step',label='no output conn')
-        ax[0,1].hist(np.concatenate(early_in[:,early_out_id]),bins=50,histtype='step',label='output conn')
+        ax[0,1].hist(np.concatenate(early_in[:,early_not_id]),histtype='step',label='no output conn')
+        ax[0,1].hist(np.concatenate(early_in[:,early_out_id]),histtype='step',label='output conn')
 
-        ax[1,0].hist(np.concatenate(late_in[:,late_not_id]),bins=50,histtype='step',label='no output conn')
-        ax[1,0].hist(np.concatenate(late_in[:,late_out_id]),bins=50,histtype='step',label='output conn')
+        ax[1,0].hist(np.concatenate(late_in[:,late_not_id]),histtype='step',label='no output conn')
+        ax[1,0].hist(np.concatenate(late_in[:,late_out_id]),histtype='step',label='output conn')
 
-        ax[1,1].hist(np.concatenate(trained_in[:,trained_not_id]),bins=50,histtype='step',label='no output conn')
-        ax[1,1].hist(np.concatenate(trained_in[:,trained_out_id]),bins=50,histtype='step',label='output conn')
+        ax[1,1].hist(np.concatenate(trained_in[:,trained_not_id]),histtype='step',label='no output conn')
+        ax[1,1].hist(np.concatenate(trained_in[:,trained_out_id]),histtype='step',label='output conn')
 
         # Label and title
         ax[0,0].set_title('epoch 0')
