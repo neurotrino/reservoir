@@ -230,23 +230,23 @@ def plot_in_v_out_strength():
 
         # sum inputs for each unit
 
-        ax[0,0].scatter(np.sum(naive_in,0),naive_out.flatten())
-        ax[0,1].scatter(np.sum(early_in,0),early_out.flatten())
-        ax[1,0].scatter(np.sum(late_in,0),late_out.flatten())
-        ax[1,1].scatter(np.sum(trained_in,0),trained_out.flatten())
+        ax[0,0].scatter(np.sum(naive_in,0)[0:e_end],naive_out.flatten()[0:e_end],s=2)
+        ax[0,1].scatter(np.sum(early_in,0)[0:e_end],early_out.flatten()[0:e_end],s=2)
+        ax[1,0].scatter(np.sum(late_in,0)[0:e_end],late_out.flatten()[0:e_end],s=2)
+        ax[1,1].scatter(np.sum(trained_in,0)[0:e_end],trained_out.flatten()[0:e_end],s=2)
 
         # Label and title
         ax[0,0].set_title('epoch 0')
-        ax[0,0].set_xlabel('input weights')
+        ax[0,0].set_xlabel('sum input weights')
         ax[0,0].set_ylabel('output weights')
         ax[0,1].set_title('epoch 50')
-        ax[0,1].set_xlabel('input weights')
+        ax[0,1].set_xlabel('sum input weights')
         ax[0,1].set_ylabel('output weights')
         ax[1,0].set_title('epoch 250')
-        ax[1,0].set_xlabel('input weights')
+        ax[1,0].set_xlabel('sum input weights')
         ax[1,0].set_ylabel('output weights')
         ax[1,1].set_title('epoch 1000')
-        ax[1,1].set_xlabel('input weights')
+        ax[1,1].set_xlabel('sum input weights')
         ax[1,1].set_ylabel('output weights')
 
         plt.suptitle("Evolution of input vs output weights per neuron")
