@@ -230,10 +230,10 @@ def plot_in_v_out_strength():
 
         # sum inputs for each unit
 
-        ax[0,0].plot(np.sum(naive_in,0),naive_out.flatten())
-        ax[0,1].plot(np.sum(early_in,0),early_out.flatten())
-        ax[1,0].plot(np.sum(late_in,0),late_out.flatten())
-        ax[1,1].plot(np.sum(trained_in,0),trained_out.flatten())
+        ax[0,0].scatter(np.sum(naive_in,0),naive_out.flatten())
+        ax[0,1].scatter(np.sum(early_in,0),early_out.flatten())
+        ax[1,0].scatter(np.sum(late_in,0),late_out.flatten())
+        ax[1,1].scatter(np.sum(trained_in,0),trained_out.flatten())
 
         # Label and title
         ax[0,0].set_title('epoch 0')
