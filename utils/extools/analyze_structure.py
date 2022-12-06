@@ -230,10 +230,10 @@ def plot_in_v_out_strength():
 
         # sum inputs for each unit
 
-        ax[0,0].scatter(np.sum(naive_in,0)[0:e_end],naive_out.flatten()[0:e_end],s=2)
-        ax[0,1].scatter(np.sum(early_in,0)[0:e_end],early_out.flatten()[0:e_end],s=2)
-        ax[1,0].scatter(np.sum(late_in,0)[0:e_end],late_out.flatten()[0:e_end],s=2)
-        ax[1,1].scatter(np.sum(trained_in,0)[0:e_end],trained_out.flatten()[0:e_end],s=2)
+        ax[0,0].scatter(np.sum(naive_in,0)[e_end+1:i_end],naive_out.flatten()[e_end+1:i_end],s=2)
+        ax[0,1].scatter(np.sum(early_in,0)[e_end+1:i_end],early_out.flatten()[e_end+1:i_end],s=2)
+        ax[1,0].scatter(np.sum(late_in,0)[e_end+1:i_end],late_out.flatten()[e_end+1:i_end],s=2)
+        ax[1,1].scatter(np.sum(trained_in,0)[e_end+1:i_end],trained_out.flatten()[e_end+1:i_end],s=2)
 
         # Label and title
         ax[0,0].set_title('epoch 0')
@@ -249,12 +249,12 @@ def plot_in_v_out_strength():
         ax[1,1].set_xlabel('sum input weights')
         ax[1,1].set_ylabel('output weights')
 
-        plt.suptitle("Evolution of input vs output weights per neuron")
+        plt.suptitle("Evolution of input vs inhib output weights per neuron")
 
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.7)
-        save_fname = savepath+exp_path+'/'+exp_path+'_input_v_output_quad.png'
+        save_fname = savepath+exp_path+'/'+exp_path+'_input_v_output_i_quad.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
