@@ -227,21 +227,21 @@ def plot_in_v_rec_strength():
 
         # just excitatory units for now
 
-        naive_in = naive_data['tv0.postweights'][0][:,0:e_end]
-        early_in = early_data['tv0.postweights'][0][:,0:e_end]
-        late_in = late_data['tv0.postweights'][0][:,0:e_end]
-        trained_in = trained_data['tv0.postweights'][0][:,0:e_end]
+        naive_in = naive_data['tv0.postweights'][0][:,e_end+1:i_end]
+        early_in = early_data['tv0.postweights'][0][:,e_end+1:i_end]
+        late_in = late_data['tv0.postweights'][0][:,e_end+1:i_end]
+        trained_in = trained_data['tv0.postweights'][0][:,e_end+1:i_end]
 
         # include those that project to i units
-        naive_rec = naive_data['tv1.postweights'][0][0:e_end,0:e_end]
-        early_rec = early_data['tv1.postweights'][0][0:e_end,0:e_end]
-        late_rec = late_data['tv1.postweights'][0][0:e_end,0:e_end]
-        trained_rec = trained_data['tv1.postweights'][0][0:e_end,0:e_end]
+        naive_rec = naive_data['tv1.postweights'][0][e_end+1:i_end,e_end+1:i_end]
+        early_rec = early_data['tv1.postweights'][0][e_end+1:i_end,e_end+1:i_end]
+        late_rec = late_data['tv1.postweights'][0][e_end+1:i_end,e_end+1:i_end]
+        trained_rec = trained_data['tv1.postweights'][e_end+1:i_end,e_end+1:i_end]
 
-        naive_out = naive_data['tv2.postweights'][0][0:e_end,:]
-        early_out = early_data['tv2.postweights'][0][0:e_end,:]
-        late_out = late_data['tv2.postweights'][0][0:e_end,:]
-        trained_out = trained_data['tv2.postweights'][0][0:e_end,:]
+        naive_out = naive_data['tv2.postweights'][0][e_end+1:i_end,:]
+        early_out = early_data['tv2.postweights'][0][e_end+1:i_end,:]
+        late_out = late_data['tv2.postweights'][0][e_end+1:i_end,:]
+        trained_out = trained_data['tv2.postweights'][0][e_end+1:i_end,:]
 
         # find the unit IDs which do project to output vs don't
         naive_not_id = np.where(naive_out==0)[0]
@@ -291,13 +291,13 @@ def plot_in_v_rec_strength():
         ax[1,1].set_xlabel('sum input weights')
         ax[1,1].set_ylabel('sum out to rec weights')
 
-        plt.suptitle("Evolution of input vs recurrent weights per e neuron")
+        plt.suptitle("Evolution of input vs recurrent weights per i neuron")
         plt.legend()
 
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.7)
-        save_fname = savepath+exp_path+'/'+exp_path+'_input_v_rec_e_quad.png'
+        save_fname = savepath+exp_path+'/'+exp_path+'_input_v_rec_i_quad.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
