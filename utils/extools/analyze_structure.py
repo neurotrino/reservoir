@@ -404,6 +404,19 @@ def plot_rec_v_out_strength():
         late_out = late_data['tv2.postweights'][0][0:e_end,0]
         trained_out = trained_data['tv2.postweights'][0][0:e_end,0]
 
+        # find the unit IDs which do project to output vs don't
+        naive_not_id = np.where(naive_out==0)[0]
+        naive_out_id = np.where(naive_out!=0)[0]
+
+        early_not_id = np.where(early_out==0)[0]
+        early_out_id = np.where(early_out!=0)[0]
+
+        late_not_id = np.where(late_out==0)[0]
+        late_out_id = np.where(late_out!=0)[0]
+
+        trained_not_id = np.where(trained_out==0)[0]
+        trained_out_id = np.where(trained_out!=0)[0]
+
         # sum for each unit
         ax[0,0].scatter(np.sum(naive_rec,0)[naive_not_id],naive_out.flatten()[naive_not_id],s=2,label='no output projection')
         ax[0,0].scatter(np.sum(naive_rec,0)[naive_out_id],naive_out.flatten()[naive_out_id],s=2,label='output projection')
