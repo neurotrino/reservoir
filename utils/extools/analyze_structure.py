@@ -368,6 +368,79 @@ def plot_in_v_out_strength():
         plt.clf()
         plt.close()
 
+def plot_rec_v_out_strength():
+
+    experiments = get_experiments(data_dir, experiment_string)
+    for xdir in experiments:
+        # separately for each experiment
+        exp_path = xdir[-9:-1]
+        if not os.path.isdir(os.path.join(savepath, exp_path)):
+            os.makedirs(os.path.join(savepath, exp_path))
+
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        if not os.path.isfile(os.path.join(np_dir, "991-1000.npz")):
+            continue
+
+        _, ax = plt.subplots(nrows=2, ncols=2)
+
+        naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
+        early_data = np.load(os.path.join(np_dir, "41-50.npz"))
+        late_data = np.load(os.path.join(np_dir, "241-250.npz"))
+        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+
+        naive_in = naive_data['tv0.postweights'][0][:,0:e_end]
+        early_in = early_data['tv0.postweights'][0][:,0:e_end]
+        late_in = late_data['tv0.postweights'][0][:,0:e_end]
+        trained_in = trained_data['tv0.postweights'][0][:,0:e_end]
+
+        naive_rec = naive_data['tv1.postweights'][0][0:e_end,0:e_end]
+        early_rec = early_data['tv1.postweights'][0][0:e_end,0:e_end]
+        late_rec = late_data['tv1.postweights'][0][0:e_end,0:e_end]
+        trained_rec = trained_data['tv1.postweights'][0][0:e_end,0:e_end]
+
+        naive_out = naive_data['tv2.postweights'][0][0:e_end,0]
+        early_out = early_data['tv2.postweights'][0][0:e_end,0]
+        late_out = late_data['tv2.postweights'][0][0:e_end,0]
+        trained_out = trained_data['tv2.postweights'][0][0:e_end,0]
+
+        # sum for each unit
+        ax[0,0].scatter(np.sum(naive_rec,0)[naive_not_id],naive_out.flatten()[naive_not_id],s=2,label='no output projection')
+        ax[0,0].scatter(np.sum(naive_rec,0)[naive_out_id],naive_out.flatten()[naive_out_id],s=2,label='output projection')
+        ax[0,1].scatter(np.sum(early_rec,0)[early_not_id],early_out.flatten()[early_not_id],s=2,label='no output projection')
+        ax[0,1].scatter(np.sum(early_rec,0)[early_out_id],early_out.flatten()[early_out_id],s=2,label='output projection')
+        ax[1,0].scatter(np.sum(late_rec,0)[late_not_id],late_out.flatten()[late_not_id],s=2,label='no output projection')
+        ax[1,0].scatter(np.sum(late_rec,0)[late_out_id],late_out.flatten()[late_out_id],s=2,label='output projection')
+        ax[1,1].scatter(np.sum(trained_rec,0)[trained_not_id],trained_out.flatten()[trained_not_id],s=2,label='no output projection')
+        ax[1,1].scatter(np.sum(trained_rec,0)[trained_out_id],trained_out.flatten()[trained_out_id],s=2,label='output projection')
+
+        # Label and title
+        ax[0,0].set_title('epoch 0')
+        ax[0,0].set_xlabel('sum recurrent input weights')
+        ax[0,0].set_ylabel('output weights')
+        ax[0,1].set_title('epoch 50')
+        ax[0,1].set_xlabel('sum recurrent input weights')
+        ax[0,1].set_ylabel('output weights')
+        ax[1,0].set_title('epoch 250')
+        ax[1,0].set_xlabel('sum recurrent input weights')
+        ax[1,0].set_ylabel('output weights')
+        ax[1,1].set_title('epoch 1000')
+        ax[1,1].set_xlabel('sum recurrent input weights')
+        ax[1,1].set_ylabel('output weights')
+
+        plt.suptitle("Evolution of recurrent input vs output weights per e neuron")
+        plt.legend()
+
+        # Draw and save
+        plt.draw()
+        plt.subplots_adjust(wspace=0.4, hspace=0.7)
+        save_fname = savepath+exp_path+'/'+exp_path+'_rec_v_output_e_quad.png'
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
+
 
 def plot_input_populations(): # to those units in the RSNN that send to output vs ones that do not
 
