@@ -292,6 +292,7 @@ def plot_in_v_rec_strength():
         ax[1,1].set_ylabel('sum out to rec weights')
 
         plt.suptitle("Evolution of input vs recurrent weights per e neuron")
+        plt.legend()
 
         # Draw and save
         plt.draw()
