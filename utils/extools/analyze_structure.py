@@ -197,6 +197,112 @@ def plot_input_channels():
         plt.clf()
         plt.close()
 
+
+#def plot_subpopulation_weights():
+    # very simply to begin, plot the average weight (yes, accounting for zeros to account for reorganization of sparsity)
+    # of the connections 1) amongst units that project to output, 2) amongst units that do NOT project to output, and
+    # 3) between the two aforementioned subpopulations (both ways). The goal is to determine whether the two populations
+    # impinge on each other at all. do the weight plots separately for e and i units.
+
+
+def plot_in_v_rec_strength():
+    experiments = get_experiments(data_dir, experiment_string)
+    for xdir in experiments:
+        # separately for each experiment
+        exp_path = xdir[-9:-1]
+        if not os.path.isdir(os.path.join(savepath, exp_path)):
+            os.makedirs(os.path.join(savepath, exp_path))
+
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        if not os.path.isfile(os.path.join(np_dir, "991-1000.npz")):
+            continue
+
+        _, ax = plt.subplots(nrows=2, ncols=2)
+
+        naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
+        early_data = np.load(os.path.join(np_dir, "41-50.npz"))
+        late_data = np.load(os.path.join(np_dir, "241-250.npz"))
+        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+
+        # just excitatory units for now
+
+        naive_in = naive_data['tv0.postweights'][0][:,0:e_end]
+        early_in = early_data['tv0.postweights'][0][:,0:e_end]
+        late_in = late_data['tv0.postweights'][0][:,0:e_end]
+        trained_in = trained_data['tv0.postweights'][0][:,0:e_end]
+
+        # include those that project to i units
+        naive_rec = naive_data['tv1.postweights'][0][0:e_end,0:e_end]
+        early_rec = early_data['tv1.postweights'][0][0:e_end,0:e_end]
+        late_rec = late_data['tv1.postweights'][0][0:e_end,0:e_end]
+        trained_rec = trained_data['tv1.postweights'][0][0:e_end,0:e_end]
+
+        naive_out = naive_data['tv2.postweights'][0][0:e_end,:]
+        early_out = early_data['tv2.postweights'][0][0:e_end,:]
+        late_out = late_data['tv2.postweights'][0][0:e_end,:]
+        trained_out = trained_data['tv2.postweights'][0][0:e_end,:]
+
+        # find the unit IDs which do project to output vs don't
+        naive_not_id = np.where(naive_out==0)[0]
+        naive_out_id = np.where(naive_out!=0)[0]
+
+        early_not_id = np.where(early_out==0)[0]
+        early_out_id = np.where(early_out!=0)[0]
+
+        late_not_id = np.where(late_out==0)[0]
+        late_out_id = np.where(late_out!=0)[0]
+
+        trained_not_id = np.where(trained_out==0)[0]
+        trained_out_id = np.where(trained_out!=0)[0]
+
+        # plot the relation btwn input strengths and the recurrent e units' outputs to
+        # 1) recurrent e units that don't project to output and 2) recurrent e units that DO
+
+        # sum inputs for each unit
+        # input to non-out units, output to non-out units
+        #ax[0,0].scatter(np.sum(naive_in[naive_not_id,:],0),np.sum(naive_rec[naive_not_id,:],1)[naive_not_id],s=2,label='no output projection')
+        # input to out units, output to out units
+        ax[0,0].scatter(np.sum(naive_in,0)[naive_not_id],np.sum(naive_rec,0)[naive_not_id],s=2,label='no output projection')
+        ax[0,0].scatter(np.sum(naive_in,0)[naive_out_id],np.sum(naive_rec,0)[naive_out_id],s=2,label='output projection')
+        # input to non-out units, output to out units
+        #ax[0,0].scatter(np.sum(naive_in,0)[naive_not_id],np.sum(naive_rec,0)[naive_])
+        ax[0,1].scatter(np.sum(early_in,0)[early_not_id],np.sum(early_rec,0)[early_not_id],s=2,label='no output projection')
+        ax[0,1].scatter(np.sum(early_in,0)[early_out_id],np.sum(early_rec,0)[early_out_id],s=2,label='output projection')
+        ax[1,0].scatter(np.sum(late_in,0)[late_not_id],np.sum(late_rec,0)[late_not_id],s=2,label='no output projection')
+        ax[1,0].scatter(np.sum(late_in,0)[late_out_id],np.sum(late_rec,0)[late_out_id],s=2,label='output projection')
+        ax[1,1].scatter(np.sum(trained_in,0)[trained_not_id],np.sum(trained_rec,0)[trained_not_id],s=2,label='no output projection')
+        ax[1,1].scatter(np.sum(trained_in,0)[trained_out_id],np.sum(trained_rec,0)[trained_out_id],s=2,label='output projection')
+
+        # plot the relation between input strengths and the recurrent i units' outputs to
+        # 1) other recurrent i units and 2) recurrent e units
+
+        # Label and title
+        ax[0,0].set_title('epoch 0')
+        ax[0,0].set_xlabel('sum input weights')
+        ax[0,0].set_ylabel('sum out to rec weights')
+        ax[0,1].set_title('epoch 50')
+        ax[0,1].set_xlabel('sum input weights')
+        ax[0,1].set_ylabel('sum out to rec weights')
+        ax[1,0].set_title('epoch 250')
+        ax[1,0].set_xlabel('sum input weights')
+        ax[1,0].set_ylabel('sum out to rec weights')
+        ax[1,1].set_title('epoch 1000')
+        ax[1,1].set_xlabel('sum input weights')
+        ax[1,1].set_ylabel('sum out to rec weights')
+
+        plt.suptitle("Evolution of input vs recurrent weights per e neuron")
+
+        # Draw and save
+        plt.draw()
+        plt.subplots_adjust(wspace=0.4, hspace=0.7)
+        save_fname = savepath+exp_path+'/'+exp_path+'_input_v_rec_e_quad.png'
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
+
 def plot_in_v_out_strength():
 
     experiments = get_experiments(data_dir, experiment_string)
