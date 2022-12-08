@@ -236,7 +236,7 @@ def plot_in_v_rec_strength():
         naive_rec = naive_data['tv1.postweights'][0][e_end+1:i_end,e_end+1:i_end]
         early_rec = early_data['tv1.postweights'][0][e_end+1:i_end,e_end+1:i_end]
         late_rec = late_data['tv1.postweights'][0][e_end+1:i_end,e_end+1:i_end]
-        trained_rec = trained_data['tv1.postweights'][e_end+1:i_end,e_end+1:i_end]
+        trained_rec = trained_data['tv1.postweights'][0][e_end+1:i_end,e_end+1:i_end]
 
         naive_out = naive_data['tv2.postweights'][0][e_end+1:i_end,:]
         early_out = early_data['tv2.postweights'][0][e_end+1:i_end,:]
