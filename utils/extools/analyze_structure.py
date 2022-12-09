@@ -263,33 +263,36 @@ def plot_in_v_rec_strength():
         # input to non-out units, output to non-out units
         #ax[0,0].scatter(np.sum(naive_in[naive_not_id,:],0),np.sum(naive_rec[naive_not_id,:],1)[naive_not_id],s=2,label='no output projection')
         # input to out units, output to out units
-        ax[0,0].scatter(np.sum(naive_in,0)[naive_not_id],np.sum(naive_rec,0)[naive_not_id],s=2,label='no output projection')
-        ax[0,0].scatter(np.sum(naive_in,0)[naive_out_id],np.sum(naive_rec,0)[naive_out_id],s=2,label='output projection')
+
+        # normalize for total number of units included in the sum
+
+        ax[0,0].scatter(np.sum(naive_in,0)[naive_not_id]/len(naive_not_id),np.sum(naive_rec,0)[naive_not_id]/len(naive_not_id),s=2,label='no output projection')
+        ax[0,0].scatter(np.sum(naive_in,0)[naive_out_id]/len(naive_out_id),np.sum(naive_rec,0)[naive_out_id]/len(naive_out_id),s=2,label='output projection')
         # input to non-out units, output to out units
         #ax[0,0].scatter(np.sum(naive_in,0)[naive_not_id],np.sum(naive_rec,0)[naive_])
-        ax[0,1].scatter(np.sum(early_in,0)[early_not_id],np.sum(early_rec,0)[early_not_id],s=2,label='no output projection')
-        ax[0,1].scatter(np.sum(early_in,0)[early_out_id],np.sum(early_rec,0)[early_out_id],s=2,label='output projection')
-        ax[1,0].scatter(np.sum(late_in,0)[late_not_id],np.sum(late_rec,0)[late_not_id],s=2,label='no output projection')
-        ax[1,0].scatter(np.sum(late_in,0)[late_out_id],np.sum(late_rec,0)[late_out_id],s=2,label='output projection')
-        ax[1,1].scatter(np.sum(trained_in,0)[trained_not_id],np.sum(trained_rec,0)[trained_not_id],s=2,label='no output projection')
-        ax[1,1].scatter(np.sum(trained_in,0)[trained_out_id],np.sum(trained_rec,0)[trained_out_id],s=2,label='output projection')
+        ax[0,1].scatter(np.sum(early_in,0)[early_not_id]/len(early_not_id),np.sum(early_rec,0)[early_not_id]/len(early_not_id),s=2,label='no output projection')
+        ax[0,1].scatter(np.sum(early_in,0)[early_out_id]/len(early_out_id),np.sum(early_rec,0)[early_out_id]/len(early_out_id),s=2,label='output projection')
+        ax[1,0].scatter(np.sum(late_in,0)[late_not_id]/len(late_not_id),np.sum(late_rec,0)[late_not_id]/len(late_not_id),s=2,label='no output projection')
+        ax[1,0].scatter(np.sum(late_in,0)[late_out_id]/len(late_out_id),np.sum(late_rec,0)[late_out_id]/len(late_out_id),s=2,label='output projection')
+        ax[1,1].scatter(np.sum(trained_in,0)[trained_not_id]/len(trained_not_id),np.sum(trained_rec,0)[trained_not_id]/len(trained_not_id),s=2,label='no output projection')
+        ax[1,1].scatter(np.sum(trained_in,0)[trained_out_id]/len(trained_out_id),np.sum(trained_rec,0)[trained_out_id]/len(trained_out_id),s=2,label='output projection')
 
         # plot the relation between input strengths and the recurrent i units' outputs to
         # 1) other recurrent i units and 2) recurrent e units
 
         # Label and title
         ax[0,0].set_title('epoch 0')
-        ax[0,0].set_xlabel('sum input weights')
-        ax[0,0].set_ylabel('sum out to rec weights')
+        ax[0,0].set_xlabel('norm sum input weights')
+        ax[0,0].set_ylabel('norm sum out to rec weights')
         ax[0,1].set_title('epoch 50')
-        ax[0,1].set_xlabel('sum input weights')
-        ax[0,1].set_ylabel('sum out to rec weights')
+        ax[0,1].set_xlabel('norm sum input weights')
+        ax[0,1].set_ylabel('norm sum out to rec weights')
         ax[1,0].set_title('epoch 250')
-        ax[1,0].set_xlabel('sum input weights')
-        ax[1,0].set_ylabel('sum out to rec weights')
+        ax[1,0].set_xlabel('norm sum input weights')
+        ax[1,0].set_ylabel('norm sum out to rec weights')
         ax[1,1].set_title('epoch 1000')
-        ax[1,1].set_xlabel('sum input weights')
-        ax[1,1].set_ylabel('sum out to rec weights')
+        ax[1,1].set_xlabel('norm sum input weights')
+        ax[1,1].set_ylabel('norm sum out to rec weights')
 
         plt.suptitle("Evolution of input vs recurrent weights per i neuron")
         plt.legend()
@@ -297,7 +300,7 @@ def plot_in_v_rec_strength():
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.7)
-        save_fname = savepath+exp_path+'/'+exp_path+'_input_v_rec_i_quad.png'
+        save_fname = savepath+exp_path+'/'+exp_path+'_input_v_rec_i_norm_quad.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
