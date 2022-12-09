@@ -144,6 +144,7 @@ def smallify(old_data):
 
 
 def biggify(smallified_data):
+    """Reverse the "smallify" operation."""
     shapes = smallified_data["shapes"][()]
     biggified_data = {}
 
@@ -158,8 +159,6 @@ def biggify(smallified_data):
         biggified_data[cohX] = np.array(m, dtype=object)
 
     return biggified_data
-
-
 
 
 def safely_make_joint_dirpath(*args, **kwargs):
