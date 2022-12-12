@@ -198,11 +198,96 @@ def plot_input_channels():
         plt.close()
 
 
-#def plot_subpopulation_weights():
+def plot_subpopulation_weights():
     # very simply to begin, plot the average weight (yes, accounting for zeros to account for reorganization of sparsity)
     # of the connections 1) amongst units that project to output, 2) amongst units that do NOT project to output, and
     # 3) between the two aforementioned subpopulations (both ways). The goal is to determine whether the two populations
     # impinge on each other at all. do the weight plots separately for e and i units.
+    experiments = get_experiments(data_dir, experiment_string)
+    for xdir in experiments:
+        exp_path = xdir[-9:-1]
+        if not os.path.isdir(os.path.join(savepath, exp_path)):
+            os.makedirs(os.path.join(savepath, exp_path))
+
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        if not os.path.isfile(os.path.join(np_dir, "991-1000.npz")):
+            continue
+
+        _, ax = plt.subplots(nrows=2, ncols=2)
+
+        naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
+        early_data = np.load(os.path.join(np_dir, "41-50.npz"))
+        late_data = np.load(os.path.join(np_dir, "241-250.npz"))
+        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+
+        naive_rec = naive_data['tv1.postweights'][0][0:e_end,0:e_end]#[e_end+1:i_end,e_end+1:i_end]
+        early_rec = early_data['tv1.postweights'][0][0:e_end,0:e_end]#[e_end+1:i_end,e_end+1:i_end]
+        late_rec = late_data['tv1.postweights'][0][0:e_end,0:e_end]#[e_end+1:i_end,e_end+1:i_end]
+        trained_rec = trained_data['tv1.postweights'][0][0:e_end,0:e_end]#[e_end+1:i_end,e_end+1:i_end]
+
+        naive_out = naive_data['tv2.postweights'][0][0:e_end,:]#[e_end+1:i_end,:]
+        early_out = early_data['tv2.postweights'][0][0:e_end,:]#[e_end+1:i_end,:]
+        late_out = late_data['tv2.postweights'][0][0:e_end,:]#[e_end+1:i_end,:]
+        trained_out = trained_data['tv2.postweights'][0][0:e_end,:]#[e_end+1:i_end,:]
+
+        # find the unit IDs which do project to output vs don't
+        naive_not_id = np.where(naive_out==0)[0]
+        naive_out_id = np.where(naive_out!=0)[0]
+
+        early_not_id = np.where(early_out==0)[0]
+        early_out_id = np.where(early_out!=0)[0]
+
+        late_not_id = np.where(late_out==0)[0]
+        late_out_id = np.where(late_out!=0)[0]
+
+        trained_not_id = np.where(trained_out==0)[0]
+        trained_out_id = np.where(trained_out!=0)[0]
+
+        ax[0,0].hist(np.concatenate(naive_rec[naive_not_id,naive_not_id]),histtype='step',label='no output to no output')
+        ax[0,0].hist(np.concatenate(naive_rec[naive_not_id,naive_out_id]),histtype='step',label='no output to output')
+        ax[0,0].hist(np.concatenate(naive_rec[naive_out_id,naive_not_id]),histtype='step',label='output to no output')
+        ax[0,0].hist(np.concatenate(naive_rec[naive_out_id,naive_out_id]),histtype='step',label='output to output')
+
+        ax[0,1].hist(np.concatenate(early_rec[early_not_id,early_not_id]),histtype='step',label='no output to no output')
+        ax[0,1].hist(np.concatenate(early_rec[early_not_id,early_out_id]),histtype='step',label='no output to output')
+        ax[0,1].hist(np.concatenate(early_rec[early_out_id,early_not_id]),histtype='step',label='output to no output')
+        ax[0,1].hist(np.concatenate(early_rec[early_out_id,early_out_id]),histtype='step',label='output to output')
+
+        ax[1,0].hist(np.concatenate(late_rec[late_not_id,late_not_id]),histtype='step',label='no output to no output')
+        ax[1,0].hist(np.concatenate(late_rec[late_not_id,late_out_id]),histtype='step',label='no output to output')
+        ax[1,0].hist(np.concatenate(late_rec[late_out_id,late_not_id]),histtype='step',label='output to no output')
+        ax[1,0].hist(np.concatenate(late_rec[late_out_id,late_out_id]),histtype='step',label='output to output')
+
+        ax[1,1].hist(np.concatenate(trained_rec[trained_not_id,trained_not_id]),histtype='step',label='no output to no output')
+        ax[1,1].hist(np.concatenate(trained_rec[trained_not_id,trained_out_id]),histtype='step',label='no output to output')
+        ax[1,1].hist(np.concatenate(trained_rec[trained_out_id,trained_not_id]),histtype='step',label='output to no output')
+        ax[1,1].hist(np.concatenate(trained_rec[trained_out_id,trained_out_id]),histtype='step',label='output to output')
+
+        # Label and title
+        ax[0,0].set_title('epoch 0')
+        ax[0,0].set_xlabel('e weights')
+        ax[0,0].legend()
+        ax[0,1].set_title('epoch 50')
+        ax[0,1].set_xlabel('e weights')
+        ax[0,1].legend()
+        ax[1,0].set_title('epoch 250')
+        ax[1,0].set_xlabel('e weights')
+        ax[1,0].legend()
+        ax[1,1].set_title('epoch 1000')
+        ax[1,1].set_xlabel('e weights')
+        ax[1,1].legend()
+
+        plt.suptitle("Recurrent weights based on output projection")
+        # Draw and save
+        plt.draw()
+        plt.subplots_adjust(wspace=0.4, hspace=0.7)
+        save_fname = savepath+exp_path+'/'+exp_path+'_rec_subpop_weights_e.png'
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
 
 
 def plot_in_v_rec_strength():
