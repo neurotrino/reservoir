@@ -244,10 +244,13 @@ def plot_subpopulation_weights():
         trained_not_id = np.where(trained_out==0)[0]
         trained_out_id = np.where(trained_out!=0)[0]
 
-        ax[0,0].hist(np.concatenate(naive_rec[naive_not_id,naive_not_id]),histtype='step',label='no output to no output')
-        ax[0,0].hist(np.concatenate(naive_rec[naive_not_id,naive_out_id]),histtype='step',label='no output to output')
-        ax[0,0].hist(np.concatenate(naive_rec[naive_out_id,naive_not_id]),histtype='step',label='output to no output')
-        ax[0,0].hist(np.concatenate(naive_rec[naive_out_id,naive_out_id]),histtype='step',label='output to output')
+        toplot = naive_rec[naive_not_id,:][:,naive_not_id]
+        toplot = toplot[toplot!=0]
+        ax[0,0].hist(toplot,histtype='step',label='no output to no output')
+        # and repeat 
+        ax[0,0].hist(np.concatenate(naive_rec[naive_not_id,:][:,naive_out_id]),histtype='step',label='no output to output')
+        ax[0,0].hist(np.concatenate(naive_rec[naive_out_id,:][:,naive_not_id]),histtype='step',label='output to no output')
+        ax[0,0].hist(np.concatenate(naive_rec[naive_out_id,:][:,naive_out_id]),histtype='step',label='output to output')
 
         ax[0,1].hist(np.concatenate(early_rec[early_not_id,early_not_id]),histtype='step',label='no output to no output')
         ax[0,1].hist(np.concatenate(early_rec[early_not_id,early_out_id]),histtype='step',label='no output to output')
