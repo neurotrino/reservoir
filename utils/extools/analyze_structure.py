@@ -198,7 +198,7 @@ def plot_input_channels():
         plt.close()
 
 
-def plot_subpopulation_weights():
+def plot_subpopulation_sum_weights():
     # very simply to begin, plot the average weight (yes, accounting for zeros to account for reorganization of sparsity)
     # of the connections 1) amongst units that project to output, 2) amongst units that do NOT project to output, and
     # 3) between the two aforementioned subpopulations (both ways). The goal is to determine whether the two populations
@@ -244,71 +244,67 @@ def plot_subpopulation_weights():
         trained_not_id = np.where(trained_out==0)[0]
         trained_out_id = np.where(trained_out!=0)[0]
 
-        toplot = naive_rec[naive_not_id,:][:,naive_not_id]
-        toplot = toplot[toplot!=0]
+        toplot = np.sum(naive_rec[naive_not_id,:][:,naive_not_id],0)/len(naive_not_id)
         #toplot=np.concatenate(toplot)
-        ax[0,0].hist(toplot,histtype='step',label='no output to no output')
-        toplot = naive_rec[naive_not_id,:][:,naive_out_id]
-        toplot = toplot[toplot!=0]
+        ax[0,0].hist(toplot,histtype='step',label='sum no output to no output')
+        toplot = np.sum(naive_rec[naive_not_id,:][:,naive_out_id],0)/len(naive_not_id)
         #toplot=np.concatenate(toplot)
-        ax[0,0].hist(toplot,histtype='step',label='no output to output')
-        toplot = naive_rec[naive_out_id,:][:,naive_not_id]
-        toplot = toplot[toplot!=0]
+        ax[0,0].hist(toplot,histtype='step',label='sum no output to output')
+        toplot = np.sum(naive_rec[naive_out_id,:][:,naive_not_id],0)/len(naive_out_id)
         #toplot=np.concatenate(toplot)
-        ax[0,0].hist(toplot,histtype='step',label='output to no output')
-        toplot = naive_rec[naive_out_id,:][:,naive_out_id]
-        toplot = toplot[toplot!=0]
+        ax[0,0].hist(toplot,histtype='step',label='sum output to no output')
+        toplot = np.sum(naive_rec[naive_out_id,:][:,naive_out_id],0)/len(naive_out_id)
         #toplot=np.concatenate(toplot)
-        ax[0,0].hist(toplot,histtype='step',label='output to output')
+        ax[0,0].hist(toplot,histtype='step',label='sum output to output')
 
-        toplot = early_rec[early_not_id,:][:,early_not_id]
-        toplot = toplot[toplot!=0]
+        toplot = np.sum(early_rec[early_not_id,:][:,early_not_id],0)/len(early_not_id)
+        #toplot = toplot[toplot!=0]
         #toplot=np.concatenate(toplot)
-        ax[0,1].hist(toplot,histtype='step',label='no output to no output')
-        toplot = early_rec[early_not_id,:][:,early_out_id]
-        toplot = toplot[toplot!=0]
+        ax[0,1].hist(toplot,histtype='step',label='sum no output to no output')
+        toplot = np.sum(early_rec[early_not_id,:][:,early_out_id],0)/len(early_not_id)
+        #toplot = toplot[toplot!=0]
         #toplot=np.concatenate(toplot)
-        ax[0,1].hist(toplot,histtype='step',label='no output to output')
-        toplot = early_rec[early_out_id,:][:,early_not_id]
-        toplot = toplot[toplot!=0]
+        ax[0,1].hist(toplot,histtype='step',label='sum no output to output')
+        toplot = np.sum(early_rec[early_out_id,:][:,early_not_id],0)/len(early_out_id)
+        #toplot = toplot[toplot!=0]
         #toplot=np.concatenate(toplot)
-        ax[0,1].hist(toplot,histtype='step',label='output to no output')
-        toplot = early_rec[early_out_id,:][:,early_out_id]
-        toplot = toplot[toplot!=0]
+        ax[0,1].hist(toplot,histtype='step',label='sum output to no output')
+        toplot = np.sum(early_rec[early_out_id,:][:,early_out_id],0)/len(early_out_id)
+        #toplot = toplot[toplot!=0]
         #toplot=np.concatenate(toplot)
-        ax[0,1].hist(toplot,histtype='step',label='output to output')
+        ax[0,1].hist(toplot,histtype='step',label='sum output to output')
 
-        toplot = late_rec[late_not_id,:][:,late_not_id]
-        toplot = toplot[toplot!=0]
+        toplot = np.sum(late_rec[late_not_id,:][:,late_not_id],0)/len(late_not_id)
+        #toplot = toplot[toplot!=0]
         #toplot=np.concatenate(toplot)
         ax[1,0].hist(toplot,histtype='step',label='no output to no output')
-        toplot = late_rec[late_not_id,:][:,late_out_id]
-        toplot = toplot[toplot!=0]
+        toplot = np.sum(late_rec[late_not_id,:][:,late_out_id],0)/len(late_not_id)
+        #toplot = toplot[toplot!=0]
         #toplot=np.concatenate(toplot)
         ax[1,0].hist(toplot,histtype='step',label='no output to output')
-        toplot = late_rec[late_out_id,:][:,late_not_id]
-        toplot = toplot[toplot!=0]
+        toplot = np.sum(late_rec[late_out_id,:][:,late_not_id],0)/len(late_out_id)
+        #toplot = toplot[toplot!=0]
         #toplot=np.concatenate(toplot)
         ax[1,0].hist(toplot,histtype='step',label='output to no output')
-        toplot = late_rec[late_out_id,:][:,late_out_id]
-        toplot = toplot[toplot!=0]
+        toplot = np.sum(late_rec[late_out_id,:][:,late_out_id],0)/len(late_out_id)
+        #toplot = toplot[toplot!=0]
         #toplot=np.concatenate(toplot)
         ax[1,0].hist(toplot,histtype='step',label='output to output')
 
-        toplot = trained_rec[trained_not_id,:][:,trained_not_id]
-        toplot = toplot[toplot!=0]
+        toplot = np.sum(trained_rec[trained_not_id,:][:,trained_not_id],0)/len(trained_not_id)
+        #toplot = toplot[toplot!=0]
         #toplot=np.concatenate(toplot)
         ax[1,1].hist(toplot,histtype='step',label='no output to no output')
-        toplot = trained_rec[trained_not_id,:][:,trained_out_id]
-        toplot = toplot[toplot!=0]
+        toplot = np.sum(trained_rec[trained_not_id,:][:,trained_out_id],0)/len(trained_not_id)
+        #toplot = toplot[toplot!=0]
         #toplot=np.concatenate(toplot)
         ax[1,1].hist(toplot,histtype='step',label='no output to output')
-        toplot = trained_rec[trained_out_id,:][:,trained_not_id]
-        toplot = toplot[toplot!=0]
+        toplot = np.sum(trained_rec[trained_out_id,:][:,trained_not_id],0)/len(trained_out_id)
+        #toplot = toplot[toplot!=0]
         #toplot=np.concatenate(toplot)
         ax[1,1].hist(toplot,histtype='step',label='output to no output')
-        toplot = trained_rec[trained_out_id,:][:,trained_out_id]
-        toplot = toplot[toplot!=0]
+        toplot = np.sum(trained_rec[trained_out_id,:][:,trained_out_id],0)/len(trained_out_id)
+        #toplot = toplot[toplot!=0]
         #toplot=np.concatenate(toplot)
         ax[1,1].hist(toplot,histtype='step',label='output to output')
 
@@ -326,11 +322,11 @@ def plot_subpopulation_weights():
         ax[1,1].set_xlabel('i weights')
         ax[1,1].legend()
 
-        plt.suptitle("Nonzero recurrent weights based on output projection")
+        plt.suptitle("Nonzero recurrent input sum based on output projection")
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.7)
-        save_fname = savepath+exp_path+'/'+exp_path+'_rec_subpop_weights_i.png'
+        save_fname = savepath+exp_path+'/'+exp_path+'_rec_sum_subpop_weights_i.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
