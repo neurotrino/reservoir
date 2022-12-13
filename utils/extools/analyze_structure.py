@@ -438,7 +438,7 @@ def plot_in_v_rec_strength():
 
 def plot_in_v_out_strength():
 
-    experiments = get_experiments(data_dir, task_experiment_string)
+    experiments = get_experiments(data_dir, rate_experiment_string)
     for xdir in experiments:
         # separately for each experiment
         exp_path = xdir[-9:-1]
@@ -488,12 +488,12 @@ def plot_in_v_out_strength():
         ax[1,1].set_xlabel('sum input weights')
         ax[1,1].set_ylabel('output weights')
 
-        plt.suptitle("Evolution of input vs e output weights per neuron, task only")
+        plt.suptitle("Evolution of input vs e output weights per neuron, rate only")
 
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.7)
-        save_fname = savepath+exp_path+'/'+exp_path+'_input_v_output_e_quad_task.png'
+        save_fname = savepath+exp_path+'/'+exp_path+'_input_v_output_e_quad_rate.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
