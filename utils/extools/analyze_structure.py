@@ -257,42 +257,42 @@ def plot_subpopulation_weights():
         toplot = toplot[toplot!=0]
         ax[0,0].hist(toplot,histtype='step',label='output to output')
 
-        toplot = early_rec[early_not_id,early_not_id]
+        toplot = early_rec[early_not_id,:][:,early_not_id]
         toplot = toplot[toplot!=0]
         ax[0,1].hist(toplot,histtype='step',label='no output to no output')
-        toplot = early_rec[early_not_id,early_out_id]
+        toplot = early_rec[early_not_id,:][:,early_out_id]
         toplot = toplot[toplot!=0]
         ax[0,1].hist(toplot,histtype='step',label='no output to output')
-        toplot = early_rec[early_out_id,early_not_id]
+        toplot = early_rec[early_out_id,:][:,early_not_id]
         toplot = toplot[toplot!=0]
         ax[0,1].hist(toplot,histtype='step',label='output to no output')
-        toplot = early_rec[early_out_id,early_out_id]
+        toplot = early_rec[early_out_id,:][:,early_out_id]
         toplot = toplot[toplot!=0]
         ax[0,1].hist(toplot,histtype='step',label='output to output')
 
-        toplot = late_rec[late_not_id,late_not_id]
+        toplot = late_rec[late_not_id,:][:,late_not_id]
         toplot = toplot[toplot!=0]
         ax[1,0].hist(toplot,histtype='step',label='no output to no output')
-        toplot = late_rec[late_not_id,late_out_id]
+        toplot = late_rec[late_not_id,:][:,late_out_id]
         toplot = toplot[toplot!=0]
         ax[1,0].hist(toplot,histtype='step',label='no output to output')
-        toplot = late_rec[late_out_id,late_not_id]
+        toplot = late_rec[late_out_id,:][:,late_not_id]
         toplot = toplot[toplot!=0]
         ax[1,0].hist(toplot,histtype='step',label='output to no output')
-        toplot = late_rec[late_out_id,late_out_id]
+        toplot = late_rec[late_out_id,:][:,late_out_id]
         toplot = toplot[toplot!=0]
         ax[1,0].hist(toplot,histtype='step',label='output to output')
 
-        toplot = trained_rec[trained_not_id,trained_not_id]
+        toplot = trained_rec[trained_not_id,:][:,trained_not_id]
         toplot = toplot[toplot!=0]
         ax[1,1].hist(toplot,histtype='step',label='no output to no output')
-        toplot = trained_rec[trained_not_id,trained_out_id]
+        toplot = trained_rec[trained_not_id,:][:,trained_out_id]
         toplot = toplot[toplot!=0]
         ax[1,1].hist(toplot,histtype='step',label='no output to output')
-        toplot = trained_rec[trained_out_id,trained_not_id]
+        toplot = trained_rec[trained_out_id,:][:,trained_not_id]
         toplot = toplot[toplot!=0]
         ax[1,1].hist(toplot,histtype='step',label='output to no output')
-        toplot = trained_rec[trained_out_id,trained_out_id]
+        toplot = trained_rec[trained_out_id,:][:,trained_out_id]
         toplot = toplot[toplot!=0]
         ax[1,1].hist(toplot,histtype='step',label='output to output')
 
