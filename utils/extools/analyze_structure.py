@@ -129,6 +129,57 @@ def _nets_from_weights(w, num_exci=240):
 # Plot Stuff
 # ========= ========= ========= ========= ========= ========= =========
 
+def compare_change_over_training():
+    # plot the extent to which the weights in the network changed from naive to trained
+    # plot separately for the input, recurrent, and output layers
+
+    experiments = get_experiments(data_dir, rate_experiment_string)
+    for xdir in experiments:
+        # separately for each experiment
+        exp_path = xdir[-9:-1]
+        task_exp_path = 'rateloss_'+exp_path
+        if not os.path.isdir(os.path.join(savepath, task_exp_path)):
+            os.makedirs(os.path.join(savepath, task_exp_path))
+
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        if not os.path.isfile(os.path.join(np_dir, "991-1000.npz")):
+            continue
+
+        _, ax = plt.subplots(nrows=3, ncols=1)
+
+        naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
+        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+
+        naive_in = naive_data['tv0.postweights'][0]
+        trained_in = trained_data['tv0.postweights'][99]
+
+        naive_rec = naive_data['tv1.postweights'][0]
+        trained_rec = trained_data['tv1.postweights'][99]
+
+        naive_out = naive_data['tv2.postweights'][0]
+        trained_out = trained_data['tv2.postweights'][99]
+
+        sns.heatmap(trained_in-naive_in, ax=ax[0])
+        ax[0].set_title('input layer')
+        sns.heatmap(trained_rec-naive_rec, ax=ax[1])
+        ax[1].set_title('recurrent layer')
+        sns.heatmap(trained_out-naive_out, ax=ax[2])
+        ax[2].set_title('output layer')
+
+        plt.suptitle("Change in weights from naive to trained")
+
+        # Draw and save
+        plt.draw()
+        plt.subplots_adjust(wspace=0.4, hspace=0.7)
+        save_fname = savepath+task_exp_path+'/'+exp_path+'_change_in_w.png'
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
+
+
 def plot_input_channels():
     """TODO: document function"""
 
