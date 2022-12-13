@@ -133,7 +133,7 @@ def compare_change_over_training():
     # plot the extent to which the weights in the network changed from naive to trained
     # plot separately for the input, recurrent, and output layers
 
-    experiments = get_experiments(data_dir, rate_experiment_string)
+    experiments = get_experiments(data_dir, experiment_string)
     for xdir in experiments:
         # separately for each experiment
         exp_path = xdir[-9:-1]
