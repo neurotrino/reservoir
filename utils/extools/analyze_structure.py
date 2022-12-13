@@ -438,7 +438,7 @@ def plot_in_v_rec_strength():
 
 def plot_in_v_out_strength():
 
-    experiments = get_experiments(data_dir, rate_experiment_string)
+    experiments = get_experiments(data_dir, task_experiment_string)
     for xdir in experiments:
         # separately for each experiment
         exp_path = xdir[-9:-1]
@@ -469,10 +469,10 @@ def plot_in_v_out_strength():
 
         # sum inputs for each unit
 
-        ax[0,0].scatter(np.sum(naive_in,0)[0:e_end],naive_out.flatten()[0:e_end],s=2)
-        ax[0,1].scatter(np.sum(early_in,0)[0:e_end],early_out.flatten()[0:e_end],s=2)
-        ax[1,0].scatter(np.sum(late_in,0)[0:e_end],late_out.flatten()[0:e_end],s=2)
-        ax[1,1].scatter(np.sum(trained_in,0)[0:e_end],trained_out.flatten()[0:e_end],s=2)
+        ax[0,0].scatter(np.sum(naive_in,0)[e_end+1:i_end],naive_out.flatten()[e_end+1:i_end],s=2)
+        ax[0,1].scatter(np.sum(early_in,0)[e_end+1:i_end],early_out.flatten()[e_end+1:i_end],s=2)
+        ax[1,0].scatter(np.sum(late_in,0)[e_end+1:i_end],late_out.flatten()[e_end+1:i_end],s=2)
+        ax[1,1].scatter(np.sum(trained_in,0)[e_end+1:i_end],trained_out.flatten()[e_end+1:i_end],s=2)
 
         # Label and title
         ax[0,0].set_title('epoch 0')
@@ -488,12 +488,12 @@ def plot_in_v_out_strength():
         ax[1,1].set_xlabel('sum input weights')
         ax[1,1].set_ylabel('output weights')
 
-        plt.suptitle("Evolution of input vs e output weights per neuron, rate only")
+        plt.suptitle("Evolution of input vs i output weights per neuron, task only")
 
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.7)
-        save_fname = savepath+exp_path+'/'+exp_path+'_input_v_output_e_quad_rate.png'
+        save_fname = savepath+exp_path+'/'+exp_path+'_input_v_output_i_quad_task.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
