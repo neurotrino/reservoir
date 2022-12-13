@@ -221,15 +221,15 @@ def plot_subpopulation_sum_weights():
         late_data = np.load(os.path.join(np_dir, "241-250.npz"))
         trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
 
-        naive_rec = naive_data['tv1.postweights'][0][e_end+1:i_end,e_end+1:i_end]
-        early_rec = early_data['tv1.postweights'][0][e_end+1:i_end,e_end+1:i_end]
-        late_rec = late_data['tv1.postweights'][0][e_end+1:i_end,e_end+1:i_end]
-        trained_rec = trained_data['tv1.postweights'][0][e_end+1:i_end,e_end+1:i_end]
+        naive_rec = naive_data['tv1.postweights'][0][0:e_end,0:e_end]#[e_end+1:i_end,e_end+1:i_end]
+        early_rec = early_data['tv1.postweights'][0][0:e_end,0:e_end]#[e_end+1:i_end,e_end+1:i_end]
+        late_rec = late_data['tv1.postweights'][0][0:e_end,0:e_end]#[e_end+1:i_end,e_end+1:i_end]
+        trained_rec = trained_data['tv1.postweights'][0][0:e_end,0:e_end]#[e_end+1:i_end,e_end+1:i_end]
 
-        naive_out = naive_data['tv2.postweights'][0][e_end+1:i_end,:]
-        early_out = early_data['tv2.postweights'][0][e_end+1:i_end,:]
-        late_out = late_data['tv2.postweights'][0][e_end+1:i_end,:]
-        trained_out = trained_data['tv2.postweights'][0][e_end+1:i_end,:]
+        naive_out = naive_data['tv2.postweights'][0][0:e_end,:]#[e_end+1:i_end,:]
+        early_out = early_data['tv2.postweights'][0][0:e_end,:]#[e_end+1:i_end,:]
+        late_out = late_data['tv2.postweights'][0][0:e_end,:]#[e_end+1:i_end,:]
+        trained_out = trained_data['tv2.postweights'][0][0:e_end,:]#[e_end+1:i_end,:]
 
         # find the unit IDs which do project to output vs don't
         naive_not_id = np.where(naive_out==0)[0]
@@ -310,23 +310,23 @@ def plot_subpopulation_sum_weights():
 
         # Label and title
         ax[0,0].set_title('epoch 0')
-        ax[0,0].set_xlabel('i weights')
+        ax[0,0].set_xlabel('e weights')
         #ax[0,0].legend()
         ax[0,1].set_title('epoch 50')
-        ax[0,1].set_xlabel('i weights')
+        ax[0,1].set_xlabel('e weights')
         #ax[0,1].legend()
         ax[1,0].set_title('epoch 250')
-        ax[1,0].set_xlabel('i weights')
+        ax[1,0].set_xlabel('e weights')
         #ax[1,0].legend()
         ax[1,1].set_title('epoch 1000')
-        ax[1,1].set_xlabel('i weights')
+        ax[1,1].set_xlabel('e weights')
         ax[1,1].legend()
 
         plt.suptitle("Nonzero recurrent input sum based on output projection")
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.7)
-        save_fname = savepath+exp_path+'/'+exp_path+'_rec_sum_subpop_weights_i.png'
+        save_fname = savepath+exp_path+'/'+exp_path+'_rec_sum_subpop_weights_e.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
