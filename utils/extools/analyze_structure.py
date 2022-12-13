@@ -227,7 +227,7 @@ def plot_subpopulation_weights():
         trained_rec = trained_data['tv1.postweights'][0][e_end+1:i_end,e_end+1:i_end]
 
         naive_out = naive_data['tv2.postweights'][0][e_end+1:i_end,:]
-        early_out = early_data['tv2.postweights'][0]e_end+1:i_end,:]
+        early_out = early_data['tv2.postweights'][0][e_end+1:i_end,:]
         late_out = late_data['tv2.postweights'][0][e_end+1:i_end,:]
         trained_out = trained_data['tv2.postweights'][0][e_end+1:i_end,:]
 
