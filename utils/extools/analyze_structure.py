@@ -137,7 +137,6 @@ def compare_change_over_training():
     for xdir in experiments:
         # separately for each experiment
         exp_path = xdir[-9:-1]
-        rate_exp_path = "rateloss_"+exp_path
         if not os.path.isdir(os.path.join(savepath, exp_path)):
             os.makedirs(os.path.join(savepath, exp_path))
 
@@ -151,14 +150,14 @@ def compare_change_over_training():
         naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
         trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
 
-        naive_in = naive_data['tv0.postweights'][0]
-        trained_in = trained_data['tv0.postweights'][99]
+        naive_in = naive_data['tv0.postweights'][0][:,0:e_end]
+        trained_in = trained_data['tv0.postweights'][99][:,0:e_end]
 
-        naive_rec = naive_data['tv1.postweights'][0]
-        trained_rec = trained_data['tv1.postweights'][99]
+        naive_rec = naive_data['tv1.postweights'][0][0:e_end,0:e_end]
+        trained_rec = trained_data['tv1.postweights'][99][0:e_end,0:e_end]
 
-        naive_out = naive_data['tv2.postweights'][0]
-        trained_out = trained_data['tv2.postweights'][99]
+        naive_out = naive_data['tv2.postweights'][0][0:e_end,:]
+        trained_out = trained_data['tv2.postweights'][99][0:e_end,:]
 
         sns.heatmap(trained_in-naive_in, ax=ax[0])
         ax[0].set_title('input layer')
@@ -167,12 +166,12 @@ def compare_change_over_training():
         sns.heatmap(np.transpose(trained_out-naive_out), ax=ax[2])
         ax[2].set_title('output layer')
 
-        plt.suptitle("Change in weights from naive to dual-trained")
+        plt.suptitle("Change in e weights from naive to dual-trained")
 
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.7)
-        save_fname = savepath+rate_exp_path+'/'+exp_path+'_change_in_w.png'
+        save_fname = savepath+exp_path+'/'+exp_path+'_change_in_w_e.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
