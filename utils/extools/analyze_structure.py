@@ -137,6 +137,7 @@ def compare_change_over_training():
     for xdir in experiments:
         # separately for each experiment
         exp_path = xdir[-9:-1]
+        rate_exp_path = "rateloss_"+exp_path
         if not os.path.isdir(os.path.join(savepath, exp_path)):
             os.makedirs(os.path.join(savepath, exp_path))
 
