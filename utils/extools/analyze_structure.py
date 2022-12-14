@@ -133,11 +133,11 @@ def compare_change_over_training():
     # plot the extent to which the weights in the network changed from naive to trained
     # plot separately for the input, recurrent, and output layers
 
-    experiments = get_experiments(data_dir, rate_experiment_string)
+    experiments = get_experiments(data_dir, task_experiment_string)
     for xdir in experiments:
         # separately for each experiment
         exp_path = xdir[-9:-1]
-        task_exp_path = 'rateloss_'+exp_path
+        task_exp_path = 'taskloss_'+exp_path
         if not os.path.isdir(os.path.join(savepath, task_exp_path)):
             os.makedirs(os.path.join(savepath, task_exp_path))
 
@@ -167,12 +167,12 @@ def compare_change_over_training():
         sns.heatmap(np.transpose(trained_out-naive_out), ax=ax[2])
         ax[2].set_title('output layer')
 
-        plt.suptitle("Change in weights from naive to rate-trained")
+        plt.suptitle("Change in weights from naive to task-trained")
 
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.7)
-        save_fname = savepath+task_exp_path+'/'+exp_path+'_change_in_w_rate.png'
+        save_fname = savepath+task_exp_path+'/'+exp_path+'_change_in_w_task.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
