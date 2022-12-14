@@ -171,7 +171,7 @@ def compare_change_over_training():
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.7)
-        save_fname = savepath+exp_path+'/'+exp_path+'_change_in_w.png'
+        save_fname = savepath+rate_exp_path+'/'+exp_path+'_change_in_w.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
