@@ -253,11 +253,11 @@ def plot_subpopulation_sum_weights():
     # of the connections 1) amongst units that project to output, 2) amongst units that do NOT project to output, and
     # 3) between the two aforementioned subpopulations (both ways). The goal is to determine whether the two populations
     # impinge on each other at all. do the weight plots separately for e and i units.
-    experiments = get_experiments(data_dir, task_experiment_string)
+    experiments = get_experiments(data_dir, rate_experiment_string)
     for xdir in experiments:
-        task_exp_path = 'taskloss_'+xdir[-9:-1]
-        if not os.path.isdir(os.path.join(savepath, task_exp_path)):
-            os.makedirs(os.path.join(savepath, task_exp_path))
+        rate_exp_path = 'taskloss_'+xdir[-9:-1]
+        if not os.path.isdir(os.path.join(savepath, rate_exp_path)):
+            os.makedirs(os.path.join(savepath, rate_exp_path))
 
         np_dir = os.path.join(data_dir, xdir, "npz-data")
 
@@ -372,11 +372,11 @@ def plot_subpopulation_sum_weights():
         ax[1,1].set_xlabel('sum weights')
         ax[1,1].legend()
 
-        plt.suptitle("Task-trained recurrent input sum based on output projection")
+        plt.suptitle("Rate-trained recurrent input sum based on output projection")
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.7)
-        save_fname = savepath+task_exp_path+'/'+task_exp_path+'_rec_sum_subpop_weights_all_task.png'
+        save_fname = savepath+rate_exp_path+'/'+rate_exp_path+'_rec_sum_subpop_weights_all_rate.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
