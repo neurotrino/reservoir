@@ -255,7 +255,7 @@ def plot_subpopulation_sum_weights():
     # impinge on each other at all. do the weight plots separately for e and i units.
     experiments = get_experiments(data_dir, rate_experiment_string)
     for xdir in experiments:
-        rate_exp_path = 'taskloss_'+xdir[-9:-1]
+        rate_exp_path = 'rateloss_'+xdir[-9:-1]
         if not os.path.isdir(os.path.join(savepath, rate_exp_path)):
             os.makedirs(os.path.join(savepath, rate_exp_path))
 

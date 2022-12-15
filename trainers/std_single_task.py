@@ -797,6 +797,46 @@ class Trainer(BaseTrainer):
                 print("trainable_variables:")
                 print(k)
             """
+
+            # [SILENCING]
+            # if we are at the last epoch (1001th), silence parts accordingly
+            # permit update still for now, since that's a headache to detangle,
+            # but what we'll be looking for are the spike statistics and the loss
+            # pre-update within that first batch, so it is alright. the rapid
+            # ability to bounce back, if that happens, will be informative anyway.
+            if epoch_idx==n_epochs-1:
+                # determine the recurrent units that project to output
+                input_vals = self.model.cell.input_weights.numpy()
+                #output_vals = np.array(self.model.dense1.get_weights())
+                output_vals = self.model.dense1.oweights.numpy()
+                not_id = np.where(output_vals==0)[0]
+                out_id = np.where(output_vals!=0)[0]
+
+                # silencing inputs onto the units
+                if self.cfg["train"].silence_input_to_nonproj:
+                    input_vals[:,not_id] = 0
+                    self.model.cell.input_weights.assign(input_vals)
+
+                elif self.cfg["train"].silence_input_to_proj:
+                    input_vals[:,out_id] = 0
+                    self.model.cell.input_weights.assign(input_vals)
+
+                """
+                # now for silencing the units themselves (recurrent and to output)
+                elif self.cfg["train"].silence_nonproj:
+                    rec_vals = self.model.cell.recurrent_weights.numpy()
+                    rec_vals[not_id,:] = 0
+                    self.model.cell.recurrent_weights.assign(rec_vals)
+                    output_vals[not_id,:] = 0
+                    self.model.dense1.oweights.assign(output_vals)
+                elif self.cfg["train"].silence_proj:
+                    rec_vals = self.model.cell.recurrent_weights.numpy()
+                    rec_vals[out_id,:] = 0
+                    self.model.cell.recurrent_weights.assign(rec_vals)
+                    output_vals[out_id,:] = 0
+                    self.model.dense1.oweights.assign(output_vals)
+                """
+
             action_list = (
                 self.logger.on_epoch_begin()
             )  # put profiler in here?

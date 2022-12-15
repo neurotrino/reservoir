@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/run-batch30-dualloss-swaplabels
+        exp_dir: /data/experiments/run-batch30-dualloss-silenceintononproj
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -81,7 +81,7 @@
 
         // When enabled, the exp_dir will have a number suffixed to avoid
         // overwriting saved data
-        avoid_overwrite: true
+        avoid_overwrite: false
 
         // If avoid_overwrite is set to false, and exp_dir overwrites a
         // directory, this will purge the contents of the old directory. This
@@ -345,13 +345,19 @@
         output_learning_rate: 0.00001
 
         // number of trials in batch
-        batch_size: 30
+        batch_size: 1
 
         // number of batches in an epoch
-        n_batch: 10
+        n_batch: 1
 
         // number of epochs the model is fit over
-        n_epochs: 1000
+        n_epochs: 10
+
+        silence_input_to_proj: false
+
+        silence_input_to_nonproj: true
+
+        silencing_threshold: 1
 
         include_task_loss: true
 
