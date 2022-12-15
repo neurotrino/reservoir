@@ -348,12 +348,12 @@
         batch_size: 1
 
         // number of batches in an epoch
-        n_batch: 1
+        n_batch: 2
 
         // number of epochs the model is fit over
         n_epochs: 10
 
-        silence_input_to_proj: false
+        silence_input_to_proj : false
 
         silence_input_to_nonproj: true
 
