@@ -81,7 +81,7 @@
 
         // When enabled, the exp_dir will have a number suffixed to avoid
         // overwriting saved data
-        avoid_overwrite: false
+        avoid_overwrite: true
 
         // If avoid_overwrite is set to false, and exp_dir overwrites a
         // directory, this will purge the contents of the old directory. This
@@ -191,7 +191,7 @@
             // output schemes
             categorical_output: false
             likelihood_output: false
-            swap_output_labels: true
+            swap_output_labels: false
         }
     }
 
@@ -345,13 +345,13 @@
         output_learning_rate: 0.00001
 
         // number of trials in batch
-        batch_size: 2
+        batch_size: 30
 
         // number of batches in an epoch
-        n_batch: 2
+        n_batch: 10
 
         // number of epochs the model is fit over
-        n_epochs: 20
+        n_epochs: 1000
 
         silence_input_to_proj : false
 
