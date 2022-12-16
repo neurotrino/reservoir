@@ -345,13 +345,13 @@
         output_learning_rate: 0.00001
 
         // number of trials in batch
-        batch_size: 1
+        batch_size: 2
 
         // number of batches in an epoch
         n_batch: 2
 
         // number of epochs the model is fit over
-        n_epochs: 10
+        n_epochs: 20
 
         silence_input_to_proj : false
 
