@@ -821,20 +821,16 @@ class Trainer(BaseTrainer):
                     input_vals[:,out_id] = 0
                     self.model.cell.input_weights.assign(input_vals)
 
-                """
-                # now for silencing the units themselves (recurrent and to output)
+                # now for silencing the units themselves (recurrently, not to output)
                 elif self.cfg["train"].silence_nonproj:
                     rec_vals = self.model.cell.recurrent_weights.numpy()
                     rec_vals[not_id,:] = 0
                     self.model.cell.recurrent_weights.assign(rec_vals)
-                    output_vals[not_id,:] = 0
-                    self.model.dense1.oweights.assign(output_vals)
+
                 elif self.cfg["train"].silence_proj:
                     rec_vals = self.model.cell.recurrent_weights.numpy()
                     rec_vals[out_id,:] = 0
                     self.model.cell.recurrent_weights.assign(rec_vals)
-                    output_vals[out_id,:] = 0
-                    self.model.dense1.oweights.assign(output_vals)
                 """
 
             action_list = (
