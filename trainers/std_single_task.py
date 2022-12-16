@@ -831,7 +831,6 @@ class Trainer(BaseTrainer):
                     rec_vals = self.model.cell.recurrent_weights.numpy()
                     rec_vals[out_id,:] = 0
                     self.model.cell.recurrent_weights.assign(rec_vals)
-                """
 
             action_list = (
                 self.logger.on_epoch_begin()
