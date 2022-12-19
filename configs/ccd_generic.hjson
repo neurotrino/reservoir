@@ -357,7 +357,7 @@
 
         silence_input_to_nonproj: false
 
-        silence_nonproj: true
+        silence_nonproj: false
 
         silence_proj: false
 
