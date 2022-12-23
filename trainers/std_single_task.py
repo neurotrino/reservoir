@@ -813,7 +813,7 @@ class Trainer(BaseTrainer):
                 out_id = np.where(output_vals!=0)[0]
                 if self.cfg["train"].matched_silencing:
                     # randomly select the same number of not_id as out_id units for silencing
-                    not_id = np.random.choice(not_id, size=len(out_id))
+                    not_id = np.random.choice(not_id, size=len(out_id), replace=False)
 
                 # silencing inputs onto the units
                 if self.cfg["train"].silence_input_to_nonproj:
