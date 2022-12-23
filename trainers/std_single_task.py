@@ -811,6 +811,9 @@ class Trainer(BaseTrainer):
                 output_vals = self.model.dense1.oweights.numpy()
                 not_id = np.where(output_vals==0)[0]
                 out_id = np.where(output_vals!=0)[0]
+                if self.cfg["train"].matched_silencing:
+                    # randomly select the same number of not_id as out_id units for silencing
+                    not_id = np.random.choice(not_id, size=len(out_id))
 
                 # silencing inputs onto the units
                 if self.cfg["train"].silence_input_to_nonproj:
