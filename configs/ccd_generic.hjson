@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/run-batch30-dualloss-silenceintononproj_matched
+        exp_dir: /data/experiments/run-batch30-dualloss-silencerecnonproj_matched
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -355,9 +355,9 @@
 
         silence_input_to_proj : false
 
-        silence_input_to_nonproj: true
+        silence_input_to_nonproj: false
 
-        silence_nonproj: false
+        silence_nonproj: true
 
         silence_proj: false
 
