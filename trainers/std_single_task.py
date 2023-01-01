@@ -812,10 +812,10 @@ class Trainer(BaseTrainer):
                         n_excit=self.model.cell.num_ex,
                         n_inhib=self.model.cell.num_in,
                         n_out=self.model.n_out,
-                        p_from_e=self.model.cell.p_eo,
-                        p_from_i=self.model.cell.p_io,
+                        p_from_e=self.cfg["model"].cell.p_eo,
+                        p_from_i=self.cfg["model"].cell.p_io,
                         mu=self.model.cell.mu,
-                        sigma=self.model.cell.sigma,
+                        sigma=self.model.cell.sigma
                     )
                     new_oweights = output_connmat_generator.run_generator()
                     self.model.dense1.oweights.assign(
