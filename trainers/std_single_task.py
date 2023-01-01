@@ -17,6 +17,9 @@ import tensorflow.profiler.experimental as profiler
 from models.common import fano_factor
 from trainers.base import BaseTrainer
 from utils.misc import SwitchedDecorator
+from utils.connmat import (
+    ExInOutputMatrixGenerator as OMG,
+)
 
 DEBUG_MODE = True
 
@@ -797,6 +800,30 @@ class Trainer(BaseTrainer):
                 print("trainable_variables:")
                 print(k)
             """
+
+            # [REDRAW OUTPUT]
+            # if we are in the 10th-from-last epoch, redraw output weights entirely and keep training
+            if epoch_idx==n_epochs-2:
+                if self.cfg["train"].redraw_output:
+                    # redraw output from initial distribution
+                    # everything else about the network remains the same
+                    # output_vals = self.model.dense1.oweights.numpy()
+                    output_connmat_generator = OMG(
+                        n_excit=self.model.cell.num_ex,
+                        n_inhib=self.model.cell.num_in,
+                        n_out=self.model.n_out,
+                        p_from_e=self.model.cell.p_eo,
+                        p_from_i=self.model.cell.p_io,
+                        mu=self.model.cell.mu,
+                        sigma=self.model.cell.sigma,
+                    )
+                    new_oweights = output_connmat_generator.run_generator()
+                    self.model.dense1.oweights.assign(
+                        new_oweights * self.cfg["model"].cell.output_multiplier
+                    )
+                    # update output sign and target zeros potentially
+                    self.model.dense1.output_sign = tf.sign(self.model.dense1.oweights)
+                    self.model.dense1.output_target_zcount = len(tf.where(self.model.dense1.oweights == 0))
 
             # [SILENCING]
             # if we are at the last epoch (1001th), silence parts accordingly
