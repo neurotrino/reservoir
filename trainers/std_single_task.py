@@ -802,8 +802,8 @@ class Trainer(BaseTrainer):
             """
 
             # [REDRAW OUTPUT]
-            # if we are in the 10th-from-last epoch, redraw output weights entirely and keep training
-            if epoch_idx==n_epochs-2:
+            # if we are in the 50th-from-last epoch, redraw output weights entirely and keep training
+            if epoch_idx==n_epochs-100:
                 if self.cfg["train"].redraw_output:
                     # redraw output from initial distribution
                     # everything else about the network remains the same
