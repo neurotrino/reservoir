@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/run-batch30-dualloss-redrawoutput
+        exp_dir: /data/experiments/run-batch30-taskloss-redrawoutput
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -369,7 +369,7 @@
 
         include_task_loss: true
 
-        include_rate_loss: true
+        include_rate_loss: false
 
         include_synch_loss: false
 
