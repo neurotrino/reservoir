@@ -115,7 +115,7 @@ class LIF(Neuron):
                 size=int(input_weights_val.size * self.cfg["cell"].p_input)
                 )
             input_weights_val[zero_indices] = 0
-            input_weights_val.reshape([self.n_in, self.units])
+            input_weights_val = input_weights_val.reshape([self.n_in, self.units])
             self.input_weights.assign(input_weights_val)
         else:
             self.input_weights = self.add_weight(
