@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/run-batch30-taskloss-redrawoutput
+        exp_dir: /data/experiments/run-batch30-dualloss-softspecinput0.7
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -144,9 +144,10 @@
             frac_e: 0.8
 
             specify_input: false
+            soft_specify_input: true
 
             // These parameters are used for input-to-main layer if specify_input is true
-            p_input: 0.55 // this is the one we have been using, which is to excitatory units only
+            p_input: 0.7 // this is the one we have been using, which is to excitatory units only
             // we would use the following if we have input to both e and i units
             p_to_e: 0.2
             p_to_i: 0.1
@@ -351,9 +352,9 @@
         n_batch: 10
 
         // number of epochs the model is fit over
-        n_epochs: 1100
+        n_epochs: 1000
 
-        redraw_output: true
+        redraw_output: false
 
         silence_input_to_proj: false
 
@@ -369,7 +370,7 @@
 
         include_task_loss: true
 
-        include_rate_loss: false
+        include_rate_loss: true
 
         include_synch_loss: false
 

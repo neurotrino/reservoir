@@ -97,6 +97,25 @@ class LIF(Neuron):
             )
             input_weights_mat = self.input_connmat_generator.run_generator()
             self.input_weights.assign(input_weights_mat)
+        elif self.cfg["cell"].soft_specify_input:
+            self.input_weights = self.add_weight(
+                shape=(input_shape[-1], self.units),
+                initializer=tf.keras.initializers.RandomUniform(
+                    minval=0.0, maxval=0.4
+                ),
+                trainable=True,
+                name="input_weights",
+            )
+            # use the actual weights that we have from the random initialization
+            input_weights_val = np.array(self.input_weights.get_weights()) #np.random.uniform(low=0.0, high=0.4, size=[self.n_in,self.units])
+            # randomly choose a percentage (p_input) of the input weight matrix to become zeros
+            zero_indices = np.random.choice(
+                np.arange(input_weights_val.size),
+                replace=False,
+                size=int(input_weights_val.size * self.cfg["cell"].p_input)
+                )
+            input_weights_val[zero_indices] = 0
+            self.input_weights.assign(input_weights_val)
         else:
             self.input_weights = self.add_weight(
                 shape=(input_shape[-1], self.units),
