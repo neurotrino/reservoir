@@ -106,8 +106,8 @@ class LIF(Neuron):
                 trainable=True,
                 name="input_weights",
             )
-            # use the actual weights that we have from the random initialization
-            input_weights_val = np.array(self.input_weights.get_weights()) #np.random.uniform(low=0.0, high=0.4, size=[self.n_in,self.units])
+            # use the same weight dist that we have from the random uniform initialization
+            input_weights_val = np.random.uniform(low=0.0, high=0.4, size=[self.n_in,self.units])
             # randomly choose a percentage (p_input) of the input weight matrix to become zeros
             zero_indices = np.random.choice(
                 np.arange(input_weights_val.size),
