@@ -60,7 +60,7 @@ class Neuron(tf.keras.layers.Layer):
         # Number of zeros to try to maintain if rewiring is enabled
         self._target_zcount = None
 
-        #self.input_target_zcount = None
+        self.input_target_zcount = None
 
     def build(self, input_shape):
         """Setup  connectivity parameters and IMG and CMG."""
