@@ -122,7 +122,7 @@ class LIF(Neuron):
             self.input_weights.assign(input_weights_val)
 
             # get which units actually receive input
-            self.input_id = np.where(input_weights_vals!=0)[0]
+            self.input_id = np.where(input_weights_val!=0)[0]
 
         # save initial input weights
         np.save(
