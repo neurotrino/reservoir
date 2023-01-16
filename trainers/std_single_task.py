@@ -384,9 +384,9 @@ class Trainer(BaseTrainer):
         )
 
         # THIS SECTION parallels how sparsity is maintained for the RSNN even in the absence of rewiring
-        # If the sign of an output weight changed from the original (or updated from last step)
+        # If the sign of an input or output weight changed from the original (or updated from last step)
         # or the weight is no longer 0, make the weight 0.
-        # output_sign contains 0's for former 0's, +1 for former positives, and -1 for former negatives.
+        # output_sign and input_sign contains 0's for former 0's, +1 for former positives, and -1 for former negatives.
         #
         self.model.dense1.oweights.assign(
             tf.where(
@@ -396,6 +396,16 @@ class Trainer(BaseTrainer):
                 0,
             )
         )
+
+        # maintain sparsity of input weights (whether rewiring or not)
+        if self.cfg["model"].cell.specify_input:
+            self.model.cell.input_weights.assign(
+                tf.where(
+                    self.model.cell.input_sign * self.model.cell.input_weights > 0,
+                    self.model.cell.input_weights,
+                    0,
+                )
+            )
 
         # [!] prefer to have something like "for cell in model.cells,
         #     if cell.rewiring then cell.rewire" to better generalize;
@@ -427,11 +437,23 @@ class Trainer(BaseTrainer):
             # 4. loops through again in next update, thus canceling out all new zeros
             # Thus this script now ONLY happens if rewiring = false (initial zeros must stay zero)
 
+        # rewire output weights
         if (
             self.cfg["train"].output_trainable
             and self.cfg["model"].cell.output_rewiring
         ):
             self.model.dense1.rewire()
+
+        # rewire input weights
+        # you can imagine not wanting to rewire input weights, especially if you
+        # would want to maintain separation between input and output throughout
+        # the course of training; easier to simply not rewire the input 
+        if (
+            self.cfg["train"].input_trainable
+            and self.cfg["model"].cell.specify_input
+            and self.cfg["model"].cell.input_rewiring
+        ):
+            self.model.cell.input_rewire()
 
         # ┬───────────────────────────────────────────────────────────────────╮
         # ┤ Post-Step Logging                                                 │

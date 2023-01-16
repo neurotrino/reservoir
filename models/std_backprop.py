@@ -184,7 +184,7 @@ class ModifiedDense(tf.keras.layers.Layer):
             self.oweights.assign_add(x)
             logging.debug(
                 f"{tf.math.count_nonzero(self.oweights)} non-zeroes in "
-                + " recurrent layer after adjustments"
+                + " output layer after adjustments"
             )
 
         # update output_sign

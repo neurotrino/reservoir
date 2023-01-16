@@ -88,7 +88,7 @@ class LIF(Neuron):
         """
         Neuron.build(self, input_shape)
 
-        if self.cfg["cell"].specify_input:
+        """if self.cfg["cell"].specify_lognormal_input:
             self.input_weights = self.add_weight(
                 shape=(self.cfg["data"].n_input, self.units),
                 initializer=tf.keras.initializers.Orthogonal(gain=0.7),
@@ -96,36 +96,31 @@ class LIF(Neuron):
                 name="input_weights",
             )
             input_weights_mat = self.input_connmat_generator.run_generator()
-            self.input_weights.assign(input_weights_mat)
-        elif self.cfg["cell"].soft_specify_input:
-            self.input_weights = self.add_weight(
-                shape=(input_shape[-1], self.units),
-                initializer=tf.keras.initializers.RandomUniform(
-                    minval=0.0, maxval=0.4
-                ),
-                trainable=True,
-                name="input_weights",
-            )
+            self.input_weights.assign(input_weights_mat)"""
+
+        # not specifying input; just random uniform
+        self.input_weights = self.add_weight(
+            shape=(input_shape[-1], self.units),
+            initializer=tf.keras.initializers.RandomUniform(
+                minval=0.0, maxval=0.4
+            ),
+            trainable=self.cfg["train"].input_trainable,
+            name="input_weights",
+        )
+        # additional step to set input weights to sparse specified
+        if self.cfg["cell"].specify_input:
             # use the same weight dist that we have from the random uniform initialization
             input_weights_val = np.random.uniform(low=0.0, high=0.4, size=[self.n_in*self.units])
-            # randomly choose a percentage (p_input) of the input weight matrix to become zeros
+            # randomly choose a percentage (1-p_input) of the input weight matrix to become zeros
             zero_indices = np.random.choice(
                 np.arange(input_weights_val.size),
                 replace=False,
-                size=int(input_weights_val.size * self.cfg["cell"].p_input)
+                size=int(input_weights_val.size * (1-self.cfg["cell"].p_input))
                 )
             input_weights_val[zero_indices] = 0
             input_weights_val = input_weights_val.reshape([self.n_in, self.units])
             self.input_weights.assign(input_weights_val)
-        else:
-            self.input_weights = self.add_weight(
-                shape=(input_shape[-1], self.units),
-                initializer=tf.keras.initializers.RandomUniform(
-                    minval=0.0, maxval=0.4
-                ),
-                trainable=True,
-                name="input_weights",
-            )
+
         # save initial input weights
         np.save(
             os.path.join(
@@ -163,7 +158,7 @@ class LIF(Neuron):
                 [self.input_weights.value(), initial_weights_mat]
             )
 
-        # Store neurons' signs
+        # Store recurrent weights' signs
         if self.freewiring:
             # Store using +1 for excitatory, -1 for inhibitory
             wmat = -1 * np.ones([self.units, self.units])
@@ -172,6 +167,10 @@ class LIF(Neuron):
         else:
             # as above but 0 for zeros
             self.rec_sign = tf.sign(self.recurrent_weights)
+
+        # store input weights' signs, where 0s are 0s
+        if self.cfg["cell"].specify_input:
+            self.input_sign = tf.sign(self.input_weights)
 
     def call(self, inputs, state):
         """

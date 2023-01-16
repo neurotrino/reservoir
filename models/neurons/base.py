@@ -298,3 +298,61 @@ class ExIn(object):
 
         # update rec_sign
         self.rec_sign = tf.sign(self.recurrent_weights)
+
+    def input_rewire(self):
+        if self.input_target_zcount is None:
+            # When no target number of zeros is recorded, count how
+            # many zeros there currently are, save that for future
+            # comparison, and return
+            self.input_target_zcount = len(tf.where(self.input_weights == 0))
+            logging.debug(
+                f"input matrix will maintain "
+                + f"{self.input_target_zcount} zeros"
+            )
+            return
+
+        zero_indices = tf.where(self.input_weights == 0)
+        num_new_zeros = tf.shape(zero_indices)[0] - self.input_target_zcount
+
+        # Replace any new zeros (not necessarily in the same spot)
+        if num_new_zeros > 0:
+            logging.debug(
+                f"found {num_new_zeros} new zeros for a total of "
+                + f"{len(zero_indices)} zeros"
+            )
+
+            # Generate a list of non-zero replacement weights
+            new_weights = np.random.lognormal(
+                self.mu, self.sigma, num_new_zeros
+            )
+            new_weights[np.where(new_weights == 0)] += 0.01
+
+            # Randomly select zero-weight indices (without replacement)
+            # [?] use tf instead of np
+            meta_indices = np.random.choice(
+                len(zero_indices), num_new_zeros, False
+            )
+            zero_indices = tf.gather(zero_indices, meta_indices)
+
+            # Update input weights
+            x = tf.tensor_scatter_nd_update(
+                tf.zeros(self.input_weights.shape), zero_indices, new_weights
+            )
+            logging.debug(
+                f"{tf.math.count_nonzero(x)} non-zero values generated in "
+                + "input weight patch"
+            )
+
+            # as of version 2.6.0, tensorflow does not support in-place
+            # operation of tf.tensor_scatter_nd_update(), so we just
+            # add it to our recurrent weights, which works because
+            # scatter_nd_update, only has values in places where
+            # recurrent weights are zero
+            self.input_weights.assign_add(x)
+            logging.debug(
+                f"{tf.math.count_nonzero(self.input_weights)} non-zeroes in "
+                + " input layer after adjustments"
+            )
+
+        # update input_sign
+        self.input_sign = tf.sign(self.input_weights)

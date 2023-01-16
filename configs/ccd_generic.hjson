@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Manditory variable.
-        exp_dir: /data/experiments/run-batch30-dualloss-softspecinput0.3
+        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.3-rewire
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -129,6 +129,8 @@
 
             output_rewiring: true
 
+            input_rewiring: true
+
             units: 300   // number of units in the layer
 
             thr: -50.4   // threshold [mV]
@@ -143,8 +145,9 @@
 
             frac_e: 0.8
 
-            specify_input: false
-            soft_specify_input: true
+            specify_input: true
+            soft_specify_input: false
+            specify_lognormal_input: false
 
             // These parameters are used for input-to-main layer if specify_input is true
             p_input: 0.3 // this is the one we have been using, which is to excitatory units only
