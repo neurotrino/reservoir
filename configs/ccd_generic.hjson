@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Mandatory variable.
-        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.7-rewire
+        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.3-rewire
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -150,7 +150,7 @@
             specify_lognormal_input: false
 
             // These parameters are used for input-to-main layer if specify_input is true
-            p_input: 0.7 // this is the one we have been using, which is to excitatory units only
+            p_input: 0.3 // this is the one we have been using, which is to excitatory units only
             // we would use the following if we have input to both e and i units
             p_to_e: 0.2
             p_to_i: 0.1
