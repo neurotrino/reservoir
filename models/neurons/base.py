@@ -324,7 +324,7 @@ class ExIn(object):
             )
 
             # Generate a list of uniform replacement weights
-            if not self.cfg["model"].cell.specify_lognormal_input:
+            if not self.cfg["cell"].specify_lognormal_input:
                 new_weights = np.random.uniform(low=0.0, high=0.4, size=[num_new_zeros])
             new_weights[np.where(new_weights == 0)] += 0.01
 
