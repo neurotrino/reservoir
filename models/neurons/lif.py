@@ -149,14 +149,14 @@ class LIF(Neuron):
             initial_weights_mat,
         )
 
-        if self.cfg["cell"].specify_input:
+        """if self.cfg["cell"].specify_input:
             # just set main weights, as input weights were set earlier
             self.recurrent_weights.assign_add(initial_weights_mat)
-        else:
-            # set both input and main layer weights
-            self.set_weights(
-                [self.input_weights.value(), initial_weights_mat]
-            )
+        else:"""
+        # set both input and main layer weights
+        self.set_weights(
+            [self.input_weights.value(), initial_weights_mat]
+        )
 
         # Store recurrent weights' signs
         if self.freewiring:
