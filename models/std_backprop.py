@@ -126,7 +126,7 @@ class ModifiedDense(tf.keras.layers.Layer):
         return tf.einsum("btj,jk->btk", inputs, self.oweights)
 
     @tf.function
-    def rewire(self):
+    def rewire(self, input_id=None):
         if self.output_target_zcount is None:
             # When no target number of zeros is recorded, count how
             # many zeros there currently are, save that for future
@@ -155,11 +155,18 @@ class ModifiedDense(tf.keras.layers.Layer):
             new_weights[np.where(new_weights == 0)] += 0.01
 
             # Randomly select zero-weight indices (without replacement)
+            # if we want no in-to-out direct path, do not permit selection from
+            # the input_ids that happen to also be zero
             # [?] use tf instead of np
             meta_indices = np.random.choice(
                 len(zero_indices), num_new_zeros, False
             )
-            zero_indices = tf.gather(zero_indices, meta_indices)
+            if cfg["model"].cell.no_input_to_output:
+                # do not use any of the input ids that happen to be zero originators for the output 
+                noninput_zero_indices = np.setdiff1d(zero_indices, input_id)
+                zero_indices = tf.gather(noninput_zero_indices, meta_indices)
+            else:
+                zero_indices = tf.gather(zero_indices, meta_indices)
 
             # Invert and scale inhibitory neurons
             # [!] Eventually prefer to use .in_mask instead of a loop

@@ -357,3 +357,7 @@ class ExIn(object):
 
         # update input_sign
         self.input_sign = tf.sign(self.input_weights)
+
+        # update ids of units that actually receive input
+        input_weights_vals = self.input_weights.numpy()
+        self.input_id = np.where(input_weights_vals!=0)[0]

@@ -443,11 +443,19 @@ class Trainer(BaseTrainer):
             and self.cfg["model"].cell.output_rewiring
         ):
             self.model.dense1.rewire()
+        elif (
+            self.cfg["train"].output_trainable
+            and self.cfg["model"].cell.output_rewiring
+            and self.cfg["model"].cell.specify_input
+            and self.cfg["model"].cell.no_input_to_output
+        ):
+            self.model.dense1.rewire(self.model.cell.input_id)
 
         # rewire input weights
         # you can imagine not wanting to rewire input weights, especially if you
         # would want to maintain separation between input and output throughout
-        # the course of training; easier to simply not rewire the input 
+        # the course of training; easier to simply not rewire the input.
+        # however then we might get sparser and sparser, and we don't want that either.
         if (
             self.cfg["train"].input_trainable
             and self.cfg["model"].cell.specify_input
