@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Mandatory variable.
-        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.7
+        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.7-rewire
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -129,7 +129,7 @@
 
             output_rewiring: true
 
-            input_rewiring: false
+            input_rewiring: true
 
             units: 300   // number of units in the layer
 
