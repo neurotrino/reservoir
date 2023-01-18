@@ -112,8 +112,8 @@ class LIF(Neuron):
             if self.cfg["cell"].two_input_populations:
                 # specify two input matrices, one of which only goes to units 1-150;
                 # the other only goes to units 151-300
-                in_pop_size = self.n_in/2
-                rec_pop_size = self.units/2
+                in_pop_size = int(self.n_in/2)
+                rec_pop_size = int(self.units/2)
                 input_weights_0 = np.random.uniform(low=0.0, high=0.4, size=[in_pop_size*rec_pop_size])
                 zero_indices_0 = np.random.choice(
                     np.arange(input_weights_0.size),
