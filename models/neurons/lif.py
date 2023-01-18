@@ -109,17 +109,49 @@ class LIF(Neuron):
         )
         # additional step to set input weights to sparse specified
         if self.cfg["cell"].specify_input:
-            # use the same weight dist that we have from the random uniform initialization
-            input_weights_val = np.random.uniform(low=0.0, high=0.4, size=[self.n_in*self.units])
-            # randomly choose a percentage (1-p_input) of the input weight matrix to become zeros
-            zero_indices = np.random.choice(
-                np.arange(input_weights_val.size),
-                replace=False,
-                size=int(input_weights_val.size * (1-self.cfg["cell"].p_input))
+            if self.cfg["cell"].two_input_populations:
+                # specify two input matrices, one of which only goes to units 1-150;
+                # the other only goes to units 151-300
+                in_pop_size = self.n_in/2
+                rec_pop_size = self.units/2
+                input_weights_0 = np.random.uniform(low=0.0, high=0.4, size=[in_pop_size*rec_pop_size])
+                zero_indices_0 = np.random.choice(
+                    np.arange(input_weights_0.size),
+                    replace=False,
+                    size=int(input_weights_0.size * (1-self.cfg["cell"].p_input))
                 )
-            input_weights_val[zero_indices] = 0
-            input_weights_val = input_weights_val.reshape([self.n_in, self.units])
-            self.input_weights.assign(input_weights_val)
+                input_weights_0[zero_indices_0] = 0
+                input_weights_0 = input_weights_0.reshape([in_pop_size,rec_pop_size])
+
+                input_weights_1 = np.random.uniform(low=0.0, high=0.4, size=[in_pop_size*rec_pop_size])
+                zero_indices_1 = np.random.choice(
+                    np.arange(input_weights_1.size),
+                    replace=False,
+                    size=int(input_weights_1.size * (1-self.cfg["cell"].p_input))
+                )
+                input_weights_1[zero_indices_1] = 0
+                input_weights_1 = input_weights_1.reshape([in_pop_size,rec_pop_size])
+
+                # put them together
+                input_weights_val = np.zeros([self.n_in,self.units])
+                # upper left quad
+                input_weights_val[:in_pop_size,:rec_pop_size] = input_weights_0
+                # lower right quad
+                input_weights_val[in_pop_size:,rec_pop_size:] = input_weights_1
+                self.input_weights.assign(input_weights_val)
+
+            else:
+                # use the same weight dist that we have from the random uniform initialization
+                input_weights_val = np.random.uniform(low=0.0, high=0.4, size=[self.n_in*self.units])
+                # randomly choose a percentage (1-p_input) of the input weight matrix to become zeros
+                zero_indices = np.random.choice(
+                    np.arange(input_weights_val.size),
+                    replace=False,
+                    size=int(input_weights_val.size * (1-self.cfg["cell"].p_input))
+                )
+                input_weights_val[zero_indices] = 0
+                input_weights_val = input_weights_val.reshape([self.n_in, self.units])
+                self.input_weights.assign(input_weights_val)
 
             # get which units actually receive input
             self.input_id = np.where(input_weights_val!=0)[0]
