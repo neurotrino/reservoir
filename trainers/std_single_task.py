@@ -861,7 +861,7 @@ class Trainer(BaseTrainer):
             # but what we'll be looking for are the spike statistics and the loss
             # pre-update within that first batch, so it is alright. the rapid
             # ability to bounce back, if that happens, will be informative anyway.
-            if epoch_idx==n_epochs-100:
+            if epoch_idx==n_epochs-1:
                 # determine the recurrent units that project to output
                 input_vals = self.model.cell.input_weights.numpy()
                 #output_vals = np.array(self.model.dense1.get_weights())

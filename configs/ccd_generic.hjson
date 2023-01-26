@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Mandatory variable.
-        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.3-rewire-silenceintoproj
+        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.3-rewire-silenceintoproj-test
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -355,13 +355,13 @@
         output_learning_rate: 0.00001
 
         // number of trials in batch
-        batch_size: 30
+        batch_size: 1
 
         // number of batches in an epoch
-        n_batch: 10
+        n_batch: 1
 
         // number of epochs the model is fit over
-        n_epochs: 1100
+        n_epochs: 10
 
         redraw_output: false
 
