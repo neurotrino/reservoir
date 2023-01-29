@@ -360,4 +360,7 @@ class ExIn(object):
 
         # update ids of units that actually receive input
         input_weights_vals = self.input_weights.numpy()
-        self.input_id = np.where(input_weights_vals!=0)[0]
+        # there are redundancies in input_id, but ultimately that is okay;
+        # none of the values that occur (regardless of how many times) in input_id
+        # are allowed to also have output projections
+        self.input_id = np.unique(np.where(input_weights_vals!=0)[1])
