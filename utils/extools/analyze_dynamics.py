@@ -203,13 +203,13 @@ def plot_input_channel_rates():
             if not 'coh0_channel_trial_rates' in locals():
                 coh0_channel_trial_rates = np.average(x[i][coh0_idx],0)
             else:
-                coh0_channel_trial_rates = np.hstack([coh0_channel_trial_rates,np.average(x[i][coh0_idx],0)])
+                coh0_channel_trial_rates = np.vstack([coh0_channel_trial_rates,np.average(x[i][coh0_idx],0)])
 
         if len(coh1_idx)>0:
             if not 'coh1_channel_trial_rates' in locals():
                 coh1_channel_trial_rates = np.average(x[i][coh1_idx],0)
             else:
-                coh1_channel_trial_rates = np.hstack([coh1_channel_trial_rates,np.average(x[i][coh1_idx],0)])
+                coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(x[i][coh1_idx],0)])
 
     coh0_rates = np.average(coh0_channel_trial_rates,0)
     coh1_rates = np.average(coh1_channel_trial_rates,0)
