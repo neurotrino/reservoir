@@ -121,7 +121,7 @@ class LIF(Neuron):
                     # the first of which only goes from coh1_pop to units 1-150
                     # the second of which only goes from coh0_pop to units 151-300
                     input_weights_val = np.zeros([self.n_in,self.units])
-                    for i in in range(0,self.n_in):
+                    for i in range(0,self.n_in):
                         # generate a sample vector of 150 weight values
                         sample_input_vals = np.random.uniform(low=0.0, high=0.4, size=[rec_pop_size])
                         sample_zero_indices = np.random.choice(np.arange(sample_input_vals.size),replace=False,size=int(sample_input_vals.size * (1-self.cfg["cell"].p_input)))
