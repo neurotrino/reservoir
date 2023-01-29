@@ -193,7 +193,7 @@ def plot_input_channel_rates():
     y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None]
 
     # for each of 600 trials
-    for i in np.shape(y)[0]:
+    for i in range(0,np.shape(y)[0]):
     # for each of 4080 time steps
     # determine if coherence 1 or 0
         coh0_idx = np.where(y[i]==0)[0]

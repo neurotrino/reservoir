@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Mandatory variable.
-        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.2-rewire-nointoout-twopops
+        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.2-rewire-nointoout-twopopsbyrate
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -135,7 +135,7 @@
 
             two_input_populations: true
 
-            two_input_populations_by_rate: false
+            two_input_populations_by_rate: true
 
             units: 300   // number of units in the layer
 
