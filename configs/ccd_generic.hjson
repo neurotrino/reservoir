@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Mandatory variable.
-        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.3-twopops-test
+        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.3-rewire-nointoout-test
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -129,11 +129,11 @@
 
             output_rewiring: true
 
-            input_rewiring: false
+            input_rewiring: true
 
-            no_input_to_output: false // none of the units which receive input can be the same units that project to output
+            no_input_to_output: true // none of the units which receive input can be the same units that project to output
 
-            two_input_populations: true
+            two_input_populations: false
 
             two_input_populations_by_rate: false
 
