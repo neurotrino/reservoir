@@ -10,6 +10,8 @@ import sys
 import seaborn as sns
 import networkx as nx
 
+from scipy.sparse import load_npz
+
 # ---- internal imports -------------------------------------------------------
 sys.path.append("../")
 sys.path.append("../../")
@@ -33,6 +35,10 @@ num_epochs = 1000
 epochs_per_file = 10
 e_end = 241
 i_end = 300
+
+n_input = 16
+seq_len = 4080
+
 savepath = '/data/results/experiment1/'
 
 e_only = True
@@ -177,6 +183,39 @@ def safely_make_joint_dirpath(*args, **kwargs):
 # =============================================================================
 #  Plot Stuff
 # =============================================================================
+
+def plot_input_channel_rates():
+    spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
+    x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
+    # determine each of the 16 channels' average rates over 600 x 4080 trials
+    # separate according to coherence level!
+    coherences = load_npz('/data/datasets/CNN_outputs/ch8_abs_ccd_coherences.npz')
+    y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None]
+
+    # for each of 600 trials
+    for i in np.shape(y)[0]:
+    # for each of 4080 time steps
+    # determine if coherence 1 or 0
+        coh0_idx = np.where(y[i]==0)[0]
+        coh1_idx = np.where(y[i]==1)[0]
+    # take average rates and append
+        if len(coh0_idx)>0:
+            if not coh0_channel_trial_rates:
+                coh0_channel_trial_rates = np.average(x[i][coh0_idx],0)
+            else:
+                coh0_channel_trial_rates = np.hstack([coh0_channel_trial_rates,np.average(x[i][coh0_idx],0)])
+
+        if len(coh1_idx)>0:
+            if not coh1_channel_trial_rates:
+                coh1_channel_trial_rates = np.average(x[i][coh1_idx],0)
+            else:
+                coh1_channel_trial_rates = np.hstack([coh1_channel_trial_rates,np.average(x[i][coh1_idx],0)])
+
+    coh0_rates = np.average(coh0_channel_trial_rates,0)
+    coh1_rates = np.average(coh1_channel_trial_rates,0)
+
+    return [coh0_rates,coh1_rates]
+
 
 def output_projection(
     data_dir=LOAD_DIR,
