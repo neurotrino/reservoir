@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Mandatory variable.
-        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.3-rewire-nointoout-test
+        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.3-rewire-nointoout-twopops-test
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -133,7 +133,7 @@
 
             no_input_to_output: true // none of the units which receive input can be the same units that project to output
 
-            two_input_populations: false
+            two_input_populations: true
 
             two_input_populations_by_rate: false
 
@@ -355,13 +355,13 @@
         output_learning_rate: 0.00001
 
         // number of trials in batch
-        batch_size: 1
+        batch_size: 10
 
         // number of batches in an epoch
-        n_batch: 1
+        n_batch: 10
 
         // number of epochs the model is fit over
-        n_epochs: 10
+        n_epochs: 100
 
         redraw_output: false
 
