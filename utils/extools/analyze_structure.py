@@ -168,7 +168,7 @@ def compare_specinput_w_overtraining(np_dir='/data/experiments/run-batch30-duall
     plt.clf()
     plt.close()
 
-def compare_specinput_w_overtraining(np_dir='/data/experiments/run-batch30-dualloss-specinput0.2-rewire-nointoout-twopopsbyrate [2023-01-29 23.17.58]/npz-data'):
+def compare_dual_specinput_w_overtraining(np_dir='/data/experiments/run-batch30-dualloss-specinput0.2-rewire-nointoout-twopopsbyrate [2023-01-29 23.17.58]/npz-data'):
     # in the cases now of specifying input at 0.2 connectivity with separate populations,
     # plot weight changes over time for all components of the network
     _, ax = plt.subplots(nrows=3, ncols=2)
