@@ -334,6 +334,23 @@ class ExIn(object):
                 len(zero_indices), num_new_zeros, False
             )
             zero_indices = tf.gather(zero_indices, meta_indices)
+            """
+            if cfg["model"].two_input_populations:
+                # make sure we do not rewire across populations
+                # actually... if they want to they can do that.
+                noninput_zero_indices = np.setdiff1d(zero_indices, input_id)
+                # find indices that ARE zero indices and also NOT receiving input
+                # and thereby valid choices for rewiring the output layer
+                # (in this way the output and input layers become more separated
+                # over the course of training, even tho they start out with no
+                # constraints on overlap; revisit that later)
+                if len(noninput_zero_indices) < num_new_zeros:
+                    # figure out how many more indices are required
+                    compromise_count = num_new_zeros - len(noninput_zero_indices)
+                    noninput_zero_indices = np.setdiff1d(zero_indices, np.random.shuffle(input_id)[:len(input_id)-compromise_count])
+                zero_indices = tf.gather(noninput_zero_indices, meta_indices)
+            else:
+                zero_indices = tf.gather(zero_indices, meta_indices)"""
 
             # Update input weights
             x = tf.tensor_scatter_nd_update(

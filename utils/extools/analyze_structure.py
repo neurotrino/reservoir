@@ -129,6 +129,46 @@ def _nets_from_weights(w, num_exci=240):
 # Plot Stuff
 # ========= ========= ========= ========= ========= ========= =========
 
+
+def compare_specinput_w_overtraining(np_dir='"/data/experiments/run-batch30-dualloss-specinput0.2-rewire-nointoout-twopopsbyrate [2023-01-29 23.17.58]/npz_data"'):
+    # in the cases now of specifying input at 0.2 connectivity with separate populations,
+    # plot weight changes over time for all components of the network
+    _, ax = plt.subplots(nrows=3, ncols=1)
+
+    naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
+    trained_data = np.load(os.path.join(np_dir,"171-180.npz"))
+    # trained data for not by rate on Jan 31st, 2023
+    #trained_data = np.load(os.path.join(np_dir,"431-440.npz"))
+
+    naive_in = naive_data['tv0.postweights'][0]#[:,0:e_end]
+    trained_in = trained_data['tv0.postweights'][99]#[:,0:e_end]
+
+    naive_rec = naive_data['tv1.postweights'][0]#[0:e_end,0:e_end]
+    trained_rec = trained_data['tv1.postweights'][99]#[0:e_end,0:e_end]
+
+    naive_out = naive_data['tv2.postweights'][0]#[0:e_end,:]
+    trained_out = trained_data['tv2.postweights'][99]#[0:e_end,:]
+
+    sns.heatmap(trained_in-naive_in, ax=ax[0])
+    ax[0].set_title('input layer')
+    sns.heatmap(trained_rec-naive_rec, ax=ax[1])
+    ax[1].set_title('recurrent layer')
+    sns.heatmap(np.transpose(trained_out-naive_out), ax=ax[2])
+    ax[2].set_title('output layer')
+
+    plt.suptitle("Change in weights; two input pops by rate")
+
+    # Draw and save
+    plt.draw()
+    plt.subplots_adjust(wspace=0.4, hspace=0.7)
+    save_fname = savepath+'/specinput0.2/prelim_twopops_change_in_w.png'
+    plt.savefig(save_fname,dpi=300)
+
+    # Teardown
+    plt.clf()
+    plt.close()
+
+
 def compare_change_over_training():
     # plot the extent to which the weights in the network changed from naive to trained
     # plot separately for the input, recurrent, and output layers
