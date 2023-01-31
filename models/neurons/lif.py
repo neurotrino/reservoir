@@ -111,7 +111,8 @@ class LIF(Neuron):
         if self.cfg["cell"].specify_input:
             if self.cfg["cell"].two_input_populations:
                 in_pop_size = int(self.n_in/2)
-                rec_pop_size = int(self.units/2)
+                e_rec_pop_size = int(self.num_ex/2)
+                i_rec_pop_size = int(self.num_in/2)
                 if self.cfg["cell"].two_input_populations_by_rate:
                     # separate based on greater rate of responses for one coherence level vs the other
                     # indices empirically determined from '/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz'
@@ -122,15 +123,27 @@ class LIF(Neuron):
                     # the second of which only goes from coh0_pop to units 151-300
                     input_weights_val = np.zeros([self.n_in,self.units])
                     for i in range(0,self.n_in):
-                        # generate a sample vector of 150 weight values
-                        sample_input_vals = np.random.uniform(low=0.0, high=0.4, size=[rec_pop_size])
-                        sample_zero_indices = np.random.choice(np.arange(sample_input_vals.size),replace=False,size=int(sample_input_vals.size * (1-self.cfg["cell"].p_input)))
-                        sample_input_vals[sample_zero_indices] = 0
+                        # generate a sample vector of 120 to-excitatory input weight values
+                        e_sample_input_vals = np.random.uniform(low=0.0, high=0.4, size=[e_rec_pop_size])
+                        e_sample_zero_indices = np.random.choice(np.arange(e_sample_input_vals.size),replace=False,size=int(e_sample_input_vals.size * (1-self.cfg["cell"].p_input)))
+                        e_sample_input_vals[e_sample_zero_indices] = 0
+                        # generate a sample vector of 30 to-inhibitory input weight values
+                        i_sample_input_vals = np.random.uniform(low=0.0, high=0.4, size=[i_rec_pop_size])
+                        i_sample_zero_indices = np.random.choice(np.arange(i_sample_input_vals.size),replace=False,size=int(i_sample_input_vals.size * (1-self.cfg["cell"].p_input)))
+                        i_sample_input_vals[i_sample_zero_indices] = 0
+
                         #sample_input_vals = sample_input_vals.reshape([1,rec_pop_size])
                         if i in coh1_pop:
-                            input_weights_val[i][:rec_pop_size] = sample_input_vals
+                            # second half of e
+                            input_weights_val[i][e_rec_pop_size:e_rec_pop_size*2] = e_sample_input_vals
+                            # first half of i
+                            input_weights_val[i][e_rec_pop_size*2:e_rec_pop_size*2+i_rec_pop_size] = i_sample_input_vals
                         else:
-                            input_weights_val[i][rec_pop_size:] = sample_input_vals
+                            # first half of e
+                            input_weights_val[i][0:e_rec_pop_size] = e_sample_input_vals
+                            # second half of i
+                            input_weights_val[i][e_rec_pop_size*2+i_rec_pop_size:e_rec_pop_size*2+i_rec_pop_size*2] = i_sample_input_vals
+
                     # set initial input weights
                     self.input_weights.assign(input_weights_val)
 
