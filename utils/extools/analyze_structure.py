@@ -130,7 +130,7 @@ def _nets_from_weights(w, num_exci=240):
 # ========= ========= ========= ========= ========= ========= =========
 
 
-def compare_specinput_w_overtraining(np_dir='"/data/experiments/run-batch30-dualloss-specinput0.2-rewire-nointoout-twopopsbyrate [2023-01-29 23.17.58]/npz_data"'):
+def compare_specinput_w_overtraining(np_dir='/data/experiments/run-batch30-dualloss-specinput0.2-rewire-nointoout-twopopsbyrate [2023-01-29 23.17.58]/npz_data'):
     # in the cases now of specifying input at 0.2 connectivity with separate populations,
     # plot weight changes over time for all components of the network
     _, ax = plt.subplots(nrows=3, ncols=1)
