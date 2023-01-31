@@ -215,10 +215,10 @@ def plot_input_channel_rates():
     coh1_rates = np.average(coh1_channel_trial_rates,0)
 
     _, ax = plt.subplots(nrows=1, ncols=2)
-    ax[0].hist(coh0_rates,histtype='step')
+    ax[0].hist(coh0_channel_trial_rates,histtype='step')
     ax[0].set_title('responses to coherence 0')
     ax[0].set_xlabel('spike rates')
-    ax[1].hist(coh1_rates,bins=50,histtype='step')
+    ax[1].hist(coh1_channel_trial_rates,bins=50,histtype='step')
     ax[1].set_title('responses to coherence 1')
     ax[1].set_xlabel('spike rates')
     #ax[1,0].hist(late_in[i,:],bins=50,histtype='step')
