@@ -236,7 +236,7 @@ def plot_avalanche_dist():
         ax[s_idx,0].scatter(naive_s, naive_p, s=2)
         ax[s_idx,0].set_xscale("log")
         ax[s_idx,0].set_yscale("log")
-        ax[s_idx,0].set_xlabel('S (avalanche size; # of spikes)')
+        ax[s_idx,0].set_xlabel('S (avalanche size)')
         ax[s_idx,0].set_ylabel('P(S)')
         ax[s_idx,0].set_title('Naive; '+str(silence_sizes[s_idx])+'ms quiescence')
 
@@ -268,14 +268,14 @@ def plot_avalanche_dist():
         ax[s_idx,1].scatter(trained_s, trained_p, s=2)
         ax[s_idx,1].set_xscale("log")
         ax[s_idx,1].set_yscale("log")
-        ax[s_idx,1].set_xlabel('S (avalanche size; # of spikes)')
+        ax[s_idx,1].set_xlabel('S (avalanche size)')
         ax[s_idx,1].set_ylabel('P(S)')
         ax[s_idx,1].set_title('Trained; '+str(silence_sizes[s_idx])+'ms quiescence')
 
     plt.suptitle('Avalanche size dist; input p=0.3; dual trained')
     # Draw and save
     plt.draw()
-    plt.subplots_adjust(wspace=0.4, hspace=0.7)
+    plt.subplots_adjust(wspace=0.4, hspace=0.96)
     save_fname = savepath+'/specinput0.3/avalanches_dualtrained.png'
     plt.savefig(save_fname,dpi=300)
 
