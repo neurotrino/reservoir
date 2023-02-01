@@ -220,7 +220,7 @@ def plot_avalanche_dist():
                 # append how many units spiked in this ms
                 spike_counter.append(len(np.argwhere(trial_spikes[j]!=0)))
                 # at least silence_size steps into the trial before we can confidently count silences
-                if len(spike_counter)>silence_sizes[s_idx] and np.sum(spike_counter[-silence_sizes[s_idx]+1:-1])==0:
+                if len(spike_counter)>silence_sizes[s_idx] and np.sum(spike_counter[-(silence_sizes[s_idx]+1):-1])==0:
                     # if not a single unit spiked in this ms and preceding silence_size steps
                     #if len(np.argwhere(trial_spikes[j]==0))==300:
                     if avalanche_counter>0: # previously, there have been spikes
@@ -252,7 +252,7 @@ def plot_avalanche_dist():
                 # append how many units spiked in this ms
                 spike_counter.append(len(np.argwhere(trial_spikes[j]!=0)))
                 # at least silence_size steps into the trial before we can confidently count silences
-                if len(spike_counter)>silence_sizes[s_idx] and np.sum(spike_counter[-silence_sizes[s_idx]+1:-1])==0:
+                if len(spike_counter)>silence_sizes[s_idx] and np.sum(spike_counter[-(silence_sizes[s_idx]+1):-1])==0:
                     # if not a single unit spiked in this ms and preceding silence_size steps
                     #if len(np.argwhere(trial_spikes[j]==0))==300:
                     if avalanche_counter>0: # previously, there have been spikes
