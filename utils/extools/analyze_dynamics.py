@@ -220,7 +220,7 @@ def plot_avalanche_dist():
                 # append how many units spiked in this ms
                 spike_counter.append(len(np.argwhere(trial_spikes[j]!=0)))
                 # at least silence_size steps into the trial before we can confidently count silences
-                if len(spike_counter)>silence_sizes[s_idx] and np.sum(spike_counter[-silence_sizes[s_idx]:-1])==0:
+                if len(spike_counter)>silence_sizes[s_idx] and np.sum(spike_counter[-silence_sizes[s_idx]+1:-1])==0:
                     # if not a single unit spiked in this ms and preceding silence_size steps
                     #if len(np.argwhere(trial_spikes[j]==0))==300:
                     if avalanche_counter>0: # previously, there have been spikes
@@ -233,7 +233,7 @@ def plot_avalanche_dist():
 
         [naive_s, naive_p] = np.unique(naive_avalanches, return_counts=True)
         # plot p(s) vs s on log-log scale
-        ax[s_idx,0].scatter(naive_s, naive_p)
+        ax[s_idx,0].scatter(naive_s, naive_p, s=2)
         ax[s_idx,0].set_xscale("log")
         ax[s_idx,0].set_yscale("log")
         ax[s_idx,0].set_xlabel('S (avalanche size; # of spikes)')
@@ -252,7 +252,7 @@ def plot_avalanche_dist():
                 # append how many units spiked in this ms
                 spike_counter.append(len(np.argwhere(trial_spikes[j]!=0)))
                 # at least silence_size steps into the trial before we can confidently count silences
-                if len(spike_counter)>silence_sizes[s_idx] and np.sum(spike_counter[-silence_sizes[s_idx]:-1])==0:
+                if len(spike_counter)>silence_sizes[s_idx] and np.sum(spike_counter[-silence_sizes[s_idx]+1:-1])==0:
                     # if not a single unit spiked in this ms and preceding silence_size steps
                     #if len(np.argwhere(trial_spikes[j]==0))==300:
                     if avalanche_counter>0: # previously, there have been spikes
@@ -265,7 +265,7 @@ def plot_avalanche_dist():
 
         [trained_s,trained_p] = np.unique(trained_avalanches, return_counts=True)
         # plot p(s) vs s on log-log scale
-        ax[s_idx,1].scatter(trained_s, trained_p)
+        ax[s_idx,1].scatter(trained_s, trained_p, s=2)
         ax[s_idx,1].set_xscale("log")
         ax[s_idx,1].set_yscale("log")
         ax[s_idx,1].set_xlabel('S (avalanche size; # of spikes)')
