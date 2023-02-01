@@ -204,10 +204,11 @@ def plot_avalanche_dist():
     trained_spikes = trained_data['spikes'][99]
 
     silence_sizes = [10,15,20]
-    naive_avalanches = []
-    trained_avalanches = []
 
     for s_idx in range(len(silence_sizes)):
+
+        naive_avalanches = []
+        trained_avalanches = []
 
         for i in range(0,np.shape(naive_spikes)[0]):
             # for each of the 30 naive trials
