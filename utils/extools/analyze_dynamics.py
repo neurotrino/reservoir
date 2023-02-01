@@ -205,6 +205,7 @@ def plot_avalanche_dist():
     trained_spikes = trained_data['spikes'][99]
 
     silence_sizes = [1,5,10]
+    silence_thresh = int(240/10) # 10% of total population; I suppose that's fair
 
     for s_idx in range(len(silence_sizes)):
 
@@ -222,7 +223,7 @@ def plot_avalanche_dist():
                 # append how many units spiked in this ms
                 spike_counter.append(len(np.argwhere(trial_spikes[j]!=0)))
                 # at least silence_size steps into the trial before we can confidently count silences
-                if len(spike_counter)>silence_sizes[s_idx] and np.sum(spike_counter[-(silence_sizes[s_idx]+1):-1])==0:
+                if len(spike_counter)>silence_sizes[s_idx] and np.sum(spike_counter[-(silence_sizes[s_idx]+1):-1])<=silence_thresh:
                     # if not a single unit spiked in this ms and preceding silence_size steps
                     #if len(np.argwhere(trial_spikes[j]==0))==300:
                     if avalanche_counter>0: # previously, there have been spikes
@@ -254,7 +255,7 @@ def plot_avalanche_dist():
                 # append how many units spiked in this ms
                 spike_counter.append(len(np.argwhere(trial_spikes[j]!=0)))
                 # at least silence_size steps into the trial before we can confidently count silences
-                if len(spike_counter)>silence_sizes[s_idx] and np.sum(spike_counter[-(silence_sizes[s_idx]+1):-1])==0:
+                if len(spike_counter)>silence_sizes[s_idx] and np.sum(spike_counter[-(silence_sizes[s_idx]+1):-1])<=silence_thresh:
                     # if not a single unit spiked in this ms and preceding silence_size steps
                     #if len(np.argwhere(trial_spikes[j]==0))==300:
                     if avalanche_counter>0: # previously, there have been spikes
@@ -278,7 +279,7 @@ def plot_avalanche_dist():
     # Draw and save
     plt.draw()
     plt.subplots_adjust(wspace=0.4, hspace=0.96)
-    save_fname = savepath+'/specinput0.3/avalanches_e_dualtrained_epoch50.png'
+    save_fname = savepath+'/specinput0.3/avalanches_e_dualtrained_epoch50_messythresh.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
