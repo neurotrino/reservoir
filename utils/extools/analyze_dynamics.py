@@ -197,9 +197,10 @@ def plot_avalanche_dist():
 
     _, ax = plt.subplots(nrows=3, ncols=2)
 
-    naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
+    naive_data = np.load(os.path.join(np_dir,"51-60.npz"))
     trained_data = np.load(os.path.join(np_dir,"991-1000.npz"))
 
+    # just the e units for now
     naive_spikes = naive_data['spikes'][99]
     trained_spikes = trained_data['spikes'][99]
 
@@ -212,7 +213,7 @@ def plot_avalanche_dist():
 
         for i in range(0,np.shape(naive_spikes)[0]):
             # for each of the 30 naive trials
-            trial_spikes = naive_spikes[i] # not transposing actually works better
+            trial_spikes = naive_spikes[i][:,0:240] # e units only; not transposing actually works better
             # find where there are zeros across the board
             # for each ms of each trial
             avalanche_counter = 0
@@ -244,7 +245,7 @@ def plot_avalanche_dist():
         # same for trained
         for i in range(0,np.shape(trained_spikes)[0]):
             # for each of the 30 trials
-            trial_spikes = trained_spikes[i] # not transposing actually works better
+            trial_spikes = trained_spikes[i][:,0:240] # not transposing actually works better
             # find where there are zeros across the board
             # for each ms of each trial
             avalanche_counter = 0
@@ -273,11 +274,11 @@ def plot_avalanche_dist():
         ax[s_idx,1].set_ylabel('P(S)')
         ax[s_idx,1].set_title('Trained; '+str(silence_sizes[s_idx])+'ms quiescence')
 
-    plt.suptitle('Avalanche size dist; input p=0.3; dual trained')
+    plt.suptitle('E avalanche size dist; input p=0.3; dual trained')
     # Draw and save
     plt.draw()
     plt.subplots_adjust(wspace=0.4, hspace=0.96)
-    save_fname = savepath+'/specinput0.3/avalanches_dualtrained.png'
+    save_fname = savepath+'/specinput0.3/avalanches_e_dualtrained_epoch50.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
