@@ -203,7 +203,7 @@ def plot_avalanche_dist():
     naive_spikes = naive_data['spikes'][99]
     trained_spikes = trained_data['spikes'][99]
 
-    silence_sizes = [1,5,10]
+    silence_sizes = [10,15,20]
     naive_avalanches = []
     trained_avalanches = []
 
@@ -276,7 +276,7 @@ def plot_avalanche_dist():
     # Draw and save
     plt.draw()
     plt.subplots_adjust(wspace=0.4, hspace=0.96)
-    save_fname = savepath+'/specinput0.3/avalanches_dualtrained_epoch50.png'
+    save_fname = savepath+'/specinput0.3/avalanches_dualtrained_epoch50_increasequiescence.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
