@@ -184,6 +184,110 @@ def safely_make_joint_dirpath(*args, **kwargs):
 #  Plot Stuff
 # =============================================================================
 
+
+def plot_avalanche_dist():
+    # choose a sample experiment (full run) to examine first
+    # use all trials in the initial batch of 30 trials
+    # use all trials in the final batch of 30 trials
+    # begin by lumping together, but separate by coherence to really say sth
+    # go through several choices of what counts as a period of silence
+    # count up avalanche sizes (number of spikes in between silences)
+    # plot log-log prob(S) vs avalanche size S (# spikes)
+    np_dir='/data/experiments/run-batch30-dualloss-specinput0.3 [2023-01-16 18.06.10]/npz-data'
+
+    _, ax = plt.subplots(nrows=3, ncols=2)
+
+    naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
+    trained_data = np.load(os.path.join(np_dir,"991-1000.npz"))
+
+    naive_spikes = naive_data['spikes'][99]
+    trained_spikes = trained_data['spikes'][99]
+
+    silence_sizes = [1,5,10]
+    naive_avalanches = []
+    trained_avalanches = []
+
+    for s_idx in range(len(silence_sizes)):
+
+        for i in range(0,np.shape(naive_spikes)[0]):
+            # for each of the 30 naive trials
+            trial_spikes = naive_spikes[i] # not transposing actually works better
+            # find where there are zeros across the board
+            # for each ms of each trial
+            avalanche_counter = 0
+            spike_counter = []
+            for j in range(np.shape(trial_spikes)[0]):
+                # append how many units spiked in this ms
+                spike_counter.append(len(np.argwhere(trial_spikes[j]!=0)))
+                # at least silence_size steps into the trial before we can confidently count silences
+                if len(spike_counter)>silence_sizes[s_idx] and np.sum(spike_counter[-silence_sizes[s_idx]:-1])==0:
+                    # if not a single unit spiked in this ms and preceding silence_size steps
+                    #if len(np.argwhere(trial_spikes[j]==0))==300:
+                    if avalanche_counter>0: # previously, there have been spikes
+                        naive_avalanches.append(avalanche_counter)
+                        # now we reach the end of the avalanche; append previous total
+                    avalanche_counter = 0 # either way, avalanche counter should be zeroed
+                else: # at least one unit spiked in this or any of the preceding silence_size steps
+                    # count up spikes in current ms slice (may be 0) and add to current avalanche counter
+                    avalanche_counter += len(np.argwhere(trial_spikes[j]!=0))
+
+        [naive_s, naive_p] = np.unique(naive_avalanches, return_counts=True)
+        # plot p(s) vs s on log-log scale
+        ax[s_idx,0].scatter(naive_s, naive_p)
+        ax[s_idx,0].set_xscale("log")
+        ax[s_idx,0].set_yscale("log")
+        ax[s_idx,0].set_xlabel('S (avalanche size; # of spikes)')
+        ax[s_idx,0].set_ylabel('P(S)')
+        ax[s_idx,0].set_title('Naive; '+num2str(silence_sizes[s_idx])+'ms quiescence')
+
+        # same for trained
+        for i in range(0,np.shape(trained_spikes)[0]):
+            # for each of the 30 trials
+            trial_spikes = trained_spikes[i] # not transposing actually works better
+            # find where there are zeros across the board
+            # for each ms of each trial
+            avalanche_counter = 0
+            spike_counter = []
+            for j in range(np.shape(trial_spikes)[0]):
+                # append how many units spiked in this ms
+                spike_counter.append(len(np.argwhere(trial_spikes[j]!=0)))
+                # at least silence_size steps into the trial before we can confidently count silences
+                if len(spike_counter)>silence_sizes[s_idx] and np.sum(spike_counter[-silence_sizes[s_idx]:-1])==0:
+                    # if not a single unit spiked in this ms and preceding silence_size steps
+                    #if len(np.argwhere(trial_spikes[j]==0))==300:
+                    if avalanche_counter>0: # previously, there have been spikes
+                        trained_avalanches.append(avalanche_counter)
+                        # now we reach the end of the avalanche; append previous total
+                    avalanche_counter = 0 # either way, avalanche counter should be zeroed
+                else: # at least one unit spiked in this or any of the preceding silence_size steps
+                    # count up spikes in current ms slice (may be 0) and add to current avalanche counter
+                    avalanche_counter += len(np.argwhere(trial_spikes[j]!=0))
+
+        [trained_s,trained_p] = np.unique(trained_avalanches, return_counts=True)
+        # plot p(s) vs s on log-log scale
+        ax[s_idx,1].scatter(trained_s, trained_p)
+        ax[s_idx,1].set_xscale("log")
+        ax[s_idx,1].set_yscale("log")
+        ax[s_idx,1].set_xlabel('S (avalanche size; # of spikes)')
+        ax[s_idx,1].set_ylabel('P(S)')
+        ax[s_idx,1].set_title('Trained; '+num2str(silence_sizes[s_idx])+'ms quiescence')
+
+    plt.suptitle('Avalanche size dist; input p=0.3; dual trained')
+    # Draw and save
+    plt.draw()
+    plt.subplots_adjust(wspace=0.4, hspace=0.7)
+    save_fname = savepath+'/specinput0.3/avalanches_dualtrained.png'
+    plt.savefig(save_fname,dpi=300)
+
+    # Teardown
+    plt.clf()
+    plt.close()
+
+    # do this for several different silence durations and also for training on task and rate alone
+    # also ofc for
+    # plot log-log distributions for several points along training and note the task and rate losses
+
+
 def plot_input_channel_rates():
     spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
     x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
