@@ -197,7 +197,7 @@ def plot_avalanche_dist():
 
     _, ax = plt.subplots(nrows=3, ncols=2)
 
-    naive_data = np.load(os.path.join(np_dir,"51-60.npz"))
+    naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
     trained_data = np.load(os.path.join(np_dir,"991-1000.npz"))
 
     naive_spikes = naive_data['spikes'][99]
@@ -277,7 +277,7 @@ def plot_avalanche_dist():
     # Draw and save
     plt.draw()
     plt.subplots_adjust(wspace=0.4, hspace=0.96)
-    save_fname = savepath+'/specinput0.3/avalanches_dualtrained_epoch50.png'
+    save_fname = savepath+'/specinput0.3/avalanches_dualtrained.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
