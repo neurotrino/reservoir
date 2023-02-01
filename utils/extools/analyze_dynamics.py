@@ -238,7 +238,7 @@ def plot_avalanche_dist():
         ax[s_idx,0].set_yscale("log")
         ax[s_idx,0].set_xlabel('S (avalanche size; # of spikes)')
         ax[s_idx,0].set_ylabel('P(S)')
-        ax[s_idx,0].set_title('Naive; '+num2str(silence_sizes[s_idx])+'ms quiescence')
+        ax[s_idx,0].set_title('Naive; '+str(silence_sizes[s_idx])+'ms quiescence')
 
         # same for trained
         for i in range(0,np.shape(trained_spikes)[0]):
@@ -270,7 +270,7 @@ def plot_avalanche_dist():
         ax[s_idx,1].set_yscale("log")
         ax[s_idx,1].set_xlabel('S (avalanche size; # of spikes)')
         ax[s_idx,1].set_ylabel('P(S)')
-        ax[s_idx,1].set_title('Trained; '+num2str(silence_sizes[s_idx])+'ms quiescence')
+        ax[s_idx,1].set_title('Trained; '+str(silence_sizes[s_idx])+'ms quiescence')
 
     plt.suptitle('Avalanche size dist; input p=0.3; dual trained')
     # Draw and save
