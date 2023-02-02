@@ -205,7 +205,7 @@ def plot_avalanche_dist():
     trained_spikes = trained_data['spikes'][99]
 
     silence_sizes = [1,5,10]
-    silence_thresh = int(240/20) # 5% of total population; I suppose that's fair
+    silence_thresh = 0 # 5% of total population; I suppose that's fair
 
     for s_idx in range(len(silence_sizes)):
 
@@ -279,7 +279,7 @@ def plot_avalanche_dist():
     # Draw and save
     plt.draw()
     plt.subplots_adjust(wspace=0.4, hspace=0.96)
-    save_fname = savepath+'/criticality/avalanches_e_ratetrained_epoch50_messythresh5_21.32.08.png'
+    save_fname = savepath+'/criticality/avalanches_e_ratetrained_epoch50_21.32.08.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
