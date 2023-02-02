@@ -251,7 +251,7 @@ def plot_avalanche_dist(threshold=True,subsample=False):
                     if above_thresh_idx[j]-above_thresh_idx[j-1]==1:
                         avalanche_counter+=X[above_thresh_idx[j]]
                     else:
-                        naive_avalanches.append(avalanche_counter)
+                        trained_avalanches.append(avalanche_counter)
                         avalanche_counter=X[above_thresh_idx[j]]
 
             # plot
