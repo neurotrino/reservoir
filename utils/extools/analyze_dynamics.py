@@ -199,7 +199,7 @@ def plot_avalanche_dist(threshold=True,subsample=False):
 
     _, ax = plt.subplots(nrows=3, ncols=2)
 
-    naive_data = np.load(os.path.join(np_dir,"51-60.npz"))
+    naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
     trained_data = np.load(os.path.join(np_dir,"991-1000.npz"))
 
     # just the e units for now
@@ -277,7 +277,7 @@ def plot_avalanche_dist(threshold=True,subsample=False):
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.96)
-        save_fname = savepath+'/criticality/avalanches_e_ratetrained_epoch50_thresholds_21.32.08.png'
+        save_fname = savepath+'/criticality/avalanches_e_ratetrained_epoch10_thresholds_21.32.08.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
