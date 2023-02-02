@@ -226,17 +226,18 @@ def plot_avalanche_dist(threshold=True,subsample=False):
                 above_thresh_idx = np.squeeze(np.argwhere(X>theta))
 
                 # initialize counter with the number of spikes in the first threshold crossing timebin
-                avalanche_counter = X[above_thresh_idx[0]]
-                for j in range(1,len(above_thresh_idx)):
-                    # if adjacent indices
-                    if above_thresh_idx[j]-above_thresh_idx[j-1]==1:
-                        # count as part of same avalanche
-                        avalanche_counter+=(X[above_thresh_idx[j]]-theta)
-                    else:
-                        # append existing avalanche to array
-                        naive_avalanches.append(avalanche_counter)
-                        # start new avalanche counter
-                        avalanche_counter=X[above_thresh_idx[j]]-theta
+                if len(above_thresh_idx)>0:
+                    avalanche_counter = X[above_thresh_idx[0]]
+                    for j in range(1,len(above_thresh_idx)):
+                        # if adjacent indices
+                        if above_thresh_idx[j]-above_thresh_idx[j-1]==1:
+                            # count as part of same avalanche
+                            avalanche_counter+=(X[above_thresh_idx[j]]-theta)
+                        else:
+                            # append existing avalanche to array
+                            naive_avalanches.append(avalanche_counter)
+                            # start new avalanche counter
+                            avalanche_counter=X[above_thresh_idx[j]]-theta
 
             # repeat for trained spikes
             for i in range(0,np.shape(trained_spikes)[0]):
