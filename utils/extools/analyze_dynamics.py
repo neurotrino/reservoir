@@ -223,10 +223,12 @@ def plot_avalanche_dist(threshold=True,subsample=False):
                 theta = np.percentile(X,thresholds[th_idx])
 
                 # find where X exceeds theta
-                above_thresh_idx = np.squeeze(np.argwhere(X>theta))
+                above_thresh_idx = np.argwhere(X>theta)
 
-                # initialize counter with the number of spikes in the first threshold crossing timebin
                 if len(above_thresh_idx)>0:
+                    above_thresh_idx=np.squeeze(above_thresh_idx)
+
+                    # initialize counter with the number of spikes in the first threshold crossing timebin
                     avalanche_counter = X[above_thresh_idx[0]]
                     for j in range(1,len(above_thresh_idx)):
                         # if adjacent indices
