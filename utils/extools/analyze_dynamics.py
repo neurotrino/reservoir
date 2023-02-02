@@ -203,7 +203,7 @@ def plot_avalanche_dist(threshold=True,subsample=False):
     trained_data = np.load(os.path.join(np_dir,"991-1000.npz"))
 
     # just the e units for now
-    naive_spikes = naive_data['spikes'][50]
+    naive_spikes = naive_data['spikes'][59]
     trained_spikes = trained_data['spikes'][99]
 
     silence_sizes = [1,5,10]
@@ -231,12 +231,12 @@ def plot_avalanche_dist(threshold=True,subsample=False):
                     # if adjacent indices
                     if above_thresh_idx[j]-above_thresh_idx[j-1]==1:
                         # count as part of same avalanche
-                        avalanche_counter+=X[above_thresh_idx[j]]
+                        avalanche_counter+=(X[above_thresh_idx[j]]-theta)
                     else:
                         # append existing avalanche to array
                         naive_avalanches.append(avalanche_counter)
                         # start new avalanche counter
-                        avalanche_counter=X[above_thresh_idx[j]]
+                        avalanche_counter=X[above_thresh_idx[j]]-theta
 
             # repeat for trained spikes
             for i in range(0,np.shape(trained_spikes)[0]):
@@ -249,10 +249,10 @@ def plot_avalanche_dist(threshold=True,subsample=False):
                 avalanche_counter=X[above_thresh_idx[0]]
                 for j in range(1,len(above_thresh_idx)):
                     if above_thresh_idx[j]-above_thresh_idx[j-1]==1:
-                        avalanche_counter+=X[above_thresh_idx[j]]
+                        avalanche_counter+=(X[above_thresh_idx[j]]-theta)
                     else:
                         trained_avalanches.append(avalanche_counter)
-                        avalanche_counter=X[above_thresh_idx[j]]
+                        avalanche_counter=X[above_thresh_idx[j]]-theta
 
             # plot
             [naive_s, naive_p] = np.unique(naive_avalanches, return_counts=True)
@@ -277,7 +277,7 @@ def plot_avalanche_dist(threshold=True,subsample=False):
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.96)
-        save_fname = savepath+'/criticality/avalanches_e_ratetrained_epoch5_thresholds_21.32.08.png'
+        save_fname = savepath+'/criticality/avalanches_e_ratetrained_epoch7_thresholds_21.32.08.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
