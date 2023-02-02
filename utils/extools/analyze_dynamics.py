@@ -193,7 +193,7 @@ def plot_avalanche_dist():
     # go through several choices of what counts as a period of silence
     # count up avalanche sizes (number of spikes in between silences)
     # plot log-log prob(S) vs avalanche size S (# spikes)
-    np_dir='/data/experiments/run-batch30-onlyrateloss [2022-10-26 21.32.08/npz-data/'
+    np_dir='/data/experiments/run-batch30-onlyrateloss [2022-10-26 21.32.08]/npz-data'
 
     _, ax = plt.subplots(nrows=3, ncols=2)
 
