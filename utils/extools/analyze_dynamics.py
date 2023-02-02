@@ -225,7 +225,7 @@ def plot_avalanche_dist(threshold=True,subsample=False):
                 # find where X exceeds theta
                 above_thresh_idx = np.argwhere(X>theta)
 
-                if len(above_thresh_idx)>0:
+                if len(above_thresh_idx)>1:
                     above_thresh_idx=np.squeeze(above_thresh_idx)
 
                     # initialize counter with the number of spikes in the first threshold crossing timebin
