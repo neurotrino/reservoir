@@ -193,7 +193,8 @@ def plot_avalanche_dist():
     # go through several choices of what counts as a period of silence
     # count up avalanche sizes (number of spikes in between silences)
     # plot log-log prob(S) vs avalanche size S (# spikes)
-    np_dir='/data/experiments/run-batch30-onlytaskloss [2022-10-12 11.54.39]/npz-data'
+    #np_dir='/data/experiments/run-batch30-onlytaskloss [2022-10-12 11.54.39]/npz-data'
+    np_dir='/data/experiments/run-batch30-onlyrateloss [2022-10-26 21.32.08/npz-data/'
 
     _, ax = plt.subplots(nrows=3, ncols=2)
 
@@ -280,11 +281,11 @@ def plot_avalanche_dist():
         ax[s_idx,1].set_ylabel('P(S)')
         ax[s_idx,1].set_title('Trained; '+str(silence_sizes[s_idx])+'ms quiescence')
 
-    plt.suptitle('E avalanche size dist; input p=0.3; task trained')
+    plt.suptitle('E avalanche size dist; input p=0.3; rate trained')
     # Draw and save
     plt.draw()
     plt.subplots_adjust(wspace=0.4, hspace=0.96)
-    save_fname = savepath+'/criticality/avalanches_e_tasktrained_epoch50_subsample_11.54.39.png'
+    save_fname = savepath+'/criticality/avalanches_e_ratetrained_epoch50_subsample_21.32.08.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
