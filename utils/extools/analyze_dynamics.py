@@ -241,7 +241,7 @@ def plot_avalanche_dist(threshold=True,subsample=False):
             # repeat for trained spikes
             for i in range(0,np.shape(trained_spikes)[0]):
                 Z = trained_spikes[i][:,0:240]
-                X = np.sum(Z)
+                X = np.sum(Z,1)
                 theta = np.percentile(X,thresholds[th_idx])
 
                 above_thresh_idx = np.squeeze(np.argwhere(X>theta))
