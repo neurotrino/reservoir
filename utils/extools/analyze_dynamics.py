@@ -205,13 +205,13 @@ def plot_avalanche_dist(threshold_range=False,bin_range=True,subsample=False):
 
     # just the e units for now
     naive_spikes = naive_data['spikes'][59]
-    trained_spikes = trained_data['spikes'][99]
+    trained_spikes = trained_data['spikes'][299]
 
     silence_sizes = [1,5,10]
     silence_thresh = 0
     sub_size = 60 # number of units in random subsample of each ms to determine silences
 
-    single_threshold = 40 # just use one to generate the 2x3 plots for coarse graining time
+    single_threshold = 40 # just use one percentile to generate the 2x3 plots for coarse graining time
     bin_sizes = [10,20,30] # ms to use for binning spikes
     thresholds = [20,40,60] # total activity must exceed this percentile of spikes in a timestep to count as part of an avalanche
 
@@ -344,21 +344,21 @@ def plot_avalanche_dist(threshold_range=False,bin_range=True,subsample=False):
             # plot
             [naive_s, naive_p] = np.unique(naive_avalanches, return_counts=True)
             # plot p(s) vs s on log-log scale
-            ax[th_idx,0].scatter(naive_s, naive_p, s=2)
-            ax[th_idx,0].set_xscale("log")
-            ax[th_idx,0].set_yscale("log")
-            ax[th_idx,0].set_xlabel('S (avalanche size)')
-            ax[th_idx,0].set_ylabel('P(S)')
-            ax[th_idx,0].set_title('Naive; '+str(bin_sizes[bin_idx])+' ms timebins')
+            ax[bin_idx,0].scatter(naive_s, naive_p, s=2)
+            ax[bin_idx,0].set_xscale("log")
+            ax[bin_idx,0].set_yscale("log")
+            ax[bin_idx,0].set_xlabel('S (avalanche size)')
+            ax[bin_idx,0].set_ylabel('P(S)')
+            ax[bin_idx,0].set_title('Naive; '+str(bin_sizes[bin_idx])+' ms timebins')
 
             [trained_s,trained_p] = np.unique(trained_avalanches, return_counts=True)
             # plot p(s) vs s on log-log scale
-            ax[th_idx,1].scatter(trained_s, trained_p, s=2)
-            ax[th_idx,1].set_xscale("log")
-            ax[th_idx,1].set_yscale("log")
-            ax[th_idx,1].set_xlabel('S (avalanche size)')
-            ax[th_idx,1].set_ylabel('P(S)')
-            ax[th_idx,1].set_title('Trained; '+str(bin_sizes[bin_idx])+' ms timebins')
+            ax[bin_idx,1].scatter(trained_s, trained_p, s=2)
+            ax[bin_idx,1].set_xscale("log")
+            ax[bin_idx,1].set_yscale("log")
+            ax[bin_idx,1].set_xlabel('S (avalanche size)')
+            ax[bin_idx,1].set_ylabel('P(S)')
+            ax[bin_idx,1].set_title('Trained; '+str(bin_sizes[bin_idx])+' ms timebins')
 
         plt.suptitle('E avalanche size dist; dual trained; 40%ile threshold')
         # Draw and save
