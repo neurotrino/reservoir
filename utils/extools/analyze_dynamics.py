@@ -205,7 +205,7 @@ def plot_avalanche_dist(threshold_range=False,bin_range=True,subsample=False):
 
     # just the e units for now
     naive_spikes = naive_data['spikes'][59]
-    trained_spikes = trained_data['spikes'][299]
+    trained_spikes = trained_data['spikes'][99]
 
     silence_sizes = [1,5,10]
     silence_thresh = 0
