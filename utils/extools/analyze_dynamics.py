@@ -193,8 +193,8 @@ def plot_avalanche_dist(threshold_range=False,bin_range=True,subsample=False):
     # go through several choices of what counts as a period of silence
     # count up avalanche sizes (number of spikes in between silences)
     # plot log-log prob(S) vs avalanche size S (# spikes)
-    #np_dir='/data/experiments/run-batch30-onlytaskloss [2022-10-12 11.54.39]/npz-data'
-    np_dir='/data/experiments/run-batch30-onlyrateloss [2022-10-26 21.32.08]/npz-data'
+    np_dir='/data/experiments/run-batch30-onlytaskloss [2022-10-12 11.54.39]/npz-data'
+    #np_dir='/data/experiments/run-batch30-onlyrateloss [2022-10-26 21.32.08]/npz-data'
     #np_dir='/data/experiments/run-batch30-specout-onlinerate0.1-savey [2022-08-15 02.58.19]/npz-data'
     #np_dir='/data/experiments/run-batch30-dualloss-specinput0.2-rewire-nointoout-twopopsbyrate [2023-02-07 22.44.51]/npz-data'
 
@@ -360,11 +360,11 @@ def plot_avalanche_dist(threshold_range=False,bin_range=True,subsample=False):
             ax[bin_idx,1].set_ylabel('P(S)')
             ax[bin_idx,1].set_title('Trained; '+str(bin_sizes[bin_idx])+' ms timebins')
 
-        plt.suptitle('E avalanche size dist; rate trained; 40%ile threshold')
+        plt.suptitle('E avalanche size dist; task trained; 40%ile threshold')
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.96)
-        save_fname = savepath+'/criticality/avalanches_e_ratetrained_thresholds_coarse_21.32.08.png'
+        save_fname = savepath+'/criticality/avalanches_e_tasktrained_thresholds_coarse_11.54.39.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
