@@ -355,10 +355,10 @@
         output_learning_rate: 0.00001
 
         // number of trials in batch
-        batch_size: 10
+        batch_size: 30
 
         // number of batches in an epoch
-        n_batch: 30
+        n_batch: 10
 
         // number of epochs the model is fit over
         n_epochs: 1000

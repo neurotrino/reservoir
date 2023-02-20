@@ -209,10 +209,11 @@ def plot_avalanche_dist(threshold_range=False,bin_range=True,subsample=False):
 
     silence_sizes = [1,5,10]
     silence_thresh = 0
+    sub_size = 60 # number of units in random subsample of each ms to determine silences
+
     single_threshold = 40 # just use one to generate the 2x3 plots for coarse graining time
     bin_sizes = [10,20,30] # ms to use for binning spikes
     thresholds = [20,40,60] # total activity must exceed this percentile of spikes in a timestep to count as part of an avalanche
-    sub_size = 60 # number of units in random subsample of each ms to determine silences
 
     if threshold_range:
         for th_idx in range(len(thresholds)):
@@ -299,7 +300,7 @@ def plot_avalanche_dist(threshold_range=False,bin_range=True,subsample=False):
                 # for each of 30 trials
                 prebin_Z = naive_spikes[i][:,0:240] # e units only
                 # bin spikes for each trial
-                Z = _fastbin(np.transpose(prebin_Z), bin_sizes[bin_idx], np.shape(prebin_Z)[1])
+                Z = fastbin(np.transpose(prebin_Z), bin_sizes[bin_idx], np.shape(prebin_Z)[1])
 
                 X = np.sum(np.transpose(Z),1)
                 theta = np.percentile(X,single_threshold)
@@ -326,7 +327,7 @@ def plot_avalanche_dist(threshold_range=False,bin_range=True,subsample=False):
             # repeat for trained spikes
             for i in range(0,np.shape(trained_spikes)[0]):
                 prebin_Z = trained_spikes[i][:,0:240]
-                Z = _fastbin(np.transpose(prebin_Z), bin_sizes[bin_idx], np.shape(prebin_Z)[1])
+                Z = fastbin(np.transpose(prebin_Z), bin_sizes[bin_idx], np.shape(prebin_Z)[1])
                 X = np.sum(np.transpose(Z),1)
                 theta = np.percentile(X,single_threshold)
 
@@ -2564,6 +2565,86 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
 
     return recruit_graphs
 
+def fastbin(z, bin_sz, num_units):
+    """MUCH faster version of the following code:
+
+    ```
+    def slowbin(z, bin_sz, num_units):
+        num_timesteps = z.shape[1]
+
+        num_bins = np.math.floor(num_timesteps / bin_sz)
+        r = np.zeros([num_units, num_bins])
+
+        for t in range(num_bins):
+            t0 = t * bin_sz
+            t1 = (t + 1) * bin_sz
+            spikes_in_bin = z[:, t0:t1]
+
+            for j in range(num_units):
+                if 1 in spikes_in_bin[j, :]:
+                    r[j, t] = 1
+        return r
+    ```
+
+    The following code provides a more intuitive example of
+    what this code does, but is not generalized for more
+    than one dimension:
+
+    ```
+    def spike_bin_1d(z, binsize):
+        # This code can be broken down into two steps:
+        #
+        # (1) reshape the spike train so that each row is
+        #     a bin
+        #
+        # (2) compute the maximum value for each row. This
+        #     will be either 1 or 0 (as it's a binary
+        #     matrix), indicating whether or not a spike
+        #     occurred in that bin
+        #
+        return z.reshape(-1, binsize).max(axis=1)
+
+    z = np.array([0,0,0,  1,1,1,  1,0,0,  0,0,1])
+    assert(spike_bin_1d(z, binsize=3) == [0,1,1,1]
+
+    z = [0,0,0,1,  1,1,1,0,  0,0,0,1]
+    assert(spike_bin_1d(z, binsize=4) == [0,1,1]
+
+    z = [0,0,  0,1,  1,1,  1,0,  0,0,  0,1]
+    assert(spike_bin_1d(z, binsize=2) == [0,1,1,1,0,1]
+    ```
+
+    To reiterate, the above code is for a single neuron's
+    spiking activity. The operation performed on that
+    single neuron in this simplified example is performed
+    simultaneously on all neurons in the code generalized
+    for higher dimensions.
+
+    Assumes z[1] is the timestep axis. Assumes z is a
+    binary matrix. Assumes z[0] is the neuron-index axis.
+    Code should work generalize to any circumstance where
+    these assumptions are met and the arguments are
+    appropriate (z is a non-jagged NumPy array, bin_sz is
+    a positive integer factor,
+    num_units is a non-negative integer).
+
+    Binning behavior note: truncates timesteps at the end if there
+    are not enough for a complete bin
+
+    TODO: confirm with YQ this is desired timestep/bin-size
+        handling
+    """
+    # Correct for timestep dimensions misaligned with the bin size
+    leftover_timesteps = z.shape[1] % bin_sz
+    if leftover_timesteps > 0:
+        z = z[:, :-leftover_timesteps, ...]
+
+    # Perform actual binning
+    if z.ndim <= 2:
+        d2 = bin_sz
+    else:
+        d2 = bin_sz * np.prod(z.shape[2:])
+    return z.reshape(num_units, -1, d2).max(axis=2)
 
 def get_binned_spikes_trialends(e_only, true_y, spikes, bin):
     """TODO: document function"""
@@ -2577,89 +2658,6 @@ def get_binned_spikes_trialends(e_only, true_y, spikes, bin):
     trialends_coh0 = []
     binned_spikes_coh1 = np.empty([n_units, 0])
     trialends_coh1 = []
-
-
-    def _fastbin(z, bin_sz, num_units):
-        """MUCH faster version of the following code:
-
-        ```
-        def slowbin(z, bin_sz, num_units):
-            num_timesteps = z.shape[1]
-
-            num_bins = np.math.floor(num_timesteps / bin_sz)
-            r = np.zeros([num_units, num_bins])
-
-            for t in range(num_bins):
-                t0 = t * bin_sz
-                t1 = (t + 1) * bin_sz
-                spikes_in_bin = z[:, t0:t1]
-
-                for j in range(num_units):
-                    if 1 in spikes_in_bin[j, :]:
-                        r[j, t] = 1
-            return r
-        ```
-
-        The following code provides a more intuitive example of
-        what this code does, but is not generalized for more
-        than one dimension:
-
-        ```
-        def spike_bin_1d(z, binsize):
-            # This code can be broken down into two steps:
-            #
-            # (1) reshape the spike train so that each row is
-            #     a bin
-            #
-            # (2) compute the maximum value for each row. This
-            #     will be either 1 or 0 (as it's a binary
-            #     matrix), indicating whether or not a spike
-            #     occurred in that bin
-            #
-            return z.reshape(-1, binsize).max(axis=1)
-
-        z = np.array([0,0,0,  1,1,1,  1,0,0,  0,0,1])
-        assert(spike_bin_1d(z, binsize=3) == [0,1,1,1]
-
-        z = [0,0,0,1,  1,1,1,0,  0,0,0,1]
-        assert(spike_bin_1d(z, binsize=4) == [0,1,1]
-
-        z = [0,0,  0,1,  1,1,  1,0,  0,0,  0,1]
-        assert(spike_bin_1d(z, binsize=2) == [0,1,1,1,0,1]
-        ```
-
-        To reiterate, the above code is for a single neuron's
-        spiking activity. The operation performed on that
-        single neuron in this simplified example is performed
-        simultaneously on all neurons in the code generalized
-        for higher dimensions.
-
-        Assumes z[1] is the timestep axis. Assumes z is a
-        binary matrix. Assumes z[0] is the neuron-index axis.
-        Code should work generalize to any circumstance where
-        these assumptions are met and the arguments are
-        appropriate (z is a non-jagged NumPy array, bin_sz is
-        a positive integer factor,
-        num_units is a non-negative integer).
-
-        Binning behavior note: truncates timesteps at the end if there
-        are not enough for a complete bin
-
-        TODO: confirm with YQ this is desired timestep/bin-size
-            handling
-        """
-        # Correct for timestep dimensions misaligned with the bin size
-        leftover_timesteps = z.shape[1] % bin_sz
-        if leftover_timesteps > 0:
-            z = z[:, :-leftover_timesteps, ...]
-
-        # Perform actual binning
-        if z.ndim <= 2:
-            d2 = bin_sz
-        else:
-            d2 = bin_sz * np.prod(z.shape[2:])
-        return z.reshape(num_units, -1, d2).max(axis=2)
-
 
     for trial in range(true_y.shape[0]):
         # each of 30 trials per batch update
@@ -2683,7 +2681,7 @@ def get_binned_spikes_trialends(e_only, true_y, spikes, bin):
             z_coh0 = spikes_trial[:, coh_0_idx]
 
             # bin spikes into 10 ms, discarding trailing ms
-            trial_binned_z = _fastbin(z_coh0, bin, n_units)
+            trial_binned_z = fastbin(z_coh0, bin, n_units)
 
             binned_spikes_coh0 = np.hstack(
                 [binned_spikes_coh0, trial_binned_z]
@@ -2700,7 +2698,7 @@ def get_binned_spikes_trialends(e_only, true_y, spikes, bin):
 
             z_coh1 = spikes_trial[:, coh_1_idx]
 
-            trial_binned_z = _fastbin(z_coh1, bin, n_units)
+            trial_binned_z = fastbin(z_coh1, bin, n_units)
 
             binned_spikes_coh1 = np.hstack([binned_spikes_coh1, trial_binned_z])
             trialends_coh1.append(binned_spikes_coh1.shape[1] - 1)
