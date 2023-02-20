@@ -185,7 +185,7 @@ def safely_make_joint_dirpath(*args, **kwargs):
 # =============================================================================
 
 
-def plot_avalanche_dist(threshold=True,subsample=False):
+def plot_avalanche_dist(threshold_range=False,bin_range=True,subsample=False):
     # choose a sample experiment (full run) to examine first
     # use all trials in the initial batch of 30 trials
     # use all trials in the final batch of 30 trials
@@ -195,7 +195,8 @@ def plot_avalanche_dist(threshold=True,subsample=False):
     # plot log-log prob(S) vs avalanche size S (# spikes)
     #np_dir='/data/experiments/run-batch30-onlytaskloss [2022-10-12 11.54.39]/npz-data'
     #np_dir='/data/experiments/run-batch30-onlyrateloss [2022-10-26 21.32.08]/npz-data'
-    np_dir='/data/experiments/run-batch30-specout-onlinerate0.1-savey [2022-08-15 02.58.19]/npz-data'
+    #np_dir='/data/experiments/run-batch30-specout-onlinerate0.1-savey [2022-08-15 02.58.19]/npz-data'
+    np_dir='/data/experiments/run-batch30-dualloss-specinput0.2-rewire-nointoout-twopopsbyrate [2023-02-07 22.44.51]/npz-data'
 
     _, ax = plt.subplots(nrows=3, ncols=2)
 
@@ -208,10 +209,12 @@ def plot_avalanche_dist(threshold=True,subsample=False):
 
     silence_sizes = [1,5,10]
     silence_thresh = 0
+    single_threshold = 40 # just use one to generate the 2x3 plots for coarse graining time
+    bin_sizes = [10,20,30] # ms to use for binning spikes
     thresholds = [20,40,60] # total activity must exceed this percentile of spikes in a timestep to count as part of an avalanche
     sub_size = 60 # number of units in random subsample of each ms to determine silences
 
-    if threshold:
+    if threshold_range:
         for th_idx in range(len(thresholds)):
             naive_avalanches = []
             trained_avalanches = []
@@ -280,7 +283,87 @@ def plot_avalanche_dist(threshold=True,subsample=False):
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.96)
-        save_fname = savepath+'/criticality/avalanches_e_dualtrained_epoch7_thresholds_02.58.19.png'
+        save_fname = savepath+'/criticality/avalanches_e_dualtrained_thresholds_coarse_twopops_22.44.51.png'
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
+
+    elif bin_range:
+        for bin_idx in range(len(bin_sizes)):
+            naive_avalanches = []
+            trained_avalanches = []
+
+            for i in range(0,np.shape(naive_spikes)[0]):
+                # for each of 30 trials
+                prebin_Z = naive_spikes[i][:,0:240] # e units only
+                # bin spikes for each trial
+                Z = _fastbin(np.transpose(prebin_Z), bin_sizes[bin_idx], np.shape(prebin_Z)[1])
+
+                X = np.sum(np.transpose(Z),1)
+                theta = np.percentile(X,single_threshold)
+
+                # find where X exceeds theta
+                above_thresh_idx = np.argwhere(X>theta)
+
+                if len(above_thresh_idx)>1:
+                    above_thresh_idx=np.squeeze(above_thresh_idx)
+
+                    # initialize counter with the number of spikes in the first threshold crossing timebin
+                    avalanche_counter = X[above_thresh_idx[0]]
+                    for j in range(1,len(above_thresh_idx)):
+                        # if adjacent indices
+                        if above_thresh_idx[j]-above_thresh_idx[j-1]==1:
+                            # count as part of same avalanche
+                            avalanche_counter+=(X[above_thresh_idx[j]]-theta)
+                        else:
+                            # append existing avalanche to array
+                            naive_avalanches.append(avalanche_counter)
+                            # start new avalanche counter
+                            avalanche_counter=X[above_thresh_idx[j]]-theta
+
+            # repeat for trained spikes
+            for i in range(0,np.shape(trained_spikes)[0]):
+                prebin_Z = trained_spikes[i][:,0:240]
+                Z = _fastbin(np.transpose(prebin_Z), bin_sizes[bin_idx], np.shape(prebin_Z)[1])
+                X = np.sum(np.transpose(Z),1)
+                theta = np.percentile(X,single_threshold)
+
+                above_thresh_idx = np.squeeze(np.argwhere(X>theta))
+
+                avalanche_counter=X[above_thresh_idx[0]]
+                for j in range(1,len(above_thresh_idx)):
+                    if above_thresh_idx[j]-above_thresh_idx[j-1]==1:
+                        avalanche_counter+=(X[above_thresh_idx[j]]-theta)
+                    else:
+                        trained_avalanches.append(avalanche_counter)
+                        avalanche_counter=X[above_thresh_idx[j]]-theta
+
+            # plot
+            [naive_s, naive_p] = np.unique(naive_avalanches, return_counts=True)
+            # plot p(s) vs s on log-log scale
+            ax[th_idx,0].scatter(naive_s, naive_p, s=2)
+            ax[th_idx,0].set_xscale("log")
+            ax[th_idx,0].set_yscale("log")
+            ax[th_idx,0].set_xlabel('S (avalanche size)')
+            ax[th_idx,0].set_ylabel('P(S)')
+            ax[th_idx,0].set_title('Naive; '+str(bin_sizes[bin_idx])+' ms timebins')
+
+            [trained_s,trained_p] = np.unique(trained_avalanches, return_counts=True)
+            # plot p(s) vs s on log-log scale
+            ax[th_idx,1].scatter(trained_s, trained_p, s=2)
+            ax[th_idx,1].set_xscale("log")
+            ax[th_idx,1].set_yscale("log")
+            ax[th_idx,1].set_xlabel('S (avalanche size)')
+            ax[th_idx,1].set_ylabel('P(S)')
+            ax[th_idx,1].set_title('Trained; '+str(bin_sizes[bin_idx])+' ms timebins')
+
+        plt.suptitle('E avalanche size dist; dual trained; 40%ile threshold')
+        # Draw and save
+        plt.draw()
+        plt.subplots_adjust(wspace=0.4, hspace=0.96)
+        save_fname = savepath+'/criticality/avalanches_e_dualtrained_thresholds_coarse_twopops_22.44.51.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
