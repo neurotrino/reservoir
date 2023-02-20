@@ -200,11 +200,11 @@ def plot_avalanche_dist(threshold_range=True,bin_range=False,subsample=False):
 
     _, ax = plt.subplots(nrows=3, ncols=2)
 
-    naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
+    naive_data = np.load(os.path.join(np_dir,"41-50.npz"))
     trained_data = np.load(os.path.join(np_dir,"991-1000.npz"))
 
     # just the e units for now
-    naive_spikes = naive_data['spikes'][59]
+    naive_spikes = naive_data['spikes'][299]
     trained_spikes = trained_data['spikes'][299]
 
     silence_sizes = [1,5,10]
@@ -284,7 +284,7 @@ def plot_avalanche_dist(threshold_range=True,bin_range=False,subsample=False):
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.96)
-        save_fname = savepath+'/criticality/avalanches_e_dualtrained_thresholds_twopops_22.44.51.png'
+        save_fname = savepath+'/criticality/avalanches_e_dualtrained_epoch50_thresholds_twopops_22.44.51.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
