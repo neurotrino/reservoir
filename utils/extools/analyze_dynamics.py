@@ -185,7 +185,7 @@ def safely_make_joint_dirpath(*args, **kwargs):
 # =============================================================================
 
 
-def plot_avalanche_dist(threshold_range=False,bin_range=True,subsample=False):
+def plot_avalanche_dist(threshold_range=True,bin_range=False,subsample=False):
     # choose a sample experiment (full run) to examine first
     # use all trials in the initial batch of 30 trials
     # use all trials in the final batch of 30 trials
@@ -193,10 +193,10 @@ def plot_avalanche_dist(threshold_range=False,bin_range=True,subsample=False):
     # go through several choices of what counts as a period of silence
     # count up avalanche sizes (number of spikes in between silences)
     # plot log-log prob(S) vs avalanche size S (# spikes)
-    np_dir='/data/experiments/run-batch30-onlytaskloss [2022-10-12 11.54.39]/npz-data'
+    #np_dir='/data/experiments/run-batch30-onlytaskloss [2022-10-12 11.54.39]/npz-data'
     #np_dir='/data/experiments/run-batch30-onlyrateloss [2022-10-26 21.32.08]/npz-data'
     #np_dir='/data/experiments/run-batch30-specout-onlinerate0.1-savey [2022-08-15 02.58.19]/npz-data'
-    #np_dir='/data/experiments/run-batch30-dualloss-specinput0.2-rewire-nointoout-twopopsbyrate [2023-02-07 22.44.51]/npz-data'
+    np_dir='/data/experiments/run-batch30-dualloss-specinput0.2-rewire-nointoout-twopopsbyrate [2023-02-07 22.44.51]/npz-data'
 
     _, ax = plt.subplots(nrows=3, ncols=2)
 
@@ -205,7 +205,7 @@ def plot_avalanche_dist(threshold_range=False,bin_range=True,subsample=False):
 
     # just the e units for now
     naive_spikes = naive_data['spikes'][59]
-    trained_spikes = trained_data['spikes'][99]
+    trained_spikes = trained_data['spikes'][299]
 
     silence_sizes = [1,5,10]
     silence_thresh = 0
@@ -280,11 +280,11 @@ def plot_avalanche_dist(threshold_range=False,bin_range=True,subsample=False):
             ax[th_idx,1].set_ylabel('P(S)')
             ax[th_idx,1].set_title('Trained; '+str(thresholds[th_idx])+' %ile threshold')
 
-        plt.suptitle('E avalanche size dist; dual trained')
+        plt.suptitle('E avalanche size dist; dual trained; two pops')
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.96)
-        save_fname = savepath+'/criticality/avalanches_e_ratetrained_thresholds_coarse_twopops_21.32.08.png'
+        save_fname = savepath+'/criticality/avalanches_e_dualtrained_thresholds_twopops_22.44.51.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
