@@ -24,7 +24,7 @@ from utils.extools.fn_analysis import reciprocity
 from utils.extools.fn_analysis import reciprocity_ei
 from utils.extools.fn_analysis import calc_density
 from utils.extools.fn_analysis import out_degree
-from utils.extools.MI import simple_confMI
+#from utils.extools.MI import simple_confMI
 
 # ---- global variables -------------------------------------------------------
 data_dir = '/data/experiments/'
