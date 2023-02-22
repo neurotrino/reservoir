@@ -185,6 +185,62 @@ def safely_make_joint_dirpath(*args, **kwargs):
 # =============================================================================
 
 
+def plot_threshold_branching_quads_over_time():
+    np_dir='/data/experiments/run-batch30-specout-onlinerate0.1-savey [2022-08-15 02.58.19]/npz-data'
+    data_files = filenames(num_epochs, epochs_per_file)
+
+    _, ax = plt.subplots(nrows=3, ncols=1)
+
+    thresholds = [20,40,60]
+
+    for th_idx in thresholds:
+        branching = []
+
+        for filename in data_files:
+            # for each file
+            data = np.load(os.path.join(np_dir,filename))
+            spikes = data['spikes'] # in shape 100 4080 300 so far
+
+            # go through each trial of the spikes
+            for i in range(0,np.shape(spikes)[0]):
+                Z = spikes[i][:,0:240] # e units only
+                X = np.sum(Z,1)
+                theta = np.percentile(X,thresholds[th_idx])
+
+                # find where X exceeds theta
+                above_thresh_idx = np.argwhere(X>theta)
+                # remove theta from X
+                X-=theta
+
+                if len(above_thresh_idx)>1:
+                    trial_branching = []
+                    above_thresh_idx=np.squeeze(above_thresh_idx)
+                    for j in range(1,len(above_thresh_idx)):
+                        # if adjacent indices
+                        if above_thresh_idx[j]-above_thresh_idx[j-1]==1:
+                            # include ratio in branching
+                            trial_branching.append(X[above_thresh_idx[j]]/X[above_thresh_idx[j-1]])
+
+                    # append this timepoint (trial) to the whole
+                    branching.append(np.average(trial_branching))
+
+        ax[th_idx].plot(branching)
+        ax[th_idx].set_xlabel('trial')
+        ax[th_idx].set_ylabel('branching parameter')
+        ax[th_idx].set_title(str(thresholds[th_idx])+'%ile threshold')
+
+    plt.suptitle('Branching over training')
+    # Draw and save
+    plt.draw()
+    plt.subplots_adjust(wspace=0.4, hspace=0.96)
+    save_fname = savepath+'/criticality/branching_e_dualtrained_thresholds_02.58.19.png'
+    plt.savefig(save_fname,dpi=300)
+
+    # Teardown
+    plt.clf()
+    plt.close()
+
+
 def plot_avalanche_dist(threshold_range=True,bin_range=False,subsample=False):
     # choose a sample experiment (full run) to examine first
     # use all trials in the initial batch of 30 trials
@@ -3329,10 +3385,12 @@ def weird_division(n, d):
             divided[i] = 0
     return divided
 
+
+
 def plot_branching_over_time(experiment_string=rate_experiment_string):
     # count spikes in adjacent time bins
     # or should they be not adjacent?
-    bin_size = 10  # for now adjacent pre-post bins are just adjacent ms
+    bin_size = 1  # for now adjacent pre-post bins are just adjacent ms
     # separate into coherence level 1 and coherence level 0
     experiments = get_experiments(data_dir, experiment_string)
     # plot for each experiment, one branching value per coherence level
@@ -3341,18 +3399,6 @@ def plot_branching_over_time(experiment_string=rate_experiment_string):
     # this means branching params are averaged over entire runs (or
     # section of a run by coherence level) and 30 trials for each update
     data_files = filenames(num_epochs, epochs_per_file)
-
-    # subplot 0: coherence level 0, e units, avg branching (for batch
-    # of 30 trials) over training time
-
-    # subplot 1: coherence level 1, e units, avg branching (for batch
-    # of 30 trials) over training time
-
-    # subplot 2: coherence level 0, i units, avg branching (for batch
-    # of 30 trials) over training time
-
-    # subplot 3: coherence level 1, i units, avg branching (for batch
-    # of 30 trials) over training time
 
     for xdir in experiments:
         exp_path = xdir[-9:-1]
@@ -3416,7 +3462,7 @@ def plot_branching_over_time(experiment_string=rate_experiment_string):
         plt.ylabel('branching param')
         plt.title('excitatory branching over rate-only training')
         plt.draw()
-        save_fname = savepath+rate_exp_path+'/'+exp_path+'_e_nonzero_branching.png'
+        save_fname = savepath+rate_exp_path+'/'+exp_path+'_e_thresh40_branching.png'
         plt.savefig(save_fname, dpi=300)
 
         # Teardown
