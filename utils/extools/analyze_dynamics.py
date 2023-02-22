@@ -199,30 +199,32 @@ def plot_threshold_branching_quads_over_time():
         for filename in data_files:
             # for each file
             data = np.load(os.path.join(np_dir,filename))
-            spikes = data['spikes'] # in shape 100 4080 300 so far
+            spikes = data['spikes'] # in shape 100 30 4080 300 so far
 
-            # go through each trial of the spikes
+            # for each of 100 batches
             for i in range(0,np.shape(spikes)[0]):
-                Z = spikes[i][:,0:240] # e units only
-                X = np.sum(Z,1)
-                theta = np.percentile(X,thresholds[th_idx])
+                # for each of 30 trials
+                for j in range(0,np.shape(spikes)[1]):
+                    Z = spikes[i][j][:,0:240] # e units only
+                    X = np.sum(Z,1)
+                    theta = np.percentile(X,thresholds[th_idx])
 
-                # find where X exceeds theta
-                above_thresh_idx = np.argwhere(X>theta)
-                # remove theta from X
-                X-=theta
+                    # find where X exceeds theta
+                    above_thresh_idx = np.argwhere(X>theta)
+                    # remove theta from X
+                    X-=theta
 
-                if len(above_thresh_idx)>1:
-                    trial_branching = []
-                    above_thresh_idx=np.squeeze(above_thresh_idx)
-                    for j in range(1,len(above_thresh_idx)):
-                        # if adjacent indices
-                        if above_thresh_idx[j]-above_thresh_idx[j-1]==1:
-                            # include ratio in branching
-                            trial_branching.append(X[above_thresh_idx[j]]/X[above_thresh_idx[j-1]])
+                    if len(above_thresh_idx)>1:
+                        trial_branching = []
+                        above_thresh_idx=np.squeeze(above_thresh_idx)
+                        for k in range(1,len(above_thresh_idx)):
+                            # if adjacent indices
+                            if above_thresh_idx[k]-above_thresh_idx[k-1]==1:
+                                # include ratio in branching
+                                trial_branching.append(X[above_thresh_idx[k]]/X[above_thresh_idx[k-1]])
 
-                    # append this timepoint (trial) to the whole
-                    branching.append(np.average(trial_branching))
+                        # append this timepoint (trial) to the whole
+                        branching.append(np.average(trial_branching))
 
         ax[th_idx].plot(branching)
         ax[th_idx].set_xlabel('trial')
