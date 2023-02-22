@@ -193,7 +193,7 @@ def plot_threshold_branching_quads_over_time():
 
     thresholds = [20,40,60]
 
-    for th_idx in range(thresholds):
+    for th_idx in range(len(thresholds)):
         branching = []
 
         for filename in data_files:
