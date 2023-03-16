@@ -204,7 +204,7 @@ class LIF(Neuron):
 
         # Disconnect self-recurrent weights
         self.disconnect_mask = tf.cast(
-            np.diag(np.ones(self.units, dtype=np.bool)), tf.bool
+            np.diag(np.ones(self.units, dtype=bool)), tf.bool
         )
 
         self.recurrent_weights = self.add_weight(
