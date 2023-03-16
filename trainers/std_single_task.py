@@ -893,6 +893,7 @@ class Trainer(BaseTrainer):
                                 input_weights_val[i][e_rec_pop_size*2+i_rec_pop_size:e_rec_pop_size*2+i_rec_pop_size*2] = i_sample_input_vals
                         """
                         
+                        self.model.cell.build()
                         self.model.cell.input_weights.assign(input_weights_val)
 
                         # update the permissible zero indices and indices for rewiring
