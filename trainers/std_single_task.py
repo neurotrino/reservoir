@@ -841,7 +841,7 @@ class Trainer(BaseTrainer):
                         coh0_pop = [ 4,  5,  6,  7, 11, 12, 13, 14]
 
                         # get output weights
-                        self.model.dense1.build()
+                        self.model.dense1.build(input_shape=[self.cfg["data"].seq_len,self.cfg["data"].n_input])
                         output_vals = self.model.dense1.oweights.numpy()
                         self.model.out_id = np.where(output_vals!=0)[0]
 
