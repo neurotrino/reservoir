@@ -86,164 +86,170 @@ class LIF(Neuron):
         Create layer weights the first time `.__call__()` is called.
         Layers weights for the LIF neuron {...docs...}
         """
-        Neuron.build(self, input_shape)
 
-        """if self.cfg["cell"].specify_lognormal_input:
+        if self.input_weights is None and self.recurrent_weights is None:
+            Neuron.build(self, input_shape)
+
+        if self.input_weights is None:
+
+            """if self.cfg["cell"].specify_lognormal_input:
+                self.input_weights = self.add_weight(
+                    shape=(self.cfg["data"].n_input, self.units),
+                    initializer=tf.keras.initializers.Orthogonal(gain=0.7),
+                    trainable=self.cfg["train"].input_trainable,
+                    name="input_weights",
+                )
+                input_weights_mat = self.input_connmat_generator.run_generator()
+                self.input_weights.assign(input_weights_mat)"""
+
+            # not specifying input; just random uniform
             self.input_weights = self.add_weight(
-                shape=(self.cfg["data"].n_input, self.units),
-                initializer=tf.keras.initializers.Orthogonal(gain=0.7),
+                shape=(input_shape[-1], self.units),
+                initializer=tf.keras.initializers.RandomUniform(
+                    minval=0.0, maxval=0.4
+                ),
                 trainable=self.cfg["train"].input_trainable,
                 name="input_weights",
             )
-            input_weights_mat = self.input_connmat_generator.run_generator()
-            self.input_weights.assign(input_weights_mat)"""
+            # additional step to set input weights to sparse specified
+            if self.cfg["cell"].specify_input:
+                """
+                if self.cfg["cell"].two_input_populations:
+                    in_pop_size = int(self.n_in/2)
+                    e_rec_pop_size = int(self.num_ex/2)
+                    i_rec_pop_size = int(self.num_in/2)
+                    if self.cfg["cell"].two_input_populations_by_rate:
+                        # separate based on greater rate of responses for one coherence level vs the other
+                        # indices empirically determined from '/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz'
+                        coh1_pop = [ 0,  1,  2,  3,  8,  9, 10, 15]
+                        coh0_pop = [ 4,  5,  6,  7, 11, 12, 13, 14]
+                        # specify two input matrices
+                        # the first of which only goes from coh1_pop to units 1-150
+                        # the second of which only goes from coh0_pop to units 151-300
+                        input_weights_val = np.zeros([self.n_in,self.units])
+                        for i in range(0,self.n_in):
+                            # generate a sample vector of 120 to-excitatory input weight values
+                            e_sample_input_vals = np.random.uniform(low=0.0, high=0.4, size=[e_rec_pop_size])
+                            e_sample_zero_indices = np.random.choice(np.arange(e_sample_input_vals.size),replace=False,size=int(e_sample_input_vals.size * (1-self.cfg["cell"].p_input)))
+                            e_sample_input_vals[e_sample_zero_indices] = 0
+                            # generate a sample vector of 30 to-inhibitory input weight values
+                            i_sample_input_vals = np.random.uniform(low=0.0, high=0.4, size=[i_rec_pop_size])
+                            i_sample_zero_indices = np.random.choice(np.arange(i_sample_input_vals.size),replace=False,size=int(i_sample_input_vals.size * (1-self.cfg["cell"].p_input)))
+                            i_sample_input_vals[i_sample_zero_indices] = 0
 
-        # not specifying input; just random uniform
-        self.input_weights = self.add_weight(
-            shape=(input_shape[-1], self.units),
-            initializer=tf.keras.initializers.RandomUniform(
-                minval=0.0, maxval=0.4
-            ),
-            trainable=self.cfg["train"].input_trainable,
-            name="input_weights",
-        )
-        # additional step to set input weights to sparse specified
-        if self.cfg["cell"].specify_input:
-            """
-            if self.cfg["cell"].two_input_populations:
-                in_pop_size = int(self.n_in/2)
-                e_rec_pop_size = int(self.num_ex/2)
-                i_rec_pop_size = int(self.num_in/2)
-                if self.cfg["cell"].two_input_populations_by_rate:
-                    # separate based on greater rate of responses for one coherence level vs the other
-                    # indices empirically determined from '/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz'
-                    coh1_pop = [ 0,  1,  2,  3,  8,  9, 10, 15]
-                    coh0_pop = [ 4,  5,  6,  7, 11, 12, 13, 14]
-                    # specify two input matrices
-                    # the first of which only goes from coh1_pop to units 1-150
-                    # the second of which only goes from coh0_pop to units 151-300
-                    input_weights_val = np.zeros([self.n_in,self.units])
-                    for i in range(0,self.n_in):
-                        # generate a sample vector of 120 to-excitatory input weight values
-                        e_sample_input_vals = np.random.uniform(low=0.0, high=0.4, size=[e_rec_pop_size])
-                        e_sample_zero_indices = np.random.choice(np.arange(e_sample_input_vals.size),replace=False,size=int(e_sample_input_vals.size * (1-self.cfg["cell"].p_input)))
-                        e_sample_input_vals[e_sample_zero_indices] = 0
-                        # generate a sample vector of 30 to-inhibitory input weight values
-                        i_sample_input_vals = np.random.uniform(low=0.0, high=0.4, size=[i_rec_pop_size])
-                        i_sample_zero_indices = np.random.choice(np.arange(i_sample_input_vals.size),replace=False,size=int(i_sample_input_vals.size * (1-self.cfg["cell"].p_input)))
-                        i_sample_input_vals[i_sample_zero_indices] = 0
+                            #sample_input_vals = sample_input_vals.reshape([1,rec_pop_size])
+                            if i in coh1_pop:
+                                # second half of e
+                                input_weights_val[i][e_rec_pop_size:e_rec_pop_size*2] = e_sample_input_vals
+                                # first half of i
+                                input_weights_val[i][e_rec_pop_size*2:e_rec_pop_size*2+i_rec_pop_size] = i_sample_input_vals
+                            else:
+                                # first half of e
+                                input_weights_val[i][0:e_rec_pop_size] = e_sample_input_vals
+                                # second half of i
+                                input_weights_val[i][e_rec_pop_size*2+i_rec_pop_size:e_rec_pop_size*2+i_rec_pop_size*2] = i_sample_input_vals
 
-                        #sample_input_vals = sample_input_vals.reshape([1,rec_pop_size])
-                        if i in coh1_pop:
-                            # second half of e
-                            input_weights_val[i][e_rec_pop_size:e_rec_pop_size*2] = e_sample_input_vals
-                            # first half of i
-                            input_weights_val[i][e_rec_pop_size*2:e_rec_pop_size*2+i_rec_pop_size] = i_sample_input_vals
-                        else:
-                            # first half of e
-                            input_weights_val[i][0:e_rec_pop_size] = e_sample_input_vals
-                            # second half of i
-                            input_weights_val[i][e_rec_pop_size*2+i_rec_pop_size:e_rec_pop_size*2+i_rec_pop_size*2] = i_sample_input_vals
+                        # set initial input weights
+                        self.input_weights.assign(input_weights_val)
 
-                    # set initial input weights
-                    self.input_weights.assign(input_weights_val)
+                    else:
+                        # specify two input matrices, one of which only goes to units 1-150;
+                        # the other only goes to units 151-300
+                        input_weights_0 = np.random.uniform(low=0.0, high=0.4, size=[in_pop_size*rec_pop_size])
+                        zero_indices_0 = np.random.choice(
+                            np.arange(input_weights_0.size),
+                            replace=False,
+                            size=int(input_weights_0.size * (1-self.cfg["cell"].p_input))
+                        )
+                        input_weights_0[zero_indices_0] = 0
+                        input_weights_0 = input_weights_0.reshape([in_pop_size,rec_pop_size])
+
+                        input_weights_1 = np.random.uniform(low=0.0, high=0.4, size=[in_pop_size*rec_pop_size])
+                        zero_indices_1 = np.random.choice(
+                            np.arange(input_weights_1.size),
+                            replace=False,
+                            size=int(input_weights_1.size * (1-self.cfg["cell"].p_input))
+                        )
+                        input_weights_1[zero_indices_1] = 0
+                        input_weights_1 = input_weights_1.reshape([in_pop_size,rec_pop_size])
+
+                        # put them together
+                        input_weights_val = np.zeros([self.n_in,self.units])
+                        # upper left quad
+                        input_weights_val[:in_pop_size,:rec_pop_size] = input_weights_0
+                        # lower right quad
+                        input_weights_val[in_pop_size:,rec_pop_size:] = input_weights_1
+                        self.input_weights.assign(input_weights_val)
 
                 else:
-                    # specify two input matrices, one of which only goes to units 1-150;
-                    # the other only goes to units 151-300
-                    input_weights_0 = np.random.uniform(low=0.0, high=0.4, size=[in_pop_size*rec_pop_size])
-                    zero_indices_0 = np.random.choice(
-                        np.arange(input_weights_0.size),
-                        replace=False,
-                        size=int(input_weights_0.size * (1-self.cfg["cell"].p_input))
-                    )
-                    input_weights_0[zero_indices_0] = 0
-                    input_weights_0 = input_weights_0.reshape([in_pop_size,rec_pop_size])
+                """
+                # use the same weight dist that we have from the random uniform initialization
+                input_weights_val = np.random.uniform(low=0.0, high=0.4, size=[self.n_in*self.units])
+                # randomly choose a percentage (1-p_input) of the input weight matrix to become zeros
+                zero_indices = np.random.choice(
+                    np.arange(input_weights_val.size),
+                    replace=False,
+                    size=int(input_weights_val.size * (1-self.cfg["cell"].p_input))
+                )
+                input_weights_val[zero_indices] = 0
+                input_weights_val = input_weights_val.reshape([self.n_in, self.units])
+                self.input_weights.assign(input_weights_val)
 
-                    input_weights_1 = np.random.uniform(low=0.0, high=0.4, size=[in_pop_size*rec_pop_size])
-                    zero_indices_1 = np.random.choice(
-                        np.arange(input_weights_1.size),
-                        replace=False,
-                        size=int(input_weights_1.size * (1-self.cfg["cell"].p_input))
-                    )
-                    input_weights_1[zero_indices_1] = 0
-                    input_weights_1 = input_weights_1.reshape([in_pop_size,rec_pop_size])
+                # get which units actually receive input
+                self.input_id = np.unique(np.where(input_weights_val!=0)[1])
 
-                    # put them together
-                    input_weights_val = np.zeros([self.n_in,self.units])
-                    # upper left quad
-                    input_weights_val[:in_pop_size,:rec_pop_size] = input_weights_0
-                    # lower right quad
-                    input_weights_val[in_pop_size:,rec_pop_size:] = input_weights_1
-                    self.input_weights.assign(input_weights_val)
-
-            else:
-            """
-            # use the same weight dist that we have from the random uniform initialization
-            input_weights_val = np.random.uniform(low=0.0, high=0.4, size=[self.n_in*self.units])
-            # randomly choose a percentage (1-p_input) of the input weight matrix to become zeros
-            zero_indices = np.random.choice(
-                np.arange(input_weights_val.size),
-                replace=False,
-                size=int(input_weights_val.size * (1-self.cfg["cell"].p_input))
+            # save initial input weights
+            np.save(
+                os.path.join(
+                    self.cfg["save"].main_output_dir, "input_preweights.npy"
+                ),
+                self.input_weights.numpy(),
             )
-            input_weights_val[zero_indices] = 0
-            input_weights_val = input_weights_val.reshape([self.n_in, self.units])
-            self.input_weights.assign(input_weights_val)
 
-            # get which units actually receive input
-            self.input_id = np.unique(np.where(input_weights_val!=0)[1])
-
-        # save initial input weights
-        np.save(
-            os.path.join(
-                self.cfg["save"].main_output_dir, "input_preweights.npy"
-            ),
-            self.input_weights.numpy(),
-        )
+            # store input weights' signs, where 0s are 0s
+            if self.cfg["cell"].specify_input:
+                self.input_sign = tf.sign(self.input_weights)
 
         # Disconnect self-recurrent weights
         self.disconnect_mask = tf.cast(
             np.diag(np.ones(self.units, dtype=bool)), tf.bool
         )
 
-        self.recurrent_weights = self.add_weight(
-            shape=(self.units, self.units),
-            initializer=tf.keras.initializers.Orthogonal(gain=0.7),
-            trainable=True,
-            name="recurrent_weights",
-        )
-        initial_weights_mat = self.connmat_generator.run_generator()
-        # save initial recurrent weights
-        np.save(
-            os.path.join(
-                self.cfg["save"].main_output_dir, "main_preweights.npy"
-            ),
-            initial_weights_mat,
-        )
+        if self.recurrent_weights is None:
 
-        """if self.cfg["cell"].specify_input:
-            # just set main weights, as input weights were set earlier
-            self.recurrent_weights.assign_add(initial_weights_mat)
-        else:"""
-        # set both input and main layer weights
-        self.set_weights(
-            [self.input_weights.value(), initial_weights_mat]
-        )
+            self.recurrent_weights = self.add_weight(
+                shape=(self.units, self.units),
+                initializer=tf.keras.initializers.Orthogonal(gain=0.7),
+                trainable=True,
+                name="recurrent_weights",
+            )
+            initial_weights_mat = self.connmat_generator.run_generator()
+            # save initial recurrent weights
+            np.save(
+                os.path.join(
+                    self.cfg["save"].main_output_dir, "main_preweights.npy"
+                ),
+                initial_weights_mat,
+            )
 
-        # Store recurrent weights' signs
-        if self.freewiring:
-            # Store using +1 for excitatory, -1 for inhibitory
-            wmat = -1 * np.ones([self.units, self.units])
-            wmat[0 : self.num_ex, :] = -1 * wmat[0 : self.num_ex, :]
-            self.rec_sign = tf.convert_to_tensor(wmat, dtype=tf.float32)
-        else:
-            # as above but 0 for zeros
-            self.rec_sign = tf.sign(self.recurrent_weights)
+            """if self.cfg["cell"].specify_input:
+                # just set main weights, as input weights were set earlier
+                self.recurrent_weights.assign_add(initial_weights_mat)
+            else:"""
+            # set both input and main layer weights
+            self.set_weights(
+                [self.input_weights.value(), initial_weights_mat]
+            )
 
-        # store input weights' signs, where 0s are 0s
-        if self.cfg["cell"].specify_input:
-            self.input_sign = tf.sign(self.input_weights)
+            # Store recurrent weights' signs
+            if self.freewiring:
+                # Store using +1 for excitatory, -1 for inhibitory
+                wmat = -1 * np.ones([self.units, self.units])
+                wmat[0 : self.num_ex, :] = -1 * wmat[0 : self.num_ex, :]
+                self.rec_sign = tf.convert_to_tensor(wmat, dtype=tf.float32)
+            else:
+                # as above but 0 for zeros
+                self.rec_sign = tf.sign(self.recurrent_weights)
 
     def call(self, inputs, state):
         """
