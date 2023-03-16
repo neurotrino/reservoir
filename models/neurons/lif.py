@@ -109,6 +109,7 @@ class LIF(Neuron):
         )
         # additional step to set input weights to sparse specified
         if self.cfg["cell"].specify_input:
+            """
             if self.cfg["cell"].two_input_populations:
                 in_pop_size = int(self.n_in/2)
                 e_rec_pop_size = int(self.num_ex/2)
@@ -177,17 +178,18 @@ class LIF(Neuron):
                     self.input_weights.assign(input_weights_val)
 
             else:
-                # use the same weight dist that we have from the random uniform initialization
-                input_weights_val = np.random.uniform(low=0.0, high=0.4, size=[self.n_in*self.units])
-                # randomly choose a percentage (1-p_input) of the input weight matrix to become zeros
-                zero_indices = np.random.choice(
-                    np.arange(input_weights_val.size),
-                    replace=False,
-                    size=int(input_weights_val.size * (1-self.cfg["cell"].p_input))
-                )
-                input_weights_val[zero_indices] = 0
-                input_weights_val = input_weights_val.reshape([self.n_in, self.units])
-                self.input_weights.assign(input_weights_val)
+            """
+            # use the same weight dist that we have from the random uniform initialization
+            input_weights_val = np.random.uniform(low=0.0, high=0.4, size=[self.n_in*self.units])
+            # randomly choose a percentage (1-p_input) of the input weight matrix to become zeros
+            zero_indices = np.random.choice(
+                np.arange(input_weights_val.size),
+                replace=False,
+                size=int(input_weights_val.size * (1-self.cfg["cell"].p_input))
+            )
+            input_weights_val[zero_indices] = 0
+            input_weights_val = input_weights_val.reshape([self.n_in, self.units])
+            self.input_weights.assign(input_weights_val)
 
             # get which units actually receive input
             self.input_id = np.unique(np.where(input_weights_val!=0)[1])
