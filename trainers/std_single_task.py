@@ -853,8 +853,8 @@ class Trainer(BaseTrainer):
                         # redraw input weights from the two coherence populations according to leftover values (avail_ids)
                         input_weights_val = np.zeros([self.model.cell.n_in, self.model.cell.units])
                         # determine how many values we need to fill in per coherence level
-                        conns_per_input = int(self.cfg["cell"].p_input*self.model.cell.units)
-                        for i in range(0, self.model.n_in):
+                        conns_per_input = int(self.cfg["model"].cell.p_input*self.model.cell.units)
+                        for i in range(0, self.model.cell.n_in):
                             if i in coh0_pop:
                                 # choose from coh0 avails
                                 sample_input_vals = np.random.uniform(low=0.0, high=0.4, size=np.shape(self.model.avail_id_coh0))
