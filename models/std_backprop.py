@@ -81,7 +81,7 @@ class ModifiedDense(tf.keras.layers.Layer):
         #     for a unified implementation
         self.output_target_zcount = None
 
-    def build(self, input_shape):
+    def build(self):
 
         if self.oweights is None:
 
