@@ -900,7 +900,7 @@ class Trainer(BaseTrainer):
                         # get which units actually receive input
                         self.model.input_id = np.unique(np.where(input_weights_val!=0)[1])
                         # store input weights' signs, where 0s are 0s
-                        self.model.input_sign = tf.sign(self.input_weights)
+                        self.model.input_sign = tf.sign(self.model.cell.input_weights)
 
                         self.model.input_target_zcount = len(tf.where(self.model.input_weights == 0))
 
