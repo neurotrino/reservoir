@@ -832,7 +832,7 @@ class Trainer(BaseTrainer):
             """
 
             # [MAKE SURE NO OVERLAP]
-            if epoch_idx==0: # at the very very beginning
+            if epoch_idx==1: # at the very very beginning
                 if self.cfg["model"].cell.no_input_to_output:
                     # this is the correct initialization of recurrent weights and so on
                     if self.cfg["model"].cell.two_input_populations_by_rate:
