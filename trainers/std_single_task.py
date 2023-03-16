@@ -835,7 +835,7 @@ class Trainer(BaseTrainer):
             if epoch_idx==0: # at the very very beginning
                 if self.cfg["model"].cell.no_input_to_output:
                     # this is the correct initialization of recurrent weights and so on
-                    if self.cfg["cell"].two_input_populations_by_rate:
+                    if self.cfg["model"].cell.two_input_populations_by_rate:
                         # separate based on greater rate of responses for one coherence level vs the other
                         coh1_pop = [ 0,  1,  2,  3,  8,  9, 10, 15]
                         coh0_pop = [ 4,  5,  6,  7, 11, 12, 13, 14]
