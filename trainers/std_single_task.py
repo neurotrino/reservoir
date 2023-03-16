@@ -832,7 +832,7 @@ class Trainer(BaseTrainer):
             """
 
             # [MAKE SURE NO OVERLAP]
-            if epoch_idx==1: # at the very very beginning
+            if epoch_idx==0: # at the very very beginning
                 if self.cfg["model"].cell.no_input_to_output:
                     # this is the correct initialization of recurrent weights and so on
                     if self.cfg["model"].cell.two_input_populations_by_rate:
@@ -841,6 +841,7 @@ class Trainer(BaseTrainer):
                         coh0_pop = [ 4,  5,  6,  7, 11, 12, 13, 14]
 
                         # get output weights
+                        self.model.dense1.build()
                         output_vals = self.model.dense1.oweights.numpy()
                         self.model.out_id = np.where(output_vals!=0)[0]
 
@@ -850,9 +851,9 @@ class Trainer(BaseTrainer):
                         self.model.avail_id_coh1 = np.setdiff1d(self.model.avail_id,self.model.avail_id_coh0)
 
                         # redraw input weights from the two coherence populations according to leftover values (avail_ids)
-                        input_weights_val = np.zeros([self.model.n_in, self.model.units])
+                        input_weights_val = np.zeros([self.model.cell.n_in, self.model.cell.units])
                         # determine how many values we need to fill in per coherence level
-                        conns_per_input = int(self.cfg["cell"].p_input*self.model.units)
+                        conns_per_input = int(self.cfg["cell"].p_input*self.model.cell.units)
                         for i in range(0, self.model.n_in):
                             if i in coh0_pop:
                                 # choose from coh0 avails

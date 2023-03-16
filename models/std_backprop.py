@@ -83,43 +83,41 @@ class ModifiedDense(tf.keras.layers.Layer):
 
     def build(self, input_shape):
 
-        # W
-        #
-        # [!] document
+        if self.oweights is None:
 
-        self.oweights = self.add_weight(
-            name="output",
-            initializer=tf.keras.initializers.Zeros(),
-            shape=(self.num_neurons, self.n_out),
-            trainable=self.trainable,
-        )
-        output_connmat_generator = OMG(
-            n_excit=self.ecount,
-            n_inhib=self.icount,
-            n_out=self.n_out,
-            p_from_e=self.p_eo,
-            p_from_i=self.p_io,
-            mu=self.mu,
-            sigma=self.sigma,
-        )
-        initial_oweights = output_connmat_generator.run_generator()
-        self.oweights.assign_add(
-            initial_oweights * self.cfg["model"].cell.output_multiplier
-        )
+            self.oweights = self.add_weight(
+                name="output",
+                initializer=tf.keras.initializers.Zeros(),
+                shape=(self.num_neurons, self.n_out),
+                trainable=self.trainable,
+            )
+            output_connmat_generator = OMG(
+                n_excit=self.ecount,
+                n_inhib=self.icount,
+                n_out=self.n_out,
+                p_from_e=self.p_eo,
+                p_from_i=self.p_io,
+                mu=self.mu,
+                sigma=self.sigma,
+            )
+            initial_oweights = output_connmat_generator.run_generator()
+            self.oweights.assign_add(
+                initial_oweights * self.cfg["model"].cell.output_multiplier
+            )
 
-        # save initial output weights
-        np.save(
-            os.path.join(
-                self.cfg["save"].main_output_dir, "output_preweights.npy"
-            ),
-            initial_oweights,
-        )
+            # save initial output weights
+            np.save(
+                os.path.join(
+                    self.cfg["save"].main_output_dir, "output_preweights.npy"
+                ),
+                initial_oweights,
+            )
 
-        # set output weights from generators
-        #
-        # [!] don't know why this was implemented per-layer; see #55
-        #     for a unified implementation
-        self.output_sign = tf.sign(self.oweights)
+            # set output weights from generators
+            #
+            # [!] don't know why this was implemented per-layer; see #55
+            #     for a unified implementation
+            self.output_sign = tf.sign(self.oweights)
 
     @tf.function
     def call(self, inputs, *args, **kwargs):
