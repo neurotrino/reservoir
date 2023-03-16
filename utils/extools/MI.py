@@ -8,7 +8,7 @@ import numpy as np
 import scipy
 from scipy.sparse import load_npz
 import glob
-from sklearn.linear_model import LinearRegression
+#from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 import os
 
