@@ -80,6 +80,7 @@ class ModifiedDense(tf.keras.layers.Layer):
         # [!] don't know why this was implemented per-layer; see #55
         #     for a unified implementation
         self.output_target_zcount = None
+        self.oweights = None
 
     def build(self):
 
