@@ -902,7 +902,7 @@ class Trainer(BaseTrainer):
                         # store input weights' signs, where 0s are 0s
                         self.model.input_sign = tf.sign(self.model.cell.input_weights)
 
-                        self.model.input_target_zcount = len(tf.where(self.model.input_weights == 0))
+                        self.model.input_target_zcount = len(tf.where(self.model.cell.input_weights == 0))
 
                     # save (i.e. overwrite) the true initial input weight matrix
                     np.save(
