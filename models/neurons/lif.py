@@ -70,7 +70,7 @@ class LIF(Neuron):
         self.bias_currents = None
         self.recurrent_weights = None
         self.disconnect_mask = tf.cast(
-            np.diag(np.ones(self.units, dtype=np.bool)), tf.bool
+            np.diag(np.ones(self.units, dtype=bool)), tf.bool
         )
 
         # (voltage, refractory, previous_spikes)
