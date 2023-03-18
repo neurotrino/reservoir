@@ -9,6 +9,40 @@ import os
 from models.neurons.base import ExIn, Neuron
 from utils.stats import StatisticalDistribution
 
+
+# =====================================================================================
+#  Utilities
+# =====================================================================================
+
+def sampled_vector(size, density=1.0):
+    samples = np.random.uniform(low=0.0, high=0.4, size=(size,))
+    zero_indices = np.random.choice(
+        np.arange(size),
+        replace=False,
+        size=int(size * (1 - density))
+    )
+    samples[zero_indices] = 0
+    return samples
+
+
+def sampled_matrix(xsize, ysize, density=1.0):
+    samples = sampled_vector(xsize * ysize, density=density)
+    return samples.reshape((xsize, ysize))
+
+
+def two_pop_matrix(upper_left, lower_right):
+
+    xsize = upper_left.shape[0] + lower_right.shape[0]
+    ysize = upper_left.shape[1] + lower_right.shape[1]
+
+    stuck_together = np.zeros((xsize, ysize))
+
+    stuck_together[:upper_left.shape[0], :upper_left.shape[1]] = upper_left
+    stuck_together[upper_left.shape[0]:, upper_left.shape[1]:] = lower_right
+
+    return stuck_together
+
+
 # ┬───────────────────────────────────────────────────────────────────────────╮
 # ┤ Leaky Integrate-and-Fire (LIF) Neuron                                     │
 # ┴───────────────────────────────────────────────────────────────────────────╯
@@ -129,74 +163,64 @@ class LIF(Neuron):
                         input_weights_val = np.zeros([self.n_in,self.units])
                         for i in range(0,self.n_in):
                             # generate a sample vector of 120 to-excitatory input weight values
-                            e_sample_input_vals = np.random.uniform(low=0.0, high=0.4, size=[e_rec_pop_size])
-                            e_sample_zero_indices = np.random.choice(np.arange(e_sample_input_vals.size),replace=False,size=int(e_sample_input_vals.size * (1-self.cfg["cell"].p_input)))
-                            e_sample_input_vals[e_sample_zero_indices] = 0
+                            e_sample_input_vals = sampled_vector(
+                                e_rec_pop_size, self.cfg["cell"].p_input
+                            )
+
                             # generate a sample vector of 30 to-inhibitory input weight values
-                            i_sample_input_vals = np.random.uniform(low=0.0, high=0.4, size=[i_rec_pop_size])
-                            i_sample_zero_indices = np.random.choice(np.arange(i_sample_input_vals.size),replace=False,size=int(i_sample_input_vals.size * (1-self.cfg["cell"].p_input)))
-                            i_sample_input_vals[i_sample_zero_indices] = 0
+                            i_sample_input_vals = sampled_vector(
+                                i_rec_pop_size, self.cfg["cell"].p_input
+                            )
 
                             #sample_input_vals = sample_input_vals.reshape([1,rec_pop_size])
+
+                            idx0 = e_rec_pop_size
+                            idx1 = idx0 + e_rec_pop_size
+                            idx2 = idx1 + i_rec_pop_size
+                            idx3 = idx2 + i_rec_pop_size
+
                             if i in coh1_pop:
                                 # second half of e
-                                input_weights_val[i][e_rec_pop_size:e_rec_pop_size*2] = e_sample_input_vals
+                                input_weights_val[i][idx0:idx1] = e_sample_input_vals
                                 # first half of i
-                                input_weights_val[i][e_rec_pop_size*2:e_rec_pop_size*2+i_rec_pop_size] = i_sample_input_vals
+                                input_weights_val[i][idx1:idx2] = i_sample_input_vals
                             else:
                                 # first half of e
-                                input_weights_val[i][0:e_rec_pop_size] = e_sample_input_vals
+                                input_weights_val[i][0:idx0] = e_sample_input_vals
                                 # second half of i
-                                input_weights_val[i][e_rec_pop_size*2+i_rec_pop_size:e_rec_pop_size*2+i_rec_pop_size*2] = i_sample_input_vals
-
-                        # set initial input weights
-                        self.input_weights.assign(input_weights_val)
+                                input_weights_val[i][idx2:idx3] = i_sample_input_vals
 
                     else:
                         # specify two input matrices, one of which only goes to units 1-150;
                         # the other only goes to units 151-300
-                        input_weights_0 = np.random.uniform(low=0.0, high=0.4, size=[in_pop_size*rec_pop_size])
-                        zero_indices_0 = np.random.choice(
-                            np.arange(input_weights_0.size),
-                            replace=False,
-                            size=int(input_weights_0.size * (1-self.cfg["cell"].p_input))
+                        input_weights_0 = sampled_matrix(
+                            in_pop_size, e_rec_pop_size, self.cfg["cell"].p_input
                         )
-                        input_weights_0[zero_indices_0] = 0
-                        input_weights_0 = input_weights_0.reshape([in_pop_size,rec_pop_size])
-
-                        input_weights_1 = np.random.uniform(low=0.0, high=0.4, size=[in_pop_size*rec_pop_size])
-                        zero_indices_1 = np.random.choice(
-                            np.arange(input_weights_1.size),
-                            replace=False,
-                            size=int(input_weights_1.size * (1-self.cfg["cell"].p_input))
+                        input_weights_1 = sampled_matrix(
+                            in_pop_size, i_rec_pop_size, self.cfg["cell"].p_input
                         )
-                        input_weights_1[zero_indices_1] = 0
-                        input_weights_1 = input_weights_1.reshape([in_pop_size,rec_pop_size])
 
                         # put them together
-                        input_weights_val = np.zeros([self.n_in,self.units])
-                        # upper left quad
-                        input_weights_val[:in_pop_size,:rec_pop_size] = input_weights_0
-                        # lower right quad
-                        input_weights_val[in_pop_size:,rec_pop_size:] = input_weights_1
-                        self.input_weights.assign(input_weights_val)
+                        input_weights_val = two_pop_matrix(
+                            input_weights_0, input_weights_1
+                        )
 
                 else:
                 """
-                # use the same weight dist that we have from the random uniform initialization
-                input_weights_val = np.random.uniform(low=0.0, high=0.4, size=[self.n_in*self.units])
-                # randomly choose a percentage (1-p_input) of the input weight matrix to become zeros
-                zero_indices = np.random.choice(
-                    np.arange(input_weights_val.size),
-                    replace=False,
-                    size=int(input_weights_val.size * (1-self.cfg["cell"].p_input))
+                # use the same weight dist that we have from the random uniform
+                # initialization
+                #
+                # randomly choose a percentage (1-p_input) of the input weight
+                # matrix to become zeros
+                input_weights_val = sampled_matrix(
+                    self.n_in, self.units, self.cfg["cell"].p_input
                 )
-                input_weights_val[zero_indices] = 0
-                input_weights_val = input_weights_val.reshape([self.n_in, self.units])
+
+                # runs for all cases
                 self.input_weights.assign(input_weights_val)
 
                 # get which units actually receive input
-                self.input_id = np.unique(np.where(input_weights_val!=0)[1])
+                self.input_id = np.unique(np.where(input_weights_val != 0)[1])
 
             # save initial input weights
             np.save(
