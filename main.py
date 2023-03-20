@@ -24,7 +24,6 @@ for filepath in Path(".").rglob("*.py"):
     fp_str = str(filepath)
 
     if fp_str in [__file__, "__init__.py", "setup.py"] or "ipynb" in fp_str:
-        print(fp_str)
         continue
 
     # Convert filepaths to module paths
