@@ -936,13 +936,13 @@ class Trainer(BaseTrainer):
 
                     # update the permissible zero indices and indices for rewiring
                     # get which units actually receive input
-                    self.model.input_id = np.unique(
+                    self.model.cell.input_id = np.unique(
                         np.where(input_weights_val != 0)[1]
                     )
                     # store input weights' signs, where 0s are 0s
-                    self.model.input_sign = tf.sign(cell.input_weights)
+                    self.model.cell.input_sign = tf.sign(cell.input_weights)
 
-                    self.model.input_target_zcount = len(tf.where(cell.input_weights == 0))
+                    self.model.cell.input_target_zcount = len(tf.where(cell.input_weights == 0))
 
                 # save (i.e. overwrite) the true initial input weight matrix
                 out_dir = self.cfg["save"].main_output_dir
