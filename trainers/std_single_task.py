@@ -823,6 +823,21 @@ class Trainer(BaseTrainer):
         # ┤ Training                                                          │
         # ┴───────────────────────────────────────────────────────────────────╯
 
+        def sampled_vector(size):
+            return np.random.uniform(low=0.0, high=0.4, size=size)
+
+        def zero_speckled_vector(size, fraction_zero):
+            v = sampled_vector(size)
+            zero_indices = np.random.choice(
+                np.arange(v.size),
+                size=int(v.size * fraction_zero),
+                replace=False
+            )
+            v[zero_indices] = 0
+            return v
+
+        input_shape = (self.cfg["data"].seq_len, self.cfg["data"].n_input)
+
         for epoch_idx in range(n_epochs):
             """[*] Other stuff you can log
             print("W = {}, B = {}".format(*self.model.trainable_variables))
@@ -830,111 +845,137 @@ class Trainer(BaseTrainer):
                 print("trainable_variables:")
                 print(k)
             """
+            cell = self.model.cell
 
             # [MAKE SURE NO OVERLAP]
-            if epoch_idx==0: # at the very very beginning
-                if self.cfg["model"].cell.no_input_to_output:
-                    # this is the correct initialization of recurrent weights and so on
-                    if self.cfg["model"].cell.two_input_populations_by_rate:
-                        # separate based on greater rate of responses for one coherence level vs the other
-                        coh1_pop = [ 0,  1,  2,  3,  8,  9, 10, 15]
-                        coh0_pop = [ 4,  5,  6,  7, 11, 12, 13, 14]
+            # (~initializer)
+            if epoch_idx == 0 and self.cfg["model"].cell.no_input_to_output:
+                # this is the correct initialization of recurrent weights and
+                # so on
+                if self.cfg["model"].cell.two_input_populations_by_rate:
+                    # separate based on greater rate of responses for one
+                    # coherence level vs the other
+                    coh1_pop = [ 0,  1,  2,  3,  8,  9, 10, 15]
+                    coh0_pop = [ 4,  5,  6,  7, 11, 12, 13, 14]
 
-                        # get output weights
-                        self.model.dense1.build(input_shape=[self.cfg["data"].seq_len,self.cfg["data"].n_input])
-                        output_vals = self.model.dense1.oweights.numpy()
-                        self.model.out_id = np.where(output_vals!=0)[0]
+                    # get output weights
+                    self.model.dense1.build(input_shape=input_shape)
+                    output_vals = self.model.dense1.oweights.numpy()
+                    self.model.out_id = np.where(output_vals != 0)[0]
 
-                        self.model.avail_id = np.setdiff1d(np.array(range(0,300)), self.model.out_id)
-                        # randomly split into remaining available id's for the two coherence levels
-                        self.model.avail_id_coh0 = np.random.choice(self.model.avail_id, size=int(len(self.model.avail_id)/2), replace=False)
-                        self.model.avail_id_coh1 = np.setdiff1d(self.model.avail_id,self.model.avail_id_coh0)
-
-                        # redraw input weights from the two coherence populations according to leftover values (avail_ids)
-                        input_weights_val = np.zeros([self.model.cell.n_in, self.model.cell.units])
-                        # determine how many values we need to fill in per coherence level
-                        conns_per_input = int(self.cfg["model"].cell.p_input*self.model.cell.units)
-                        for i in range(0, self.model.cell.n_in):
-                            if i in coh0_pop:
-                                # choose from coh0 avails
-                                sample_input_vals = np.random.uniform(low=0.0, high=0.4, size=np.shape(self.model.avail_id_coh0))
-                                input_weights_val[i][self.model.avail_id_coh0] = sample_input_vals
-                            else:
-                                sample_input_vals = np.random.uniform(low=0.0, high=0.4, size=np.shape(self.model.avail_id_coh1))
-                                # choose from coh1 avails
-                                input_weights_val[i][self.model.avail_id_coh1] = sample_input_vals
-                        """
-                        # former way of doing it, when the non-overlap was not explicitly specified upon init
-                        in_pop_size = int(self.model.n_in/2)
-                        e_rec_pop_size = int(self.model.num_ex/2)
-                        i_rec_pop_size = int(self.model.num_in/2)
-                        input_weights_val = np.zeros([self.model.n_in,self.model.units])
-                        for i in range(0,self.model.n_in):
-                            # generate a sample vector of 120 to-excitatory input weight values
-                            e_sample_input_vals = np.random.uniform(low=0.0, high=0.4, size=[e_rec_pop_size])
-                            # include zeros proportionally, randomly
-                            e_sample_zero_indices = np.random.choice(np.arange(e_sample_input_vals.size),replace=False,size=int(e_sample_input_vals.size * (1-self.cfg["cell"].p_input)))
-                            e_sample_input_vals[e_sample_zero_indices] = 0
-                            # generate a sample vector of 30 to-inhibitory input weight values
-                            i_sample_input_vals = np.random.uniform(low=0.0, high=0.4, size=[i_rec_pop_size])
-                            # include zeros proportionally, randomly
-                            i_sample_zero_indices = np.random.choice(np.arange(i_sample_input_vals.size),replace=False,size=int(i_sample_input_vals.size * (1-self.cfg["cell"].p_input)))
-                            i_sample_input_vals[i_sample_zero_indices] = 0
-
-                            if i in coh1_pop:
-                                # second half of e
-                                input_weights_val[i][e_rec_pop_size:e_rec_pop_size*2] = e_sample_input_vals
-                                # first half of i
-                                input_weights_val[i][e_rec_pop_size*2:e_rec_pop_size*2+i_rec_pop_size] = i_sample_input_vals
-                            else:
-                                # first half of e
-                                input_weights_val[i][0:e_rec_pop_size] = e_sample_input_vals
-                                # second half of i
-                                input_weights_val[i][e_rec_pop_size*2+i_rec_pop_size:e_rec_pop_size*2+i_rec_pop_size*2] = i_sample_input_vals
-                        """
-
-                        self.model.cell.build(input_shape=[self.cfg["data"].seq_len,self.cfg["data"].n_input])
-                        self.model.cell.input_weights.assign(input_weights_val)
-
-                        # update the permissible zero indices and indices for rewiring
-                        # get which units actually receive input
-                        self.model.input_id = np.unique(np.where(input_weights_val!=0)[1])
-                        # store input weights' signs, where 0s are 0s
-                        self.model.input_sign = tf.sign(self.model.cell.input_weights)
-
-                        self.model.input_target_zcount = len(tf.where(self.model.cell.input_weights == 0))
-
-                    # save (i.e. overwrite) the true initial input weight matrix
-                    np.save(
-                        os.path.join(
-                            self.cfg["save"].main_output_dir, "input_preweights.npy"
-                        ),
-                        self.model.cell.input_weights.numpy(),
+                    self.model.avail_id = np.setdiff1d(
+                        np.array(range(0,300)), self.model.out_id
                     )
+                    # randomly split into remaining available id's for the two
+                    # coherence levels
+                    self.model.avail_id_coh0 = np.random.choice(
+                        self.model.avail_id,
+                        size=(len(self.model.avail_id) // 2),
+                        replace=False
+                    )
+                    self.model.avail_id_coh1 = np.setdiff1d(
+                        self.model.avail_id, self.model.avail_id_coh0
+                    )
+
+                    # redraw input weights from the two coherence populations
+                    # according to leftover values (avail_ids)
+                    input_weights_val = np.zeros(shape=(cell.n_in, cell.units))
+
+                    # determine how many values we need to fill in per coherence level
+                    # conns_per_input = p_input * n_units
+                    for inp_idx in range(cell.n_in):
+                        if inp_idx in coh0_pop:
+                            cohX = self.model.avail_id_coh0
+                        else:
+                            cohX = self.model.avail_id_coh1
+                        input_weights_val[inp_idx][cohX] = sampled_vector(cohX.shape)
+
+                    """
+                    # former way of doing it, when the non-overlap was not
+                    # explicitly specified upon init
+
+                    in_pop_size = self.model.n_in // 2
+                    e_rec_pop_size = self.model.num_ex // 2
+                    i_rec_pop_size = self.model.num_in // 2
+                    input_weights_val = np.zeros(shape=(self.model.n_in, self.model.units))
+
+                    for i in range(0,self.model.n_in):
+                        fraction_zero = 1 - self.cfg["cell"].p_input
+
+                        # sample vector of 120 to-excitatory input weights
+                        # include zeros proportionally, randomly
+                        e_sample_input_vals = zero_speckled_vector(
+                            size=(e_rec_pop_size,), fraction_zero=fraction_zero
+                        )
+
+                        # sample vector of 30 to-inhibitory input weights
+                        # include zeros proportionally, randomly
+                        i_sample_input_vals = zero_speckled_vector(
+                            size=(i_rec_pop_size,), fraction_zero=fraction_zero
+                        )
+
+                        idx0 = e_rec_pop_size
+                        idx1 = idx0 + e_rec_pop_size
+                        idx2 = idx1 + i_rec_pop_size
+                        idx3 = idx2 + i_rec_pop_size
+
+                        if i in coh1_pop:
+                            # second half of e
+                            input_weights_val[i][idx0:idx1] = e_sample_input_vals
+                            # first half of i
+                            input_weights_val[i][idx1:idx2] = i_sample_input_vals
+                        else:
+                            # first half of e
+                            input_weights_val[i][:idx0] = e_sample_input_vals
+                            # second half of i
+                            input_weights_val[i][idx2:idx3] = i_sample_input_vals
+                    """
+
+                    cell.build(input_shape=input_shape)
+                    cell.input_weights.assign(input_weights_val)
+
+                    # update the permissible zero indices and indices for rewiring
+                    # get which units actually receive input
+                    self.model.input_id = np.unique(
+                        np.where(input_weights_val != 0)[1]
+                    )
+                    # store input weights' signs, where 0s are 0s
+                    self.model.input_sign = tf.sign(cell.input_weights)
+
+                    self.model.input_target_zcount = len(tf.where(cell.input_weights == 0))
+
+                # save (i.e. overwrite) the true initial input weight matrix
+                out_dir = self.cfg["save"].main_output_dir
+                np.save(
+                    os.path.join(out_dir, "input_preweights.npy"),
+                    cell.input_weights.numpy(),
+                )
 
             # [REDRAW OUTPUT]
             # if we are in the 50th-from-last epoch, redraw output weights entirely and keep training
-            if epoch_idx==n_epochs-100:
-                if self.cfg["train"].redraw_output:
-                    # redraw output from initial distribution
-                    # everything else about the network remains the same
-                    # output_vals = self.model.dense1.oweights.numpy()
-                    output_connmat_generator = OMG(
-                        n_excit=self.model.cell.num_ex,
-                        n_inhib=self.model.cell.num_in,
-                        n_out=self.model.n_out,
-                        p_from_e=self.cfg["model"].cell.p_eo,
-                        p_from_i=self.cfg["model"].cell.p_io,
-                        mu=self.model.cell.mu,
-                        sigma=self.model.cell.sigma
-                    )
-                    new_oweights = output_connmat_generator.run_generator()
-                    self.model.dense1.oweights.assign(
-                        new_oweights * self.cfg["model"].cell.output_multiplier
-                    )
-                    # update output sign and target zeros potentially
-                    self.model.dense1.output_sign = tf.sign(self.model.dense1.oweights)
-                    self.model.dense1.output_target_zcount = len(tf.where(self.model.dense1.oweights == 0))
+            # (~constraint)
+            if self.cfg["train"].redraw_output and (epoch_idx == n_epochs - 100):
+                # redraw output from initial distribution
+                # everything else about the network remains the same
+                # output_vals = self.model.dense1.oweights.numpy()
+                output_connmat_generator = OMG(
+                    n_excit=self.model.cell.num_ex,
+                    n_inhib=self.model.cell.num_in,
+                    n_out=self.model.n_out,
+                    p_from_e=self.cfg["model"].cell.p_eo,
+                    p_from_i=self.cfg["model"].cell.p_io,
+                    mu=self.model.cell.mu,
+                    sigma=self.model.cell.sigma
+                )
+                new_oweights = output_connmat_generator.run_generator()
+                self.model.dense1.oweights.assign(
+                    new_oweights * self.cfg["model"].cell.output_multiplier
+                )
+                # update output sign and target zeros potentially
+                self.model.dense1.output_sign = tf.sign(self.model.dense1.oweights)
+                self.model.dense1.output_target_zcount = len(tf.where(
+                    self.model.dense1.oweights == 0
+                ))
 
             # [SILENCING]
             # if we are at the last epoch (1001th), silence parts accordingly
