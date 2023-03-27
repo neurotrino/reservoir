@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Mandatory variable.
-        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-swaplabels
+        exp_dir: /data/experiments/run-batch30-taskloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -162,7 +162,7 @@
             p_to_i: 0.1
 
             // Multiplier for input weights (to increase or decrease strengths generated from IMG)
-            input_multiplier: 15
+            input_multiplier: 5
 
             // These parameters will only be used for ExIn neurons
             p_ee: 0.160
@@ -201,7 +201,7 @@
             // output schemes
             categorical_output: false
             likelihood_output: false
-            swap_output_labels: true
+            swap_output_labels: false
         }
     }
 
@@ -379,7 +379,7 @@
 
         include_task_loss: true
 
-        include_rate_loss: true
+        include_rate_loss: false
 
         include_synch_loss: false
 

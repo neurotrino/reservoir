@@ -932,7 +932,7 @@ class Trainer(BaseTrainer):
                     """
 
                     cell.build(input_shape=input_shape)
-                    cell.input_weights.assign(input_weights_val)
+                    cell.input_weights.assign(input_weights_val*self.cfg["model"].cell.input_multiplier)
 
                     # update the permissible zero indices and indices for rewiring
                     # get which units actually receive input
