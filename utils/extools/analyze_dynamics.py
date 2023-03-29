@@ -254,12 +254,12 @@ def plot_avalanche_dist(threshold_range=True,bin_range=False,subsample=False):
     #np_dir='/data/experiments/run-batch30-onlytaskloss [2022-10-12 11.54.39]/npz-data'
     #np_dir='/data/experiments/run-batch30-onlyrateloss [2022-10-26 21.32.08]/npz-data'
     #np_dir='/data/experiments/run-batch30-specout-onlinerate0.1-savey [2022-08-15 02.58.19]/npz-data'
-    np_dir='/data/experiments/run-batch30-rateloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-23 06.55.27]/npz-data'
+    np_dir='/data/experiments/run-batch30-taskloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5 [2023-03-27 16.01.41]/npz-data'
 
     _, ax = plt.subplots(nrows=3, ncols=2)
 
     naive_data = np.load(os.path.join(np_dir,"41-50.npz"))
-    trained_data = np.load(os.path.join(np_dir,"991-1000.npz"))
+    trained_data = np.load(os.path.join(np_dir,"831-840.npz"))
 
     # just the e units for now
     naive_spikes = naive_data['spikes'][99]
@@ -342,7 +342,7 @@ def plot_avalanche_dist(threshold_range=True,bin_range=False,subsample=False):
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.96)
-        save_fname = savepath+'/nolines/avalanches_e_ratetrained_06.55.27.png'
+        save_fname = savepath+'/nolines/avalanches_e_tasktrained_16.01.41.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
