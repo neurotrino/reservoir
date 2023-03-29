@@ -254,7 +254,7 @@ def plot_avalanche_dist(threshold_range=True,bin_range=False,subsample=False):
     #np_dir='/data/experiments/run-batch30-onlytaskloss [2022-10-12 11.54.39]/npz-data'
     #np_dir='/data/experiments/run-batch30-onlyrateloss [2022-10-26 21.32.08]/npz-data'
     #np_dir='/data/experiments/run-batch30-specout-onlinerate0.1-savey [2022-08-15 02.58.19]/npz-data'
-    np_dir='/data/experiments/run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-20 21.06.01]/npz-data'
+    np_dir='/data/experiments/run-batch30-rateloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-23 06.55.27]/npz-data'
 
     _, ax = plt.subplots(nrows=3, ncols=2)
 
@@ -342,7 +342,7 @@ def plot_avalanche_dist(threshold_range=True,bin_range=False,subsample=False):
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.96)
-        save_fname = savepath+'/nolines/avalanches_e_21.06.01.png'
+        save_fname = savepath+'/nolines/avalanches_e_ratetrained_06.55.27.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
