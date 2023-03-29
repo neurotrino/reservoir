@@ -1140,6 +1140,66 @@ def nx_plot_clustering_over_time(savepath):
     plt.clf()
     plt.close()
 
+def nx_plot_single_clustering_over_time(np_dir='/data/experiments/run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-20 21.06.01]/npz-data'):
+    """TODO: document function"""
+
+    # Load data
+    data_files = filenames(num_epochs, epochs_per_file)
+
+    # Setup
+    fig, ax = plt.subplots(nrows=2, ncols=2)
+    ax = ax.flatten()
+
+    # Plot
+    cc_e = []
+    cc_i = []
+    cc_all = []
+    loss = []
+    for filename in data_files:
+        filepath = os.path.join(np_dir, filename)
+        data = np.load(filepath)
+        ws = data["tv1.postweights"]
+        loss.append(
+            np.add(
+                data["step_task_loss"], data["step_rate_loss"]
+            ).tolist()
+        )
+        for w in ws:
+            G, Ge, Gi = _nets_from_weights(np.abs(w))
+            cc_all.append(
+                nx.average_clustering(G, nodes=G.nodes, weight="weight")
+            )
+            cc_e.append(
+                nx.average_clustering(Ge, nodes=Ge.nodes, weight="weight")
+            )
+            cc_i.append(
+                nx.average_clustering(Gi, nodes=Gi.nodes, weight="weight")
+            )
+    ax[0].plot(cc_all)
+    ax[1].plot(cc_e)
+    ax[2].plot(cc_i)
+    ax[3].plot(loss)
+
+    # Label and title
+    for i in range(4):
+        ax[i].set_xlabel("batch")
+        ax[i].set_ylabel("absolute weighted clustering coefficient")
+    ax[0].set_title("whole graph")
+    ax[1].set_title("within e")
+    ax[2].set_title("within i")
+    ax[3].set_title("loss")
+    ax[3].set_ylabel("total loss")
+    fig.suptitle("Synaptic clustering, no in-out overlap, only main rewiring")
+
+    # Draw and save
+    plt.draw()
+    plt.subplots_adjust(wspace=0.5, hspace=0.5)
+    plt.savefig(os.path.join(savepath, "nolines/21.06.01_clustering.png"), dpi=300)
+
+    # Teardown
+    plt.clf()
+    plt.close()
+
 
 def nx_plot_reciprocity_over_time(savepath):
     """TODO: document function"""
