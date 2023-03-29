@@ -237,7 +237,7 @@ def compare_change_over_training_dual(np_dir='/data/experiments/run-batch30-dual
     ax[1,0].set_title('naive recurrent')
     ax[1,1].set_title('trained recurrent')
     sns.heatmap(np.transpose(naive_out), ax=ax[2,0])
-    sns.heatmap(np.transpose(trained_rec), ax=ax[2,1])
+    sns.heatmap(np.transpose(trained_out), ax=ax[2,1])
     ax[2,0].set_title('naive output')
     ax[2,1].set_title('trained output')
 
