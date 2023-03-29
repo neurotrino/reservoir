@@ -212,7 +212,7 @@ def compare_dual_specinput_w_overtraining(np_dir='/data/experiments/run-batch30-
     plt.clf()
     plt.close()
 
-def compare_change_over_training_dual(np_dir='/data/experiments/run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-20 21.06.01]/npz-data'):
+def compare_change_over_training_dual(np_dir='/data/experiments/run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-22 21.51.55]/npz-data'):
     # plot naive/trained weight heatmaps for all layers of the network
     _, ax = plt.subplots(nrows=3, ncols=2)
 
@@ -246,7 +246,7 @@ def compare_change_over_training_dual(np_dir='/data/experiments/run-batch30-dual
     # Draw and save
     plt.draw()
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
-    save_fname = savepath+'/nolines/21.06.01_w_changes.png'
+    save_fname = savepath+'/nolines/21.51.55_w_changes.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
