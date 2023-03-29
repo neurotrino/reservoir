@@ -1140,7 +1140,7 @@ def nx_plot_clustering_over_time(savepath):
     plt.clf()
     plt.close()
 
-def nx_plot_single_clustering_over_time(np_dir='/data/experiments/run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-20 21.06.01]/npz-data'):
+def nx_plot_single_clustering_over_time(np_dir='/data/experiments/run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-22 21.51.55]/npz-data'):
     """TODO: document function"""
 
     # Load data
@@ -1194,7 +1194,7 @@ def nx_plot_single_clustering_over_time(np_dir='/data/experiments/run-batch30-du
     # Draw and save
     plt.draw()
     plt.subplots_adjust(wspace=0.5, hspace=0.5)
-    plt.savefig(os.path.join(savepath, "nolines/21.06.01_clustering.png"), dpi=300)
+    plt.savefig(os.path.join(savepath, "nolines/21.51.55_clustering.png"), dpi=300)
 
     # Teardown
     plt.clf()
