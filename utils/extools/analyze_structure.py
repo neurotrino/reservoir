@@ -212,6 +212,46 @@ def compare_dual_specinput_w_overtraining(np_dir='/data/experiments/run-batch30-
     plt.clf()
     plt.close()
 
+def compare_change_over_training_dual(np_dir='/data/experiments/run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-20 21.06.01]/npz-data'):
+    # plot naive/trained weight heatmaps for all layers of the network
+    _, ax = plt.subplots(nrows=3, ncols=2)
+
+    naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
+    trained_data = np.load(os.path.join(np_dir,"991-1000.npz"))
+
+    naive_in = naive_data['tv0.postweights'][0]#[:,0:e_end]
+    trained_in = trained_data['tv0.postweights'][99]#[:,0:e_end]
+
+    naive_rec = naive_data['tv1.postweights'][0]#[0:e_end,0:e_end]
+    trained_rec = trained_data['tv1.postweights'][99]#[0:e_end,0:e_end]
+
+    naive_out = naive_data['tv2.postweights'][0]#[0:e_end,:]
+    trained_out = trained_data['tv2.postweights'][99]#[0:e_end,:]
+
+    sns.heatmap(naive_in, ax=ax[0,0])
+    sns.heatmap(trained_in, ax=ax[0,1])
+    ax[0,0].set_title('naive input')
+    ax[0,1].set_title('trained input')
+    sns.heatmap(naive_rec, ax=ax[1,0])
+    sns.heatmap(trained_rec, ax=ax[1,1])
+    ax[1,0].set_title('naive recurrent')
+    ax[1,1].set_title('trained recurrent')
+    sns.heatmap(np.transpose(naive_out), ax=ax[2,0])
+    sns.heatmap(np.transpose(trained_rec), ax=ax[2,1])
+    ax[2,0].set_title('naive output')
+    ax[2,1].set_title('trained output')
+
+    plt.suptitle("Change in weights; no in-out overlap, only main rewiring")
+
+    # Draw and save
+    plt.draw()
+    plt.subplots_adjust(wspace=0.4, hspace=0.7)
+    save_fname = savepath+'/nolines/21.06.01_w_changes.png'
+    plt.savefig(save_fname,dpi=300)
+
+    # Teardown
+    plt.clf()
+    plt.close()
 
 def compare_change_over_training():
     # plot the extent to which the weights in the network changed from naive to trained
