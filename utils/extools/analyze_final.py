@@ -85,12 +85,12 @@ def plot_all_weight_dists(): # just for dual-training for now
             fall_data_dirs = np.hstack([fall_data_dirs,get_experiments(data_dir, exp_string)])
     # go through all dirs and grab the weight distributions of the first and last epochs
     data_files = filenames(num_epochs, epochs_per_file) # useful for plotting evolution over the entire course of training
-    fall_in_naive = np.array([])
-    fall_in_trained = np.array([])
-    fall_rec_naive = np.array([])
-    fall_rec_trained = np.array([])
-    fall_out_naive = np.array([])
-    fall_out_trained = np.array([])
+    fall_in_naive = []
+    fall_in_trained = []
+    fall_rec_naive = []
+    fall_rec_trained = []
+    fall_out_naive = []
+    fall_out_trained = []
     for xdir in fall_data_dirs:
         np_dir = os.path.join(data_dir, xdir, "npz-data")
         naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
@@ -104,6 +104,14 @@ def plot_all_weight_dists(): # just for dual-training for now
 
         fall_out_naive.append(naive_data['tv2.postweights'][0])
         fall_out_trained.append(trained_data['tv2.postweights'][99])
+
+    # convert to numpy arrays
+    fall_in_naive = np.array(fall_in_naive)
+    fall_in_trained = np.array(fall_in_trained)
+    fall_rec_naive = np.array(fall_rec_naive)
+    fall_rec_trained = np.array(fall_rec_trained)
+    fall_out_naive = np.array(fall_out_naive)
+    fall_out_trained = np.array(fall_out_trained)
 
     # plot e and i separately
     ax[0,0].hist(fall_in_naive[:,:,0:e_end],density=True)
