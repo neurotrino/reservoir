@@ -75,6 +75,12 @@ spec_output = ["*run-batch30-specout-onlinerate0.1-savey*","*run-batch30-duallos
 spec_input = ["*run-batch30-dualloss-specinput0.3-rewire*"]
 spec_nointoout = ["*run-batch30-dualloss-specinput0.2*noinoutrewire*"]
 
+def plot_all_weight_dists(): # just for dual-training for now
+    # fall set (spec output)
+
+    # winter set (spec input)
+    # spring set (spec no in to out lines)
+
 def plot_input_channel_rates():
     spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
     x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
@@ -107,23 +113,31 @@ def plot_input_channel_rates():
 
     _, ax = plt.subplots(nrows=1, ncols=2)
     ax[0].hist(coh0_channel_trial_rates,histtype='step')
-    ax[0].set_title('responses to coherence 0')
-    ax[0].set_xlabel('spike rates')
+    ax[0].set_title('responses to coherence 0', fontname="Ubuntu Mono")
+    ax[0].set_xlabel('spike rates', fontname="Ubuntu Mono")
     ax[1].hist(coh1_channel_trial_rates,bins=50,histtype='step')
-    ax[1].set_title('responses to coherence 1')
-    ax[1].set_xlabel('spike rates')
+    ax[1].set_title('responses to coherence 1', fontname="Ubuntu Mono")
+    ax[1].set_xlabel('spike rates', fontname="Ubuntu Mono")
+    for tick in ax[0].get_xticklabels():
+        tick.set_fontname("Ubuntu Mono")
+    for tick in ax[0].get_yticklabels():
+        tick.set_fontname("Ubuntu Mono")
+    for tick in ax[1].get_xticklabels():
+        tick.set_fontname("Ubuntu Mono")
+    for tick in ax[1].get_yticklabels():
+        tick.set_fontname("Ubuntu Mono")
     #ax[1,0].hist(late_in[i,:],bins=50,histtype='step')
     #ax[1,1].hist(trained_in[i,:],bins=50,histtype='step')
 
-    plt.suptitle("Input channels' rates")
+    plt.suptitle("Input channels' rates", fontname="Ubuntu Mono")
 
     # Draw and save
     plt.draw()
-    save_fname = savepath+'/specinput0.2/input_rates.png'
+    save_fname = savepath+'/set_plots/input_rates_final.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
     plt.clf()
     plt.close()
 
-    return [coh0_rates,coh1_rates]
+    #return [coh0_rates,coh1_rates]
