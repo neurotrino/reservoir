@@ -82,7 +82,7 @@ def plot_all_weight_dists(): # just for dual-training for now
         if not 'fall_data_dirs' in locals():
             fall_data_dirs = get_experiments(data_dir, exp_string)
         else:
-        fall_data_dirs = np.hstack([fall_data_dirs,get_experiments(data_dir, exp_string)])
+            fall_data_dirs = np.hstack([fall_data_dirs,get_experiments(data_dir, exp_string)])
     # go through all dirs and grab the weight distributions of the first and last epochs
     data_files = filenames(num_epochs, epochs_per_file) # useful for plotting evolution over the entire course of training
     fall_in_naive = np.array([])
