@@ -116,10 +116,12 @@ def plot_input_channel_rates():
     ax[0].set_title('coherence 0', fontname="Ubuntu")
     ax[0].set_xlabel('spike rate (Hz)', fontname="Ubuntu")
     ax[0].set_ylabel('density', fontname="Ubuntu")
+    ax[0].set_ylim([0,6])
     ax[1].hist(coh1_channel_trial_rates,bins=20,histtype='step', density=True, stacked=True)
     ax[1].set_title('coherence 1', fontname="Ubuntu")
     ax[1].set_xlabel('spike rate (Hz)', fontname="Ubuntu")
     ax[1].set_ylabel('density', fontname="Ubuntu")
+    ax[1].set_ylim([0,6])
     for tick in ax[0].get_xticklabels():
         tick.set_fontname("Ubuntu")
     for tick in ax[0].get_yticklabels():
