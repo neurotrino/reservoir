@@ -112,12 +112,12 @@ def plot_input_channel_rates():
     coh1_rates = np.average(coh1_channel_trial_rates,0)
 
     _, ax = plt.subplots(nrows=1, ncols=2)
-    ax[0].hist(coh0_channel_trial_rates,bins=20,histtype='step', density=True)
-    ax[0].set_title('responses to coherence 0', fontname="Ubuntu")
+    ax[0].hist(coh0_channel_trial_rates,bins=20,histtype='step', density=True, stacked=True)
+    ax[0].set_title('coherence 0', fontname="Ubuntu")
     ax[0].set_xlabel('spike rate (Hz)', fontname="Ubuntu")
     ax[0].set_ylabel('density', fontname="Ubuntu")
-    ax[1].hist(coh1_channel_trial_rates,bins=20,histtype='step', density=True)
-    ax[1].set_title('responses to coherence 1', fontname="Ubuntu")
+    ax[1].hist(coh1_channel_trial_rates,bins=20,histtype='step', density=True, stacked=True)
+    ax[1].set_title('coherence 1', fontname="Ubuntu")
     ax[1].set_xlabel('spike rate (Hz)', fontname="Ubuntu")
     ax[1].set_ylabel('density', fontname="Ubuntu")
     for tick in ax[0].get_xticklabels():
@@ -135,7 +135,7 @@ def plot_input_channel_rates():
 
     # Draw and save
     plt.draw()
-    plt.subplots_adjust(wspace=0.4, hspace=0.6)
+    plt.subplots_adjust(wspace=0.4, hspace=0.5)
     save_fname = savepath+'/set_plots/input_rates_final.png'
     plt.savefig(save_fname,dpi=300)
 
