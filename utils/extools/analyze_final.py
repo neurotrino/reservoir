@@ -98,15 +98,15 @@ def plot_input_channel_rates():
     # take average rates and append
         if len(coh0_idx)>0:
             if not 'coh0_channel_trial_rates' in locals():
-                coh0_channel_trial_rates = np.average(x[i][coh0_idx],0)/np.len(x[i][coh0_idx])
+                coh0_channel_trial_rates = np.average(x[i][coh0_idx],0)/np.size(x[i][coh0_idx])
             else:
-                coh0_channel_trial_rates = np.vstack([coh0_channel_trial_rates,np.average(x[i][coh0_idx],0)/np.len(x[i][coh0_idx])])
+                coh0_channel_trial_rates = np.vstack([coh0_channel_trial_rates,np.average(x[i][coh0_idx],0)/np.size(x[i][coh0_idx])])
 
         if len(coh1_idx)>0:
             if not 'coh1_channel_trial_rates' in locals():
-                coh1_channel_trial_rates = np.average(x[i][coh1_idx],0)/np.len(x[i][coh1_idx])
+                coh1_channel_trial_rates = np.average(x[i][coh1_idx],0)/np.size(x[i][coh1_idx])
             else:
-                coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(x[i][coh1_idx],0)/np.len(x[i][coh1_idx])])
+                coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(x[i][coh1_idx],0)/np.size(x[i][coh1_idx])])
 
     coh0_rates = np.average(coh0_channel_trial_rates,0)
     coh1_rates = np.average(coh1_channel_trial_rates,0)
