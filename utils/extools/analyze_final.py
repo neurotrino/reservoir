@@ -75,7 +75,7 @@ spec_output = ["*run-batch30-specout-onlinerate0.1-savey*","*run-batch30-duallos
 spec_input = ["*run-batch30-dualloss-specinput0.3-rewire*"]
 spec_nointoout = ["*run-batch30-dualloss-specinput0.2*noinoutrewire*"]
 
-def plot_all_weight_dists(): # just for dual-training for now
+#def plot_all_weight_dists(): # just for dual-training for now
     # fall set (spec output)
 
     # winter set (spec input)
