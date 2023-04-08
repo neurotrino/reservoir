@@ -112,14 +112,14 @@ def plot_input_channel_rates():
     coh1_rates = np.average(coh1_channel_trial_rates,0)
 
     _, ax = plt.subplots(nrows=1, ncols=2)
-    ax[0].hist(coh0_channel_trial_rates,bins=20,histtype='stepfilled', alpha=0.3)
+    ax[0].hist(coh0_channel_trial_rates,bins=20,histtype='step', stat='density', common_norm=False)
     ax[0].set_title('responses to coherence 0', fontname="Ubuntu")
     ax[0].set_xlabel('spike rate (Hz)', fontname="Ubuntu")
-    ax[0].set_ylabel('normalized number of sequences', fontname="Ubuntu")
-    ax[1].hist(coh1_channel_trial_rates,bins=20,histtype='stepfilled', alpha=0.3)
+    ax[0].set_ylabel('density', fontname="Ubuntu")
+    ax[1].hist(coh1_channel_trial_rates,bins=20,histtype='step', stat='density', common_norm=False)
     ax[1].set_title('responses to coherence 1', fontname="Ubuntu")
     ax[1].set_xlabel('spike rate (Hz)', fontname="Ubuntu")
-    ax[1].set_ylabel('normalized number of sequences', fontname="Ubuntu")
+    ax[1].set_ylabel('density', fontname="Ubuntu")
     for tick in ax[0].get_xticklabels():
         tick.set_fontname("Ubuntu")
     for tick in ax[0].get_yticklabels():
