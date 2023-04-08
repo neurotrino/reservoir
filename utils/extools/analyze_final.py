@@ -111,25 +111,27 @@ def plot_input_channel_rates():
     coh0_rates = np.average(coh0_channel_trial_rates,0)
     coh1_rates = np.average(coh1_channel_trial_rates,0)
 
-    _, ax = plt.subplots(nrows=1, ncols=2)
-    ax[0].hist(coh0_channel_trial_rates,histtype='step')
-    ax[0].set_title('responses to coherence 0', fontname="Ubuntu Mono")
-    ax[0].set_xlabel('spike rates', fontname="Ubuntu Mono")
-    ax[1].hist(coh1_channel_trial_rates,bins=50,histtype='step')
-    ax[1].set_title('responses to coherence 1', fontname="Ubuntu Mono")
-    ax[1].set_xlabel('spike rates', fontname="Ubuntu Mono")
+    _, ax = plt.subplots(nrows=2, ncols=1)
+    ax[0].hist(coh0_channel_trial_rates,bins=20,histtype='step')
+    ax[0].set_title('responses to coherence 0', fontname="Calibri")
+    ax[0].set_xlabel('spike rate', fontname="Calibri")
+    ax[0].set_ylabel('number of trials', fontname="Calibri")
+    ax[1].hist(coh1_channel_trial_rates,bins=20,histtype='step')
+    ax[1].set_title('responses to coherence 1', fontname="Calibri")
+    ax[1].set_xlabel('spike rate', fontname="Calibri")
+    ax[1].set_ylabel('number of trials', fontname="Calibri")
     for tick in ax[0].get_xticklabels():
-        tick.set_fontname("Ubuntu Mono")
+        tick.set_fontname("Calibri")
     for tick in ax[0].get_yticklabels():
-        tick.set_fontname("Ubuntu Mono")
+        tick.set_fontname("Calibri")
     for tick in ax[1].get_xticklabels():
-        tick.set_fontname("Ubuntu Mono")
+        tick.set_fontname("Calibri")
     for tick in ax[1].get_yticklabels():
-        tick.set_fontname("Ubuntu Mono")
+        tick.set_fontname("Calibri")
     #ax[1,0].hist(late_in[i,:],bins=50,histtype='step')
     #ax[1,1].hist(trained_in[i,:],bins=50,histtype='step')
 
-    plt.suptitle("Input channels' rates", fontname="Ubuntu Mono")
+    plt.suptitle("Spike rates of 16 input channels", fontname="Calibri")
 
     # Draw and save
     plt.draw()
