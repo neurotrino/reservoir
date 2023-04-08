@@ -98,28 +98,28 @@ def plot_input_channel_rates():
     # take average rates and append
         if len(coh0_idx)>0:
             if not 'coh0_channel_trial_rates' in locals():
-                coh0_channel_trial_rates = np.average(x[i][coh0_idx],0)
+                coh0_channel_trial_rates = np.average(x[i][coh0_idx],0)/np.len(x[i][coh0_idx])
             else:
-                coh0_channel_trial_rates = np.vstack([coh0_channel_trial_rates,np.average(x[i][coh0_idx],0)])
+                coh0_channel_trial_rates = np.vstack([coh0_channel_trial_rates,np.average(x[i][coh0_idx],0)/np.len(x[i][coh0_idx])])
 
         if len(coh1_idx)>0:
             if not 'coh1_channel_trial_rates' in locals():
-                coh1_channel_trial_rates = np.average(x[i][coh1_idx],0)
+                coh1_channel_trial_rates = np.average(x[i][coh1_idx],0)/np.len(x[i][coh1_idx])
             else:
-                coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(x[i][coh1_idx],0)])
+                coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(x[i][coh1_idx],0)/np.len(x[i][coh1_idx])])
 
     coh0_rates = np.average(coh0_channel_trial_rates,0)
     coh1_rates = np.average(coh1_channel_trial_rates,0)
 
     _, ax = plt.subplots(nrows=1, ncols=2)
-    ax[0].hist(coh0_channel_trial_rates,bins=20,histtype='step')
+    ax[0].hist(coh0_channel_trial_rates,bins=30,histtype='step')
     ax[0].set_title('responses to coherence 0', fontname="Helvetica")
     ax[0].set_xlabel('spike rate', fontname="Helvetica")
-    ax[0].set_ylabel('number of trials', fontname="Helvetica")
-    ax[1].hist(coh1_channel_trial_rates,bins=20,histtype='step')
+    ax[0].set_ylabel('normalized number of trials', fontname="Helvetica")
+    ax[1].hist(coh1_channel_trial_rates,bins=30,histtype='step')
     ax[1].set_title('responses to coherence 1', fontname="Helvetica")
     ax[1].set_xlabel('spike rate', fontname="Helvetica")
-    ax[1].set_ylabel('number of trials', fontname="Helvetica")
+    ax[1].set_ylabel('normalized number of trials', fontname="Helvetica")
     for tick in ax[0].get_xticklabels():
         tick.set_fontname("Helvetica")
     for tick in ax[0].get_yticklabels():
