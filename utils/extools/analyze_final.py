@@ -114,34 +114,34 @@ def plot_all_weight_dists(): # just for dual-training for now
     fall_out_trained = np.array(fall_out_trained)
 
     # plot e and i separately
-    ax[0,0].hist(fall_in_naive[:,:,0:e_end],density=True)
-    ax[0,0].hist(fall_in_naive[:,:,e_end:i_end],density=True)
+    ax[0,0].hist(fall_in_naive[:,:,0:e_end].flatten(),density=True)
+    ax[0,0].hist(fall_in_naive[:,:,e_end:i_end].flatten(),density=True)
     ax[0,0].legend(['e edges','i edges'])
     ax[0,0].set_title('naive input weights',fontname='Ubuntu')
 
-    ax[0,1].hist(fall_in_trained[:,0:e_end,0:e_end],density=True)
-    ax[0,1].hist(fall_in_trained[:,e_end:i_end,e_end:i_end],density=True)
+    ax[0,1].hist(fall_in_trained[:,0:e_end,0:e_end].flatten(),density=True)
+    ax[0,1].hist(fall_in_trained[:,e_end:i_end,e_end:i_end].flatten(),density=True)
     ax[0,1].legend(['e edges','i edges'])
     ax[0,1].set_title('trained input weights',fontname='Ubuntu')
 
     # plot layers separately
-    ax[1,0].hist(fall_rec_naive[:,0:e_end,:],density=True)
-    ax[1,0].hist(fall_rec_naive[:,e_end:i_end,:],density=True)
+    ax[1,0].hist(fall_rec_naive[:,0:e_end,:].flatten(),density=True)
+    ax[1,0].hist(fall_rec_naive[:,e_end:i_end,:].flatten(),density=True)
     ax[1,0].legend(['e edges','i edges'])
     ax[1,0].set_title('naive recurrent weights',fontname='Ubuntu')
 
-    ax[1,1].hist(fall_rec_trained[:,0:e_end],density=True)
-    ax[1,1].hist(fall_rec_trained[:,e_end:i_end],density=True)
+    ax[1,1].hist(fall_rec_trained[:,0:e_end].flatten(),density=True)
+    ax[1,1].hist(fall_rec_trained[:,e_end:i_end].flatten(),density=True)
     ax[1,1].legend(['e edges','i edges'])
     ax[1,1].set_title('trained recurrent weights',fontname='Ubuntu')
 
-    ax[2,0].hist(fall_out_naive[:,0:e_end],density=True)
-    ax[2,0].hist(fall_out_naive[:,e_end:i_end],density=True)
+    ax[2,0].hist(fall_out_naive[:,0:e_end].flatten(),density=True)
+    ax[2,0].hist(fall_out_naive[:,e_end:i_end].flatten(),density=True)
     ax[2,0].legend(['e edges','i edges'])
     ax[2,0].set_title('naive output weights',fontname='Ubuntu')
 
-    ax[2,1].hist(fall_out_trained[:,0:e_end],density=True)
-    ax[2,1].hist(fall_out_trained[:,e_end:i_end],density=True)
+    ax[2,1].hist(fall_out_trained[:,0:e_end].flatten(),density=True)
+    ax[2,1].hist(fall_out_trained[:,e_end:i_end].flatten(),density=True)
     ax[2,1].legend(['e edges','i edges'])
     ax[2,1].set_title('trained output weights',fontname='Ubuntu')
 
