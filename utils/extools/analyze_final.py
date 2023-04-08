@@ -111,27 +111,27 @@ def plot_input_channel_rates():
     coh0_rates = np.average(coh0_channel_trial_rates,0)
     coh1_rates = np.average(coh1_channel_trial_rates,0)
 
-    _, ax = plt.subplots(nrows=2, ncols=1)
+    _, ax = plt.subplots(nrows=1, ncols=2)
     ax[0].hist(coh0_channel_trial_rates,bins=20,histtype='step')
-    ax[0].set_title('responses to coherence 0', fontname="Calibri")
-    ax[0].set_xlabel('spike rate', fontname="Calibri")
-    ax[0].set_ylabel('number of trials', fontname="Calibri")
+    ax[0].set_title('responses to coherence 0', fontname="Helvetica")
+    ax[0].set_xlabel('spike rate', fontname="Helvetica")
+    ax[0].set_ylabel('number of trials', fontname="Helvetica")
     ax[1].hist(coh1_channel_trial_rates,bins=20,histtype='step')
-    ax[1].set_title('responses to coherence 1', fontname="Calibri")
-    ax[1].set_xlabel('spike rate', fontname="Calibri")
-    ax[1].set_ylabel('number of trials', fontname="Calibri")
+    ax[1].set_title('responses to coherence 1', fontname="Helvetica")
+    ax[1].set_xlabel('spike rate', fontname="Helvetica")
+    ax[1].set_ylabel('number of trials', fontname="Helvetica")
     for tick in ax[0].get_xticklabels():
-        tick.set_fontname("Calibri")
+        tick.set_fontname("Helvetica")
     for tick in ax[0].get_yticklabels():
-        tick.set_fontname("Calibri")
+        tick.set_fontname("Helvetica")
     for tick in ax[1].get_xticklabels():
-        tick.set_fontname("Calibri")
+        tick.set_fontname("Helvetica")
     for tick in ax[1].get_yticklabels():
-        tick.set_fontname("Calibri")
+        tick.set_fontname("Helvetica")
     #ax[1,0].hist(late_in[i,:],bins=50,histtype='step')
     #ax[1,1].hist(trained_in[i,:],bins=50,histtype='step')
 
-    plt.suptitle("Spike rates of 16 input channels", fontname="Calibri")
+    plt.suptitle("Spike rates of 16 input channels", fontname="Helvetica")
 
     # Draw and save
     plt.draw()
