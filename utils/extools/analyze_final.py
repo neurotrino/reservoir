@@ -71,14 +71,93 @@ for xdir in data_dirs:
 """
 
 #ALL DUAL TRAINED TO BEGIN WITH:
-spec_output = ["*run-batch30-specout-onlinerate0.1-savey*","*run-batch30-dualloss-silence*","*run-batch30-dualloss-swaplabels*"]
-spec_input = ["*run-batch30-dualloss-specinput0.3-rewire*"]
-spec_nointoout = ["*run-batch30-dualloss-specinput0.2*noinoutrewire*"]
+spec_output_dirs = ["run-batch30-specout-onlinerate0.1-savey","run-batch30-dualloss-silence","run-batch30-dualloss-swaplabels"]
+spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
+spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2*noinoutrewire"]
 
-#def plot_all_weight_dists(): # just for dual-training for now
+def plot_all_weight_dists(): # just for dual-training for now
     # fall set (spec output)
+    fig, ax = plt.subplots(nrows=3,ncols=2)
+    for exp_string in spec_output_dirs:
+        if not 'fall_data_dirs' in locals():
+            fall_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+        fall_data_dirs = np.hstack([fall_data_dirs,get_experiments(data_dir, exp_string)])
+    # go through all dirs and grab the weight distributions of the first and last epochs
+    data_files = filenames(num_epochs, epochs_per_file) # useful for plotting evolution over the entire course of training
+    fall_in_naive = np.array([])
+    fall_in_trained = np.array([])
+    fall_rec_naive = np.array([])
+    fall_rec_trained = np.array([])
+    fall_out_naive = np.array([])
+    fall_out_trained = np.array([])
+    for xdir in fall_data_dirs:
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+        naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
+        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+
+        fall_in_naive.append(naive_data['tv0.postweights'][0])
+        fall_in_trained.append(trained_data['tv0.postweights'][99])
+
+        fall_rec_naive.append(naive_data['tv1.postweights'][0])
+        fall_rec_trained.append(trained_data['tv1.postweights'][99])
+
+        fall_out_naive.append(naive_data['tv2.postweights'][0])
+        fall_out_trained.append(trained_data['tv2.postweights'][99])
+
+    # plot e and i separately
+    ax[0,0].hist(fall_in_naive[:,:,0:e_end],density=True)
+    ax[0,0].hist(fall_in_naive[:,:,e_end:i_end],density=True)
+    ax[0,0].legend(['e edges','i edges'])
+    ax[0,0].set_title('naive input weights',fontname='Ubuntu')
+
+    ax[0,1].hist(fall_in_trained[:,0:e_end,0:e_end],density=True)
+    ax[0,1].hist(fall_in_trained[:,e_end:i_end,e_end:i_end],density=True)
+    ax[0,1].legend(['e edges','i edges'])
+    ax[0,1].set_title('trained input weights',fontname='Ubuntu')
+
+    # plot layers separately
+    ax[1,0].hist(fall_rec_naive[:,0:e_end,:],density=True)
+    ax[1,0].hist(fall_rec_naive[:,e_end:i_end,:],density=True)
+    ax[1,0].legend(['e edges','i edges'])
+    ax[1,0].set_title('naive recurrent weights',fontname='Ubuntu')
+
+    ax[1,1].hist(fall_rec_trained[:,0:e_end],density=True)
+    ax[1,1].hist(fall_rec_trained[:,e_end:i_end],density=True)
+    ax[1,1].legend(['e edges','i edges'])
+    ax[1,1].set_title('trained recurrent weights',fontname='Ubuntu')
+
+    ax[2,0].hist(fall_out_naive[:,0:e_end],density=True)
+    ax[2,0].hist(fall_out_naive[:,e_end:i_end],density=True)
+    ax[2,0].legend(['e edges','i edges'])
+    ax[2,0].set_title('naive output weights',fontname='Ubuntu')
+
+    ax[2,1].hist(fall_out_trained[:,0:e_end],density=True)
+    ax[2,1].hist(fall_out_trained[:,e_end:i_end],density=True)
+    ax[2,1].legend(['e edges','i edges'])
+    ax[2,1].set_title('trained output weights',fontname='Ubuntu')
+
+    plt.suptitle('Experiments with only specified output layer',fontname='Ubuntu')
+
+    plt.draw()
+    plt.subplots_adjust(wspace=0.4, hspace=0.7)
+    save_fname = savepath+'/set_plots/fall_weights_test.png'
+    plt.savefig(save_fname,dpi=300)
+
+
+    # eventually set the proper font for tick labels too
+    """for tick in ax[0].get_xticklabels():
+        tick.set_fontname("Ubuntu")
+    for tick in ax[0].get_yticklabels():
+        tick.set_fontname("Ubuntu")
+    for tick in ax[1].get_xticklabels():
+        tick.set_fontname("Ubuntu")
+    for tick in ax[1].get_yticklabels():
+        tick.set_fontname("Ubuntu")"""
 
     # winter set (spec input)
+
+
     # spring set (spec no in to out lines)
 
 def plot_input_channel_rates():
