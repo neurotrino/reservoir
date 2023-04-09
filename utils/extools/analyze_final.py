@@ -75,6 +75,97 @@ spec_output_dirs = ["run-batch30-specout-onlinerate0.1-savey","run-batch30-duall
 spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
 spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2*noinoutrewire"]
 
+
+def determine_delays():
+    # principled way to decide what constitutes the duration of a delay between coherence changes
+    # plot to see delay markers on a few trials
+    # get the experiments you want to begin with
+    for exp_string in spec_output_dirs:
+        if not 'fall_data_dirs' in locals():
+            fall_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            fall_data_dirs = np.hstack([fall_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # go through the experiments and files
+    for xdir in fall_data_dirs:
+        exp_path = xdir[-9:-1]
+
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+        #naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
+        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+
+        # go through final epoch trials
+        true_y = trained_data['true_y'][99]
+        pred_y = trained_data['pred_y'][99]
+        delay_durs = []
+        change_times = []
+        change_ys = []
+        change_preds = []
+        for i in range(0,len(true_y)):
+            # check to see if there is a change in this trial
+            if true_y[i][0] != true_y[i][seq_len]:
+                change_ys.append(true_y[i])
+                change_preds.append(pred_y[i])
+                # find time of change
+                t_change = np.argwhere(np.diff(true_y)!=0)
+                change_times.append(t_change)
+                # find average pred before and after
+                #pre_avg = np.average(pred_y[:t_change])
+                post_avg = np.average(pred_y[t_change:])
+                # determine the first time we exceed the after-change average
+                t_crossing = np.argwhere(pred_y>post_avg)[0]
+                # find the duration and append
+                delay_durs.append(t_crossing-t_change)
+
+        # plot the distribution of delays
+        plt.hist(delay_durs)
+        plt.xlabel('delay duration (ms)',fontname='Ubuntu')
+        plt.ylabel('count',fontname='Ubuntu')
+        plt.title('Delay Durations',fontname='Ubuntu')
+
+        # take average duration as The Delay
+        delay = np.average(delay_durs)
+
+        # select a few trials and plot randomly with The Delay to visually inspect
+        fig, ax = plt.subplots(nrows=2,ncols=2)
+        ax = ax.flatten()
+        trials = np.rand(4,len(delay_durs))
+        for i in range(0,len(trials)):
+            ax[i].plot(change_ys[trials[i]],color='dodgerblue')
+            ax[i].plot(change_preds[trials[i]],color='mediumblue')
+            ax[i].vlines(change_times[trials[i]],color='orangered')
+            ax[i].vlines(change_times[trials[i]]+delay,color='orangered')
+            ax[i].vlines(change_times[trials[i]]+delay_durs[trials[i]],color='darkorange')
+            ax[i].set_xlabel('time (ms)',fontname='Ubuntu')
+            ax[i].set_ylabel('output',fontname='Ubuntu')
+            ax[i].legend(['true y','pred y','time of change','avg delay','trial delay'],fontname='Ubuntu')
+            ax[i].set_title('trial '+str(trials[i]),fontname='Ubuntu')
+            for tick in ax[i].get_xticklabels():
+                tick.set_fontname('Ubuntu')
+            for tick in ax[i].get_yticklabels():
+                tick.set_fontname('Ubuntu')
+
+        plt.suptitle('Example Trials with Trialwise and Average Delays',fontname='Ubuntu')
+        plt.draw()
+        plt.subplots_adjust(wspace=0.4, hspace=0.7)
+
+        save_fname = savepath+'/set_plots/fall_'+str(exp_path)+'_delay_test.png'
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
+
+
+#def delay_MI_gen():
+    # determine delays of all experiments
+    # only look at the delay period of trained experiments
+    # generate based on each batch of 30 trials
+    # first look at just the final batch
+    # generate based on pre-delay (coh 0 or 1 separate), delay (to coh 0 or to coh 1 separate), post-delay (coh 0 or 1 separate)
+    # generate ummmmmmmmm recruitment graphs?
+
+
 def plot_all_weight_dists(): # just for dual-training for now
     # fall set (spec output)
     fig, ax = plt.subplots(nrows=3,ncols=2)
