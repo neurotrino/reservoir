@@ -86,6 +86,8 @@ def determine_delays():
         else:
             fall_data_dirs = np.hstack([fall_data_dirs,get_experiments(data_dir, exp_string)])
 
+    all_delays = []
+
     # go through the experiments and files
     for xdir in fall_data_dirs:
         exp_path = xdir[-9:-1]
@@ -122,24 +124,7 @@ def determine_delays():
                     t_crossing = np.where(pred_y[i][t_change:]<post_avg)[0][0]
                 # append
                 delay_durs.append(t_crossing)
-
-        return delay_durs
-
-        # plot the distribution of delays
-        fig, ax = plt.hist(np.array(delay_durs).flatten())
-        plt.xlabel('delay duration (ms)',fontname='Ubuntu')
-        plt.ylabel('count',fontname='Ubuntu')
-        plt.title('Delay Durations',fontname='Ubuntu')
-        for tick in ax.get_xticklabels():
-            tick.set_fontname('Ubuntu')
-        for tick in ax.get_yticklabels():
-            tick.set_fontname('Ubuntu')
-        plt.draw()
-        save_fname = savepath+'/set_plots/fall/'+str(exp_path)+'_delay_dist_test.png'
-        plt.savefig(save_fname,dpi=300)
-        # Teardown
-        plt.clf()
-        plt.close()
+                all_delays.append(t_crossing)
 
         # take average duration as The Delay
         delay = np.average(delay_durs)
@@ -176,6 +161,22 @@ def determine_delays():
         plt.clf()
         plt.close()
 
+    # plot the distribution of delays
+    plt.hist(all_delays,bins=30)
+    plt.xlabel('delay duration (ms)',fontname='Ubuntu')
+    plt.ylabel('count',fontname='Ubuntu')
+    plt.title('All Trained Delay Durations for Fall',fontname='Ubuntu')
+    """
+    for tick in ax.get_xticklabels():
+        tick.set_fontname('Ubuntu')
+    for tick in ax.get_yticklabels():
+        tick.set_fontname('Ubuntu')"""
+    plt.draw()
+    save_fname = savepath+'/set_plots/fall/delay_dist_test.png'
+    plt.savefig(save_fname,dpi=300)
+    # Teardown
+    plt.clf()
+    plt.close()
 
 #def delay_MI_gen():
     # determine delays of all experiments
