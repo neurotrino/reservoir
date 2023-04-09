@@ -101,6 +101,7 @@ def determine_delays():
         change_times = []
         change_ys = []
         change_preds = []
+
         for i in range(0,len(true_y)):
             # check to see if there is a change in this trial
             if true_y[i][0] != true_y[i][seq_len-1]:
@@ -120,7 +121,7 @@ def determine_delays():
                 delay_durs.append(t_crossing)
 
         # plot the distribution of delays
-        fig, ax = plt.hist(np.array(delay_durs))
+        fig, ax = plt.hist(np.array(delay_durs).flatten())
         plt.xlabel('delay duration (ms)',fontname='Ubuntu')
         plt.ylabel('count',fontname='Ubuntu')
         plt.title('Delay Durations',fontname='Ubuntu')
