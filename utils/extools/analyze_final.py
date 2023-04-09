@@ -73,7 +73,7 @@ for xdir in data_dirs:
 #ALL DUAL TRAINED TO BEGIN WITH:
 spec_output_dirs = ["run-batch30-specout-onlinerate0.1-savey","run-batch30-dualloss-silence","run-batch30-dualloss-swaplabels"]
 spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
-spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2*noinoutrewire"]
+spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 
 
 def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
