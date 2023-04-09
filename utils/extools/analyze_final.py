@@ -119,9 +119,11 @@ def determine_delays():
                 post_avg = np.average(pred_y[i][t_change:])
                 # determine the duration after coherence change until we first pass (pos or neg direction) the after-change average
                 if pre_avg < post_avg:
-                    t_crossing = np.where(pred_y[i][t_change:]>post_avg)[0][0]
+                    # if we are increasing coherence level, crossing is when we go above the 75th percentile of post-change preds
+                    t_crossing = np.where(pred_y[i][t_change:]>np.quantile(pred_y[i][t_change:],0.75))[0][0]
                 elif pre_avg > post_avg:
-                    t_crossing = np.where(pred_y[i][t_change:]<post_avg)[0][0]
+                    # if we are decreasing coherence level, crossing is when we fall below the 25th percentile of post-change preds
+                    t_crossing = np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0][0]
                 # append
                 delay_durs.append(t_crossing)
                 all_delays.append(t_crossing)
