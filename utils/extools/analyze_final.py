@@ -132,7 +132,7 @@ def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
         delay = np.average(delay_durs)
 
         # select a few trials and plot randomly with The Delay to visually inspect
-        fig, ax = plt.subplots(nrows=4,ncols=1,figsize=(6,10))
+        fig, ax = plt.subplots(nrows=4,ncols=1,figsize=(8,10))
         ax = ax.flatten()
         trials = np.random.choice(np.arange(0,len(delay_durs)),size=[4],replace=False)
         for i in range(0,len(trials)):
@@ -153,7 +153,7 @@ def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
         ax[3].legend(['pred y','true y','time of change','avg delay','trial delay'],prop={"family":"Ubuntu"})
 
         plt.suptitle('sample trained trials with change delays',fontname='Ubuntu')
-        plt.subplots_adjust(wspace=1.0, hspace=1.3)
+        plt.subplots_adjust(wspace=1.0, hspace=1.0)
         plt.draw()
 
         save_fname = savepath+'/set_plots/'+exp_season+'/'+str(exp_path)+'_delay_trials_test.png'
