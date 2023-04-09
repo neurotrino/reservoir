@@ -151,7 +151,7 @@ def determine_delays():
             ax[i].vlines(change_times[trials[i]]+delay_durs[trials[i]],ymin=np.max(change_preds[trials[i]]),ymax=np.min(change_preds[trials[i]]),color='darkorange')
             ax[i].set_xlabel('time (ms)',fontname='Ubuntu')
             ax[i].set_ylabel('output',fontname='Ubuntu')
-            ax[i].legend(['true y','pred y','time of change','avg delay','trial delay'],fontname='Ubuntu')
+            ax[i].legend(['true y','pred y','time of change','avg delay','trial delay'],prop={"family":"Ubuntu"})
             ax[i].set_title('trial '+str(trials[i]),fontname='Ubuntu')
             for tick in ax[i].get_xticklabels():
                 tick.set_fontname('Ubuntu')
