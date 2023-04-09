@@ -76,20 +76,20 @@ spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
 spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2*noinoutrewire"]
 
 
-def determine_delays():
+def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
     # principled way to decide what constitutes the duration of a delay between coherence changes
     # plot to see delay markers on a few trials
     # get the experiments you want to begin with
-    for exp_string in spec_output_dirs:
-        if not 'fall_data_dirs' in locals():
-            fall_data_dirs = get_experiments(data_dir, exp_string)
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
         else:
-            fall_data_dirs = np.hstack([fall_data_dirs,get_experiments(data_dir, exp_string)])
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
     all_delays = []
 
     # go through the experiments and files
-    for xdir in fall_data_dirs:
+    for xdir in exp_data_dirs:
         exp_path = xdir[-9:-1]
 
         np_dir = os.path.join(data_dir, xdir, "npz-data")
@@ -154,9 +154,9 @@ def determine_delays():
 
         plt.suptitle('Example Trials with Trialwise and Average Delays',fontname='Ubuntu')
         plt.draw()
-        plt.subplots_adjust(wspace=0.7, hspace=0.7)
+        plt.subplots_adjust(wspace=1.0, hspace=0.7)
 
-        save_fname = savepath+'/set_plots/fall/'+str(exp_path)+'_delay_trials_test.png'
+        save_fname = savepath+'/set_plots/'+exp_season+'/'+str(exp_path)+'_delay_trials_test.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
@@ -167,14 +167,14 @@ def determine_delays():
     plt.hist(all_delays,bins=30)
     plt.xlabel('delay duration (ms)',fontname='Ubuntu')
     plt.ylabel('count',fontname='Ubuntu')
-    plt.title('All Trained Delay Durations for Fall',fontname='Ubuntu')
+    plt.title('All Trained Delay Durations for '+exp_season,fontname='Ubuntu')
     """
     for tick in ax.get_xticklabels():
         tick.set_fontname('Ubuntu')
     for tick in ax.get_yticklabels():
         tick.set_fontname('Ubuntu')"""
     plt.draw()
-    save_fname = savepath+'/set_plots/fall/delay_dist_test.png'
+    save_fname = savepath+'/set_plots/'+exp_season+'/delay_dist_test.png'
     plt.savefig(save_fname,dpi=300)
     # Teardown
     plt.clf()
