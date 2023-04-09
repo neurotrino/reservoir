@@ -113,14 +113,17 @@ def determine_delays():
                 t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
                 change_times.append(t_change)
                 # find average pred before and after
-                #pre_avg = np.average(pred_y[i][:t_change])
+                pre_avg = np.average(pred_y[i][:t_change])
                 post_avg = np.average(pred_y[i][t_change:])
-                # determine the duration after coherence change until we first exceed the after-change average
-                t_crossing = np.where(pred_y[i][t_change:]>post_avg)[0][0]
+                # determine the duration after coherence change until we first pass (pos or neg direction) the after-change average
+                if pre_avg < post_avg:
+                    t_crossing = np.where(pred_y[i][t_change:]>post_avg)[0][0]
+                elif pre_avg > post_avg:
+                    t_crossing = np.where(pred_y[i][t_change:]<post_avg)[0][0]
                 # append
                 delay_durs.append(t_crossing)
 
-        """# plot the distribution of delays
+        # plot the distribution of delays
         fig, ax = plt.hist(np.array(delay_durs).flatten())
         plt.xlabel('delay duration (ms)',fontname='Ubuntu')
         plt.ylabel('count',fontname='Ubuntu')
@@ -134,7 +137,7 @@ def determine_delays():
         plt.savefig(save_fname,dpi=300)
         # Teardown
         plt.clf()
-        plt.close()"""
+        plt.close()
 
         # take average duration as The Delay
         delay = np.average(delay_durs)
@@ -151,12 +154,14 @@ def determine_delays():
             ax[i].vlines(change_times[trials[i]]+delay_durs[trials[i]],ymin=np.max(change_preds[trials[i]]),ymax=np.min(change_preds[trials[i]]),color='darkorange')
             ax[i].set_xlabel('time (ms)',fontname='Ubuntu')
             ax[i].set_ylabel('output',fontname='Ubuntu')
-            ax[i].legend(['true y','pred y','time of change','avg delay','trial delay'],prop={"family":"Ubuntu"})
+
             ax[i].set_title('trial '+str(trials[i]),fontname='Ubuntu')
             for tick in ax[i].get_xticklabels():
                 tick.set_fontname('Ubuntu')
             for tick in ax[i].get_yticklabels():
                 tick.set_fontname('Ubuntu')
+
+        ax[3].legend(['true y','pred y','time of change','avg delay','trial delay'],prop={"family":"Ubuntu"})
 
         plt.suptitle('Example Trials with Trialwise and Average Delays',fontname='Ubuntu')
         plt.draw()
