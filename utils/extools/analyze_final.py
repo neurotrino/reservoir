@@ -153,8 +153,8 @@ def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
         ax[3].legend(['pred y','true y','time of change','avg delay','trial delay'],prop={"family":"Ubuntu"})
 
         plt.suptitle('Example Trials with Trialwise and Average Delays',fontname='Ubuntu')
-        plt.draw()
         plt.subplots_adjust(wspace=1.0, hspace=0.7)
+        plt.draw()
 
         save_fname = savepath+'/set_plots/'+exp_season+'/'+str(exp_path)+'_delay_trials_test.png'
         plt.savefig(save_fname,dpi=300)
