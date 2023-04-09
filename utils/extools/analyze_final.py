@@ -132,7 +132,7 @@ def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
         delay = np.average(delay_durs)
 
         # select a few trials and plot randomly with The Delay to visually inspect
-        fig, ax = plt.subplots(nrows=4,ncols=1)
+        fig, ax = plt.subplots(nrows=4,ncols=1,figsize=(6,10))
         ax = ax.flatten()
         trials = np.random.choice(np.arange(0,len(delay_durs)),size=[4],replace=False)
         for i in range(0,len(trials)):
@@ -152,8 +152,8 @@ def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
 
         ax[3].legend(['pred y','true y','time of change','avg delay','trial delay'],prop={"family":"Ubuntu"})
 
-        plt.suptitle('Example Trials with Trialwise and Average Delays',fontname='Ubuntu')
-        plt.subplots_adjust(wspace=1.0, hspace=1.0)
+        plt.suptitle('sample trained trials with change delays',fontname='Ubuntu')
+        plt.subplots_adjust(wspace=1.0, hspace=1.3)
         plt.draw()
 
         save_fname = savepath+'/set_plots/'+exp_season+'/'+str(exp_path)+'_delay_trials_test.png'
@@ -167,7 +167,7 @@ def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
     plt.hist(all_delays,bins=30)
     plt.xlabel('delay duration (ms)',fontname='Ubuntu')
     plt.ylabel('count',fontname='Ubuntu')
-    plt.title('All Trained Delay Durations for '+exp_season,fontname='Ubuntu')
+    plt.title('all trained delay durations for '+exp_season,fontname='Ubuntu')
     """
     for tick in ax.get_xticklabels():
         tick.set_fontname('Ubuntu')
