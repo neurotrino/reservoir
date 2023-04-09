@@ -138,7 +138,7 @@ def determine_delays():
         for i in range(0,len(trials)):
             ax[i].plot(change_preds[trials[i]],color='dodgerblue',alpha=0.4)
             ax[i].plot(change_ys[trials[i]],color='mediumblue')
-            ax[i].vlines(change_times[trials[i]],ymin=np.max(change_preds[trials[i]]),ymax=np.min(change_preds[trials[i]]),color='orangered')
+            ax[i].vlines(change_times[trials[i]],ymin=np.max(change_preds[trials[i]]),ymax=np.min(change_preds[trials[i]]),color='red')
             ax[i].vlines(change_times[trials[i]]+delay,ymin=np.max(change_preds[trials[i]]),ymax=np.min(change_preds[trials[i]]),color='orangered')
             ax[i].vlines(change_times[trials[i]]+delay_durs[trials[i]],ymin=np.max(change_preds[trials[i]]),ymax=np.min(change_preds[trials[i]]),color='darkorange')
             ax[i].set_xlabel('time (ms)',fontname='Ubuntu')
@@ -150,11 +150,11 @@ def determine_delays():
             for tick in ax[i].get_yticklabels():
                 tick.set_fontname('Ubuntu')
 
-        ax[3].legend(['true y','pred y','time of change','avg delay','trial delay'],prop={"family":"Ubuntu"})
+        ax[3].legend(['pred y','true y','time of change','avg delay','trial delay'],prop={"family":"Ubuntu"})
 
         plt.suptitle('Example Trials with Trialwise and Average Delays',fontname='Ubuntu')
         plt.draw()
-        plt.subplots_adjust(wspace=0.4, hspace=0.7)
+        plt.subplots_adjust(wspace=0.7, hspace=0.7)
 
         save_fname = savepath+'/set_plots/fall/'+str(exp_path)+'_delay_trials_test.png'
         plt.savefig(save_fname,dpi=300)
