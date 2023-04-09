@@ -142,7 +142,7 @@ def determine_delays():
         # select a few trials and plot randomly with The Delay to visually inspect
         fig, ax = plt.subplots(nrows=4,ncols=1)
         ax = ax.flatten()
-        trials = np.random.choice(0,len(delay_durs),size=[4],replace=False)
+        trials = np.random.choice(np.arange(0,len(delay_durs)),size=[4],replace=False)
         for i in range(0,len(trials)):
             ax[i].plot(change_preds[trials[i]],color='dodgerblue',alpha=0.4)
             ax[i].plot(change_ys[trials[i]],color='mediumblue')
