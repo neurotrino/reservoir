@@ -140,12 +140,12 @@ def determine_delays():
         delay = np.average(delay_durs)
 
         # select a few trials and plot randomly with The Delay to visually inspect
-        fig, ax = plt.subplots(nrows=2,ncols=2)
+        fig, ax = plt.subplots(nrows=4,ncols=1)
         ax = ax.flatten()
-        trials = np.random.randint(0,len(delay_durs),size=[4])
+        trials = np.random.choice(0,len(delay_durs),size=[4],replace=False)
         for i in range(0,len(trials)):
-            ax[i].plot(change_ys[trials[i]],color='dodgerblue')
-            ax[i].plot(change_preds[trials[i]],color='mediumblue')
+            ax[i].plot(change_preds[trials[i]],color='dodgerblue',alpha=0.4)
+            ax[i].plot(change_ys[trials[i]],color='mediumblue')
             ax[i].vlines(change_times[trials[i]],ymin=np.max(change_preds[trials[i]]),ymax=np.min(change_preds[trials[i]]),color='orangered')
             ax[i].vlines(change_times[trials[i]]+delay,ymin=np.max(change_preds[trials[i]]),ymax=np.min(change_preds[trials[i]]),color='orangered')
             ax[i].vlines(change_times[trials[i]]+delay_durs[trials[i]],ymin=np.max(change_preds[trials[i]]),ymax=np.min(change_preds[trials[i]]),color='darkorange')
