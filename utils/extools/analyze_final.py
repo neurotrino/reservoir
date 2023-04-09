@@ -103,25 +103,37 @@ def determine_delays():
         change_preds = []
         for i in range(0,len(true_y)):
             # check to see if there is a change in this trial
-            if true_y[i][0] != true_y[i][seq_len]:
+            if true_y[i][0] != true_y[i][seq_len-1]:
                 change_ys.append(true_y[i])
                 change_preds.append(pred_y[i])
                 # find time of change
-                t_change = np.argwhere(np.diff(true_y)!=0)
+                diffs = np.diff(true_y[i],axis=0)
+                # t_change is the first timestep of the new coherence level
+                t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
                 change_times.append(t_change)
                 # find average pred before and after
-                #pre_avg = np.average(pred_y[:t_change])
-                post_avg = np.average(pred_y[t_change:])
-                # determine the first time we exceed the after-change average
-                t_crossing = np.argwhere(pred_y>post_avg)[0]
-                # find the duration and append
-                delay_durs.append(t_crossing-t_change)
+                #pre_avg = np.average(pred_y[i][:t_change])
+                post_avg = np.average(pred_y[i][t_change:])
+                # determine the duration after coherence change until we first exceed the after-change average
+                t_crossing = np.where(pred_y[i][t_change:]>post_avg)[0][0]
+                # append
+                delay_durs.append(t_crossing)
 
         # plot the distribution of delays
-        plt.hist(delay_durs)
+        fig, ax = plt.hist(delay_durs)
         plt.xlabel('delay duration (ms)',fontname='Ubuntu')
         plt.ylabel('count',fontname='Ubuntu')
         plt.title('Delay Durations',fontname='Ubuntu')
+        for tick in ax.get_xticklabels():
+            tick.set_fontname('Ubuntu')
+        for tick in ax.get_yticklabels():
+            tick.set_fontname('Ubuntu')
+        plt.draw()
+        save_fname = savepath+'/set_plots/fall/'+str(exp_path)+'_delay_dist_test.png'
+        plt.savefig(save_fname,dpi=300)
+        # Teardown
+        plt.clf()
+        plt.close()
 
         # take average duration as The Delay
         delay = np.average(delay_durs)
@@ -129,7 +141,7 @@ def determine_delays():
         # select a few trials and plot randomly with The Delay to visually inspect
         fig, ax = plt.subplots(nrows=2,ncols=2)
         ax = ax.flatten()
-        trials = np.rand(4,len(delay_durs))
+        trials = np.random.randint(0,len(delay_durs),size=[4])
         for i in range(0,len(trials)):
             ax[i].plot(change_ys[trials[i]],color='dodgerblue')
             ax[i].plot(change_preds[trials[i]],color='mediumblue')
@@ -149,7 +161,7 @@ def determine_delays():
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.7)
 
-        save_fname = savepath+'/set_plots/fall_'+str(exp_path)+'_delay_test.png'
+        save_fname = savepath+'/set_plots/fall/'+str(exp_path)+'_delay_trials_test.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
