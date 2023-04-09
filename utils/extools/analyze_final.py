@@ -120,7 +120,7 @@ def determine_delays():
                 # append
                 delay_durs.append(t_crossing)
 
-        # plot the distribution of delays
+        """# plot the distribution of delays
         fig, ax = plt.hist(np.array(delay_durs).flatten())
         plt.xlabel('delay duration (ms)',fontname='Ubuntu')
         plt.ylabel('count',fontname='Ubuntu')
@@ -134,7 +134,7 @@ def determine_delays():
         plt.savefig(save_fname,dpi=300)
         # Teardown
         plt.clf()
-        plt.close()
+        plt.close()"""
 
         # take average duration as The Delay
         delay = np.average(delay_durs)
