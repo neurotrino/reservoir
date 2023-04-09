@@ -146,9 +146,9 @@ def determine_delays():
         for i in range(0,len(trials)):
             ax[i].plot(change_ys[trials[i]],color='dodgerblue')
             ax[i].plot(change_preds[trials[i]],color='mediumblue')
-            ax[i].vlines(change_times[trials[i]],color='orangered')
-            ax[i].vlines(change_times[trials[i]]+delay,color='orangered')
-            ax[i].vlines(change_times[trials[i]]+delay_durs[trials[i]],color='darkorange')
+            ax[i].vlines(change_times[trials[i]],ymin=np.maximum(change_preds[trials[i]]),ymax=np.minimum(change_preds[trials[i]]),color='orangered')
+            ax[i].vlines(change_times[trials[i]]+delay,ymin=np.maximum(change_preds[trials[i]]),ymax=np.minimum(change_preds[trials[i]]),color='orangered')
+            ax[i].vlines(change_times[trials[i]]+delay_durs[trials[i]],ymin=np.maximum(change_preds[trials[i]]),ymax=np.minimum(change_preds[trials[i]]),color='darkorange')
             ax[i].set_xlabel('time (ms)',fontname='Ubuntu')
             ax[i].set_ylabel('output',fontname='Ubuntu')
             ax[i].legend(['true y','pred y','time of change','avg delay','trial delay'],fontname='Ubuntu')
