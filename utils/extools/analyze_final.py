@@ -191,7 +191,7 @@ def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
 
 def plot_all_weight_dists(exp_dirs=spec_input_dirs,exp_season='winter'): # just for dual-training for now
     # fall set (spec output)
-    fig, ax = plt.subplots(nrows=3,ncols=2)
+    fig, ax = plt.subplots(nrows=3,ncols=2,figsize=(8,8))
 
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
