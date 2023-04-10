@@ -230,59 +230,60 @@ def plot_all_weight_dists(exp_dirs=spec_input_dirs,exp_season='winter'): # just 
 
     # plot e and i separately, and only nonzero weight values
 
-    in_naive_e = in_naive[:,:,0:e_end].flatten()
-    ax[0,0].hist(in_naive_e[in_naive_e>0],density=True,color='dodgerblue')
-    in_naive_i = in_naive[:,:,e_end:i_end].flatten()
-    ax[0,0].hist(in_naive_i[in_naive_i<0],density=True,color='darkorange')
+    in_naive = in_naive.flatten()
+    ax[0,0].hist(in_naive[in_naive>0],bins=30,density=True,color='dodgerblue')
+    ax[0,0].hist(in_naive[in_naive<0],bins=30,density=True,color='darkorange')
     #ax[0,0].legend(['e edges','i edges'])
     ax[0,0].set_title('naive input weights',fontname='Ubuntu')
 
-    in_trained_e = in_trained[:,0:e_end,0:e_end].flatten()
-    ax[0,1].hist(in_trained_e[in_trained_e>0],color='dodgerblue',density=True)
-    in_trained_i = in_trained[:,e_end:i_end,e_end:i_end].flatten()
-    ax[0,1].hist(in_trained_i[in_trained_i<0],color='darkorange',density=True)
+    in_trained = in_trained.flatten()
+    ax[0,1].hist(in_trained[in_trained>0],bins=30,color='dodgerblue',density=True)
+    ax[0,1].hist(in_trained[in_trained<0],bins=30,color='darkorange',density=True)
     #ax[0,1].legend(['e edges','i edges'])
     ax[0,1].set_title('trained input weights',fontname='Ubuntu')
 
     # plot layers separately
     rec_naive_e = rec_naive[:,0:e_end,:].flatten()
-    ax[1,0].hist(rec_naive_e[rec_naive_e>0],color='dodgerblue',density=True)
+    ax[1,0].hist(rec_naive_e[rec_naive_e>0],bins=30,color='dodgerblue',density=True)
     rec_naive_i = rec_naive[:,e_end:i_end,:].flatten()
-    ax[1,0].hist(rec_naive_i[rec_naive_i<0],color='darkorange',density=True)
+    ax[1,0].hist(rec_naive_i[rec_naive_i<0],bins=30,color='darkorange',density=True)
     #ax[1,0].legend(['e edges','i edges'])
     ax[1,0].set_title('naive recurrent weights',fontname='Ubuntu')
 
     rec_trained_e = rec_trained[:,0:e_end].flatten()
-    ax[1,1].hist(rec_trained_e[rec_trained_e>0],color='dodgerblue',density=True)
+    ax[1,1].hist(rec_trained_e[rec_trained_e>0],bins=30,color='dodgerblue',density=True)
     rec_trained_i = rec_trained[:,e_end:i_end].flatten()
-    ax[1,1].hist(rec_trained_i[rec_trained_i<0],color='darkorange',density=True)
+    ax[1,1].hist(rec_trained_i[rec_trained_i<0],bins=30,color='darkorange',density=True)
     #ax[1,1].legend(['e edges','i edges'])
     ax[1,1].set_title('trained recurrent weights',fontname='Ubuntu')
 
     out_naive_e = out_naive[:,0:e_end].flatten()
-    ax[2,0].hist(out_naive_e[out_naive_e>0],color='dodgerblue',density=True)
+    ax[2,0].hist(out_naive_e[out_naive_e>0],bins=30,color='dodgerblue',density=True)
     out_naive_i = out_naive[:,e_end:i_end].flatten()
-    ax[2,0].hist(out_naive_i[out_naive_i<0],color='darkorange',density=True)
+    ax[2,0].hist(out_naive_i[out_naive_i<0],bins=30,color='darkorange',density=True)
     #ax[2,0].legend(['e edges','i edges'])
     ax[2,0].set_title('naive output weights',fontname='Ubuntu')
 
     out_trained_e = out_trained[:,0:e_end].flatten()
-    ax[2,1].hist(out_trained_e[out_trained_e>0],color='dodgerblue',density=True)
+    ax[2,1].hist(out_trained_e[out_trained_e>0],bins=30,color='dodgerblue',density=True)
     out_trained_i = out_trained[:,e_end:i_end].flatten()
-    ax[2,1].hist(out_trained_i[out_trained_i<0],color='darkorange',density=True)
+    ax[2,1].hist(out_trained_i[out_trained_i<0],bins=30,color='darkorange',density=True)
     ax[2,1].legend(['e edges','i edges'])
     ax[2,1].set_title('trained output weights',fontname='Ubuntu')
 
-    plt.suptitle('experiments with output layer specified',fontname='Ubuntu')
+    plt.suptitle('all experiments with output layer specified',fontname='Ubuntu')
 
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
 
+    # go through and set all axes
     ax = ax.flatten()
     for i in range(0,len(ax)):
         for tick in ax[i].get_xticklabels():
             tick.set_fontname("Ubuntu")
         for tick in ax[i].get_yticklabels():
             tick.set_fontname("Ubuntu")
+        ax[i].set_xlabel('weight values',fontname='Ubuntu')
+        ax[i].set_ylabel('density',fontname='Ubuntu')
 
     plt.draw()
 
