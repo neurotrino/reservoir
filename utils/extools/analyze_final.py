@@ -189,8 +189,139 @@ def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
     # also allowed to generate general MI graphs and then only dynamically examine recruitment graphs?
 
 
+def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+    # plot separately for coherence 0 and 1 trials
+    # honestly don't even worry about the changes for now
+    # that is for tmr
+
+    fig, ax = plt.subplots(nrows=2,ncols=2)
+
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # go through all dirs and grab the weight distributions of the first and last epochs
+    data_files = filenames(num_epochs, epochs_per_file)
+
+    coh0_e_rates = []
+    coh0_i_rates = []
+    coh1_e_rates = []
+    coh1_i_rates = []
+
+    for xdir in exp_data_dirs:
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+        naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
+
+        spikes = naive_data['spikes'][0]
+        true_y = naive_data['true_y'][0]
+
+        for i in range(0,len(true_y)):
+            if true_y[i][0]==true_y[i][seq_len-1]:
+                if true_y[i][0]==1:
+                    # reminder that spikes are shaped [batch (100), trial (30), time (4080), neuron (300)]
+                    coh1_e_rates.append(np.average(spikes[i][:,:e_end]))
+                    coh1_i_rates.append(np.average(spikes[i][:,:e_end]))
+                else:
+                    coh0_e_rates.append(np.average(spikes[i][:,e_end:]))
+                    coh0_i_rates.append(np.average(spikes[i][:,e_end:]))
+            else:
+                # find time of coherence change
+                diffs = np.diff(true_y[i],axis=0)
+                # t_change is the first timestep of the new coherence level
+                t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
+                # find average rates before and after
+                if true_y[i][0]==1:
+                    coh1_e_rates.append(np.average(spikes[i][:t_change,:e_end]))
+                    coh0_e_rates.append(np.average(spikes[i][t_change:,:e_end]))
+                    coh1_i_rates.append(np.average(spikes[i][:t_change,e_end:]))
+                    coh0_i_rates.append(np.average(spikes[i][t_change:,e_end:]))
+                else:
+                    coh0_e_rates.append(np.average(spikes[i][:t_change,:e_end]))
+                    coh1_e_rates.append(np.average(spikes[i][t_change:,:e_end]))
+                    coh0_i_rates.append(np.average(spikes[i][:t_change,e_end:]))
+                    coh1_i_rates.append(np.average(spikes[i][t_change:,e_end:]))
+
+    # plot for naive
+    ax[0,0].hist(coh0_e_rates.flatten(),bins=30,alpha=0.4,density=True,color='dodgerblue',label='naive')
+    ax[0,0].set_title('coherence 0 excitatory')
+    ax[0,1].hist(coh0_i_rates.flatten(),bins=30,alpha=0.4,density=True,color='darkorange',label='naive')
+    ax[0,1].set_title('coherence 0 inhibitory')
+    ax[1,0].hist(coh1_e_rates.flatten(),bins=30,alpha=0.4,density=True,color='dodgerblue',label='naive')
+    ax[1,0].set_title('coherence 1 excitatory')
+    ax[1,1].hist(coh1_i_rates.flatten(),bins=30,alpha=0.4,density=True,color='darkorange',label='naive')
+    ax[1,1].set_title('coherence 1 inhibitory')
+
+    # repeat for trained
+    coh0_e_rates = []
+    coh0_i_rates = []
+    coh1_e_rates = []
+    coh1_i_rates = []
+
+    for xdir in exp_data_dirs:
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+
+        spikes = trained_data['spikes'][99]
+        true_y = trained_data['true_y'][99]
+
+        for i in range(0,len(true_y)):
+            if true_y[i][0]==true_y[i][seq_len-1]:
+                if true_y[i][0]==1:
+                    coh1_e_rates.append(np.average(spikes[i][:,:e_end]))
+                    coh1_i_rates.append(np.average(spikes[i][:,:e_end]))
+                else:
+                    coh0_e_rates.append(np.average(spikes[i][:,e_end:]))
+                    coh0_i_rates.append(np.average(spikes[i][:,e_end:]))
+            else:
+                # find time of coherence change
+                diffs = np.diff(true_y[i],axis=0)
+                # t_change is the first timestep of the new coherence level
+                t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
+                # find average rates before and after
+                if true_y[i][0]==1:
+                    coh1_e_rates.append(np.average(spikes[i][:t_change,:e_end]))
+                    coh0_e_rates.append(np.average(spikes[i][t_change:,:e_end]))
+                    coh1_i_rates.append(np.average(spikes[i][:t_change,e_end:]))
+                    coh0_i_rates.append(np.average(spikes[i][t_change:,e_end:]))
+                else:
+                    coh0_e_rates.append(np.average(spikes[i][:t_change,:e_end]))
+                    coh1_e_rates.append(np.average(spikes[i][t_change:,:e_end]))
+                    coh0_i_rates.append(np.average(spikes[i][:t_change,e_end:]))
+                    coh1_i_rates.append(np.average(spikes[i][t_change:,e_end:]))
+
+    # plot all together
+    ax[0,0].hist(coh0_e_rates.flatten(),bins=30,alpha=0.4,density=True,color='mediumblue',label='trained')
+    ax[0,1].hist(coh0_i_rates.flatten(),bins=30,alpha=0.4,density=True,color='orangered',label='trained')
+    ax[1,0].hist(coh1_e_rates.flatten(),bins=30,alpha=0.4,density=True,color='mediumblue',label='trained')
+    ax[1,1].hist(coh1_i_rates.flatten(),bins=30,alpha=0.4,density=True,color='orangered',label='trained')
+    ax[1,1].legend()
+
+    plt.suptitle('all experiments with no direct in-to-out units',fontname='Ubuntu')
+
+    plt.subplots_adjust(wspace=0.4, hspace=0.7)
+
+    # go through and set all axes
+    ax = ax.flatten()
+    for i in range(0,len(ax)):
+        for tick in ax[i].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[i].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+        ax[i].set_xlabel('rate (Hz)',fontname='Ubuntu')
+        ax[i].set_ylabel('density',fontname='Ubuntu')
+
+    plt.draw()
+
+    save_fname = savepath+'/set_plots/'+exp_season+'_rates_test.png'
+    plt.savefig(save_fname,dpi=300)
+
+
+
+# well, now you need to go and fix the input weights
+
 def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # just for dual-training for now
-    # fall set (spec output)
     fig, ax = plt.subplots(nrows=3,ncols=2,figsize=(8,8))
 
     for exp_string in exp_dirs:
