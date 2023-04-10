@@ -244,13 +244,13 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
                     coh1_i_rates.append(np.average(spikes[i][t_change:,e_end:]))
 
     # plot for naive
-    ax[0,0].hist(coh0_e_rates.flatten(),bins=30,alpha=0.4,density=True,color='dodgerblue',label='naive')
+    ax[0,0].hist(np.array(coh0_e_rates).flatten(),bins=30,alpha=0.4,density=True,color='dodgerblue',label='naive')
     ax[0,0].set_title('coherence 0 excitatory')
-    ax[0,1].hist(coh0_i_rates.flatten(),bins=30,alpha=0.4,density=True,color='darkorange',label='naive')
+    ax[0,1].hist(np.array(coh0_i_rates).flatten(),bins=30,alpha=0.4,density=True,color='darkorange',label='naive')
     ax[0,1].set_title('coherence 0 inhibitory')
-    ax[1,0].hist(coh1_e_rates.flatten(),bins=30,alpha=0.4,density=True,color='dodgerblue',label='naive')
+    ax[1,0].hist(np.array(coh1_e_rates).flatten(),bins=30,alpha=0.4,density=True,color='dodgerblue',label='naive')
     ax[1,0].set_title('coherence 1 excitatory')
-    ax[1,1].hist(coh1_i_rates.flatten(),bins=30,alpha=0.4,density=True,color='darkorange',label='naive')
+    ax[1,1].hist(np.array(coh1_i_rates).flatten(),bins=30,alpha=0.4,density=True,color='darkorange',label='naive')
     ax[1,1].set_title('coherence 1 inhibitory')
 
     # repeat for trained
@@ -292,10 +292,10 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
                     coh1_i_rates.append(np.average(spikes[i][t_change:,e_end:]))
 
     # plot all together
-    ax[0,0].hist(coh0_e_rates.flatten(),bins=30,alpha=0.4,density=True,color='mediumblue',label='trained')
-    ax[0,1].hist(coh0_i_rates.flatten(),bins=30,alpha=0.4,density=True,color='orangered',label='trained')
-    ax[1,0].hist(coh1_e_rates.flatten(),bins=30,alpha=0.4,density=True,color='mediumblue',label='trained')
-    ax[1,1].hist(coh1_i_rates.flatten(),bins=30,alpha=0.4,density=True,color='orangered',label='trained')
+    ax[0,0].hist(np.array(coh0_e_rates).flatten(),bins=30,alpha=0.4,density=True,color='mediumblue',label='trained')
+    ax[0,1].hist(np.array(coh0_i_rates).flatten(),bins=30,alpha=0.4,density=True,color='orangered',label='trained')
+    ax[1,0].hist(np.array(coh1_e_rates).flatten(),bins=30,alpha=0.4,density=True,color='mediumblue',label='trained')
+    ax[1,1].hist(np.array(coh1_i_rates).flatten(),bins=30,alpha=0.4,density=True,color='orangered',label='trained')
     ax[1,1].legend()
 
     plt.suptitle('all experiments with no direct in-to-out units',fontname='Ubuntu')
