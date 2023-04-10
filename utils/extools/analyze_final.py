@@ -271,7 +271,7 @@ def plot_all_weight_dists(exp_dirs=spec_input_dirs,exp_season='winter'): # just 
     ax[2,1].legend(['e edges','i edges'])
     ax[2,1].set_title('trained output weights',fontname='Ubuntu')
 
-    plt.suptitle('all experiments with output layer specified',fontname='Ubuntu')
+    plt.suptitle('all experiments with input layer specified',fontname='Ubuntu')
 
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
 
