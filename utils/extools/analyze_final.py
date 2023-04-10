@@ -189,7 +189,7 @@ def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
     # also allowed to generate general MI graphs and then only dynamically examine recruitment graphs?
 
 
-def plot_all_weight_dists(exp_dirs=spec_input_dirs,exp_season='winter'): # just for dual-training for now
+def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # just for dual-training for now
     # fall set (spec output)
     fig, ax = plt.subplots(nrows=3,ncols=2,figsize=(8,8))
 
@@ -271,7 +271,7 @@ def plot_all_weight_dists(exp_dirs=spec_input_dirs,exp_season='winter'): # just 
     ax[2,1].legend(['e edges','i edges'])
     ax[2,1].set_title('trained output weights',fontname='Ubuntu')
 
-    plt.suptitle('all experiments with input layer specified',fontname='Ubuntu')
+    plt.suptitle('all experiments with no direct in-to-out units',fontname='Ubuntu')
 
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
 
