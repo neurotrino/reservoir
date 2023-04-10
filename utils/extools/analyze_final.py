@@ -189,7 +189,7 @@ def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
     # also allowed to generate general MI graphs and then only dynamically examine recruitment graphs?
 
 
-def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+def plot_all_rates(exp_dirs=spec_input_dirs,exp_season='winter'):
     # plot separately for coherence 0 and 1 trials
     # honestly don't even worry about the changes for now
     # that is for tmr
@@ -295,10 +295,11 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     ax[0,0].hist(np.array(coh0_e_rates).flatten(),bins=30,alpha=0.4,density=True,color='mediumblue',label='trained')
     ax[0,1].hist(np.array(coh0_i_rates).flatten(),bins=30,alpha=0.4,density=True,color='orangered',label='trained')
     ax[1,0].hist(np.array(coh1_e_rates).flatten(),bins=30,alpha=0.4,density=True,color='mediumblue',label='trained')
+    ax[1,0].legend()
     ax[1,1].hist(np.array(coh1_i_rates).flatten(),bins=30,alpha=0.4,density=True,color='orangered',label='trained')
     ax[1,1].legend()
 
-    plt.suptitle('all experiments with no direct in-to-out units',fontname='Ubuntu')
+    plt.suptitle('all experiments with input specified',fontname='Ubuntu')
 
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
 
