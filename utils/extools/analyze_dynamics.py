@@ -2506,6 +2506,84 @@ def generate_quad_fn(xdir, e_only, positive_only):
 # Graph Generation
 # =============================================================================
 
+def threshold_fnet(fnet, thr, copy=True):
+    """Mask lower-magnitude values in a functional network.
+
+    Masks all entries in functional network `fnet` whose absolute
+    value falls outside specificed quantile `thr` of absolute
+    values in said network.
+
+    Arguments:
+        fnet: functional network (NumPy array)
+        thr: floating point value in [0, 1] indicating percentile
+            cutoff (e.g. thr=0.25 keeps only the top quartile)
+
+    Returns:
+        Masked NumPy array masking all values in `fnet` outside the
+        specified quantile. If `copy` is `True`, this array will be
+        a deep copy. Otherwise, it will maintain a reference to
+        `fnet`
+    """
+
+    # Determine which entries to mask
+    if thr == 0:
+        mask = True  # mask all values (0th percentile)
+    elif thr == 1:
+        mask = False  # mask no values (100th percentile)
+    else:
+        magnitude_fnet = np.abs(fnet)
+        mask = magnitude_fnet < np.quantile(magnitude_fnet, thr)
+
+    # Mask the array
+    return ma.masked_array(fnet, mask, copy=copy, fill_value=0)
+
+def firing_buddy_mask(z, m):
+    """TODO: document function"""
+
+    # Binary matrix where the value at i,j indicates if neurons
+    # i and j did (1) or did not (0) *both* spike at time t
+    #
+    # NOTE: I assumed w_bool was one-dimensional (unit axis)
+    #       and that spikes was two-dimensionsional (unit axis,
+    #       time axis)
+    b1 = np.tile(z, (*z.shape, 1))
+    b1 = b1.T * z
+
+    # Binary matrix where the value at i,j indicates if neurons
+    # i and j simultaneously spiked at time t *and* that a
+    # synapse exists between them at time t. The value at i,j
+    # will be 0 if any of the three conditions (i spiked, j
+    # spiked, i/j synapse together) are false, otherwise it
+    # will be 1. This effectively masks the "firing buddies."
+    return b1 * m
+
+
+def trial_recruitment_graphs(w, fn, binned_z, threshold): # w is synaptic graph; fn is functional, spikes are binned already, threshold in case we take just top quartile of functional weights, for example
+    fn = threshold_fnet(fn, threshold, copy=False).filled()
+
+    # mask of 0's and 1's for whether actual synaptic connections exist
+    w_bool = np.where(w != 0, 1, 0)
+
+    # aggregate recruitment graphs for this segment
+    segment_dur = t1 - t0
+    rn = np.zeros(  # return variable
+        (segment_dur, fn.shape[0], fn.shape[1]),
+        dtype=object
+    )
+    for t in range(0,len(binned_z)):
+        # Indicies of all neurons with synaptic connections that
+        # are firing together at this timestep
+        fb_mask = firing_buddy_mask(spikes[:, t], w_bool)
+
+        # if we found at least one nonzero synaptic connection
+        # between the active units fill in recruitment graph at
+        # those existing active indices using values from
+        # thresholded functional graph
+        rn[t, ...] = fn * fb_mask
+
+    return rn
+
+
 def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
     """TODO: document function
 
@@ -2521,59 +2599,6 @@ def batch_recruitment_graphs(w, fn, spikes, trialends, threshold):
         threshold: 0.25 meaning we only use the top quartile of
             functional weights; otherwise we have a fully dense graph
     """
-
-    def threshold_fnet(fnet, thr, copy=True):
-        """Mask lower-magnitude values in a functional network.
-
-        Masks all entries in functional network `fnet` whose absolute
-        value falls outside specificed quantile `thr` of absolute
-        values in said network.
-
-        Arguments:
-            fnet: functional network (NumPy array)
-            thr: floating point value in [0, 1] indicating percentile
-                cutoff (e.g. thr=0.25 keeps only the top quartile)
-
-        Returns:
-            Masked NumPy array masking all values in `fnet` outside the
-            specified quantile. If `copy` is `True`, this array will be
-            a deep copy. Otherwise, it will maintain a reference to
-            `fnet`
-        """
-
-        # Determine which entries to mask
-        if thr == 0:
-            mask = True  # mask all values (0th percentile)
-        elif thr == 1:
-            mask = False  # mask no values (100th percentile)
-        else:
-            magnitude_fnet = np.abs(fnet)
-            mask = magnitude_fnet < np.quantile(magnitude_fnet, thr)
-
-        # Mask the array
-        return ma.masked_array(fnet, mask, copy=copy, fill_value=0)
-
-
-    def firing_buddy_mask(z, m):
-        """TODO: document function"""
-
-        # Binary matrix where the value at i,j indicates if neurons
-        # i and j did (1) or did not (0) *both* spike at time t
-        #
-        # NOTE: I assumed w_bool was one-dimensional (unit axis)
-        #       and that spikes was two-dimensionsional (unit axis,
-        #       time axis)
-        b1 = np.tile(z, (*z.shape, 1))
-        b1 = b1.T * z
-
-        # Binary matrix where the value at i,j indicates if neurons
-        # i and j simultaneously spiked at time t *and* that a
-        # synapse exists between them at time t. The value at i,j
-        # will be 0 if any of the three conditions (i spiked, j
-        # spiked, i/j synapse together) are false, otherwise it
-        # will be 1. This effectively masks the "firing buddies."
-        return b1 * m
-
 
     # NOTE: `copy` is currently `False` because the `.filled()` method
     #       creates a deep copy implicitly, thus doing so again in

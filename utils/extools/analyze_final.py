@@ -75,6 +75,89 @@ spec_output_dirs = ["run-batch30-specout-onlinerate0.1-savey","run-batch30-duall
 spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
 spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 
+def single_fn_delay_recruit(rn_bin=20,exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+    # generate a single functional network across all trials for a particular batch update (last) of a dual-trained network
+    # or honestly maybe just constrained to a couple change trials for now
+
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # arbitrarily pick one experiment
+    xdir = exp_data_dirs[4]
+    exp_path = xdir[-9:-1]
+
+    # check if folder exists, otherwise create it for saving files
+    if not os.path.isdir(os.path.join(savepath, 'spring_fns/trained')):
+        os.makedirs(os.path.join(savepath, 'spring_fns/trained'))
+
+    np_dir = os.path.join(data_dir, xdir, "npz-data")
+    #naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
+    trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+
+    # go through final epoch trials
+    true_y = trained_data['true_y'][99]
+    pred_y = trained_data['pred_y'][99]
+    spikes = trained_data['spikes'][99]
+    w = trained_data['tv1.postweights'][99]
+
+    fns = []
+
+    # go thru all trials in this batch
+    for i in range(0,len(true_y)):
+        # determine if there was a coherence change in this trial
+        if true_y[i][0] != true_y[i][seq_len-1]:
+            # generate a FN for this entire trial
+
+            binned_z = get_binned_spikes(np.transpose(spikes[i]), rn_bin) # sharing 20 ms bins for everything for now
+
+            fn = simplest_confMI(binned_z,correct_signs=True)
+
+            fns.append(fn)
+
+            # find the time of change and delay in report
+            diffs = np.diff(true_y[i],axis=0)
+            # t_change is the first timestep of the new coherence level
+            t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
+            # find average pred before and after
+            pre_avg = np.average(pred_y[i][:t_change])
+            post_avg = np.average(pred_y[i][t_change:])
+            # determine the duration after coherence change until we first pass (pos or neg direction) the after-change average
+            if pre_avg < post_avg:
+                # if we are increasing coherence level, crossing is when we go above the 75th percentile of post-change preds
+                delay_dur = np.where(pred_y[i][t_change:]>np.quantile(pred_y[i][t_change:],0.75))[0][0]
+            elif pre_avg > post_avg:
+                # if we are decreasing coherence level, crossing is when we fall below the 25th percentile of post-change preds
+                delay_dur = np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0][0]
+
+        # take the period of time 250 ms before and 250 ms for recruitment graphs
+        # generate 20-ms (rn_bin) recruitment graphs from binned spikes
+        rn_binned_z = get_binned_spikes(np.transpose(spikes[i][t_change-250:t_change+delay_dur+250,:]), rn_bin)
+
+        trial_rns = []
+
+        for t in in range(np.size(rn_binned_z)[0]):
+            rn = trial_recruitment_graphs(w, fn, rn_binned_z, threshold=1)
+            trial_rns.append(rn) # ragged array; each one is sized time x 300 x 300
+
+        # save all recruitment networks for this trial for later UMAP analyses
+        np.savez_compressed(
+            savepath+'/spring_fns/trained/'+xdir+'_trial_'+i+'_rns',
+            **{
+                "rns": trial_rns
+            }
+        )
+
+    # save all functional networks
+    np.savez_compressed(
+        savepath+'/spring_fns/trained/'+xdir+'_fns',
+        **{
+            "fns": fns
+        }
+    )
+
 def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
     # principled way to decide what constitutes the duration of a delay between coherence changes
     # plot to see delay markers on a few trials

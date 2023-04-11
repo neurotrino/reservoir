@@ -18,6 +18,28 @@ run_dur = 4080
 batch_size = 10
 
 
+def simplest_confMI(raster, correct_signs=True, lag=1):
+    post_raster = raster[:,lag:]
+    raster = raster[:,:-lag]
+    post_raster = np.logical_or(raster,post_raster)
+    neurons = raster.shape[0]
+    mat = np.zeros([neurons, neurons])
+    for pre in range(neurons):
+        for post in range(neurons):
+            if pre != post:
+                mat[pre, post] = compute_MI(
+                    raster[pre, :], post_raster[post, :]
+                )
+    if correct_signs:
+        signed_graph = signed_MI(mat, raster)
+        e_graph = pos(signed_graph[:240,:])
+        i_graph = neg(signed_graph[241:,:])
+        composite_graph = np.concatenate((e_graph,i_graph),axis=0)
+        return composite_graph
+    else:
+        return mat
+
+
 def simple_confMI(raster, trial_ends, positive_only, lag=1):
     post_raster = raster[:, lag:]
     raster = raster[:, :-lag]
@@ -62,6 +84,12 @@ def pos(graph):
     pos_graph = np.copy(graph)
     pos_graph[graph < 0] = 0
     return pos_graph
+
+def neg(graph):
+    # takes signed_MI MI graph, returns negative version
+    neg_graph = np.copy(graph)
+    neg_graph[graph > 0] = 0
+    return neg_graph
 
 
 def construct_MI_mat(
