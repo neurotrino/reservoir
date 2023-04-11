@@ -25,7 +25,7 @@ from utils.extools.fn_analysis import reciprocity_ei
 from utils.extools.fn_analysis import calc_density
 from utils.extools.fn_analysis import out_degree
 from utils.extools.MI import simplest_confMI
-from utils.extools.analyze_dynamics import get_binned_spikes
+from utils.extools.analyze_dynamics import fastbin
 from utils.extools.analyze_dynamics import trial_recruitment_graphs
 
 # ---- global variables -------------------------------------------------------
@@ -114,7 +114,7 @@ def single_fn_delay_recruit(rn_bin=20,exp_dirs=spec_nointoout_dirs,exp_season='s
         if true_y[i][0] != true_y[i][seq_len-1]:
             # generate a FN for this entire trial
 
-            binned_z = get_binned_spikes(np.transpose(spikes[i]), rn_bin) # sharing 20 ms bins for everything for now
+            binned_z = fastbin(np.transpose(spikes[i]), rn_bin, 300) # sharing 20 ms bins for everything for now
 
             fn = simplest_confMI(binned_z,correct_signs=True)
 
@@ -137,7 +137,7 @@ def single_fn_delay_recruit(rn_bin=20,exp_dirs=spec_nointoout_dirs,exp_season='s
 
             # take the period of time 250 ms before and 250 ms for recruitment graphs
             # generate 20-ms (rn_bin) recruitment graphs from binned spikes
-            rn_binned_z = get_binned_spikes(np.transpose(spikes[i][t_change-250:t_change+delay_dur+250,:]), rn_bin)
+            rn_binned_z = fastbin(np.transpose(spikes[i][t_change-250:t_change+delay_dur+250,:]), rn_bin, 300)
 
             trial_rns = []
 
