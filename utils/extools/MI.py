@@ -32,7 +32,7 @@ def simplest_confMI(raster, correct_signs=True, lag=1):
                 )
     if correct_signs:
         signed_graph = signed_MI(mat, raster)
-        e_graph = pos(signed_graph[:240,:])
+        e_graph = pos(signed_graph[:241,:])
         i_graph = neg(signed_graph[241:,:])
         composite_graph = np.concatenate((e_graph,i_graph),axis=0)
         return composite_graph
