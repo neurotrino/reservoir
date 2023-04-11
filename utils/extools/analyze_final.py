@@ -24,6 +24,9 @@ from utils.extools.fn_analysis import reciprocity
 from utils.extools.fn_analysis import reciprocity_ei
 from utils.extools.fn_analysis import calc_density
 from utils.extools.fn_analysis import out_degree
+from utils.extools.MI import simplest_confMI
+from utils.extools.analyze_dynamics import get_binned_spikes
+from utils.extools.analyze_dynamics import trial_recruitment_graphs
 
 # ---- global variables -------------------------------------------------------
 data_dir = '/data/experiments/'
@@ -132,23 +135,23 @@ def single_fn_delay_recruit(rn_bin=20,exp_dirs=spec_nointoout_dirs,exp_season='s
                 # if we are decreasing coherence level, crossing is when we fall below the 25th percentile of post-change preds
                 delay_dur = np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0][0]
 
-        # take the period of time 250 ms before and 250 ms for recruitment graphs
-        # generate 20-ms (rn_bin) recruitment graphs from binned spikes
-        rn_binned_z = get_binned_spikes(np.transpose(spikes[i][t_change-250:t_change+delay_dur+250,:]), rn_bin)
+            # take the period of time 250 ms before and 250 ms for recruitment graphs
+            # generate 20-ms (rn_bin) recruitment graphs from binned spikes
+            rn_binned_z = get_binned_spikes(np.transpose(spikes[i][t_change-250:t_change+delay_dur+250,:]), rn_bin)
 
-        trial_rns = []
+            trial_rns = []
 
-        for t in range(np.size(rn_binned_z)[0]):
-            rn = trial_recruitment_graphs(w, fn, rn_binned_z, threshold=1)
-            trial_rns.append(rn) # ragged array; each one is sized time x 300 x 300
+            for t in range(np.size(rn_binned_z)[0]):
+                rn = trial_recruitment_graphs(w, fn, rn_binned_z, threshold=1)
+                trial_rns.append(rn) # ragged array; each one is sized time x 300 x 300
 
-        # save all recruitment networks for this trial for later UMAP analyses
-        np.savez_compressed(
-            savepath+'/spring_fns/trained/'+xdir+'_trial_'+i+'_rns',
-            **{
-                "rns": trial_rns
-            }
-        )
+            # save all recruitment networks for this trial for later UMAP analyses
+            np.savez_compressed(
+                savepath+'/spring_fns/trained/'+xdir+'_trial_'+i+'_rns',
+                **{
+                    "rns": trial_rns
+                }
+            )
 
     # save all functional networks
     np.savez_compressed(
