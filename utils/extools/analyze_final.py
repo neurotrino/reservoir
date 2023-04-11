@@ -78,7 +78,7 @@ spec_output_dirs = ["run-batch30-specout-onlinerate0.1-savey","run-batch30-duall
 spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
 spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 
-def single_fn_delay_recruit(rn_bin=20,exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     # generate a single functional network across all trials for a particular batch update (last) of a dual-trained network
     # or honestly maybe just constrained to a couple change trials for now
 
@@ -93,8 +93,8 @@ def single_fn_delay_recruit(rn_bin=20,exp_dirs=spec_nointoout_dirs,exp_season='s
     exp_path = xdir[-9:-1]
 
     # check if folder exists, otherwise create it for saving files
-    if not os.path.isdir(os.path.join(savepath, 'spring_fns/trained')):
-        os.makedirs(os.path.join(savepath, 'spring_fns/trained'))
+    if not os.path.isdir(os.path.join(savepath, 'spring_fns', exp_path, 'trained')):
+        os.makedirs(os.path.join(savepath, 'spring_fns', exp_path, 'trained'))
 
     np_dir = os.path.join(data_dir, xdir, "npz-data")
     #naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
@@ -138,13 +138,9 @@ def single_fn_delay_recruit(rn_bin=20,exp_dirs=spec_nointoout_dirs,exp_season='s
             # take the period of time 250 ms before and 250 ms for recruitment graphs
             # generate 20-ms (rn_bin) recruitment graphs from binned spikes
             rn_binned_z = fastbin(np.transpose(spikes[i][t_change-250:t_change+delay_dur+250][:]), rn_bin, 300)
-            rn_timesteps = np.shape(rn_binned_z)[-1]
 
-            trial_rns = []
-
-            for t in range(0,rn_timesteps):
-                rn = trial_recruitment_graphs(w, fn, rn_binned_z, threshold=1)
-                trial_rns.append(rn) # ragged array; each one is sized time x 300 x 300
+            rn = trial_recruitment_graphs(w, fn, rn_binned_z, threshold=1)
+            # ragged array; each is sized timesteps x 300 x 300
 
             # save all recruitment networks for this trial for later UMAP analyses
             np.savez_compressed(
