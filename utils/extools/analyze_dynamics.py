@@ -2570,7 +2570,7 @@ def trial_recruitment_graphs(w, fn, binned_z, threshold): # w is synaptic graph;
         (segment_dur, fn.shape[0], fn.shape[1]),
         dtype=object
     )
-    for t in range(0,len(binned_z)):
+    for t in range(0,segment_dur):
         # Indicies of all neurons with synaptic connections that
         # are firing together at this timestep
         fb_mask = firing_buddy_mask(binned_z[:, t], w_bool)
