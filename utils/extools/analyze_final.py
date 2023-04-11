@@ -138,7 +138,7 @@ def single_fn_delay_recruit(rn_bin=20,exp_dirs=spec_nointoout_dirs,exp_season='s
             # take the period of time 250 ms before and 250 ms for recruitment graphs
             # generate 20-ms (rn_bin) recruitment graphs from binned spikes
             rn_binned_z = fastbin(np.transpose(spikes[i][t_change-250:t_change+delay_dur+250][:]), rn_bin, 300)
-            rn_timesteps = np.size(rn_binned_z)[-1]
+            rn_timesteps = np.shape(rn_binned_z)[-1]
 
             trial_rns = []
 
