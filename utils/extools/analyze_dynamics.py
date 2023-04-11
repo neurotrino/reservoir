@@ -2564,6 +2564,7 @@ def trial_recruitment_graphs(w, fn, binned_z, threshold): # w is synaptic graph;
     # mask of 0's and 1's for whether actual synaptic connections exist
     w_bool = np.where(w != 0, 1, 0)
 
+    segment_dur = np.shape(binned_z)[-1]
     # aggregate recruitment graphs for this segment
     rn = np.zeros(  # return variable
         (segment_dur, fn.shape[0], fn.shape[1]),
