@@ -144,7 +144,7 @@ def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_nointoout_dirs,exp_season='s
 
             # save all recruitment networks for this trial for later UMAP analyses
             np.savez_compressed(
-                savepath+'spring_fns/trained/'+exp_path+'_trial_'+str(i)+'_rns',
+                savepath+'spring_fns/'+exp_path+'/trained/trial_'+str(i)+'_rns',
                 **{
                     "rns": rns
                 }
@@ -152,7 +152,7 @@ def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_nointoout_dirs,exp_season='s
 
     # save all functional networks
     np.savez_compressed(
-        savepath+'spring_fns/trained/'+exp_path+'_fns',
+        savepath+'spring_fns/'+exp_path+'/trained/fns',
         **{
             "fns": fns
         }
