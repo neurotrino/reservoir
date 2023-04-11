@@ -2565,7 +2565,6 @@ def trial_recruitment_graphs(w, fn, binned_z, threshold): # w is synaptic graph;
     w_bool = np.where(w != 0, 1, 0)
 
     # aggregate recruitment graphs for this segment
-    segment_dur = t1 - t0
     rn = np.zeros(  # return variable
         (segment_dur, fn.shape[0], fn.shape[1]),
         dtype=object
