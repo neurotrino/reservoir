@@ -852,35 +852,51 @@ class Trainer(BaseTrainer):
             if epoch_idx == 0 and self.cfg["model"].cell.no_input_to_output:
                 # this is the correct initialization of recurrent weights and
                 # so on
-                if self.cfg["model"].cell.two_input_populations_by_rate:
-                    # separate based on greater rate of responses for one
-                    # coherence level vs the other
-                    coh1_pop = [ 0,  1,  2,  3,  8,  9, 10, 15]
-                    coh0_pop = [ 4,  5,  6,  7, 11, 12, 13, 14]
 
-                    # get output weights
-                    self.model.dense1.build(input_shape=input_shape)
-                    output_vals = self.model.dense1.oweights.numpy()
-                    self.model.out_id = np.where(output_vals != 0)[0]
+                # get output weights
+                self.model.dense1.build(input_shape=input_shape)
+                output_vals = self.model.dense1.oweights.numpy()
+                self.model.out_id = np.where(output_vals != 0)[0]
 
-                    self.model.avail_id = np.setdiff1d(
-                        np.array(range(0,300)), self.model.out_id
-                    )
-                    # randomly split into remaining available id's for the two
-                    # coherence levels
-                    self.model.avail_id_coh0 = np.random.choice(
-                        self.model.avail_id,
-                        size=(len(self.model.avail_id) // 2),
-                        replace=False
-                    )
-                    self.model.avail_id_coh1 = np.setdiff1d(
-                        self.model.avail_id, self.model.avail_id_coh0
-                    )
+                self.model.avail_id = np.setdiff1d(
+                    np.array(range(0,300)), self.model.out_id
+                )
 
-                    # redraw input weights from the two coherence populations
-                    # according to leftover values (avail_ids)
-                    input_weights_val = np.zeros(shape=(cell.n_in, cell.units))
+                """
+                # randomly split into remaining available id's for the two
+                # coherence levels
+                self.model.avail_id_coh0 = np.random.choice(
+                    self.model.avail_id,
+                    size=(len(self.model.avail_id) // 2),
+                    replace=False
+                )
+                self.model.avail_id_coh1 = np.setdiff1d(
+                    self.model.avail_id, self.model.avail_id_coh0
+                )"""
 
+                conns_per_input = self.cfg["model"].cell.p_input * self.cfg["model"].cell.n_units
+
+                # redraw input weights from the two coherence populations
+                # according to leftover values (avail_ids)
+                input_weights_val = np.zeros(shape=(cell.n_in, cell.units))
+
+                # for each of the 16 input channels
+                for inp_idx in range(cell.n_in):
+                    # randomly select amongst available vals
+                    channel_conns = np.random.choice(self.model.avail_id,size=conns_per_input,replace=False)
+                    # populate with proper values
+                    input_weights_val[inp_idx,channel_conns] = np.random.uniform(low=0.0, high=0.4, size=len(channel_conns))
+
+                    """
+                    for rec_idx in range(conns_per_input):
+                        if inp_idx in self.model.avail_id:
+                        cohX = self.model.avail_id
+                        input_weights_val[inp_idx][cohX] = sampled_vector(cohX.shape)
+
+                        input_weights_val[i][idx1:idx2] = i_sample_input_vals
+                    """
+
+                    """
                     # determine how many values we need to fill in per coherence level
                     # conns_per_input = p_input * n_units
                     for inp_idx in range(cell.n_in):
@@ -889,8 +905,14 @@ class Trainer(BaseTrainer):
                         else:
                             cohX = self.model.avail_id_coh1
                         input_weights_val[inp_idx][cohX] = sampled_vector(cohX.shape)
+                    """
 
                     """
+                    if self.cfg["model"].cell.two_input_populations_by_rate:
+                        # separate based on greater rate of responses for one
+                        # coherence level vs the other
+                        coh1_pop = [ 0,  1,  2,  3,  8,  9, 10, 15]
+                        coh0_pop = [ 4,  5,  6,  7, 11, 12, 13, 14]
                     # former way of doing it, when the non-overlap was not
                     # explicitly specified upon init
 

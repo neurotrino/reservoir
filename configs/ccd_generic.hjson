@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Mandatory variable.
-        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5-unswaplabels
+        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5
 
         // Collection of directories which will be placed inside exp_dir
         //
