@@ -221,11 +221,11 @@ def plot_all_rates(exp_dirs=spec_input_dirs,exp_season='winter'):
             if true_y[i][0]==true_y[i][seq_len-1]:
                 if true_y[i][0]==1:
                     # reminder that spikes are shaped [batch (100), trial (30), time (4080), neuron (300)]
-                    coh1_e_rates.append(np.average(spikes[i][:,:e_end]))
-                    coh1_i_rates.append(np.average(spikes[i][:,:e_end]))
+                    coh1_e_rates.append(np.mean(spikes[i][:,:e_end],axis=0)) # average across time for each neuron, so axis 0
+                    coh1_i_rates.append(np.mean(spikes[i][:,:e_end],axis=0))
                 else:
-                    coh0_e_rates.append(np.average(spikes[i][:,e_end:]))
-                    coh0_i_rates.append(np.average(spikes[i][:,e_end:]))
+                    coh0_e_rates.append(np.mean(spikes[i][:,e_end:],axis=0))
+                    coh0_i_rates.append(np.mean(spikes[i][:,e_end:],axis=0))
             else:
                 # find time of coherence change
                 diffs = np.diff(true_y[i],axis=0)
@@ -233,15 +233,15 @@ def plot_all_rates(exp_dirs=spec_input_dirs,exp_season='winter'):
                 t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
                 # find average rates before and after
                 if true_y[i][0]==1:
-                    coh1_e_rates.append(np.average(spikes[i][:t_change,:e_end]))
-                    coh0_e_rates.append(np.average(spikes[i][t_change:,:e_end]))
-                    coh1_i_rates.append(np.average(spikes[i][:t_change,e_end:]))
-                    coh0_i_rates.append(np.average(spikes[i][t_change:,e_end:]))
+                    coh1_e_rates.append(np.mean(spikes[i][:t_change,:e_end],axis=0))
+                    coh0_e_rates.append(np.mean(spikes[i][t_change:,:e_end],axis=0))
+                    coh1_i_rates.append(np.mean(spikes[i][:t_change,e_end:],axis=0))
+                    coh0_i_rates.append(np.mean(spikes[i][t_change:,e_end:],axis=0))
                 else:
-                    coh0_e_rates.append(np.average(spikes[i][:t_change,:e_end]))
-                    coh1_e_rates.append(np.average(spikes[i][t_change:,:e_end]))
-                    coh0_i_rates.append(np.average(spikes[i][:t_change,e_end:]))
-                    coh1_i_rates.append(np.average(spikes[i][t_change:,e_end:]))
+                    coh0_e_rates.append(np.mean(spikes[i][:t_change,:e_end],axis=0))
+                    coh1_e_rates.append(np.mean(spikes[i][t_change:,:e_end],axis=0))
+                    coh0_i_rates.append(np.mean(spikes[i][:t_change,e_end:],axis=0))
+                    coh1_i_rates.append(np.mean(spikes[i][t_change:,e_end:],axis=0))
 
     # plot for naive
     ax[0,0].hist(np.array(coh0_e_rates).flatten(),bins=30,alpha=0.4,density=True,color='dodgerblue',label='naive')
@@ -310,7 +310,7 @@ def plot_all_rates(exp_dirs=spec_input_dirs,exp_season='winter'):
             tick.set_fontname("Ubuntu")
         for tick in ax[i].get_yticklabels():
             tick.set_fontname("Ubuntu")
-        ax[i].set_xlabel('rate (Hz)',fontname='Ubuntu')
+        ax[i].set_xlabel('unitwise rate (Hz)',fontname='Ubuntu')
         ax[i].set_ylabel('density',fontname='Ubuntu')
 
     plt.draw()
