@@ -139,14 +139,14 @@ def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_nointoout_dirs,exp_season='s
             # generate 20-ms (rn_bin) recruitment graphs from binned spikes
             rn_binned_z = fastbin(np.transpose(spikes[i][t_change-250:t_change+delay_dur+250][:]), rn_bin, 300)
 
-            rn = trial_recruitment_graphs(w, fn, rn_binned_z, threshold=1)
+            rns = trial_recruitment_graphs(w, fn, rn_binned_z, threshold=1)
             # ragged array; each is sized timesteps x 300 x 300
 
             # save all recruitment networks for this trial for later UMAP analyses
             np.savez_compressed(
                 savepath+'spring_fns/trained/'+exp_path+'_trial_'+str(i)+'_rns',
                 **{
-                    "rns": trial_rns
+                    "rns": rns
                 }
             )
 
