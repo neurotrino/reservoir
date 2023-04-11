@@ -138,7 +138,7 @@ def single_fn_delay_recruit(rn_bin=20,exp_dirs=spec_nointoout_dirs,exp_season='s
 
         trial_rns = []
 
-        for t in in range(np.size(rn_binned_z)[0]):
+        for t in range(np.size(rn_binned_z)[0]):
             rn = trial_recruitment_graphs(w, fn, rn_binned_z, threshold=1)
             trial_rns.append(rn) # ragged array; each one is sized time x 300 x 300
 
