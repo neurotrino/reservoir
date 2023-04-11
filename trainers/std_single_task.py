@@ -874,7 +874,7 @@ class Trainer(BaseTrainer):
                     self.model.avail_id, self.model.avail_id_coh0
                 )"""
 
-                conns_per_input = self.cfg["cell"].p_input * self.cfg["cell"].units
+                conns_per_input = self.cfg["model"].cell.p_input * self.cfg["model"].cell.units
 
                 # redraw input weights from the two coherence populations
                 # according to leftover values (avail_ids)
