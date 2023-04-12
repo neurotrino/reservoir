@@ -78,7 +78,7 @@ spec_output_dirs = ["run-batch30-specout-onlinerate0.1-savey","run-batch30-duall
 spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
 spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 
-def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='winter'):
+def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='winter',rand_exp_idx=5):
     # generate a single functional network across all trials for a particular batch update (last) of a dual-trained network
     # or honestly maybe just constrained to a couple change trials for now
 
@@ -89,7 +89,7 @@ def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='winte
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
     # arbitrarily pick one experiment for now
-    xdir = exp_data_dirs[4]
+    xdir = exp_data_dirs[rand_exp_idx]
     exp_path = xdir[-9:-1]
 
     # check if folder exists, otherwise create it for saving files
@@ -152,7 +152,7 @@ def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='winte
 
     # save all functional networks
     np.savez_compressed(
-        savepath+'spring_fns/'+exp_path+'/trained/fns',
+        savepath+exp_season+'_fns/'+exp_path+'/trained/fns',
         **{
             "fns": fns
         }
