@@ -188,6 +188,64 @@ def get_spike_data_for_umap(xdir, separate_by_type=False):
 # Plotting
 # ========== ========== ========== ========== ========== ========== ==========
 
+
+def map_rns(rn_dir='/data/results/experiment1/spring_fns/15.52.42/trained/',n_neighbors=15):
+    # loop through rns for all trials
+    rn_files = os.listdir(rn_dir)
+    for fname in rn_files:
+        if 'trial_' in fname:
+            fig, ax = plt.subplots(nrows=2,ncols=2)
+
+            data = np.load(rn_dir+fname,allow_pickle=True)
+            rns = data['rns']
+            # plot separately for all 4 types of connections
+            rn_ee = rns[:,:241,:241]
+            rn_ei = rns[:,:241,241:]
+            rn_ie = rns[:,241:,:241]
+            rn_ii = rns[:,241:,241:]
+
+            reducer = umap.UMAP(n_neighbors)
+            ee = reducer.fit_transform(all_data_ee)
+            ei = reducer.fit_transform(all_data_ei)
+            ie = reducer.fit_transform(all_data_ie)
+            ii = reducer.fit_transform(all_data_ii)
+
+            # create umap
+            ax[0,0].scatter(ee[:,0],ee[:,1])
+            ax[0,0].colorbar()
+            ax[0,0].set_title('e->e',fontname='Ubuntu')
+
+            ax[0,1].scatter(ei[:,0],ei[:,1])
+            ax[0,1].colorbar()
+            ax[0,1].set_title('e->i',fontname='Ubuntu')
+
+            ax[1,0].scatter(ie[:,0],ie[:,1])
+            ax[1,0].colorbar()
+            ax[1,0].set_title('i->e',fontname='Ubuntu')
+
+            ax[1,1].scatter(ii[:,0],ii[:,1])
+            ax[1,1].colorbar()
+            ax[1,1].set_title('i->i',fontname='Ubuntu')
+
+            # would be useful to plot in different colors according to time. can you?
+            # figure out exactly what umap does to begin with
+
+            plt.suptitle('UMAP projections of trained recruit nets surrounding change',fontname='Ubuntu')
+            ax = ax.flatten()
+            for i in range(0,len(ax)):
+                for tick in ax[i].get_xticklabels():
+                    tick.set_fontname('Ubuntu')
+                for tick in ax[i].get_yticklabels():
+                    tick.set_fontname('Ubuntu')
+
+            # save plot
+            save_fname = rn_dir+fname+'umap_+'str(n_neighbors)+'.png'
+            plt.savefig(save_fname,dpi=300)
+
+            # Teardown
+            plt.clf()
+            plt.close()
+
 def map_activity():
     """TODO: document function"""
 
