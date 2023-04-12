@@ -78,7 +78,7 @@ spec_output_dirs = ["run-batch30-specout-onlinerate0.1-savey","run-batch30-duall
 spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
 spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 
-def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='winter'):
     # generate a single functional network across all trials for a particular batch update (last) of a dual-trained network
     # or honestly maybe just constrained to a couple change trials for now
 
@@ -88,13 +88,13 @@ def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_nointoout_dirs,exp_season='s
         else:
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
-    # arbitrarily pick one experiment
+    # arbitrarily pick one experiment for now
     xdir = exp_data_dirs[4]
     exp_path = xdir[-9:-1]
 
     # check if folder exists, otherwise create it for saving files
-    if not os.path.isdir(os.path.join(savepath, 'spring_fns', exp_path, 'trained')):
-        os.makedirs(os.path.join(savepath, 'spring_fns', exp_path, 'trained'))
+    if not os.path.isdir(os.path.join(savepath, exp_season+'_fns', exp_path, 'trained')):
+        os.makedirs(os.path.join(savepath, exp_season+'_fns', exp_path, 'trained'))
 
     np_dir = os.path.join(data_dir, xdir, "npz-data")
     #naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
@@ -144,7 +144,7 @@ def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_nointoout_dirs,exp_season='s
 
             # save all recruitment networks for this trial for later UMAP analyses
             np.savez_compressed(
-                savepath+'spring_fns/'+exp_path+'/trained/trial_'+str(i)+'_rns',
+                savepath+exp_season+'_fns/'+exp_path+'/trained/trial_'+str(i)+'_rns',
                 **{
                     "rns": rns
                 }
