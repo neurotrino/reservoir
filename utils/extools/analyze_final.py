@@ -78,7 +78,7 @@ spec_output_dirs = ["run-batch30-specout-onlinerate0.1-savey","run-batch30-duall
 spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
 spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 
-def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='winter',rand_exp_idx=5):
+def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='spring',rand_exp_idx=5):
     # generate a single functional network across all trials for a particular batch update (last) of a dual-trained network
     # or honestly maybe just constrained to a couple change trials for now
 
@@ -92,8 +92,8 @@ def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='winte
     # arbitrarily pick one experiment for now
     #xdir = exp_data_dirs[rand_exp_idx]
     #exp_path = xdir[-9:-1]
-    exp_path = '19.29.34'
-    xdir = 'run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5-swaplabels [2023-03-31 19.29.34]'
+    exp_path = '21.06.01'
+    xdir = 'run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-20 21.06.01]'
 
     # check if folder exists, otherwise create it for saving files
     if not os.path.isdir(os.path.join(savepath, exp_season+'_fns', exp_path, 'trained')):
@@ -208,7 +208,7 @@ def plot_single_batch_delays(fpath,spath):
             plt.xlabel('time (ms)',fontname='Ubuntu')
             plt.ylabel('output',fontname='Ubuntu')
 
-            plt.title('trial '+str(i),fontname='Ubuntu')
+            plt.title('trial '+str(trial_idx[i]),fontname='Ubuntu')
             plt.xticks(fontname='Ubuntu')
             plt.yticks(fontname='Ubuntu')
             plt.legend(['pred y','true y','time of change','delay'],prop={"family":"Ubuntu"})
