@@ -200,6 +200,7 @@ def map_rns(rn_dir='/data/results/experiment1/spring_fns/15.52.42/trained/',n_ne
             rns = data['rns']
             # plot separately for all 4 types of connections
             rn_ee = rns[:,:241,:241]
+            timesteps = np.shape(rn_ee)[0]
             # flatten dimension of weights
             rn_ee = np.reshape(rn_ee,[np.shape(rn_ee)[0],np.shape(rn_ee)[1]*np.shape(rn_ee)[2]])
             rn_ei = rns[:,:241,241:]
@@ -216,19 +217,19 @@ def map_rns(rn_dir='/data/results/experiment1/spring_fns/15.52.42/trained/',n_ne
             ii = reducer.fit_transform(rn_ii)
 
             # create umap
-            ax[0,0].scatter(ee[:,0],ee[:,1],cmap='winter')
+            ax[0,0].scatter(ee[:,0],ee[:,1],c=np.arange(0,timesteps),cmap='winter')
             #ax[0,0].colorbar()
             ax[0,0].set_title('e->e',fontname='Ubuntu')
 
-            ax[0,1].scatter(ei[:,0],ei[:,1],cmap='winter')
-            ax[0,1].colorbar()
+            ax[0,1].scatter(ei[:,0],ei[:,1],c=np.arange(0,timesteps).cmap='winter')
+            #ax[0,1].colorbar()
             ax[0,1].set_title('e->i',fontname='Ubuntu')
 
-            ax[1,0].scatter(ie[:,0],ie[:,1],cmap='winter')
+            ax[1,0].scatter(ie[:,0],ie[:,1],c=np.arange(0,timesteps),cmap='winter')
             #ax[1,0].colorbar()
             ax[1,0].set_title('i->e',fontname='Ubuntu')
 
-            ax[1,1].scatter(ii[:,0],ii[:,1],cmap='winter')
+            ax[1,1].scatter(ii[:,0],ii[:,1],c=np.arange(0,timesteps),cmap='winter')
             #ax[1,1].colorbar()
             ax[1,1].set_title('i->i',fontname='Ubuntu')
 
