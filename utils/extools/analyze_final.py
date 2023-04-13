@@ -187,6 +187,7 @@ def single_batch_recruit_coh_compare(rn_dir='/data/results/experiment1/spring_fn
     # no, just plot the distributions
 
     fns = []
+    cohs = []
 
     for i in range(0,len(spikes)): # for each of 30 trials within this batch
         if true_y[i][0]==true_y[i][-1]: # check if consistent coherence level
@@ -206,8 +207,10 @@ def single_batch_recruit_coh_compare(rn_dir='/data/results/experiment1/spring_fn
 
             if true_y[i][0]>0:
                 coh_lvl = 'coh1'
+                cohs.append(1)
             else:
                 coh_lvl = 'coh0'
+                cohs.append(0)
 
             # save rns
             np.savez_compressed(
@@ -252,9 +255,21 @@ def single_batch_recruit_coh_compare(rn_dir='/data/results/experiment1/spring_fn
     np.savez_compressed(
         savepath+exp_season+'_fns/'+exp_path+'/trained/nochange_fns',
         **{
-            "fns": fns
+            "fns": fns,
+            "cohs": cohs
         }
     )
+
+    # plot all the functional nets as a
+    for i in range(len(fns)):
+        coh0_ws = []
+        coh0_dens = []
+        coh1_ws = []
+        coh1_dens = []
+        if cohs[i]==1:
+            coh1_ws.append(np.mean(fns[i][fns[i]!=0]))
+        else:
+            coh0_ws.append(np.mean(fns[i][fns[i]!=0]))
 
     # i haven't done the simple thing of plotting activity rates of e and i units again, have i?
 
