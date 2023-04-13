@@ -161,6 +161,104 @@ def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='sprin
         }
     )
 
+def single_batch_recruit_coh_compare(rn_dir='/data/results/experiment1/spring_fns/21.06.01/trained/',rn_bin=10):
+    # load in fns for a particular final batch of an experiment
+    # generate rns for coh0-only and coh1-only trials and see how we are doing
+    # in terms of comparison of ee, ei, ie, and ii connections
+    # maybe densities and strengths are a good place to begin
+    # only make comparisons within a given coherence type
+
+    data = np.load(rn_dir+'fns.npz',allow_pickle=True)
+    fns = data['fns'] # one fn for each of < 30 trials within this final trained batch
+    conn_types = ['e->e','e->i','i->e','i->i']
+
+    exp_path = '21.06.01'
+    xdir = 'run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-20 21.06.01]'
+    data = np.load(xdir+'/npz-data/991-1000.npz')
+    spikes = data['spikes'][99]
+    true_y = data['true_y'][99]
+    w = data['tv1.postweights'][99]
+
+    # check if there is a change
+
+    # 4 subplots for each coherence type
+    # plot average strengths why not
+    # are we even moving over time?
+    # no, just plot the distributions
+
+    fns = []
+
+    for i in range(0,len(spikes)): # for each of 30 trials within this batch
+        if true_y[i][0]==true_y[i][-1]: # check if consistent coherence level
+
+            fig, ax = plt.subplots(nrows=2,ncols=2)
+
+            # generate fn from whole trial
+            binned_z = fastbin(np.transpose(spikes[i]), rn_bin, 300) # sharing 20 ms bins for everything for now
+            fn = simplest_confMI(binned_z,correct_signs=True)
+            fns.append(fn)
+
+            trial_dur = len(true_y[i])
+            avg_weights = np.zeros([4,trial_dur])
+            ax = ax.flatten()
+
+            # generate recruitment graphs over all time points
+            rns = trial_recruitment_graphs(w, fn, binned_z, threshold=1)
+
+            if true_y[i][0]>0:
+                coh_lvl = 'coh1'
+            else:
+                coh_lvl = 'coh0'
+
+            # save rns
+            np.savez_compressed(
+                savepath+exp_season+'_fns/'+exp_path+'/trained/trial_'+str(i)+'_nochange_'+coh_lvl+'_rns',
+                **{
+                    "rns": rns
+                }
+            )
+
+            rn_ee = rns[:,:241,:241]
+            rn_ei = rns[:,:241,241:]
+            rn_ie = rns[:,241:,:241]
+            rn_ii = rns[:,241:,241:]
+
+            ax[0,0].hist(rn_ee[rn_ee!=0],bins=30,density=True)
+            ax[0,1].hist(rn_ei[rn_ei!=0],bins=30,density=True)
+            ax[1,0].hist(rn_ie[rn_ie!=0],bins=30,density=True)
+            ax[1,1].hist(rn_ii[rn_ii!=0],bins=30,density=True)
+
+            ax = ax.flatten()
+            for j in range(0,len(ax)):
+                ax[j].set_xlabel('weights',fontname='Ubuntu')
+                ax[j].set_ylabel('density',fontname='Ubuntu')
+                ax[j].set_title(conn_types[j],fontname='Ubuntu')
+
+            plt.suptitle('average recruitment graph weights for '+coh_lvl)
+            plt.draw()
+            plt.subplots_adjust(wspace=0.4, hspace=0.7)
+            plt.draw()
+            save_fname = rn_dir+'trial'+str(i)+'_nochange_'+coh_lvl+'_rn_weights.png'
+            plt.savefig(save_fname,dpi=300)
+
+            # Teardown
+            plt.clf()
+            plt.close()
+
+            # to be really thorough I should do this for plots in the naive state
+            # whatever we determine to be naive, or for equivalent experiments trained only on the rate
+            # gossh that's a good deal to look at
+
+    # save all fns
+    np.savez_compressed(
+        savepath+exp_season+'_fns/'+exp_path+'/trained/nochange_fns',
+        **{
+            "fns": fns
+        }
+    )
+
+    # i haven't done the simple thing of plotting activity rates of e and i units again, have i?
+
 def plot_delay_rn_measures(rn_dir='/data/results/experiment1/spring_fns/21.06.01/trained/'):
     # by measures, we mostly mean density and recurrence for now
     # load in rns
