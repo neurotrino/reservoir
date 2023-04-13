@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Mandatory variable.
-        exp_dir: /data/experiments/run-batch30-taskloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels
+        exp_dir: /data/experiments/run-batch30-taskloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -264,6 +264,7 @@
             step_task_loss
             epoch_loss
             spikes
+            inputs
             true_y
             pred_y
             tv0.postweights

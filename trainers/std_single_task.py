@@ -234,7 +234,7 @@ class Trainer(BaseTrainer):
         # Input/reference variables
         self.logger.log(
             data_label="inputs",
-            data=batch_x.numpy(),
+            data=batch_x_spikes.numpy(),
             meta={
                 "stride": "step",
                 "shape_key": (
