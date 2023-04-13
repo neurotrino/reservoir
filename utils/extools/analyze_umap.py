@@ -244,7 +244,8 @@ def map_rns(rn_dir='/data/results/experiment1/spring_fns/15.52.42/trained/',n_ne
                 for tick in ax[i].get_yticklabels():
                     tick.set_fontname('Ubuntu')
 
-            # save plot
+            # draw and save plot
+            plt.draw()
             save_fname = rn_dir+fname+'umap_'+str(n_neighbors)+'.png'
             plt.savefig(save_fname,dpi=300)
 
