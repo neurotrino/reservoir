@@ -200,7 +200,6 @@ def single_batch_recruit_coh_compare(rn_dir='/data/results/experiment1/spring_fn
 
             trial_dur = len(true_y[i])
             avg_weights = np.zeros([4,trial_dur])
-            ax = ax.flatten()
 
             # generate recruitment graphs over all time points
             rns = trial_recruitment_graphs(w, fn, binned_z, threshold=1)
