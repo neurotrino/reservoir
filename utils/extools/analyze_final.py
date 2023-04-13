@@ -173,7 +173,7 @@ def single_batch_recruit_coh_compare(rn_dir='/data/results/experiment1/spring_fn
     conn_types = ['e->e','e->i','i->e','i->i']
 
     exp_path = '21.06.01'
-    xdir = 'run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-20 21.06.01]'
+    xdir = '/data/experiments/run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-20 21.06.01]'
     data = np.load(xdir+'/npz-data/991-1000.npz')
     spikes = data['spikes'][99]
     true_y = data['true_y'][99]
