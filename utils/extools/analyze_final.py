@@ -169,6 +169,7 @@ def plot_single_batch_delays(fpath,spath):
     change_times = []
     change_ys = []
     change_preds = []
+    trial_idx = []
 
     exp_str = fpath.split("/")[5]
 
