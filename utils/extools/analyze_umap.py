@@ -25,6 +25,7 @@ import umap
 from utils.misc import filenames
 from utils.misc import generic_filenames
 from utils.misc import get_experiments
+from analyze_final import plot_single_batch_delays
 
 
 # ========== ========== ========== ========== ========== ========== ==========
