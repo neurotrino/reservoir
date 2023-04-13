@@ -82,15 +82,18 @@ def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='winte
     # generate a single functional network across all trials for a particular batch update (last) of a dual-trained network
     # or honestly maybe just constrained to a couple change trials for now
 
+    """
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
             exp_data_dirs = get_experiments(data_dir, exp_string)
         else:
-            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])"""
 
     # arbitrarily pick one experiment for now
-    xdir = exp_data_dirs[rand_exp_idx]
-    exp_path = xdir[-9:-1]
+    #xdir = exp_data_dirs[rand_exp_idx]
+    #exp_path = xdir[-9:-1]
+    exp_path = '19.29.34'
+    xdir = 'run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5-swaplabels [2023-03-31 19.29.34]'
 
     # check if folder exists, otherwise create it for saving files
     if not os.path.isdir(os.path.join(savepath, exp_season+'_fns', exp_path, 'trained')):
@@ -172,6 +175,7 @@ def plot_single_batch_delays(fpath,spath):
     for i in range(0,len(true_y)):
         # check to see if there is a change in this trial
         if true_y[i][0] != true_y[i][seq_len-1]:
+            trial_idx.append(i)
             change_ys.append(true_y[i])
             change_preds.append(pred_y[i])
             # find time of change
@@ -194,7 +198,7 @@ def plot_single_batch_delays(fpath,spath):
 
     # now plot all trials separately if they don't exist yet
     for i in range(0,len(delay_durs)):
-        save_fname = spath+'trial'+str(i)+'_delays.png'
+        save_fname = spath+'trial'+str(trial_idx[i])+'_delays.png'
         if not os.path.isfile(save_fname):
             plt.plot(change_preds[i],color='dodgerblue',alpha=0.5)
             plt.plot(change_ys[i],color='mediumblue')
