@@ -159,7 +159,7 @@ def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='winte
     )
 
 def plot_single_batch_delays(fpath,spath):
-    data = np.load(fpath)
+    trained_data = np.load(fpath)
     true_y = trained_data['true_y'][99]
     pred_y = trained_data['pred_y'][99]
     delay_durs = []
