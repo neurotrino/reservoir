@@ -244,7 +244,7 @@ def map_rns(rn_dir='/data/results/experiment1/spring_fns/15.52.42/trained/',n_ne
                     tick.set_fontname('Ubuntu')
 
             # save plot
-            save_fname = rn_dir+fname+'umap_+'str(n_neighbors)+'.png'
+            save_fname = rn_dir+fname+'umap_'+str(n_neighbors)+'.png'
             plt.savefig(save_fname,dpi=300)
 
             # Teardown
