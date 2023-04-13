@@ -229,8 +229,8 @@ def map_rns(rn_dir='/data/results/experiment1/spring_fns/19.29.34/trained/',n_ne
             ii = reducer.fit_transform(rn_ii)
 
             # color according to discrete pre/post/delay periods
-            trial_idx = int(fname.split("_")[1])
-            c_segmented = np.hstack([np.zeros([250]),np.ones([delay_durs[trial_idx]])/2,np.ones([250])])
+            #trial_idx = int(fname.split("_")[1])
+            #c_segmented = np.hstack([np.zeros([250]),np.ones([delay_durs[trial_idx]])/2,np.ones([250])])
 
             fig, ax = plt.subplots(nrows=2,ncols=2)
 
