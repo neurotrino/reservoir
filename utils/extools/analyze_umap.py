@@ -189,8 +189,7 @@ def get_spike_data_for_umap(xdir, separate_by_type=False):
 # Plotting
 # ========== ========== ========== ========== ========== ========== ==========
 
-
-def map_rns(rn_dir='/data/results/experiment1/spring_fns/19.29.34/trained/',n_neighbors=5):
+def map_rns(rn_dir='/data/results/experiment1/spring_fns/21.06.01/trained/',n_neighbors=5):
 
     # find delays
     exp_str = rn_dir.split("/")[5]
@@ -206,7 +205,7 @@ def map_rns(rn_dir='/data/results/experiment1/spring_fns/19.29.34/trained/',n_ne
         os.makedirs(os.path.join(rn_dir, 'umap'))
 
     for fname in rn_files:
-        if 'trial_' in fname:
+        if 'rns.npz' in fname:
 
             data = np.load(rn_dir+fname,allow_pickle=True)
             rns = data['rns']

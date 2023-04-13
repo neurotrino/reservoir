@@ -161,6 +161,53 @@ def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='sprin
         }
     )
 
+def plot_delay_rn_measures(rn_dir='/data/results/experiment1/spring_fns/21.06.01/trained/'):
+    # by measures, we mostly mean density and recurrence for now
+    # load in rns
+    rn_files = os.listdir(rn_dir)
+    conn_types = ['e->e','e->i','i->e','i->i']
+    for fname in rn_files:
+        if 'rns.npz' in fname:
+            trial_idx = int(fname.split("_")[1])
+            fig, ax = plt.subplots(nrows=2,ncols=2)
+
+            data = np.load(rn_dir+fname,allow_pickle=True)
+            rns = data['rns']
+            # plot separately for all 4 types of connections
+            rn_ee = rns[:,:241,:241]
+            rn_ei = rns[:,:241,241:]
+            rn_ie = rns[:,241:,:241]
+            rn_ii = rns[:,241:,241:]
+
+            timesteps = np.shape(rn_ee)[0]
+            density = np.zeros([4,timesteps])
+            #recurrence = np.zeros([4,timesteps])
+            for i in timesteps:
+                density[:,timesteps] = [calc_density(rn_ee[i]),calc_density(rn_ei[i]),calc_density(rn_ie[i]),calc_density(rn_ii[i])]
+                #recurrence[:,timesteps] = [,,,]
+
+            ax = ax.flatten()
+            for i in range(0,len(ax)):
+                ax[i].plot(density[i])
+                ax[i].set_xlabel('time starting 250ms before change',fontname='Ubuntu')
+                ax[i].set_ylabel('recruitment graph density',fontname='Ubuntu')
+                ax[i].set_title(conn_types[i])
+                for tick in ax[i].get_xticklabels():
+                    tick.set_fontname('Ubuntu')
+                for tick in ax[i].get_yticklabels():
+                    tick.set_fontname('Ubuntu')
+
+            plt.suptitle('recruitment graph density, trial '+str(trial_idx),fontname='Ubuntu')
+            # draw and save plot
+            plt.subplots_adjust(wspace=0.4, hspace=0.7)
+            plt.draw()
+            save_fname = rn_dir+'trial'+str(trial_idx)+'_rn_density.png'
+            plt.savefig(save_fname,dpi=300)
+
+            # Teardown
+            plt.clf()
+            plt.close()
+
 def plot_single_batch_delays(fpath,spath):
     trained_data = np.load(fpath)
     true_y = trained_data['true_y'][99]
