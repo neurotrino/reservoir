@@ -183,7 +183,7 @@ def plot_delay_rn_measures(rn_dir='/data/results/experiment1/spring_fns/21.06.01
             density = np.zeros([4,timesteps])
             #recurrence = np.zeros([4,timesteps])
             for i in range(0,timesteps-1):
-                density[:,timesteps] = [calc_density(rn_ee[i]),calc_density(rn_ei[i]),calc_density(rn_ie[i]),calc_density(rn_ii[i])]
+                density[:,i] = [calc_density(rn_ee[i]),calc_density(rn_ei[i]),calc_density(rn_ie[i]),calc_density(rn_ii[i])]
                 #recurrence[:,timesteps] = [,,,]
 
             ax = ax.flatten()
