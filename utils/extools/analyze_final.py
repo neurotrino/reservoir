@@ -161,7 +161,7 @@ def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='sprin
         }
     )
 
-def single_batch_recruit_coh_compare(rn_dir='/data/results/experiment1/spring_fns/21.06.01/trained/',rn_bin=10):
+def single_batch_recruit_coh_compare(rn_dir='/data/results/experiment1/spring_fns/21.06.01/trained/',rn_bin=10,exp_season='spring'):
     # load in fns for a particular final batch of an experiment
     # generate rns for coh0-only and coh1-only trials and see how we are doing
     # in terms of comparison of ee, ei, ie, and ii connections
