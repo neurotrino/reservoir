@@ -221,7 +221,7 @@ def map_rns(rn_dir='/data/results/experiment1/spring_fns/15.52.42/trained/',n_ne
             #ax[0,0].colorbar()
             ax[0,0].set_title('e->e',fontname='Ubuntu')
 
-            ax[0,1].scatter(ei[:,0],ei[:,1],c=np.arange(0,timesteps).cmap='winter')
+            ax[0,1].scatter(ei[:,0],ei[:,1],c=np.arange(0,timesteps),cmap='winter')
             #ax[0,1].colorbar()
             ax[0,1].set_title('e->i',fontname='Ubuntu')
 
