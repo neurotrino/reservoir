@@ -19,7 +19,7 @@ import sys
 sys.path.append("../")
 sys.path.append("../../")
 
-import umap
+#import umap
 
 # internal ----
 from utils.misc import filenames
