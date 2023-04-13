@@ -190,7 +190,7 @@ def get_spike_data_for_umap(xdir, separate_by_type=False):
 # ========== ========== ========== ========== ========== ========== ==========
 
 
-def map_rns(rn_dir='/data/results/experiment1/spring_fns/15.52.42/trained/',n_neighbors=5):
+def map_rns(rn_dir='/data/results/experiment1/spring_fns/19.29.34/trained/',n_neighbors=5):
 
     # find delays
     exp_str = rn_dir.split("/")[5]
