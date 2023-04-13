@@ -158,6 +158,66 @@ def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='winte
         }
     )
 
+def plot_single_batch_delays(fpath,spath):
+    data = np.load('fpath')
+    true_y = trained_data['true_y'][99]
+    pred_y = trained_data['pred_y'][99]
+    delay_durs = []
+    change_times = []
+    change_ys = []
+    change_preds = []
+
+    exp_str = fpath.split("/")[5]
+
+    for i in range(0,len(true_y)):
+        # check to see if there is a change in this trial
+        if true_y[i][0] != true_y[i][seq_len-1]:
+            change_ys.append(true_y[i])
+            change_preds.append(pred_y[i])
+            # find time of change
+            diffs = np.diff(true_y[i],axis=0)
+            # t_change is the first timestep of the new coherence level
+            t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
+            change_times.append(t_change)
+            # find average pred before and after
+            pre_avg = np.average(pred_y[i][:t_change])
+            post_avg = np.average(pred_y[i][t_change:])
+            # determine the duration after coherence change until we first pass (pos or neg direction) the after-change average
+            if pre_avg < post_avg:
+                # if we are increasing coherence level, crossing is when we go above the 75th percentile of post-change preds
+                t_crossing = np.where(pred_y[i][t_change:]>np.quantile(pred_y[i][t_change:],0.75))[0][0]
+            elif pre_avg > post_avg:
+                # if we are decreasing coherence level, crossing is when we fall below the 25th percentile of post-change preds
+                t_crossing = np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0][0]
+            # append
+            delay_durs.append(t_crossing)
+
+    # now plot all trials separately if they don't exist yet
+    for i in range(0,len(delay_durs)):
+        save_fname = spath+'trial'+str(i)+'_delays.png'
+        if not os.path.isfile(save_fname):
+            plt.plot(change_preds[i],color='dodgerblue',alpha=0.5)
+            plt.plot(change_ys[i],color='mediumblue')
+            plt.vlines(change_times[i],ymin=np.max(change_preds[i]),ymax=np.min(change_preds[i]),color='red')
+            plt.vlines(change_times[i]+delay_durs[i],ymin=np.max(change_preds[i]),ymax=np.min(change_preds[i]),color='darkorange')
+            plt.xlabel('time (ms)',fontname='Ubuntu')
+            plt.ylabel('output',fontname='Ubuntu')
+
+            plt.title('trial '+str(trials[i]),fontname='Ubuntu')
+            plt.xticks(fontname='Ubuntu')
+            plt.yticks(fontname='Ubuntu')
+            plt.legend(['pred y','true y','time of change','delay'],prop={"family":"Ubuntu"})
+
+            plt.draw()
+            plt.savefig(save_fname,dpi=300)
+
+            # Teardown
+            plt.clf()
+            plt.close()
+
+    return [change_times,delay_durs]
+
+
 def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
     # principled way to decide what constitutes the duration of a delay between coherence changes
     # plot to see delay markers on a few trials

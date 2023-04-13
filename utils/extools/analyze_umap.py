@@ -190,11 +190,19 @@ def get_spike_data_for_umap(xdir, separate_by_type=False):
 
 
 def map_rns(rn_dir='/data/results/experiment1/spring_fns/15.52.42/trained/',n_neighbors=5):
+
+    # find delays
+    exp_str = rn_dir.split("/")[5]
+    for exp_file in os.listdir('/data/experiments/'):
+        if exp_str in exp_file:
+            exp_fullpath = '/data/experiments/'+exp_file+'/npz-data/991-1000.npz'
+    [starts,delay_durs] = plot_single_batch_delays(exp_fullpath,rn_dir)
+
     # loop through rns for all trials
     rn_files = os.listdir(rn_dir)
+
     for fname in rn_files:
         if 'trial_' in fname:
-            fig, ax = plt.subplots(nrows=2,ncols=2)
 
             data = np.load(rn_dir+fname,allow_pickle=True)
             rns = data['rns']
@@ -216,7 +224,13 @@ def map_rns(rn_dir='/data/results/experiment1/spring_fns/15.52.42/trained/',n_ne
             ie = reducer.fit_transform(rn_ie)
             ii = reducer.fit_transform(rn_ii)
 
-            # create umap
+            # color according to discrete pre/post/delay periods
+            trial_idx = fname.split("_")[1]
+            c_segmented = np.hstack([np.zeros([250]),np.ones([delay_durs[trial_idx]])/2,np.ones([250])])
+
+            fig, ax = plt.subplots(nrows=2,ncols=2)
+
+            # plot umap
             ax[0,0].scatter(ee[:,0],ee[:,1],c=np.arange(0,timesteps),cmap='winter')
             #ax[0,0].colorbar()
             ax[0,0].set_title('e->e',fontname='Ubuntu')
