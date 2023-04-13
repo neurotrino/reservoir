@@ -203,7 +203,7 @@ def plot_single_batch_delays(fpath,spath):
             plt.xlabel('time (ms)',fontname='Ubuntu')
             plt.ylabel('output',fontname='Ubuntu')
 
-            plt.title('trial '+str(trials[i]),fontname='Ubuntu')
+            plt.title('trial '+str(i),fontname='Ubuntu')
             plt.xticks(fontname='Ubuntu')
             plt.yticks(fontname='Ubuntu')
             plt.legend(['pred y','true y','time of change','delay'],prop={"family":"Ubuntu"})
