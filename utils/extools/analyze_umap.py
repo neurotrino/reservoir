@@ -202,6 +202,9 @@ def map_rns(rn_dir='/data/results/experiment1/spring_fns/19.29.34/trained/',n_ne
     # loop through rns for all trials
     rn_files = os.listdir(rn_dir)
 
+    if not os.path.isdir(os.path.join(rn_dir, 'umap')):
+        os.makedirs(os.path.join(rn_dir, 'umap'))
+
     for fname in rn_files:
         if 'trial_' in fname:
 
