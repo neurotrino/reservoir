@@ -19,7 +19,7 @@ import sys
 sys.path.append("../")
 sys.path.append("../../")
 
-#import umap
+import umap
 
 # internal ----
 from utils.misc import filenames
@@ -200,31 +200,36 @@ def map_rns(rn_dir='/data/results/experiment1/spring_fns/15.52.42/trained/',n_ne
             rns = data['rns']
             # plot separately for all 4 types of connections
             rn_ee = rns[:,:241,:241]
+            # flatten dimension of weights
+            rn_ee = np.reshape(rn_ee,[np.shape(rn_ee)[0],np.shape(rn_ee)[1]*np.shape(rn_ee)[2]])
             rn_ei = rns[:,:241,241:]
+            rn_ei = np.reshape(rn_ei,[np.shape(rn_ei)[0],np.shape(rn_ei)[1]*np.shape(rn_ei)[2]])
             rn_ie = rns[:,241:,:241]
+            rn_ie = np.reshape(rn_ie,[np.shape(rn_ie)[0],np.shape(rn_ie)[1]*np.shape(rn_ie)[2]])
             rn_ii = rns[:,241:,241:]
+            rn_ii = np.reshape(rn_ii,[np.shape(rn_ii)[0],np.shape(rn_ii)[1]*np.shape(rn_ii)[2]])
 
             reducer = umap.UMAP(n_neighbors)
-            ee = reducer.fit_transform(all_data_ee)
-            ei = reducer.fit_transform(all_data_ei)
-            ie = reducer.fit_transform(all_data_ie)
-            ii = reducer.fit_transform(all_data_ii)
+            ee = reducer.fit_transform(rn_ee)
+            ei = reducer.fit_transform(rn_ei)
+            ie = reducer.fit_transform(rn_ie)
+            ii = reducer.fit_transform(rn_ii)
 
             # create umap
-            ax[0,0].scatter(ee[:,0],ee[:,1])
-            ax[0,0].colorbar()
+            ax[0,0].scatter(ee[:,0],ee[:,1],cmap='winter')
+            #ax[0,0].colorbar()
             ax[0,0].set_title('e->e',fontname='Ubuntu')
 
-            ax[0,1].scatter(ei[:,0],ei[:,1])
+            ax[0,1].scatter(ei[:,0],ei[:,1],cmap='winter')
             ax[0,1].colorbar()
             ax[0,1].set_title('e->i',fontname='Ubuntu')
 
-            ax[1,0].scatter(ie[:,0],ie[:,1])
-            ax[1,0].colorbar()
+            ax[1,0].scatter(ie[:,0],ie[:,1],cmap='winter')
+            #ax[1,0].colorbar()
             ax[1,0].set_title('i->e',fontname='Ubuntu')
 
-            ax[1,1].scatter(ii[:,0],ii[:,1])
-            ax[1,1].colorbar()
+            ax[1,1].scatter(ii[:,0],ii[:,1],cmap='winter')
+            #ax[1,1].colorbar()
             ax[1,1].set_title('i->i',fontname='Ubuntu')
 
             # would be useful to plot in different colors according to time. can you?
