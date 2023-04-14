@@ -76,7 +76,7 @@ for xdir in data_dirs:
 #ALL DUAL TRAINED TO BEGIN WITH:
 spec_output_dirs = ["run-batch30-specout-onlinerate0.1-savey","run-batch30-dualloss-silence","run-batch30-dualloss-swaplabels"]
 spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
-spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
+spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 
 def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='spring',rand_exp_idx=5):
     # generate a single functional network across all trials for a particular batch update (last) of a dual-trained network
@@ -667,7 +667,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     out_naive = np.array(out_naive)
     out_trained = np.array(out_trained)
 
-    # plot e and i separately, and only nonzero weight values
+    # plot ee, ei, ie and ii separately, and only nonzero weight values
 
     in_naive = in_naive.flatten()
     ax[0,0].hist(in_naive[in_naive>0],bins=30,density=True,color='dodgerblue')
@@ -682,18 +682,26 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     ax[0,1].set_title('trained input weights',fontname='Ubuntu')
 
     # plot layers separately
-    rec_naive_e = rec_naive[:,0:e_end,:].flatten()
-    ax[1,0].hist(rec_naive_e[rec_naive_e>0],bins=30,color='dodgerblue',density=True)
-    rec_naive_i = rec_naive[:,e_end:i_end,:].flatten()
-    ax[1,0].hist(rec_naive_i[rec_naive_i<0],bins=30,color='darkorange',density=True)
-    #ax[1,0].legend(['e edges','i edges'])
+    rec_naive_ee = rec_naive[:,:e_end,:e_end].flatten()
+    rec_naive_ei = rec_naive[:,:e_end,e_end:].flatten()
+    rec_naive_ie = rec_naive[:,e_end:,:e_end].flatten()
+    rec_naive_ii = rec_naive[:,e_end:,e_end:].flatten()
+    ax[1,0].hist(rec_naive_ee[rec_naive_ee>0],bins=30,alpha=0.7,color='dodgerblue',density=True)
+    ax[1,0].hist(rec_naive_ei[rec_naive_ei>0],bins=30,alpha=0.7,color='seagreen',density=True)
+    ax[1,0].hist(rec_naive_ie[rec_naive_ie<0],bins=30,alpha=0.7,color='darkorange',density=True)
+    ax[1,0].hist(rec_naive_ii[rec_naive_ii<0],bins=30,alpha=0.7,color='orangered',density=True)
+    ax[1,0].legend(['ee','ei','ie','ii'])
     ax[1,0].set_title('naive recurrent weights',fontname='Ubuntu')
 
-    rec_trained_e = rec_trained[:,0:e_end].flatten()
-    ax[1,1].hist(rec_trained_e[rec_trained_e>0],bins=30,color='dodgerblue',density=True)
-    rec_trained_i = rec_trained[:,e_end:i_end].flatten()
-    ax[1,1].hist(rec_trained_i[rec_trained_i<0],bins=30,color='darkorange',density=True)
-    #ax[1,1].legend(['e edges','i edges'])
+    rec_trained_ee = rec_trained[:,:e_end,:e_end].flatten()
+    rec_trained_ei = rec_trained[:,:e_end,e_end:].flatten()
+    rec_trained_ie = rec_trained[:,e_end:,:e_end].flatten()
+    rec_trained_ii = rec_trained[:,e_end:,e_end:].flatten()
+    ax[1,1].hist(rec_trained_ee[rec_trained_ee>0],bins=30,alpha=0.7,color='dodgerblue',density=True)
+    ax[1,1].hist(rec_trained_ei[rec_trained_ei>0],bins=30,alpha=0.7,color='seagreen',density=True)
+    ax[1,1].hist(rec_trained_ie[rec_trained_ie<0],bins=30,alpha=0.7,color='darkorange',density=True)
+    ax[1,1].hist(rec_trained_ii[rec_trained_ii<0],bins=30,alpha=0.7,color='orangered',density=True)
+    #ax[1,0].legend(['ee','ei','ie','ii'])
     ax[1,1].set_title('trained recurrent weights',fontname='Ubuntu')
 
     out_naive_e = out_naive[:,0:e_end].flatten()
@@ -726,7 +734,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
 
     plt.draw()
 
-    save_fname = savepath+'/set_plots/'+exp_season+'_weights_test.png'
+    save_fname = savepath+'/set_plots/'+exp_season+'_quad_weights_test.png'
     plt.savefig(save_fname,dpi=300)
 
 def plot_input_channel_rates():
