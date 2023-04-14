@@ -764,7 +764,8 @@ def plot_weight_delta_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): #
 
     in_naive = in_naive.flatten()
     in_trained = in_trained.flatten()
-    ax[0].hist([in_trained-in_naive][in_trained-in_naive!=0],bins=30,density=True,color='dodgerblue')
+    in_delta = in_trained-in_naive
+    ax[0].hist(in_delta[in_delta!=0],bins=30,density=True,color='dodgerblue')
     #ax[0].hist(in_trained-in_naive[in_trained-in_naive!=0],bins=30,density=True,color='darkorange')
     ax[0].legend(['e edges','i edges'])
     ax[0].set_title('input weights',fontname='Ubuntu')
@@ -779,19 +780,26 @@ def plot_weight_delta_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): #
     rec_trained_ie = rec_trained[:,e_end:,:e_end].flatten()
     rec_trained_ii = rec_trained[:,e_end:,e_end:].flatten()
 
-    ax[1].hist([rec_trained_ee-rec_naive_ee][rec_trained_ee-rec_naive_ee!=0],bins=30,alpha=0.7,color='dodgerblue',density=True)
-    ax[1].hist([rec_trained_ei-rec_naive_ei][rec_trained_ei-rec_naive_ei!=0],bins=30,alpha=0.7,color='seagreen',density=True)
-    ax[1].hist([rec_trained_ie-rec_naive_ie][rec_trained_ie-rec_naive_ie!=0],bins=30,alpha=0.7,color='darkorange',density=True)
-    ax[1].hist([rec_trained_ii-rec_naive_ii][rec_trained_ii-rec_naive_ii!=0],bins=30,alpha=0.7,color='orangered',density=True)
+    ee_delta = rec_trained_ee-rec_naive_ee
+    ei_delta = rec_trained_ei-rec_naive_ei
+    ie_delta = rec_trained_ie-rec_naive_ie
+    ii_delta = rec_trained_ii-rec_naive_ii
+
+    ax[1].hist(ee_delta[ee_delat!=0],bins=30,alpha=0.7,color='dodgerblue',density=True)
+    ax[1].hist(ei_delta[ei_delta!=0],bins=30,alpha=0.7,color='seagreen',density=True)
+    ax[1].hist(ie_delta[ie_delta!=0],bins=30,alpha=0.7,color='darkorange',density=True)
+    ax[1].hist(ii_delta[ii_delta!=0],bins=30,alpha=0.7,color='orangered',density=True)
     ax[1].legend(['ee','ei','ie','ii'])
     ax[1].set_title('recurrent weights',fontname='Ubuntu')
 
     out_naive_e = out_naive[:,0:e_end].flatten()
     out_trained_e = out_trained[:,0:e_end].flatten()
-    ax[2].hist([out_trained_e-out_naive_e][out_trained_e-out_naive_e!=0],bins=30,color='dodgerblue',density=True)
     out_naive_i = out_naive[:,e_end:i_end].flatten()
     out_trained_i = out_trained[:,e_end:i_end].flatten()
-    ax[2].hist([out_trained_i-out_naive_i][out_trained_i-out_naive_i!=0],bins=30,color='darkorange',density=True)
+    eo_delta = out_trained_e-out_naive_e
+    io_delta = out_trained_i-out_naive_i
+    ax[2].hist(eo_delta[eo_delta!=0],alpha=0.7,bins=30,color='dodgerblue',density=True)
+    ax[2].hist(io_delta[io_delta!=0],alpha=0.7,bins=30,color='darkorange',density=True)
     ax[2].set_title('output weights',fontname='Ubuntu')
     ax[2].legend(['e edges','i edges'])
 
