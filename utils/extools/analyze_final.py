@@ -785,7 +785,7 @@ def plot_weight_delta_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): #
     ie_delta = rec_trained_ie-rec_naive_ie
     ii_delta = rec_trained_ii-rec_naive_ii
 
-    ax[1].hist(ee_delta[ee_delat!=0],bins=30,alpha=0.7,color='dodgerblue',density=True)
+    ax[1].hist(ee_delta[ee_delta!=0],bins=30,alpha=0.7,color='dodgerblue',density=True)
     ax[1].hist(ei_delta[ei_delta!=0],bins=30,alpha=0.7,color='seagreen',density=True)
     ax[1].hist(ie_delta[ie_delta!=0],bins=30,alpha=0.7,color='darkorange',density=True)
     ax[1].hist(ii_delta[ii_delta!=0],bins=30,alpha=0.7,color='orangered',density=True)
