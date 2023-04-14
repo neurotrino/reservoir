@@ -541,14 +541,17 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         output = naive_data['tv2.postweights'][0]
 
         # find units that receive input and those that project to output
-        in_idx = np.array([])
-        out_idx = np.array([])
+        in_idx = []
+        out_idx = []
         # for each recurrent unit
         for i in range(0,np.shape(input)[1]):
             if len(np.nonzero(input[:,i]))>0:
                 in_idx.append(i)
             if len(np.nonzero(output[i,:]))>0:
                 out_idx.append(i)
+
+        in_idx = np.array(in_idx)
+        out_idx = np.array(out_idx)
 
         for i in range(0,len(true_y)):
             if true_y[i][0]==true_y[i][seq_len-1]:
@@ -628,8 +631,17 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         input = trained_data['tv0.postweights'][99]
         output = trained_data['tv2.postweights'][99]
 
-        in_idx = np.argwhere(input!=0)[1]
-        out_idx = np.argwhere(output!=0)[0]
+        in_idx = []
+        out_idx = []
+        # for each recurrent unit
+        for i in range(0,np.shape(input)[1]):
+            if len(np.nonzero(input[:,i]))>0:
+                in_idx.append(i)
+            if len(np.nonzero(output[i,:]))>0:
+                out_idx.append(i)
+
+        in_idx = np.array(in_idx)
+        out_idx = np.array(out_idx)
 
         for i in range(0,len(true_y)):
             if true_y[i][0]==true_y[i][seq_len-1]:
