@@ -496,6 +496,9 @@ def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
     # also allowed to generate general MI graphs and then only dynamically examine recruitment graphs?
 
 
+def plot_in_out_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+    # plot the rates for input-receiving and output-giving units for coherence 0 and
+
 def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     # plot separately for coherence 0 and 1 trials
     # honestly don't even worry about the changes for now
@@ -517,12 +520,35 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     coh1_e_rates = []
     coh1_i_rates = []
 
+    # the units that receive input
+    coh0_e_in_rates = []
+    coh1_e_in_rates = []
+    coh0_i_in_rates = []
+    coh1_i_in_rates = []
+    # the units that send output
+    coh0_e_out_rates = []
+    coh1_e_out_rates = []
+    coh0_i_out_rates = []
+    coh1_i_out_rates = []
+
     for xdir in exp_data_dirs:
         np_dir = os.path.join(data_dir, xdir, "npz-data")
         naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
 
         spikes = naive_data['spikes'][0]
         true_y = naive_data['true_y'][0]
+        input = naive_data['tv0.postweights'][0]
+        output = naive_data['tv2.postweights'][0]
+
+        # find units that receive input and those that project to output
+        in_idx = []
+        out_idx = []
+        # for each recurrent unit
+        for i in range(0,np.shape(input)[2])
+            if len(np.nonzero(input[:,i]))>0:
+                in_idx.append(i)
+            if len(np.nonzero(output[i,:]))>0:
+                out_idx.append(i)
 
         for i in range(0,len(true_y)):
             if true_y[i][0]==true_y[i][seq_len-1]:
@@ -530,9 +556,18 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
                     # reminder that spikes are shaped [batch (100), trial (30), time (4080), neuron (300)]
                     coh1_e_rates.append(np.mean(spikes[i][:,:e_end],axis=0)) # average across time for each neuron, so axis 0
                     coh1_i_rates.append(np.mean(spikes[i][:,:e_end],axis=0))
+                    coh1_e_in_rates.append(np.mean(spikes[i][:,in_idx[in_idx<=e_end]],axis=0))
+                    coh1_i_in_rates.append(np.mean(spikes[i][:,in_idx[in_idx>e_end]],axis=0))
+                    coh1_e_out_rates.append(np.mean(spikes[i][:,out_idx[out_idx<=e_end]],axis=0))
+                    coh1_i_out_rates.append(np.mean(spikes[i][:,out_idx[out_idx>e_end]],axis=0))
                 else:
                     coh0_e_rates.append(np.mean(spikes[i][:,e_end:],axis=0))
                     coh0_i_rates.append(np.mean(spikes[i][:,e_end:],axis=0))
+                    coh0_e_in_rates.append(np.mean(spikes[i][:,in_idx[in_idx<=e_end]],axis=0))
+                    coh0_i_in_rates.append(np.mean(spikes[i][:,in_idx[in_idx>e_end]],axis=0))
+                    coh0_e_out_rates.append(np.mean(spikes[i][:,out_idx[out_idx<=e_end]],axis=0))
+                    coh0_i_out_rates.append(np.mean(spikes[i][:,out_idx[out_idx>e_end]],axis=0))
+            """
             else:
                 # find time of coherence change
                 diffs = np.diff(true_y[i],axis=0)
@@ -549,15 +584,23 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
                     coh1_e_rates.append(np.mean(spikes[i][t_change:,:e_end],axis=0))
                     coh0_i_rates.append(np.mean(spikes[i][:t_change,e_end:],axis=0))
                     coh1_i_rates.append(np.mean(spikes[i][t_change:,e_end:],axis=0))
-
+                """
     # plot for naive
-    ax[0,0].hist(np.array(coh0_e_rates).flatten(),bins=30,alpha=0.4,density=True,color='dodgerblue',label='naive')
+    ax[0,0].hist(np.array(coh0_e_rates).flatten(),bins=30,alpha=0.4,density=True,color='dodgerblue',label='all, naive')
+    #ax[0,0].hist(np.array(coh0_e_in_rates).flatten(),bins=30,alpha=0.4,density=True,color='mediumblue',label='in-receiving, naive')
+    ax[0,0].hist(np.array(coh0_e_out_rates).flatten(),bins=30,alpha=0.4,density=True,color='teal',label='out-sending, naive')
     ax[0,0].set_title('coherence 0 excitatory')
-    ax[0,1].hist(np.array(coh0_i_rates).flatten(),bins=30,alpha=0.4,density=True,color='darkorange',label='naive')
+    ax[0,1].hist(np.array(coh0_i_rates).flatten(),bins=30,alpha=0.4,density=True,color='darkorange',label='all, naive')
+    #ax[0,1].hist(np.array(coh0_i_in_rates).flatten(),bins=30,alpha=0.4,density=True,color='orangered',label='in-receiving, naive')
+    ax[0,1].hist(np.array(coh0_i_out_rates).flatten(),bins=30,alpha=0.4,density=True,color='greenyellow',label='out-sending, naive')
     ax[0,1].set_title('coherence 0 inhibitory')
-    ax[1,0].hist(np.array(coh1_e_rates).flatten(),bins=30,alpha=0.4,density=True,color='dodgerblue',label='naive')
+    ax[1,0].hist(np.array(coh1_e_rates).flatten(),bins=30,alpha=0.4,density=True,color='dodgerblue',label='all, naive')
+    #ax[1,0].hist(np.array(coh1_e_in_rates).flatten(),bins=30,alpha=0.4,density=True,color='mediumblue',label='in-receiving, naive')
+    ax[1,0].hist(np.array(coh1_e_out_rates).flatten(),bins=30,alpha=0.4,density=True,color='teal',label='out-sending, naive')
     ax[1,0].set_title('coherence 1 excitatory')
-    ax[1,1].hist(np.array(coh1_i_rates).flatten(),bins=30,alpha=0.4,density=True,color='darkorange',label='naive')
+    ax[1,1].hist(np.array(coh1_i_rates).flatten(),bins=30,alpha=0.4,density=True,color='darkorange',label='all, naive')
+    #ax[1,1].hist(np.array(coh1_i_in_rates).flatten(),bins=30,alpha=0.4,density=True,color='orangered',label='in-receiving, naive')
+    ax[1,1].hist(np.array(coh1_i_out_rates).flatten(),bins=30,alpha=0.4,density=True,color='greenyellow',label='out-sending, naive')
     ax[1,1].set_title('coherence 1 inhibitory')
 
     # repeat for trained
@@ -565,6 +608,16 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     coh0_i_rates = []
     coh1_e_rates = []
     coh1_i_rates = []
+    # the units that receive input
+    coh0_e_in_rates = []
+    coh1_e_in_rates = []
+    coh0_i_in_rates = []
+    coh1_i_in_rates = []
+    # the units that send output
+    coh0_e_out_rates = []
+    coh1_e_out_rates = []
+    coh0_i_out_rates = []
+    coh1_i_out_rates = []
 
     for xdir in exp_data_dirs:
         np_dir = os.path.join(data_dir, xdir, "npz-data")
@@ -572,15 +625,29 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
 
         spikes = trained_data['spikes'][99]
         true_y = trained_data['true_y'][99]
+        input = trained_data['tv0.postweights'][99]
+        output = trained_data['tv2.postweights'][99]
+
+        in_idx = np.argwhere(input!=0)[1]
+        out_idx = np.argwhere(output!=0)[0]
 
         for i in range(0,len(true_y)):
             if true_y[i][0]==true_y[i][seq_len-1]:
                 if true_y[i][0]==1:
                     coh1_e_rates.append(np.average(spikes[i][:,:e_end]))
                     coh1_i_rates.append(np.average(spikes[i][:,:e_end]))
+                    coh1_e_in_rates.append(np.mean(spikes[i][:,in_idx[in_idx<=e_end]],axis=0))
+                    coh1_i_in_rates.append(np.mean(spikes[i][:,in_idx[in_idx>e_end]],axis=0))
+                    coh1_e_out_rates.append(np.mean(spikes[i][:,out_idx[out_idx<=e_end]],axis=0))
+                    coh1_i_out_rates.append(np.mean(spikes[i][:,out_idx[out_idx>e_end]],axis=0))
                 else:
                     coh0_e_rates.append(np.average(spikes[i][:,e_end:]))
                     coh0_i_rates.append(np.average(spikes[i][:,e_end:]))
+                    coh0_e_in_rates.append(np.mean(spikes[i][:,in_idx[in_idx<=e_end]],axis=0))
+                    coh0_i_in_rates.append(np.mean(spikes[i][:,in_idx[in_idx>e_end]],axis=0))
+                    coh0_e_out_rates.append(np.mean(spikes[i][:,out_idx[out_idx<=e_end]],axis=0))
+                    coh0_i_out_rates.append(np.mean(spikes[i][:,out_idx[out_idx>e_end]],axis=0))
+            """
             else:
                 # find time of coherence change
                 diffs = np.diff(true_y[i],axis=0)
@@ -597,16 +664,29 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
                     coh1_e_rates.append(np.average(spikes[i][t_change:,:e_end]))
                     coh0_i_rates.append(np.average(spikes[i][:t_change,e_end:]))
                     coh1_i_rates.append(np.average(spikes[i][t_change:,e_end:]))
+                """
 
     # plot all together
-    ax[0,0].hist(np.array(coh0_e_rates).flatten(),bins=30,alpha=0.4,density=True,color='mediumblue',label='trained')
-    ax[0,1].hist(np.array(coh0_i_rates).flatten(),bins=30,alpha=0.4,density=True,color='orangered',label='trained')
-    ax[1,0].hist(np.array(coh1_e_rates).flatten(),bins=30,alpha=0.4,density=True,color='mediumblue',label='trained')
+    ax[0,0].hist(np.array(coh0_e_rates).flatten(),bins=30,alpha=0.4,density=True,color='purple',label='all, trained')
+    #ax[0,0].hist(np.array(coh0_e_in_rates).flatten(),bins=30,alpha=0.4,density=True,color='darkslateblue',label='in-receiving, trained')
+    ax[0,0].hist(np.array(coh0_e_out_rates).flatten(),bins=30,alpha=0.4,density=True,color='indigo',label='out-sending, trained')
+    ax[0,0].set_title('coherence 0 excitatory')
+    ax[0,1].hist(np.array(coh0_i_rates).flatten(),bins=30,alpha=0.4,density=True,color='mediumvioletred',label='all, trained')
+    #ax[0,1].hist(np.array(coh0_i_in_rates).flatten(),bins=30,alpha=0.4,density=True,color='darkviolet',label='in-receiving, trained')
+    ax[0,1].hist(np.array(coh0_i_out_rates).flatten(),bins=30,alpha=0.4,density=True,color='crimson',label='out-sending, trained')
+    ax[0,1].set_title('coherence 0 inhibitory')
+    ax[1,0].hist(np.array(coh1_e_rates).flatten(),bins=30,alpha=0.4,density=True,color='purple',label='all, trained')
+    #ax[1,0].hist(np.array(coh1_e_in_rates).flatten(),bins=30,alpha=0.4,density=True,color='darkslateblue',label='in-receiving, trained')
+    ax[1,0].hist(np.array(coh1_e_out_rates).flatten(),bins=30,alpha=0.4,density=True,color='indigo',label='out-sending, trained')
+    ax[1,0].set_title('coherence 1 excitatory')
     ax[1,0].legend()
-    ax[1,1].hist(np.array(coh1_i_rates).flatten(),bins=30,alpha=0.4,density=True,color='orangered',label='trained')
+    ax[1,1].hist(np.array(coh1_i_rates).flatten(),bins=30,alpha=0.4,density=True,color='mediumvioletred',label='all, trained')
+    #ax[1,1].hist(np.array(coh1_i_in_rates).flatten(),bins=30,alpha=0.4,density=True,color='darkviolet',label='in-receiving, trained')
+    ax[1,1].hist(np.array(coh1_i_out_rates).flatten(),bins=30,alpha=0.4,density=True,color='crimson',label='out-sending, trained')
+    ax[1,1].set_title('coherence 1 inhibitory')
     ax[1,1].legend()
 
-    plt.suptitle('all experiments with no direct in-to-out units',fontname='Ubuntu')
+    plt.suptitle('rates of all recurrent units',fontname='Ubuntu')
 
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
 
@@ -622,7 +702,7 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
 
     plt.draw()
 
-    save_fname = savepath+'/set_plots/'+exp_season+'_rates_test.png'
+    save_fname = savepath+'/set_plots/'+exp_season+'_inoutrec_rates_test.png'
     plt.savefig(save_fname,dpi=300)
 
 
