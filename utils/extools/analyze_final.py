@@ -765,7 +765,7 @@ def plot_weight_delta_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): #
     in_naive = in_naive.flatten()
     in_trained = in_trained.flatten()
     in_delta = in_trained-in_naive
-    ax[0].hist(in_delta[in_delta!=0],bins=30,density=True,color='dodgerblue')
+    ax[0].hist(in_delta[in_delta!=0],alpha=0.7,bins=30,density=True,color='dodgerblue')
     #ax[0].hist(in_trained-in_naive[in_trained-in_naive!=0],bins=30,density=True,color='darkorange')
     ax[0].legend(['e edges','i edges'])
     ax[0].set_title('input weights',fontname='Ubuntu')
@@ -812,10 +812,11 @@ def plot_weight_delta_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): #
             tick.set_fontname("Ubuntu")
         for tick in ax[i].get_yticklabels():
             tick.set_fontname("Ubuntu")
-        ax[i].set_xlabel('weight change trained - naive',fontname='Ubuntu')
+        ax[i].set_xlabel('nonzero weight change trained - naive',fontname='Ubuntu')
         ax[i].set_ylabel('density',fontname='Ubuntu')
 
     plt.draw()
+    plt.subplots_adjust(wspace=0.7,hspace=0.7)
 
     save_fname = savepath+'/set_plots/'+exp_season+'_quad_weight_deltas_test.png'
     plt.savefig(save_fname,dpi=300)
