@@ -496,7 +496,7 @@ def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
     # also allowed to generate general MI graphs and then only dynamically examine recruitment graphs?
 
 
-def plot_in_out_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+#def plot_in_out_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     # plot the rates for input-receiving and output-giving units for coherence 0 and
 
 def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
