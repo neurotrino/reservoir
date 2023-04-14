@@ -816,7 +816,7 @@ def plot_weight_delta_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): #
         ax[i].set_ylabel('density',fontname='Ubuntu')
 
     plt.draw()
-    plt.subplots_adjust(wspace=0.7,hspace=0.7)
+    plt.subplots_adjust(wspace=0.7,hspace=1.0)
 
     save_fname = savepath+'/set_plots/'+exp_season+'_quad_weight_deltas_test.png'
     plt.savefig(save_fname,dpi=300)
