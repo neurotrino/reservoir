@@ -721,6 +721,99 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
 
 # well, now you need to go and fix the input weights
 
+
+def plot_weight_delta_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # just for dual-training for now
+    fig, ax = plt.subplots(nrows=3,ncols=1)
+
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+    # go through all dirs and grab the weight distributions of the first and last epochs
+    data_files = filenames(num_epochs, epochs_per_file) # useful for plotting evolution over the entire course of training
+    in_naive = []
+    in_trained = []
+    rec_naive = []
+    rec_trained = []
+    out_naive = []
+    out_trained = []
+    for xdir in exp_data_dirs:
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+        naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
+        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+
+        in_naive.append(naive_data['tv0.postweights'][0])
+        in_trained.append(trained_data['tv0.postweights'][99])
+
+        rec_naive.append(naive_data['tv1.postweights'][0])
+        rec_trained.append(trained_data['tv1.postweights'][99])
+
+        out_naive.append(naive_data['tv2.postweights'][0])
+        out_trained.append(trained_data['tv2.postweights'][99])
+
+    # convert to numpy arrays
+    in_naive = np.array(in_naive)
+    in_trained = np.array(in_trained)
+    rec_naive = np.array(rec_naive)
+    rec_trained = np.array(rec_trained)
+    out_naive = np.array(out_naive)
+    out_trained = np.array(out_trained)
+
+    # plot ee, ei, ie and ii separately, and only nonzero weight values
+
+    in_naive = in_naive.flatten()
+    in_trained = in_trained.flatten()
+    ax[0].hist(in_trained[in_trained>0]-in_naive[in_naive>0],bins=30,density=True,color='dodgerblue')
+    ax[0].hist(in_trained[in_trained<0]-in_naive[in_naive<0],bins=30,density=True,color='darkorange')
+    ax[0].legend(['e edges','i edges'])
+    ax[0].set_title('input weights',fontname='Ubuntu')
+
+    # plot layers separately
+    rec_naive_ee = rec_naive[:,:e_end,:e_end].flatten()
+    rec_naive_ei = rec_naive[:,:e_end,e_end:].flatten()
+    rec_naive_ie = rec_naive[:,e_end:,:e_end].flatten()
+    rec_naive_ii = rec_naive[:,e_end:,e_end:].flatten()
+    rec_trained_ee = rec_trained[:,:e_end,:e_end].flatten()
+    rec_trained_ei = rec_trained[:,:e_end,e_end:].flatten()
+    rec_trained_ie = rec_trained[:,e_end:,:e_end].flatten()
+    rec_trained_ii = rec_trained[:,e_end:,e_end:].flatten()
+    ax[1].hist(rec_trained_ee[rec_trained_ee>0]-rec_naive_ee[rec_naive_ee>0],bins=30,alpha=0.7,color='dodgerblue',density=True)
+    ax[1].hist(rec_trained_ei[rec_trained_ei>0]-rec_naive_ei[rec_naive_ei>0],bins=30,alpha=0.7,color='seagreen',density=True)
+    ax[1].hist(rec_trained_ie[rec_trained_ie<0]-rec_naive_ie[rec_naive_ie<0],bins=30,alpha=0.7,color='darkorange',density=True)
+    ax[1].hist(rec_trained_ii[rec_trained_ii<0]-rec_naive_ii[rec_naive_ii<0],bins=30,alpha=0.7,color='orangered',density=True)
+    ax[1].legend(['ee','ei','ie','ii'])
+    ax[1].set_title('recurrent weights',fontname='Ubuntu')
+
+    out_naive_e = out_naive[:,0:e_end].flatten()
+    out_trained_e = out_trained[:,0:e_end].flatten()
+    ax[2].hist(out_trained_e[out_trained_e>0]-out_naive_e[out_naive_e>0],bins=30,color='dodgerblue',density=True)
+    out_naive_i = out_naive[:,e_end:i_end].flatten()
+    out_trained_i = out_trained[:,e_end:i_end].flatten()
+    ax[2].hist(out_trained_i[out_trained_i<0]-out_naive_i[out_naive_i<0],bins=30,color='darkorange',density=True)
+    ax[2].set_title('output weights',fontname='Ubuntu')
+    ax[2].legend(['e edges','i edges'])
+
+    plt.suptitle('delta of weights after training',fontname='Ubuntu')
+
+    plt.subplots_adjust(wspace=0.4, hspace=0.7)
+
+    # go through and set all axes
+    ax = ax.flatten()
+    for i in range(0,len(ax)):
+        for tick in ax[i].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[i].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+        ax[i].set_xlabel('weight values',fontname='Ubuntu')
+        ax[i].set_ylabel('density',fontname='Ubuntu')
+
+    plt.draw()
+
+    save_fname = savepath+'/set_plots/'+exp_season+'_quad_weight_deltas_test.png'
+    plt.savefig(save_fname,dpi=300)
+
+
 def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # just for dual-training for now
     fig, ax = plt.subplots(nrows=3,ncols=2,figsize=(8,8))
 
