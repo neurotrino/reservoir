@@ -671,7 +671,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
 
     in_naive = in_naive.flatten()
     ax[0,0].hist(in_naive[in_naive>0],bins=30,density=True,color='dodgerblue')
-    ax[0,0].hist(in_naive[in_naive<0],bins=30,density=True,color='darkorange')
+    #ax[0,0].hist(in_naive[in_naive<0],bins=30,density=True,color='darkorange')
     #ax[0,0].legend(['e edges','i edges'])
     ax[0,0].set_title('naive input weights',fontname='Ubuntu')
 
