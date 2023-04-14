@@ -544,7 +544,7 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         in_idx = []
         out_idx = []
         # for each recurrent unit
-        for i in range(0,np.shape(input)[2])
+        for i in range(0,np.shape(input)[1]):
             if len(np.nonzero(input[:,i]))>0:
                 in_idx.append(i)
             if len(np.nonzero(output[i,:]))>0:
