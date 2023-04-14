@@ -541,8 +541,8 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         output = naive_data['tv2.postweights'][0]
 
         # find units that receive input and those that project to output
-        in_idx = []
-        out_idx = []
+        in_idx = np.array([])
+        out_idx = np.array([])
         # for each recurrent unit
         for i in range(0,np.shape(input)[1]):
             if len(np.nonzero(input[:,i]))>0:
