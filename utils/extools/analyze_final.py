@@ -1057,7 +1057,7 @@ def plot_input_channel_rates(from_CNN=False,exp_dirs=["saveinz"]):
     #if not from_CNN:
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
-            exp_data_dirs = get_experiments(data_dir, exp_string)
+            exp_data_dirs = get_experiments(data_dir, exp_string, final_npz='591-600.npz')
         else:
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string, final_npz='591-600.npz')])
 
