@@ -60,7 +60,7 @@ def get_experiments(data_dir, experiment_string, final_npz=None):
                 exp_dirs.append(os.path.join(data_dir, fname))
         else:
             if os.path.exists(
-                os.path.join(data_dir, fname, "npz_data", final_npz)
+                os.path.join(data_dir, fname, "npz-data", final_npz)
             ):
                 exp_dirs.append(os.path.join(data_dir, fname))
     return exp_dirs
