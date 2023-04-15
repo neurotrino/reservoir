@@ -66,17 +66,25 @@ def get_experiments(data_dir, experiment_string, final_npz=None):
     return exp_dirs
 
 
-def filenames(num_epochs, epochs_per_file):
+def filenames(num_epochs, epochs_per_file, final_npz=None):
     """Get the filenames storing data for epoch ranges.
     Our data is stored in npz files titled 'x-y.npz' indicating that
     file contains the data for epochs x through y, inclusive. For
     example, 1-10.npz has all the data associated with the first 10
     epochs of an experiment.
     """
-    return [
-        f"{i}-{i + epochs_per_file - 1}.npz"
-        for i in range(1, num_epochs, epochs_per_file)
-    ]
+    if final_npz is None:
+        return [
+            f"{i}-{i + epochs_per_file - 1}.npz"
+            for i in range(1, num_epochs, epochs_per_file)
+        ]
+    else:
+        fnames = [
+            f"{i}-{i + epochs_per_file - 1}.npz"
+            for i in range(1, num_epochs, epochs_per_file)
+        ]
+        end_idx = np.where(np.char.equal(fnames,final_npz))[0][0]
+        return fnames[:end_idx+1]
 
 
 def generic_filenames(num_epochs, epochs_per_file):
