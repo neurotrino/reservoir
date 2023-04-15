@@ -291,10 +291,11 @@ def within_coh_comparisons(exp_dirs=spec_nointoout_dirs,fn_dir='/data/results/ex
     # load in trained data for each experiment
     for xdir in exp_data_dirs:
         np_dir = os.path.join(data_dir, xdir, "npz-data")
-        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+        naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
+        #trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
 
-        spikes = trained_data['spikes'][99]
-        true_y = trained_data['true_y'][99]
+        spikes = naive_data['spikes'][0]
+        true_y = naive_data['true_y'][0]
 
         # go thru all trials within this batch
         # determine if there was a coherence change or not
@@ -312,7 +313,7 @@ def within_coh_comparisons(exp_dirs=spec_nointoout_dirs,fn_dir='/data/results/ex
 
     # save FNs
     np.savez_compressed(
-        fn_dir+'coherence_separate_trained_fns',
+        fn_dir+'coherence_separate_naive_fns',
         **{
             "fns_coh0": fns_coh0,
             "fns_coh1": fns_coh1
@@ -347,7 +348,7 @@ def within_coh_comparisons(exp_dirs=spec_nointoout_dirs,fn_dir='/data/results/ex
     ax[1].legend(['ee','ei','ie','ii'])
     ax[1].set_title('Coherence label 1',fontname='Ubuntu')
 
-    plt.suptitle('Trained functional weights',fontname='Ubuntu')
+    plt.suptitle('Naive functional weights',fontname='Ubuntu')
 
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
 
@@ -362,7 +363,7 @@ def within_coh_comparisons(exp_dirs=spec_nointoout_dirs,fn_dir='/data/results/ex
 
     plt.draw()
 
-    save_fname = fn_dir+'coherence_separate_trained_fn_weights.png'
+    save_fname = fn_dir+'coherence_separate_naive_fn_weights.png'
     plt.savefig(save_fname,dpi=300)
 
 
