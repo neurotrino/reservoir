@@ -1023,6 +1023,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
 
 def plot_input_channel_rates(from_CNN=False,exp_dirs=["saveinz"]):
     # from_CNN means the original output rates from the CNN that are used to generate Poisson spikes actually
+    """
     if from_CNN:
         spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
         x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
@@ -1052,45 +1053,45 @@ def plot_input_channel_rates(from_CNN=False,exp_dirs=["saveinz"]):
 
         #coh0_rates = np.average(coh0_channel_trial_rates,0)
         #coh1_rates = np.average(coh1_channel_trial_rates,0)
+    """
+    #if not from_CNN:
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
-    if not from_CNN:
-        for exp_string in exp_dirs:
-            if not 'exp_data_dirs' in locals():
-                exp_data_dirs = get_experiments(data_dir, exp_string)
-            else:
-                exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+    # aggregate across all experiments and all trials
+    data_files = filenames(num_epochs, epochs_per_file)
+    
+    for xdir in exp_data_dirs:
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
 
-        # aggregate across all experiments and all trials
+        # loop through all experiments
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            input_z = data['inputs']
+            # shaped [100 batches x 30 trials x 4080 timesteps x 16 units]
+            true_y = data['true_y']
+            # shaped [100 batches x 30 trials x 4080 timesteps]
+            for i in range(0,np.shape(true_y)[0]):
+                # for each of 100 batches
+                for j in range(0,np.shape(true_y)[1]):
+                    coh0_idx = np.where(true_y[i][j]==0)[0]
+                    coh1_idx = np.where(true_y[i][j]==1)[0]
+                    # take average rates across that trial's timepoints for the same coherence level and append
+                    if len(coh0_idx)>0:
+                        if not 'coh0_channel_trial_rates' in locals():
+                            coh0_channel_trial_rates = np.average(input_z[i][j][coh0_idx],0)
+                        else:
+                            coh0_channel_trial_rates = np.vstack([coh0_channel_trial_rates,np.average(input_z[i][j][coh0_idx],0)])
 
-        for xdir in exp_data_dirs:
-            np_dir = os.path.join(data_dir, xdir, "npz-data")
-            data_files = filenames(num_epochs, epochs_per_file)
-
-            # loop through all experiments
-            for filename in data_files:
-                filepath = os.path.join(data_dir, xdir, "npz-data", filename)
-                data = np.load(filepath)
-                input_z = data['inputs']
-                # shaped [100 batches x 30 trials x 4080 timesteps x 16 units]
-                true_y = data['true_y']
-                # shaped [100 batches x 30 trials x 4080 timesteps]
-                for i in range(0,np.shape(true_y)[0]):
-                    # for each of 100 batches
-                    for j in range(0,np.shape(true_y)[1]):
-                        coh0_idx = np.where(true_y[i][j]==0)[0]
-                        coh1_idx = np.where(true_y[i][j]==1)[0]
-                        # take average rates across that trial's timepoints for the same coherence level and append
-                        if len(coh0_idx)>0:
-                            if not 'coh0_channel_trial_rates' in locals():
-                                coh0_channel_trial_rates = np.average(input_z[i][j][coh0_idx],0)
-                            else:
-                                coh0_channel_trial_rates = np.vstack([coh0_channel_trial_rates,np.average(input_z[i][j][coh0_idx],0)])
-
-                        if len(coh1_idx)>0:
-                            if not 'coh1_channel_trial_rates' in locals():
-                                coh1_channel_trial_rates = np.average(input_z[i][j][coh1_idx],0)
-                            else:
-                                coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(input_z[i][j][coh1_idx],0)])
+                    if len(coh1_idx)>0:
+                        if not 'coh1_channel_trial_rates' in locals():
+                            coh1_channel_trial_rates = np.average(input_z[i][j][coh1_idx],0)
+                        else:
+                            coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(input_z[i][j][coh1_idx],0)])
 
     _, ax = plt.subplots(nrows=1, ncols=2)
     ax[0].hist(coh0_channel_trial_rates,bins=30,histtype='step', density=True, stacked=True)
