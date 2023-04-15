@@ -1023,7 +1023,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
 
 def plot_input_channel_rates(from_CNN=False,exp_dirs=["saveinz"]):
     # from_CNN means the original output rates from the CNN that are used to generate Poisson spikes actually
-    if from_CNN==True:
+    if from_CNN:
         spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
         x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
         # determine each of the 16 channels' average rates over 600 x 4080 trials
@@ -1053,7 +1053,7 @@ def plot_input_channel_rates(from_CNN=False,exp_dirs=["saveinz"]):
         #coh0_rates = np.average(coh0_channel_trial_rates,0)
         #coh1_rates = np.average(coh1_channel_trial_rates,0)
 
-    else:
+    if not from_CNN:
         for exp_string in exp_dirs:
             if not 'exp_data_dirs' in locals():
                 exp_data_dirs = get_experiments(data_dir, exp_string)
