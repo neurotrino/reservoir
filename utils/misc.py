@@ -37,7 +37,7 @@ class SwitchedDecorator:
         self._enabled = new_val
 
 
-def get_experiments(data_dir, experiment_string):
+def get_experiments(data_dir, experiment_string, final_npz=None):
     """Get a list of filenames for all experiments that contain a
     desired string.
 
@@ -53,10 +53,16 @@ def get_experiments(data_dir, experiment_string):
             continue
         if null_date in fname:
             continue
-        if os.path.exists(
-            os.path.join(data_dir, fname, "npz-data", "991-1000.npz")
-        ):
-            exp_dirs.append(os.path.join(data_dir, fname))
+        if final_npz is None:
+            if os.path.exists(
+                os.path.join(data_dir, fname, "npz-data", "991-1000.npz")
+            ):
+                exp_dirs.append(os.path.join(data_dir, fname))
+        else:
+            if os.path.exists(
+                os.path.join(data_dir, fname, "npz_data", final_npz)
+            ):
+                exp_dirs.append(os.path.join(data_dir, fname))
     return exp_dirs
 
 

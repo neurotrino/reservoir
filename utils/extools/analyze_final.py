@@ -1059,11 +1059,11 @@ def plot_input_channel_rates(from_CNN=False,exp_dirs=["saveinz"]):
         if not 'exp_data_dirs' in locals():
             exp_data_dirs = get_experiments(data_dir, exp_string)
         else:
-            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string, final_npz='591-600.npz')])
 
     # aggregate across all experiments and all trials
     data_files = filenames(num_epochs, epochs_per_file)
-    
+
     for xdir in exp_data_dirs:
         np_dir = os.path.join(data_dir, xdir, "npz-data")
 
