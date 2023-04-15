@@ -299,7 +299,7 @@ def within_coh_comparisons(exp_dirs=spec_nointoout_dirs,fn_dir='/data/results/ex
         # determine if there was a coherence change or not
 
         for i in range(0,len(true_y)):
-            if true_y[i][0]==true_y[seq_len-1]: # no coherence change
+            if true_y[i][0]==true_y[i][seq_len-1]: # no coherence change
                 binned_z = fastbin(np.transpose(spikes[i]), fn_bin, 300) # sharing 20 ms bins for everything for now
                 fn = simplest_confMI(binned_z,correct_signs=True)
                 if true_y[i][0]==0:
