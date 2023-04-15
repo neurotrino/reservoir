@@ -77,6 +77,7 @@ for xdir in data_dirs:
 spec_output_dirs = ["run-batch30-specout-onlinerate0.1-savey","run-batch30-dualloss-silence","run-batch30-dualloss-swaplabels"]
 spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
 spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
+save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabel-saveinz"]
 
 def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='spring',rand_exp_idx=5):
     # generate a single functional network across all trials for a particular batch update (last) of a dual-trained network
@@ -1021,7 +1022,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     save_fname = savepath+'/set_plots/'+exp_season+'_quad_weights_test.png'
     plt.savefig(save_fname,dpi=300)
 
-def plot_input_channel_rates(from_CNN=False,exp_dirs=["saveinz"]):
+def plot_input_channel_rates(from_CNN=False,exp_dirs=save_inz_dirs):
     # from_CNN means the original output rates from the CNN that are used to generate Poisson spikes actually
     """
     if from_CNN:
