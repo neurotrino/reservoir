@@ -325,7 +325,53 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
         }
     )
 
-    # now that fns have been aggregated for all final-batch trials of all experiments,
+    for i in range(0,len(fns_coh0)): # for each trial
+        if not 'channel_fns_coh0' in locals():
+            channel_fns_coh0 = fns_coh0[i]
+        else:
+            channel_fns_coh0 = np.hstack([channel_fns_coh0,fns_coh0[i]]) # stack with first dimension as n_input (16) always
+
+    for i in range(0,len(fns_coh1)): # for each trial
+        if not 'channel_fns_coh1' in locals():
+            channel_fns_coh1 = fns_coh0[i]
+        else:
+            channel_fns_coh1 = np.hstack([channel_fns_coh1,fns_coh1[i]])
+
+    # plot distributions of functional weights for all 16 input channels
+    fig, ax = plt.subplots(nrows=1,ncols=2)
+
+    ax[0].hist(channel_fns_coh0,bins=30,histtype='step', density=True, stacked=True)
+    ax[0].set_title('coherence 0', fontname="Ubuntu")
+    ax[0].set_xlabel('functional weight', fontname="Ubuntu")
+    ax[0].set_ylabel('density', fontname="Ubuntu")
+    ax[0].set_ylim([0,6])
+    ax[1].hist(channel_fns_coh1,bins=30,histtype='step', density=True, stacked=True)
+    ax[1].set_title('coherence 1', fontname="Ubuntu")
+    ax[1].set_xlabel('functional weight', fontname="Ubuntu")
+    ax[1].set_ylabel('density', fontname="Ubuntu")
+    ax[1].set_ylim([0,6])
+    for tick in ax[0].get_xticklabels():
+        tick.set_fontname("Ubuntu")
+    for tick in ax[0].get_yticklabels():
+        tick.set_fontname("Ubuntu")
+    for tick in ax[1].get_xticklabels():
+        tick.set_fontname("Ubuntu")
+    for tick in ax[1].get_yticklabels():
+        tick.set_fontname("Ubuntu")
+
+    plt.suptitle("Functional weights of 16 input channels", fontname="Ubuntu")
+
+    # Draw and save
+    plt.draw()
+    plt.subplots_adjust(wspace=0.4, hspace=0.5)
+    save_fname = savepath+'/spring_fns/trained_input_fn_weights.png'
+    plt.savefig(save_fname,dpi=300)
+
+    # Teardown
+    plt.clf()
+    plt.close()
+
+    """# now that fns have been aggregated for all final-batch trials of all experiments,
     # plot quad of their weight distributions
     # convert to numpy arrays
     fns_coh0_ee = np.array(fns_coh0)[:,:e_end,:e_end].flatten()
@@ -369,7 +415,7 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
     plt.draw()
 
     save_fname = fn_dir+'coherence_separate_trained_input_fn_weights.png'
-    plt.savefig(save_fname,dpi=300)
+    plt.savefig(save_fname,dpi=300)"""
 
 
 
