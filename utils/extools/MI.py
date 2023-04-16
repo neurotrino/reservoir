@@ -39,6 +39,27 @@ def simplest_confMI(raster, correct_signs=True, lag=1):
     else:
         return mat
 
+def simplest_asym_confMI(pre_raster,raster,correct_signs=False,lag=1):
+    post_raster = post_raster[:,lag:]
+    pre_raster = pre_raster[:,:-lag]
+    # spike at the same timestep or one after counts as confluence
+    post_raster = np.logical_or(raster,post_raster)
+    inputs = pre_raster.shape[0]
+    neurons = post_raster.shape[0]
+    mat = np.zeros([inputs,neurons])
+    for pre in range(inputs):
+        for post in range(neurons):
+            mat[pre, post] = compute_MI(
+                pre_raster[pre,:], post_raster[post,:]
+            )
+    if correct_signs:
+        signed_graph = signed_MI(mat, raster)
+        e_graph = pos(signed_graph[:241,:])
+        i_graph = neg(signed_graph[241:,:])
+        composite_graph = np.concatenate((e_graph,i_graph),axis=0)
+        return composite_graph
+    else:
+        return mat
 
 def simple_confMI(raster, trial_ends, positive_only, lag=1):
     post_raster = raster[:, lag:]

@@ -274,6 +274,104 @@ def single_batch_recruit_coh_compare(rn_dir='/data/results/experiment1/spring_fn
 
     # i haven't done the simple thing of plotting activity rates of e and i units again, have i?
 
+
+def input_fns(exp_dirs=save_inz_dirs,fn_dir'/data/results/experiment1/spring_fns/',fn_bin=10,exp_season='spring'):
+    # generate input-to-recurrent functional networks
+    # begin with trained; also do for naive
+    # plot the distribution of functional weights for the final (or first) batch's set of 30 trials
+    # focus on no-coherence-change trials
+    # later on generate input fns for the delay period
+
+    # get all experiment folders within this season
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string, final_npz='591-600.npz')
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string, final_npz='591-600.npz')])
+
+    fns_coh0 = []
+    fns_coh1 = []
+
+    # load in data for each experiment
+    for xdir in exp_data_dirs:
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+        #naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
+        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+
+        in_spikes = trained_data['inputs'][99]
+        spikes = trained_data['spikes'][99]
+        true_y = trained_data['true_y'][99]
+
+        for i in range(0,len(true_y)): # for each trial
+            if true_y[i][0]==true_y[i][seq_len-1]: # no coherence change in this trial
+                binned_inz = fastbin(np.transpose(in_spikes[i]), fn_bin, 16)
+                binned_z = fastbin(np.transpose(spikes[i]), fn_bin, 300) # sharing 10 ms bins for everything for now
+                # would be fun to visualize as heatmap later
+                fn = simplest_asym_confMI(binned_inz, binned_z, correct_signs=False)
+                if true_y[i][0]==0:
+                    # coherence 0
+                    fns_coh0.append(fn)
+                else:
+                    # coherence 1
+                    fns_coh1.append(fn)
+
+    # save FNs
+    np.savez_compressed(
+        fn_dir+'coherence_separate_trained_input_fns',
+        **{
+            "fns_coh0": fns_coh0,
+            "fns_coh1": fns_coh1
+        }
+    )
+
+    # now that fns have been aggregated for all final-batch trials of all experiments,
+    # plot quad of their weight distributions
+    # convert to numpy arrays
+    fns_coh0_ee = np.array(fns_coh0)[:,:e_end,:e_end].flatten()
+    fns_coh0_ei = np.array(fns_coh0)[:,:e_end,e_end:].flatten()
+    fns_coh0_ie = np.array(fns_coh0)[:,e_end:,:e_end].flatten()
+    fns_coh0_ii = np.array(fns_coh0)[:,e_end:,e_end:].flatten()
+    fns_coh1_ee = np.array(fns_coh1)[:,:e_end,:e_end].flatten()
+    fns_coh1_ei = np.array(fns_coh1)[:,:e_end,e_end:].flatten()
+    fns_coh1_ie = np.array(fns_coh1)[:,e_end:,:e_end].flatten()
+    fns_coh1_ii = np.array(fns_coh1)[:,e_end:,e_end:].flatten()
+
+    # plot quad for just coherence 0 to begin with
+    fig, ax = plt.subplots(nrows=1,ncols=2)
+    ax[0].hist(fns_coh0_ee[fns_coh0_ee!=0],bins=30,alpha=0.5,density=True,color='dodgerblue')
+    ax[0].hist(fns_coh0_ei[fns_coh0_ei!=0],bins=30,alpha=0.5,density=True,color='seagreen')
+    ax[0].hist(fns_coh0_ie[fns_coh0_ie!=0],bins=30,alpha=0.5,density=True,color='darkorange')
+    ax[0].hist(fns_coh0_ii[fns_coh0_ii!=0],bins=30,alpha=0.5,density=True,color='orangered')
+    ax[0].legend(['ee','ei','ie','ii'])
+    ax[0].set_title('Coherence label 0',fontname='Ubuntu')
+
+    ax[1].hist(fns_coh1_ee[fns_coh1_ee!=0],bins=30,alpha=0.5,color='dodgerblue',density=True)
+    ax[1].hist(fns_coh1_ei[fns_coh1_ei!=0],bins=30,alpha=0.5,color='seagreen',density=True)
+    ax[1].hist(fns_coh1_ie[fns_coh1_ie!=0],bins=30,alpha=0.5,color='darkorange',density=True)
+    ax[1].hist(fns_coh1_ii[fns_coh1_ii!=0],bins=30,alpha=0.5,color='orangered',density=True)
+    ax[1].legend(['ee','ei','ie','ii'])
+    ax[1].set_title('Coherence label 1',fontname='Ubuntu')
+
+    plt.suptitle('Trained input-to-main functional weights',fontname='Ubuntu')
+
+    plt.subplots_adjust(wspace=0.4, hspace=0.7)
+
+    # go through and set all axes
+    for i in range(0,len(ax)):
+        for tick in ax[i].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[i].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+        ax[i].set_xlabel('functional weight values',fontname='Ubuntu')
+        ax[i].set_ylabel('density',fontname='Ubuntu')
+
+    plt.draw()
+
+    save_fname = fn_dir+'coherence_separate_trained_input_fn_weights.png'
+    plt.savefig(save_fname,dpi=300)
+
+
+
 def within_coh_comparisons(exp_dirs=spec_nointoout_dirs,fn_dir='/data/results/experiment1/spring_fns/',fn_bin=10,exp_season='spring'):
     # generate FNs based on only coh 0 and coh 1 responses in single trials of the final trained batch
     # compare ee ei ie ii weights within the functional network for each coherence level only
@@ -1024,6 +1122,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     plt.savefig(save_fname,dpi=300)
 
 def plot_input_channel_rates(from_CNN=False,exp_dirs=save_inz_dirs):
+    # NEED TO BE CAREFUL BASED ON MIXING OF COHERENCE SWAP / UNSWAP LABELS
     # from_CNN means the original output rates from the CNN that are used to generate Poisson spikes actually
     """
     if from_CNN:
