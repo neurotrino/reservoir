@@ -296,12 +296,12 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
     # load in data for each experiment
     for xdir in exp_data_dirs:
         np_dir = os.path.join(data_dir, xdir, "npz-data")
-        naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
-        #trained_data = np.load(os.path.join(np_dir, "591-600.npz"))
+        #naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
+        trained_data = np.load(os.path.join(np_dir, "591-600.npz"))
 
-        in_spikes = naive_data['inputs'][0]
-        spikes = naive_data['spikes'][0]
-        true_y = naive_data['true_y'][0]
+        in_spikes = trained_data['inputs'][0]
+        spikes = trained_data['spikes'][0]
+        true_y = trained_data['true_y'][0]
 
         for i in range(0,len(true_y)): # for each trial
             if true_y[i][0]==true_y[i][seq_len-1]: # no coherence change in this trial
@@ -318,7 +318,7 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
 
     # save FNs
     np.savez_compressed(
-        fn_dir+'coherence_separate_naive_input_fns',
+        fn_dir+'coherence_separate_trained_input_fns',
         **{
             "fns_coh0": fns_coh0,
             "fns_coh1": fns_coh1
@@ -359,12 +359,12 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
     for tick in ax[1].get_yticklabels():
         tick.set_fontname("Ubuntu")
 
-    plt.suptitle("Naive functional weights of 16 input channels", fontname="Ubuntu")
+    plt.suptitle("Trained functional weights of 16 input channels", fontname="Ubuntu")
 
     # Draw and save
     plt.draw()
     plt.subplots_adjust(wspace=0.4, hspace=0.5)
-    save_fname = savepath+'/spring_fns/naive_input_fn_weights.png'
+    save_fname = savepath+'/spring_fns/trained_input_fn_weights.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
