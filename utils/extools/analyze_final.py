@@ -275,7 +275,7 @@ def single_batch_recruit_coh_compare(rn_dir='/data/results/experiment1/spring_fn
     # i haven't done the simple thing of plotting activity rates of e and i units again, have i?
 
 
-def input_fns(exp_dirs=save_inz_dirs,fn_dir'/data/results/experiment1/spring_fns/',fn_bin=10,exp_season='spring'):
+def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fns/',fn_bin=10,exp_season='spring'):
     # generate input-to-recurrent functional networks
     # begin with trained; also do for naive
     # plot the distribution of functional weights for the final (or first) batch's set of 30 trials
