@@ -340,12 +340,12 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
     # plot distributions of functional weights for all 16 input channels
     fig, ax = plt.subplots(nrows=1,ncols=2)
 
-    ax[0].hist(channel_fns_coh0,bins=30,histtype='step', density=True, stacked=True)
+    ax[0].hist(np.transpose(channel_fns_coh0),bins=20,histtype='step', density=True, stacked=True)
     ax[0].set_title('coherence 0', fontname="Ubuntu")
     ax[0].set_xlabel('functional weight', fontname="Ubuntu")
     ax[0].set_ylabel('density', fontname="Ubuntu")
     ax[0].set_ylim([0,6])
-    ax[1].hist(channel_fns_coh1,bins=30,histtype='step', density=True, stacked=True)
+    ax[1].hist(np.transpose(channel_fns_coh1),bins=20,histtype='step', density=True, stacked=True)
     ax[1].set_title('coherence 1', fontname="Ubuntu")
     ax[1].set_xlabel('functional weight', fontname="Ubuntu")
     ax[1].set_ylabel('density', fontname="Ubuntu")
