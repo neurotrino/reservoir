@@ -40,7 +40,7 @@ def simplest_confMI(raster, correct_signs=True, lag=1):
         return mat
 
 def simplest_asym_confMI(pre_raster,raster,correct_signs=False,lag=1):
-    post_raster = post_raster[:,lag:]
+    post_raster = raster[:,lag:]
     pre_raster = pre_raster[:,:-lag]
     # spike at the same timestep or one after counts as confluence
     post_raster = np.logical_or(raster,post_raster)
