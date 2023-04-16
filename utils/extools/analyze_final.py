@@ -296,7 +296,7 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
     for xdir in exp_data_dirs:
         np_dir = os.path.join(data_dir, xdir, "npz-data")
         #naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
-        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+        trained_data = np.load(os.path.join(np_dir, "591-600.npz"))
 
         in_spikes = trained_data['inputs'][99]
         spikes = trained_data['spikes'][99]
