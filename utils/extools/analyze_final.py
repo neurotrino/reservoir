@@ -25,6 +25,7 @@ from utils.extools.fn_analysis import reciprocity_ei
 from utils.extools.fn_analysis import calc_density
 from utils.extools.fn_analysis import out_degree
 from utils.extools.MI import simplest_confMI
+from utils.extools.MI import simplest_asym_confMI
 from utils.extools.analyze_dynamics import fastbin
 from utils.extools.analyze_dynamics import trial_recruitment_graphs
 
