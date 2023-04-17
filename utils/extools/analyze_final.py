@@ -290,18 +290,20 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
         else:
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string, final_npz='591-600.npz')])
 
-    fns_coh0 = []
-    fns_coh1 = []
+    fns_coh0_naive = []
+    fns_coh1_naive = []
+    fns_coh0_trained = []
+    fns_coh1_trained = []
 
     # load in data for each experiment
     for xdir in exp_data_dirs:
         np_dir = os.path.join(data_dir, xdir, "npz-data")
-        #naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
+        naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
         trained_data = np.load(os.path.join(np_dir, "591-600.npz"))
 
-        in_spikes = trained_data['inputs'][0]
-        spikes = trained_data['spikes'][0]
-        true_y = trained_data['true_y'][0]
+        in_spikes = naive_data['inputs'][0]
+        spikes = naive_data['spikes'][0]
+        true_y = naive_data['true_y'][0]
 
         for i in range(0,len(true_y)): # for each trial
             if true_y[i][0]==true_y[i][seq_len-1]: # no coherence change in this trial
@@ -311,60 +313,96 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
                 fn = simplest_asym_confMI(binned_inz, binned_z, correct_signs=False)
                 if true_y[i][0]==0:
                     # coherence 0
-                    fns_coh0.append(fn)
+                    fns_coh0_naive.append(fn)
                 else:
                     # coherence 1
-                    fns_coh1.append(fn)
+                    fns_coh1_naive.append(fn)
+
+        # repeat for trained
+        in_spikes = trained_data['inputs'][99]
+        spikes = trained_data['spikes'][99]
+        true_y = trained_data['true_y'][99]
+
+        for i in range(0,len(true_y)): # for each trial
+            if true_y[i][0]==true_y[i][seq_len-1]: # no coherence change in this trial
+                binned_inz = fastbin(np.transpose(in_spikes[i]), fn_bin, 16)
+                binned_z = fastbin(np.transpose(spikes[i]), fn_bin, 300) # sharing 10 ms bins for everything for now
+                # would be fun to visualize as heatmap later
+                fn = simplest_asym_confMI(binned_inz, binned_z, correct_signs=False)
+                if true_y[i][0]==0:
+                    # coherence 0
+                    fns_coh0_trained.append(fn)
+                else:
+                    # coherence 1
+                    fns_coh1_trained.append(fn)
 
     # save FNs
     np.savez_compressed(
-        fn_dir+'coherence_separate_trained_input_fns',
+        fn_dir+'coherence_separate_input_fns',
         **{
-            "fns_coh0": fns_coh0,
-            "fns_coh1": fns_coh1
+            "fns_coh0_naive": fns_coh0_naive,
+            "fns_coh1_naive": fns_coh1_naive,
+            "fns_coh0_trained": fns_coh0_trained,
+            "fns_coh1_trained": fns_coh1_trained
         }
     )
 
-    for i in range(0,len(fns_coh0)): # for each trial
-        if not 'channel_fns_coh0' in locals():
-            channel_fns_coh0 = fns_coh0[i]
+    # start with naive
+    for i in range(0,len(fns_coh0_naive)): # for each trial
+        if not 'channel_fns_coh0_naive' in locals():
+            channel_fns_coh0_naive = fns_coh0_naive[i]
         else:
-            channel_fns_coh0 = np.hstack([channel_fns_coh0,fns_coh0[i]]) # stack with first dimension as n_input (16) always
+            channel_fns_coh0_naive = np.hstack([channel_fns_coh0_naive,fns_coh0_naive[i]]) # stack with first dimension as n_input (16) always
 
-    for i in range(0,len(fns_coh1)): # for each trial
-        if not 'channel_fns_coh1' in locals():
-            channel_fns_coh1 = fns_coh0[i]
+    for i in range(0,len(fns_coh1_naive)): # for each trial
+        if not 'channel_fns_coh1_naive' in locals():
+            channel_fns_coh1_naive = fns_coh0_naive[i]
         else:
-            channel_fns_coh1 = np.hstack([channel_fns_coh1,fns_coh1[i]])
+            channel_fns_coh1_naive = np.hstack([channel_fns_coh1_naive,fns_coh1_naive[i]])
 
     # plot distributions of functional weights for all 16 input channels
-    fig, ax = plt.subplots(nrows=1,ncols=2)
+    fig, ax = plt.subplots(nrows=2,ncols=2)
 
-    ax[0].hist(np.transpose(channel_fns_coh0),bins=20,histtype='step', density=True, stacked=True)
-    ax[0].set_title('coherence 0', fontname="Ubuntu")
-    ax[0].set_xlabel('functional weight', fontname="Ubuntu")
-    ax[0].set_ylabel('density', fontname="Ubuntu")
-    ax[0].set_ylim([0,6])
-    ax[1].hist(np.transpose(channel_fns_coh1),bins=20,histtype='step', density=True, stacked=True)
-    ax[1].set_title('coherence 1', fontname="Ubuntu")
-    ax[1].set_xlabel('functional weight', fontname="Ubuntu")
-    ax[1].set_ylabel('density', fontname="Ubuntu")
-    ax[1].set_ylim([0,6])
-    for tick in ax[0].get_xticklabels():
-        tick.set_fontname("Ubuntu")
-    for tick in ax[0].get_yticklabels():
-        tick.set_fontname("Ubuntu")
-    for tick in ax[1].get_xticklabels():
-        tick.set_fontname("Ubuntu")
-    for tick in ax[1].get_yticklabels():
-        tick.set_fontname("Ubuntu")
+    ax[0,0].hist(np.transpose(channel_fns_coh0_naive),bins=20,histtype='step', density=True, stacked=True)
+    ax[0,0].set_title('naive coherence 0', fontname="Ubuntu")
+    ax[1,0].hist(np.transpose(channel_fns_coh1_naive),bins=20,histtype='step', density=True, stacked=True)
+    ax[1,0].set_title('naive coherence 1', fontname="Ubuntu")
 
-    plt.suptitle("Trained functional weights of 16 input channels", fontname="Ubuntu")
+    # now do trained
+    for i in range(0,len(fns_coh0_trained)): # for each trial
+        if not 'channel_fns_coh0_trained' in locals():
+            channel_fns_coh0_trained = fns_coh0_trained[i]
+        else:
+            channel_fns_coh0_trained = np.hstack([channel_fns_coh0_trained,fns_coh0_trained[i]]) # stack with first dimension as n_input (16) always
+
+    for i in range(0,len(fns_coh1_trained)): # for each trial
+        if not 'channel_fns_coh1_trained' in locals():
+            channel_fns_coh1_trained = fns_coh0_trained[i]
+        else:
+            channel_fns_coh1_trained = np.hstack([channel_fns_coh1_trained,fns_coh1_trained[i]])
+
+    ax[0,1].hist(np.transpose(channel_fns_coh0_trained),bins=20,histtype='step', density=True, stacked=True)
+    ax[0,1].set_title('trained coherence 0', fontname="Ubuntu")
+    ax[1,1].hist(np.transpose(channel_fns_coh1_trained),bins=20,histtype='step', density=True, stacked=True)
+    ax[1,1].set_title('trained coherence 1', fontname="Ubuntu")
+
+
+    ax = ax.flatten()
+    for i in range(0,len(ax)):
+        ax[i].set_xlabel('functional weight', fontname="Ubuntu")
+        ax[i].set_ylabel('density', fontname='Ubuntu')
+        for tick in ax[i].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[i].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+        ax[i].set_xlim([0,0.11])
+
+    plt.suptitle("Functional weights of 16 input channels", fontname="Ubuntu")
 
     # Draw and save
     plt.draw()
     plt.subplots_adjust(wspace=0.4, hspace=0.5)
-    save_fname = savepath+'/spring_fns/trained_input_fn_weights.png'
+    save_fname = savepath+'/spring_fns/spring_input_fn_weights.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
