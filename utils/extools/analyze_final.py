@@ -28,6 +28,7 @@ from utils.extools.MI import simplest_confMI
 from utils.extools.MI import simplest_asym_confMI
 from utils.extools.analyze_dynamics import fastbin
 from utils.extools.analyze_dynamics import trial_recruitment_graphs
+from utils.extools.analyze_dynamics import threshold_fnet
 
 # ---- global variables -------------------------------------------------------
 data_dir = '/data/experiments/'
@@ -276,7 +277,7 @@ def single_batch_recruit_coh_compare(rn_dir='/data/results/experiment1/spring_fn
     # i haven't done the simple thing of plotting activity rates of e and i units again, have i?
 
 
-def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fns/',fn_bin=10,exp_season='spring'):
+def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fns/',fn_bin=10,exp_season='spring',threshold=0.1):
     # generate input-to-recurrent functional networks
     # begin with trained; also do for naive
     # plot the distribution of functional weights for the final (or first) batch's set of 30 trials
@@ -329,6 +330,8 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
                 binned_z = fastbin(np.transpose(spikes[i]), fn_bin, 300) # sharing 10 ms bins for everything for now
                 # would be fun to visualize as heatmap later
                 fn = simplest_asym_confMI(binned_inz, binned_z, correct_signs=False)
+                if threshold is not None: # threshold values in fn to top quartile, decile, etc. 
+                    fn = threshold_fnet(fn,threshold)
                 if true_y[i][0]==0:
                     # coherence 0
                     fns_coh0_trained.append(fn)
@@ -338,7 +341,7 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
 
     # save FNs
     np.savez_compressed(
-        fn_dir+'coherence_separate_input_fns',
+        fn_dir+'coherence_separate_input_fns_decile',
         **{
             "fns_coh0_naive": fns_coh0_naive,
             "fns_coh1_naive": fns_coh1_naive,
@@ -402,7 +405,7 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
     # Draw and save
     plt.draw()
     plt.subplots_adjust(wspace=0.4, hspace=0.5)
-    save_fname = savepath+'/spring_fns/spring_input_fn_weights.png'
+    save_fname = savepath+'/spring_fns/spring_input_fn_decile_weights.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
