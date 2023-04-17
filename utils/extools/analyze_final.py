@@ -1229,15 +1229,17 @@ def plot_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring')
 
     for xdir in exp_data_dirs:
         np_dir = os.path.join(data_dir, xdir, "npz-data")
+        exp_path = xdir[-9:-1]
 
         # sized 16 x batch
-        e_coh0_rates = np.zeros([16,1000])
-        e_coh1_rates = np.zeros([16,1000])
-        i_coh0_rates = np.zeros([16,1000])
-        i_coh1_rates = np.zeros([16,1000])
+        e_coh0_rates = np.zeros([16,10000])
+        e_coh1_rates = np.zeros([16,10000])
+        i_coh0_rates = np.zeros([16,10000])
+        i_coh1_rates = np.zeros([16,10000])
 
         # loop through all experiments
         for filename in data_files:
+            start_idx = (int(filename.split('-')[0])-1)*10
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
             in_w = data['tv0.postweights']
@@ -1272,11 +1274,11 @@ def plot_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring')
                 # go through all 16 input channels
                 for input_idx in range(0,np.shape(in_w)[1]):
                     interm = all_rates[coh0_idx] # all trials with coherence 0
-                    e_coh0_rates[input_idx,i] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]<e_end]])
-                    i_coh0_rates[input_idx,i] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]>=e_end]])
+                    e_coh0_rates[input_idx,i+start_idx] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]<e_end]])
+                    i_coh0_rates[input_idx,i+start_idx] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]>=e_end]])
                     interm = all_rates[coh1_idx] # all trials with coherence 1
-                    e_coh1_rates[input_idx,i] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]<e_end]])
-                    i_coh1_rates[input_idx,i] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]>=e_end]])
+                    e_coh1_rates[input_idx,i+start_idx] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]<e_end]])
+                    i_coh1_rates[input_idx,i+start_idx] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]>=e_end]])
 
         # plot for each experiment
         fig, ax = plt.subplots(nrows=2, ncols=2)
@@ -1291,7 +1293,7 @@ def plot_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring')
 
         ax = ax.flatten()
         for i in range(0,len(ax)):
-            ax[i].set_xlabel('training epoch',fontname='Ubuntu')
+            ax[i].set_xlabel('training batch',fontname='Ubuntu')
             ax[i].set_ylabel('average rate',fontname='Ubuntu')
             for tick in ax[i].get_xticklabels():
                 tick.set_fontname("Ubuntu")
@@ -1303,7 +1305,7 @@ def plot_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring')
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.7)
-        save_fname = savepath+'/set_plots/'+exp_season+'_input_receiving_rates.png'
+        save_fname = savepath+'/set_plots/'+exp_season+'/'+exp_path+'_input_receiving_rates.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
