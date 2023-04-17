@@ -330,8 +330,8 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
                 binned_z = fastbin(np.transpose(spikes[i]), fn_bin, 300) # sharing 10 ms bins for everything for now
                 # would be fun to visualize as heatmap later
                 fn = simplest_asym_confMI(binned_inz, binned_z, correct_signs=False)
-                if threshold is not None: # threshold values in fn to top quartile, decile, etc. 
-                    fn = threshold_fnet(fn,threshold)
+                if threshold is not None: # threshold values in fn to top quartile, decile, etc.
+                    fn = threshold_fnet(fn,threshold,copy=False)
                 if true_y[i][0]==0:
                     # coherence 0
                     fns_coh0_trained.append(fn)
@@ -366,9 +366,11 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
     # plot distributions of functional weights for all 16 input channels
     fig, ax = plt.subplots(nrows=2,ncols=2)
 
-    ax[0,0].hist(np.transpose(channel_fns_coh0_naive),bins=20,histtype='step', density=True, stacked=True)
+    sns.heatmap(np.mean(fns_coh0_naive,0), ax=ax[0,0])
+    #ax[0,0].hist(np.transpose(channel_fns_coh0_naive),bins=20,histtype='step', density=True, stacked=True)
     ax[0,0].set_title('naive coherence 0', fontname="Ubuntu")
-    ax[1,0].hist(np.transpose(channel_fns_coh1_naive),bins=20,histtype='step', density=True, stacked=True)
+    #ax[1,0].hist(np.transpose(channel_fns_coh1_naive),bins=20,histtype='step', density=True, stacked=True)
+    sns.heatmap(np.mean(fns_coh1_naive,0), ax=ax[1,0])
     ax[1,0].set_title('naive coherence 1', fontname="Ubuntu")
 
     # now do trained
@@ -384,28 +386,30 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
         else:
             channel_fns_coh1_trained = np.hstack([channel_fns_coh1_trained,fns_coh1_trained[i]])
 
-    ax[0,1].hist(np.transpose(channel_fns_coh0_trained),bins=20,histtype='step', density=True, stacked=True)
+    #ax[0,1].hist(np.transpose(channel_fns_coh0_trained),bins=20,histtype='step', density=True, stacked=True)
+    sns.heatmap(np.mean(fns_coh0_trained), ax=ax[0,1])
     ax[0,1].set_title('trained coherence 0', fontname="Ubuntu")
-    ax[1,1].hist(np.transpose(channel_fns_coh1_trained),bins=20,histtype='step', density=True, stacked=True)
+    #ax[1,1].hist(np.transpose(channel_fns_coh1_trained),bins=20,histtype='step', density=True, stacked=True)
+    sns.heatmap(np.mean(fns_coh1_trained), ax=ax[1,1])
     ax[1,1].set_title('trained coherence 1', fontname="Ubuntu")
 
 
     ax = ax.flatten()
     for i in range(0,len(ax)):
-        ax[i].set_xlabel('functional weight', fontname="Ubuntu")
-        ax[i].set_ylabel('density', fontname='Ubuntu')
+        ax[i].set_xlabel('recurrent units', fontname="Ubuntu")
+        ax[i].set_ylabel('input channels', fontname='Ubuntu')
         for tick in ax[i].get_xticklabels():
             tick.set_fontname("Ubuntu")
         for tick in ax[i].get_yticklabels():
             tick.set_fontname("Ubuntu")
-        ax[i].set_xlim([0,0.11])
+        #ax[i].set_xlim([0,0.11])
 
     plt.suptitle("Functional weights of 16 input channels", fontname="Ubuntu")
 
     # Draw and save
     plt.draw()
     plt.subplots_adjust(wspace=0.4, hspace=0.5)
-    save_fname = savepath+'/spring_fns/spring_input_fn_decile_weights.png'
+    save_fname = savepath+'/spring_fns/spring_input_fn_decile_heatmaps.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
