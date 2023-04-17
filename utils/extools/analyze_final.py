@@ -77,7 +77,7 @@ for xdir in data_dirs:
 #ALL DUAL TRAINED TO BEGIN WITH:
 spec_output_dirs = ["run-batch30-specout-onlinerate0.1-savey","run-batch30-dualloss-silence","run-batch30-dualloss-swaplabels"]
 spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
-spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
+spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz"]
 
 def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='spring',rand_exp_idx=5):
@@ -776,6 +776,7 @@ def determine_delays(exp_dirs=spec_input_dirs,exp_season='winter'):
 #def plot_in_out_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     # plot the rates for input-receiving and output-giving units for coherence 0 and
 
+
 def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     # plot separately for coherence 0 and 1 trials
     # honestly don't even worry about the changes for now
@@ -1206,6 +1207,120 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     save_fname = savepath+'/set_plots/'+exp_season+'_quad_weights_test.png'
     plt.savefig(save_fname,dpi=300)
 
+
+def plot_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+    # plot, over all of training time, the evolution of the average firing rates of each of the subpopulations that receive direct input channel connections
+    # separately for the two coherence levels
+    # and maybe also separately for e and i units
+    # do so only for no-coherence-change trials
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # aggregate across all experiments and all trials
+    data_files = filenames(num_epochs, epochs_per_file)
+
+    # eventually plot something that is specific to each experiment
+    # but otherwise 16 separate input channels populations, rates over all of the trial for a coherence level, over all of training
+    # so ultimately x axis training epoch, y axis rate, 16 separate channels, maybe e and i separate and coherence level separate
+    # go thru a single experiment to verify that your array shapes are working correctly haha
+
+    for xdir in exp_data_dirs:
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        # sized 16 x batch
+        e_coh0_rates = np.zeros([16,1000])
+        e_coh1_rates = np.zeros([16,1000])
+        i_coh0_rates = np.zeros([16,1000])
+        i_coh1_rates = np.zeros([16,1000])
+
+        # loop through all experiments
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            in_w = data['tv0.postweights']
+            #w = data['tv1.postweights']
+            true_y = data['true_y']
+            spikes = data['spikes']
+            # go through all 100 batches
+            for i in range(0,np.shape(in_w)[0]):
+                # find which units receive each channel's input
+                input_pop_indices = []
+                for input_idx in range(0,np.shape(in_w)[1]): # for 16 input channels, get indices of their projection populations
+                    single_channel_indices = np.argwhere(in_w[i][input_idx]!=0).flatten()
+                    input_pop_indices.append(single_channel_indices)
+
+                # go through all 30 trials
+                all_rates = []
+                cohs = []
+                for j in range(0,np.shape(true_y)[1]):
+                    # check if no change trial
+                    if true_y[i][j][0]==true_y[i][j][seq_len-1]:
+                        if true_y[i][j][0]==0: # if coherence 0 trial
+                            cohs.append(0)
+                        else:
+                            cohs.append(1)
+                        all_rates.append(np.average(spikes[i][j],0)) # avg firing rates for all 300 units
+
+                all_rates=np.array(all_rates)
+                cohs=np.array(cohs)
+                coh0_idx = np.where(cohs==0)[0]
+                coh1_idx = np.where(cohs==1)[0]
+
+                # go through all 16 input channels
+                for input_idx in range(0,np.shape(in_w)[1]):
+                    interm = all_rates[coh0_idx] # all trials with coherence 0
+                    e_coh0_rates[input_idx,i] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]<e_end]])
+                    i_coh0_rates[input_idx,i] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]>=e_end])
+                    interm = all_rates[coh1_idx] # all trials with coherence 1
+                    e_coh1_rates[input_idx,i] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]<e_end]])
+                    i_coh1_rates[input_idx,i] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]>=e_end])
+
+        # plot for each experiment
+        fig, ax = plt.subplots(nrows=2, ncols=2)
+        ax[0,0].plot(e_coh0_rates)
+        ax[0,0].set_title('coherence 0 excitatory',fontname='Ubuntu')
+        ax[0,1].plot(e_coh1_rates)
+        ax[0,1].set_title('coherence 1 excitatory',fontname='Ubuntu')
+        ax[1,0].plot(i_coh0_rates)
+        ax[1,0].set_title('coherence 0 inhibitory',fontname='Ubuntu')
+        ax[1,1].plot(i_coh1_rates)
+        ax[1,1].set_title('coherence 1 inhibitory',fontname='Ubuntu')
+
+        ax = ax.flatten()
+        for i in range(0,len(ax)):
+            ax[i].set_xlabel('training epoch',fontname='Ubuntu')
+            ax[i].set_ylabel('average rate',fontname='Ubuntu')
+            for tick in ax[i].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[i].get_yticklabels():
+                tick.set_fontname("Ubuntu")
+
+        plt.suptitle('Average rates of 16 input-receiving populations')
+
+        # Draw and save
+        plt.draw()
+        plt.subplots_adjust(wspace=0.4, hspace=0.7)
+        save_fname = savepath+'/set_plots/'+exp_season+'_input_receiving_rates.png'
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
+
+
+# measure within-input-channel-receiving clustering vs outside / all
+
+
+#def plot_output_sending_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+    # same as above function, but for the subpopulation of units that actually project to output
+    # plot relative to rates of the other
+    # also separately for two coherence levels and for e and i units
+    # do so only for no-coherence-change trials
+
+
 def plot_input_channel_rates(from_CNN=False,exp_dirs=save_inz_dirs):
     # NEED TO BE CAREFUL BASED ON MIXING OF COHERENCE SWAP / UNSWAP LABELS
     # from_CNN means the original output rates from the CNN that are used to generate Poisson spikes actually
@@ -1252,6 +1367,7 @@ def plot_input_channel_rates(from_CNN=False,exp_dirs=save_inz_dirs):
 
     for xdir in exp_data_dirs:
         np_dir = os.path.join(data_dir, xdir, "npz-data")
+        exp_path = xdir[-9:-1]
 
         # loop through all experiments
         for filename in data_files:
