@@ -387,10 +387,10 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
             channel_fns_coh1_trained = np.hstack([channel_fns_coh1_trained,fns_coh1_trained[i]])
 
     #ax[0,1].hist(np.transpose(channel_fns_coh0_trained),bins=20,histtype='step', density=True, stacked=True)
-    sns.heatmap(np.mean(fns_coh0_trained), ax=ax[0,1])
+    sns.heatmap(np.mean(fns_coh0_trained,0), ax=ax[0,1])
     ax[0,1].set_title('trained coherence 0', fontname="Ubuntu")
     #ax[1,1].hist(np.transpose(channel_fns_coh1_trained),bins=20,histtype='step', density=True, stacked=True)
-    sns.heatmap(np.mean(fns_coh1_trained), ax=ax[1,1])
+    sns.heatmap(np.mean(fns_coh1_trained,0), ax=ax[1,1])
     ax[1,1].set_title('trained coherence 1', fontname="Ubuntu")
 
 
