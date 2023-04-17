@@ -312,6 +312,8 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
                 binned_z = fastbin(np.transpose(spikes[i]), fn_bin, 300) # sharing 10 ms bins for everything for now
                 # would be fun to visualize as heatmap later
                 fn = simplest_asym_confMI(binned_inz, binned_z, correct_signs=False)
+                if threshold is not None: # threshold values in fn to top quartile, decile, etc.
+                    fn = threshold_fnet(fn,threshold,copy=False)
                 if true_y[i][0]==0:
                     # coherence 0
                     fns_coh0_naive.append(fn)
