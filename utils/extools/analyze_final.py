@@ -1273,10 +1273,10 @@ def plot_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring')
                 for input_idx in range(0,np.shape(in_w)[1]):
                     interm = all_rates[coh0_idx] # all trials with coherence 0
                     e_coh0_rates[input_idx,i] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]<e_end]])
-                    i_coh0_rates[input_idx,i] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]>=e_end])
+                    i_coh0_rates[input_idx,i] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]>=e_end]])
                     interm = all_rates[coh1_idx] # all trials with coherence 1
                     e_coh1_rates[input_idx,i] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]<e_end]])
-                    i_coh1_rates[input_idx,i] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]>=e_end])
+                    i_coh1_rates[input_idx,i] = np.mean(interm[:,input_pop_indices[input_idx][input_pop_indices[input_idx]>=e_end]])
 
         # plot for each experiment
         fig, ax = plt.subplots(nrows=2, ncols=2)
