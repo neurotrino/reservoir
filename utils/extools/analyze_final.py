@@ -286,9 +286,9 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
     # get all experiment folders within this season
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
-            exp_data_dirs = get_experiments(data_dir, exp_string, final_npz='591-600.npz')
+            exp_data_dirs = get_experiments(data_dir, exp_string, final_npz='991-1000.npz')
         else:
-            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string, final_npz='591-600.npz')])
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string, final_npz='991-1000.npz')])
 
     fns_coh0_naive = []
     fns_coh1_naive = []
@@ -299,7 +299,7 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
     for xdir in exp_data_dirs:
         np_dir = os.path.join(data_dir, xdir, "npz-data")
         naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
-        trained_data = np.load(os.path.join(np_dir, "591-600.npz"))
+        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
 
         in_spikes = naive_data['inputs'][0]
         spikes = naive_data['spikes'][0]
