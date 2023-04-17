@@ -1315,12 +1315,110 @@ def plot_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring')
 
 # measure within-input-channel-receiving clustering vs outside / all
 
-
-#def plot_output_sending_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+def plot_output_sending_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     # same as above function, but for the subpopulation of units that actually project to output
-    # plot relative to rates of the other
+    # plot relative to rates of the non-projecting population
     # also separately for two coherence levels and for e and i units
     # do so only for no-coherence-change trials
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # aggregate across all experiments and all trials
+    data_files = filenames(num_epochs, epochs_per_file)
+
+    # eventually plot something that is specific to each experiment
+    # but otherwise 16 separate input channels populations, rates over all of the trial for a coherence level, over all of training
+    # so ultimately x axis training epoch, y axis rate, 16 separate channels, maybe e and i separate and coherence level separate
+    # go thru a single experiment to verify that your array shapes are working correctly haha
+
+    for xdir in exp_data_dirs:
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+        exp_path = xdir[-9:-1]
+
+        # sized 16 x batch
+        e_coh0_rates = np.zeros([2,10000])
+        e_coh1_rates = np.zeros([2,10000])
+        i_coh0_rates = np.zeros([2,10000])
+        i_coh1_rates = np.zeros([2,10000])
+
+        # loop through all experiments
+        for filename in data_files:
+            start_idx = (int(filename.split('-')[0])-1)*10
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            out_w = data['tv2.postweights']
+            true_y = data['true_y']
+            spikes = data['spikes']
+            # go through all 100 batches
+            for i in range(0,np.shape(out_w)[0]):
+                # find which units project to output, and which do not
+                out_pop_indices = np.where(out_w[i]!=0)[0]
+                not_pop_indices = np.where(out_w[i]==0)[0]
+
+                # go through all 30 trials
+                all_rates = []
+                cohs = []
+                for j in range(0,np.shape(true_y)[1]):
+                    # check if no change trial
+                    if true_y[i][j][0]==true_y[i][j][seq_len-1]:
+                        if true_y[i][j][0]==0: # if coherence 0 trial
+                            cohs.append(0)
+                        else:
+                            cohs.append(1)
+                        all_rates.append(np.average(spikes[i][j],0)) # avg firing rates for all 300 units
+
+                all_rates=np.array(all_rates)
+                cohs=np.array(cohs)
+                coh0_idx = np.where(cohs==0)[0]
+                coh1_idx = np.where(cohs==1)[0]
+
+                # go through output projecting and not projecting units
+                interm = all_rates[coh0_idx] # all trials with coherence 0
+                e_coh0_rates[0,i+start_idx] = np.mean(interm[:,out_pop_indices[out_pop_indices<e_end]])
+                i_coh0_rates[0,i+start_idx] = np.mean(interm[:,out_pop_indices[out_pop_indices>=e_end]])
+                e_coh0_rates[1,i+start_idx] = np.mean(interm[:,not_pop_indices[not_pop_indices<e_end]])
+                i_coh0_rates[1,i+start_idx] = np.mean(interm[:,not_pop_indices[not_pop_indices>=e_end]])
+                interm = all_rates[coh1_idx] # all trials with coherence 1
+                e_coh1_rates[0,i+start_idx] = np.mean(interm[:,out_pop_indices[out_pop_indices<e_end]])
+                i_coh1_rates[0,i+start_idx] = np.mean(interm[:,out_pop_indices[out_pop_indices>=e_end]])
+                e_coh1_rates[1,i+start_idx] = np.mean(interm[:,not_pop_indices[not_pop_indices<e_end]])
+                i_coh1_rates[1,i+start_idx] = np.mean(interm[:,not_pop_indices[not_pop_indices>=e_end]])
+
+        # plot for each experiment
+        fig, ax = plt.subplots(nrows=2, ncols=2)
+        ax[0,0].plot(e_coh0_rates)
+        ax[0,0].set_title('coherence 0 excitatory',fontname='Ubuntu')
+        ax[0,1].plot(e_coh1_rates)
+        ax[0,1].set_title('coherence 1 excitatory',fontname='Ubuntu')
+        ax[1,0].plot(i_coh0_rates)
+        ax[1,0].set_title('coherence 0 inhibitory',fontname='Ubuntu')
+        ax[1,1].plot(i_coh1_rates)
+        ax[1,1].set_title('coherence 1 inhibitory',fontname='Ubuntu')
+
+        ax = ax.flatten()
+        for i in range(0,len(ax)):
+            ax[i].set_xlabel('training batch',fontname='Ubuntu')
+            ax[i].set_ylabel('average rate',fontname='Ubuntu')
+            ax[i].legend(['output projecting','not projecting'],prop={"family":"Ubuntu"})
+            for tick in ax[i].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[i].get_yticklabels():
+                tick.set_fontname("Ubuntu")
+
+        plt.suptitle('Average rates of output/not-projecting populations')
+
+        # Draw and save
+        plt.draw()
+        plt.subplots_adjust(wspace=0.4, hspace=0.7)
+        save_fname = savepath+'/set_plots/'+exp_season+'/'+exp_path+'_output_sending_rates.png'
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
 
 
 def plot_input_channel_rates(from_CNN=False,exp_dirs=save_inz_dirs):
