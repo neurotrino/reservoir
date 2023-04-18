@@ -1612,17 +1612,16 @@ def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs):
         coh0_i = []
 
         # now do weights over time
-        # just do the first epoch for ease
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
             input_w = data['tv0.postweights']
-            for i in range(0,np.shape(input_w)[0]): # 100 trials
+            #for i in range(0,np.shape(input_w)[0]): # 100 trials
             # weights of each type to e units and to i units
-                coh1_e.append(np.mean(input_w[i][coh1_idx,:e_end]))
-                coh1_i.append(np.mean(input_w[i][coh1_idx,e_end:]))
-                coh0_e.append(np.mean(input_w[i][coh0_idx,:e_end]))
-                coh0_i.append(np.mean(input_w[i][coh0_idx,e_end:]))
+            coh1_e.append(np.mean(input_w[coh1_idx,:e_end]))
+            coh1_i.append(np.mean(input_w[coh1_idx,e_end:]))
+            coh0_e.append(np.mean(input_w[coh0_idx,:e_end]))
+            coh0_i.append(np.mean(input_w[coh0_idx,e_end:]))
 
         fig, ax = plt.subplots(nrows=1, ncols=2)
         ax[0].plot(coh1_e)
@@ -1633,7 +1632,7 @@ def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs):
         ax[1].set_title('input weights to inhibitory units',fontname='Ubuntu')
 
         for i in range(0,len(ax)):
-            ax[i].set_xlabel('training batch',fontname='Ubuntu')
+            ax[i].set_xlabel('training epoch',fontname='Ubuntu')
             ax[i].set_ylabel('average weights',fontname='Ubuntu')
             ax[i].legend(['coherence 1 preferring','coherence 0 preferring'],prop={"family":"Ubuntu"})
             for tick in ax[i].get_xticklabels():
@@ -1642,8 +1641,6 @@ def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs):
                 tick.set_fontname("Ubuntu")
 
         plt.suptitle('Evolution of input weights over training')
-
-        plt.savefig()
         plt.subplots_adjust(wspace=0.5, hspace=0.5)
         plt.draw()
 
