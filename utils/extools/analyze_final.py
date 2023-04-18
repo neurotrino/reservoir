@@ -1562,6 +1562,98 @@ def plot_output_sending_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         plt.clf()
         plt.close()
 
+def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs):
+    # plot the average input connection strength from two populatons of
+    # input channels (according to average rate) for the two coherence levels
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # aggregate across all experiments and all trials
+    data_files = filenames(num_epochs, epochs_per_file)
+
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+        exp_path = xdir[-9:-1]
+
+        # loop through all training time for this experiment
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            input_z = data['inputs']
+            # shaped [100 batches x 30 trials x 4080 timesteps x 16 units]
+            true_y = data['true_y'] # shaped [100 batches x 30 trials x 4080 timesteps]
+            for i in range(0,np.shape(true_y)[0]): # for batch
+                for j in range(0,np.shape(true_y)[1]): # for trial
+                    coh0_idx = np.where(true_y[i][j]==0)[0]
+                    coh1_idx = np.where(true_y[i][j]==1)[0]
+                    if len(coh0_idx)>0:
+                        if not 'coh0_channel_trial_rates' in locals():
+                            coh0_channel_trial_rates = np.average(input_z[i][j][coh0_idx],0)
+                        else:
+                            coh0_channel_trial_rates = np.vstack([coh0_channel_trial_rates,np.average(input_z[i][j][coh0_idx],0)])
+
+                    if len(coh1_idx)>0:
+                        if not 'coh1_channel_trial_rates' in locals():
+                            coh1_channel_trial_rates = np.average(input_z[i][j][coh1_idx],0)
+                        else:
+                            coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(input_z[i][j][coh1_idx],0)])
+
+        coh1_channel_rates = np.array(np.mean(coh1_channel_trial_rates,0))
+        coh0_channel_rates = np.array(np.mean(coh0_channel_trial_rates,0))
+        coh1_idx = np.where(coh1_channel_rates>coh0_channel_rates)[0]
+        coh0_idx = np.where(coh1_channel_rates<coh0_channel_rates)[0]
+
+        coh1_e = []
+        coh1_i = []
+        coh0_e = []
+        coh0_i = []
+
+        # now do weights over time
+        # just do the first epoch for ease
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            input_w = data['tv0.postweights']
+            for i in range(0,np.shape(input_w)[0]): # 100 trials
+            # weights of each type to e units and to i units
+                coh1_e.append(np.mean(input_w[i][coh1_idx,:e_end]))
+                coh1_i.append(np.mean(input_w[i][coh1_idx,e_end:]))
+                coh0_e.append(np.mean(input_w[i][coh0_idx,:e_end]))
+                coh0_i.append(np.mean(input_w[i][coh0_idx,e_end:]))
+
+        fig, ax = plt.subplots(nrows=1, ncols=2)
+        ax[0].plot(coh1_e)
+        ax[0].plot(coh0_e)
+        ax[0].set_title('input weights to excitatory units',fontname='Ubuntu')
+        ax[1].plot(coh1_i)
+        ax[1].plot(coh0_i)
+        ax[1].set_title('input weights to inhibitory units',fontname='Ubuntu')
+
+        for i in range(0,len(ax)):
+            ax[i].set_xlabel('training batch',fontname='Ubuntu')
+            ax[i].set_ylabel('average weights',fontname='Ubuntu')
+            ax[i].legend(['coherence 1 preferring','coherence 0 preferring'],prop={"family":"Ubuntu"})
+            for tick in ax[i].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[i].get_yticklabels():
+                tick.set_fontname("Ubuntu")
+
+        plt.suptitle('Evolution of input weights over training')
+
+        plt.savefig()
+        plt.subplots_adjust(wspace=0.5, hspace=0.5)
+        plt.draw()
+
+        save_fname = savepath+'/set_plots/spring/'+str(exp_path)+'_inputs_to_ei.png'
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
+
 
 def plot_input_channel_rates(from_CNN=False,exp_dirs=save_inz_dirs):
     # NEED TO BE CAREFUL BASED ON MIXING OF COHERENCE SWAP / UNSWAP LABELS
