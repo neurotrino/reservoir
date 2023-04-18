@@ -1639,8 +1639,8 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
         plt.clf()
         plt.close()
 
-        del coh0_channel_trial_rates
-        del coh1_channel_trial_rates
+        del input_to_e
+        del input_to_i
 
 
 def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs):
