@@ -80,6 +80,7 @@ spec_output_dirs = ["run-batch30-specout-onlinerate0.1-savey","run-batch30-duall
 spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
 spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz"]
+spec_nointoout_dirs_rate = ["run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire","run-batch30-rateloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-rateloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 
 def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='spring',rand_exp_idx=5):
     # generate a single functional network across all trials for a particular batch update (last) of a dual-trained network
@@ -464,7 +465,7 @@ def input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fn
     save_fname = fn_dir+'coherence_separate_trained_input_fn_weights.png'
     plt.savefig(save_fname,dpi=300)"""
 
-def rec_fns_based_on_input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/experiment1/spring_fns/',fn_bin=10,exp_season='spring',threshold=0.1):
+def rec_fns_based_on_input_fns(exp_dirs=spec_nointoout_dirs_rate,fn_dir='/data/results/experiment1/spring_fns/',fn_bin=10,exp_season='spring',threshold=0.1):
 
     # get all experiment folders within this season
     for exp_string in exp_dirs:
@@ -591,14 +592,14 @@ def rec_fns_based_on_input_fns(exp_dirs=save_inz_dirs,fn_dir='/data/results/expe
     # Draw and save
     plt.draw()
     plt.subplots_adjust(wspace=0.4, hspace=0.5)
-    save_fname = savepath+'/spring_fns/spring_fn_decile_heatmaps.png'
+    save_fname = savepath+'/spring_fns/spring_rate_fn_decile_heatmaps.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
     plt.clf()
     plt.close()
 
-def within_coh_comparisons(exp_dirs=spec_nointoout_dirs,fn_dir='/data/results/experiment1/spring_fns/',fn_bin=10,exp_season='spring'):
+def within_coh_comparisons(exp_dirs=spec_nointoout_dirs_rate,fn_dir='/data/results/experiment1/spring_fns/',fn_bin=10,exp_season='spring'):
     # generate FNs based on only coh 0 and coh 1 responses in single trials of the final trained batch
     # compare ee ei ie ii weights within the functional network for each coherence level only
 
@@ -637,7 +638,7 @@ def within_coh_comparisons(exp_dirs=spec_nointoout_dirs,fn_dir='/data/results/ex
 
     # save FNs
     np.savez_compressed(
-        fn_dir+'coherence_separate_naive_fns',
+        fn_dir+'coherence_separate_naive_rate_fns',
         **{
             "fns_coh0": fns_coh0,
             "fns_coh1": fns_coh1
@@ -687,7 +688,7 @@ def within_coh_comparisons(exp_dirs=spec_nointoout_dirs,fn_dir='/data/results/ex
 
     plt.draw()
 
-    save_fname = fn_dir+'coherence_separate_naive_fn_weights.png'
+    save_fname = fn_dir+'coherence_separate_naive_rate_fn_weights.png'
     plt.savefig(save_fname,dpi=300)
 
 
@@ -1140,7 +1141,7 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
 # well, now you need to go and fix the input weights
 
 
-def plot_weight_delta_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # just for dual-training for now
+def plot_weight_delta_dists(exp_dirs=spec_nointoout_dirs_rate,exp_season='spring'): # just for dual-training for now
     fig, ax = plt.subplots(nrows=3,ncols=1)
 
     for exp_string in exp_dirs:
@@ -1221,7 +1222,7 @@ def plot_weight_delta_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): #
     ax[2].set_title('output weights',fontname='Ubuntu')
     ax[2].legend(['e edges','i edges'])
 
-    plt.suptitle('delta of weights after training',fontname='Ubuntu')
+    plt.suptitle('delta of weights after rate training',fontname='Ubuntu')
 
     # go through and set all axes
     ax = ax.flatten()
@@ -1236,11 +1237,11 @@ def plot_weight_delta_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): #
     plt.draw()
     plt.subplots_adjust(wspace=0.7,hspace=1.0)
 
-    save_fname = savepath+'/set_plots/'+exp_season+'_quad_weight_deltas_test.png'
+    save_fname = savepath+'/set_plots/'+exp_season+'_quad_rate_weight_deltas_test.png'
     plt.savefig(save_fname,dpi=300)
 
 
-def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # just for dual-training for now
+def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs_rate,exp_season='spring'): # just for dual-training for now
     fig, ax = plt.subplots(nrows=3,ncols=2,figsize=(8,8))
 
     for exp_string in exp_dirs:
@@ -1329,7 +1330,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     ax[2,1].legend(['e edges','i edges'])
     ax[2,1].set_title('trained output weights',fontname='Ubuntu')
 
-    plt.suptitle('all experiments with no direct in-to-out units',fontname='Ubuntu')
+    plt.suptitle('rate trained with no direct in-to-out units',fontname='Ubuntu')
 
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
 
@@ -1345,7 +1346,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
 
     plt.draw()
 
-    save_fname = savepath+'/set_plots/'+exp_season+'_quad_weights_test.png'
+    save_fname = savepath+'/set_plots/'+exp_season+'_quad_rate_weights_test.png'
     plt.savefig(save_fname,dpi=300)
 
 
