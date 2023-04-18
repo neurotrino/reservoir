@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Mandatory variable.
-        exp_dir: /data/experiments/run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz
+        exp_dir: /data/experiments/run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -378,7 +378,7 @@
 
         silencing_threshold: 1
 
-        include_task_loss: true
+        include_task_loss: false
 
         include_rate_loss: true
 
