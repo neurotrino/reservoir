@@ -1691,12 +1691,23 @@ def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs):
         coh1_i = []
         coh0_e = []
         coh0_i = []
+        epoch_task_loss = []
+        epoch_rate_loss = []
+
+        # get the truly naive weights
+        input_w = np.load('input_preweights.npy')
+        coh1_e.append(np.mean(input_w[coh1_idx,:e_end]))
+        coh1_i.append(np.mean(input_w[coh1_idx,e_end:]))
+        coh0_e.append(np.mean(input_w[coh0_idx,:e_end]))
+        coh0_i.append(np.mean(input_w[coh0_idx,e_end:]))
 
         # now do weights over time
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
             input_w = data['tv0.postweights'][0]
+            epoch_task_loss.append(np.mean(data['step_task_loss']))
+            epoch_rate_loss.append(np.mean(data['step_rate_loss']))
             #for i in range(0,np.shape(input_w)[0]): # 100 trials
             # weights of each type to e units and to i units
             coh1_e.append(np.mean(input_w[coh1_idx,:e_end]))
@@ -1704,7 +1715,7 @@ def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs):
             coh0_e.append(np.mean(input_w[coh0_idx,:e_end]))
             coh0_i.append(np.mean(input_w[coh0_idx,e_end:]))
 
-        fig, ax = plt.subplots(nrows=1, ncols=2)
+        fig, ax = plt.subplots(nrows=3, ncols=1)
         ax[0].plot(coh1_e)
         ax[0].plot(coh0_e)
         ax[0].set_title('input weights to excitatory units',fontname='Ubuntu')
@@ -1715,14 +1726,19 @@ def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs):
         for i in range(0,len(ax)):
             ax[i].set_xlabel('training epoch',fontname='Ubuntu')
             ax[i].set_ylabel('average weights',fontname='Ubuntu')
-            ax[i].legend(['coherence 1 preferring','coherence 0 preferring'],prop={"family":"Ubuntu"})
+            ax[i].legend(['coh 1 preferring inputs','coh 0 preferring inputs'],prop={"family":"Ubuntu"})
             for tick in ax[i].get_xticklabels():
                 tick.set_fontname("Ubuntu")
             for tick in ax[i].get_yticklabels():
                 tick.set_fontname("Ubuntu")
 
+        ax[2].plot(epoch_task_loss)
+        ax[2].plot(epoch_rate_loss)
+        ax[2].set_ylabel('loss',fontname='Ubuntu')
+        ax[2].legend(['task loss','rate loss'],prop={"family":"Ubuntu"})
+
         plt.suptitle('Evolution of input weights over training')
-        plt.subplots_adjust(wspace=0.5, hspace=0.5)
+        plt.subplots_adjust(wspace=1.0, hspace=1.0)
         plt.draw()
 
         save_fname = savepath+'/set_plots/spring/'+str(exp_path)+'_inputs_to_ei.png'
