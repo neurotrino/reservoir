@@ -1675,6 +1675,15 @@ def input_channel_ratewise_weight_changes_fromCNN(exp_dirs=spec_nointoout_dirs_r
     coh1_idx = np.where(coh1_rates>coh0_rates)[0]
     coh0_idx = np.where(coh1_rates<coh0_rates)[0]
 
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # aggregate across all experiments and all trials
+    data_files = filenames(num_epochs, epochs_per_file)
+
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
         exp_path = xdir[-9:-1]
