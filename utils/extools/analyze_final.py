@@ -1642,6 +1642,102 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
         del input_to_e
         del input_to_i
 
+def input_channel_ratewise_weight_changes_fromCNN(exp_dirs=spec_nointoout_dirs_rate,season='spring'):
+    # determine which coherence level the input units prefer based on original CNN output file
+    spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
+    x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
+    # determine each of the 16 channels' average rates over 600 x 4080 trials
+    # separate according to coherence level!
+    coherences = load_npz('/data/datasets/CNN_outputs/ch8_abs_ccd_coherences.npz')
+    y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None]
+
+    # for each of 600 trials
+    for i in range(0,np.shape(y)[0]):
+    # for each of 4080 time steps
+    # determine if coherence 1 or 0
+        coh0_idx = np.where(y[i]==0)[0]
+        coh1_idx = np.where(y[i]==1)[0]
+    # take average rates across that trial's timepoints for the same coherence level and append
+        if len(coh0_idx)>0:
+            if not 'coh0_channel_trial_rates' in locals():
+                coh0_channel_trial_rates = np.average(x[i][coh0_idx],0)
+            else:
+                coh0_channel_trial_rates = np.vstack([coh0_channel_trial_rates,np.average(x[i][coh0_idx],0)])
+
+        if len(coh1_idx)>0:
+            if not 'coh1_channel_trial_rates' in locals():
+                coh1_channel_trial_rates = np.average(x[i][coh1_idx],0)
+            else:
+                coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(x[i][coh1_idx],0)])
+
+    coh0_rates = np.average(coh0_channel_trial_rates,0)
+    coh1_rates = np.average(coh1_channel_trial_rates,0)
+    coh1_idx = np.where(coh1_rates>coh0_rates)[0]
+    coh0_idx = np.where(coh1_rates<coh0_rates)[0]
+
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+        exp_path = xdir[-9:-1]
+
+        coh1_e = []
+        coh1_i = []
+        coh0_e = []
+        coh0_i = []
+        epoch_rate_loss = []
+
+        # get the truly naive weights
+        filepath = os.path.join(data_dir,xdir,"npz-data","input_preweights.npy")
+        input_w = np.load(filepath)
+        coh1_e.append(np.mean(input_w[coh1_idx,:e_end]))
+        coh1_i.append(np.mean(input_w[coh1_idx,e_end:]))
+        coh0_e.append(np.mean(input_w[coh0_idx,:e_end]))
+        coh0_i.append(np.mean(input_w[coh0_idx,e_end:]))
+
+        # now do weights over time
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            input_w = data['tv0.postweights'][0]
+            epoch_rate_loss.append(np.mean(data['step_rate_loss']))
+            #for i in range(0,np.shape(input_w)[0]): # 100 trials
+            # weights of each type to e units and to i units
+            coh1_e.append(np.mean(input_w[coh1_idx,:e_end]))
+            coh1_i.append(np.mean(input_w[coh1_idx,e_end:]))
+            coh0_e.append(np.mean(input_w[coh0_idx,:e_end]))
+            coh0_i.append(np.mean(input_w[coh0_idx,e_end:]))
+
+        fig, ax = plt.subplots(nrows=3, ncols=1)
+        ax[0].plot(coh1_e)
+        ax[0].plot(coh0_e)
+        ax[0].set_title('input weights to excitatory units',fontname='Ubuntu')
+        ax[1].plot(coh1_i)
+        ax[1].plot(coh0_i)
+        ax[1].set_title('input weights to inhibitory units',fontname='Ubuntu')
+
+        for i in range(0,len(ax)):
+            ax[i].set_xlabel('training epoch',fontname='Ubuntu')
+            ax[i].set_ylabel('average weights',fontname='Ubuntu')
+            ax[i].legend(['coh 1 preferring inputs','coh 0 preferring inputs'],prop={"family":"Ubuntu"})
+            for tick in ax[i].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[i].get_yticklabels():
+                tick.set_fontname("Ubuntu")
+
+        ax[2].plot(epoch_rate_loss)
+        ax[2].set_ylabel('loss',fontname='Ubuntu')
+        ax[2].legend(['rate loss'],prop={"family":"Ubuntu"})
+
+        plt.suptitle('Evolution of input weights over rate training')
+        plt.subplots_adjust(wspace=1.0, hspace=1.0)
+        plt.draw()
+
+        save_fname = savepath+'/set_plots/spring/'+str(exp_path)+'_rate_inputs_to_ei.png'
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
+
 
 def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs):
     # plot the average input connection strength from two populatons of
