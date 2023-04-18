@@ -1588,7 +1588,7 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
             data = np.load(filepath)
             input_w = data['tv0.postweights'][0]
             loss = data['step_task_loss']
-            rate_loss = data['step_rate_loss']
+            rate_losses = data['step_rate_loss']
             #for i in range(0,np.shape(input_w)[0]): # 100 trials
             # weights of each type to e units and to i units
             # oh, maybe I should do this without zEros. well, later.
@@ -1604,7 +1604,7 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
                 input_to_i = np.vstack([input_to_i,np.mean(input_w[:,e_end:],1)])
 
             epoch_loss.append(np.mean(loss))
-            rate_loss.append(np.mean(rate_loss))
+            rate_loss.append(np.mean(rate_losses))
 
         fig, ax = plt.subplots(nrows=3, ncols=1)
         ax[0].plot(input_to_e)
