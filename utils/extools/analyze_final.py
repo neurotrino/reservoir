@@ -1426,13 +1426,13 @@ def plot_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring')
 
         # plot for each experiment
         fig, ax = plt.subplots(nrows=2, ncols=2)
-        ax[0,0].plot(e_coh0_rates)
+        ax[0,0].plot(np.transpose(e_coh0_rates))
         ax[0,0].set_title('coherence 0 excitatory',fontname='Ubuntu')
-        ax[0,1].plot(e_coh1_rates)
+        ax[0,1].plot(np.transpose(e_coh1_rates))
         ax[0,1].set_title('coherence 1 excitatory',fontname='Ubuntu')
-        ax[1,0].plot(i_coh0_rates)
+        ax[1,0].plot(np.transpose(i_coh0_rates))
         ax[1,0].set_title('coherence 0 inhibitory',fontname='Ubuntu')
-        ax[1,1].plot(i_coh1_rates)
+        ax[1,1].plot(np.transpose(i_coh1_rates))
         ax[1,1].set_title('coherence 1 inhibitory',fontname='Ubuntu')
 
         ax = ax.flatten()
@@ -1533,13 +1533,13 @@ def plot_output_sending_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
 
         # plot for each experiment
         fig, ax = plt.subplots(nrows=2, ncols=2)
-        ax[0,0].plot(e_coh0_rates)
+        ax[0,0].plot(np.transpose(e_coh0_rates))
         ax[0,0].set_title('coherence 0 excitatory',fontname='Ubuntu')
-        ax[0,1].plot(e_coh1_rates)
+        ax[0,1].plot(np.transpose(e_coh1_rates))
         ax[0,1].set_title('coherence 1 excitatory',fontname='Ubuntu')
-        ax[1,0].plot(i_coh0_rates)
+        ax[1,0].plot(np.transpose(i_coh0_rates))
         ax[1,0].set_title('coherence 0 inhibitory',fontname='Ubuntu')
-        ax[1,1].plot(i_coh1_rates)
+        ax[1,1].plot(np.transpose(i_coh1_rates))
         ax[1,1].set_title('coherence 1 inhibitory',fontname='Ubuntu')
 
         ax = ax.flatten()
