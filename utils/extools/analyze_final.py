@@ -1562,6 +1562,68 @@ def plot_output_sending_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         plt.clf()
         plt.close()
 
+def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
+    # plot the average input connection strength from two populatons of
+    # input channels (according to average rate) for the two coherence levels
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # aggregate across all experiments and all trials
+    data_files = filenames(num_epochs, epochs_per_file)
+
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+        exp_path = xdir[-9:-1]
+
+        # loop through all training time for this experiment
+        # now do weights over time
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            input_w = data['tv0.postweights'][0]
+            #for i in range(0,np.shape(input_w)[0]): # 100 trials
+            # weights of each type to e units and to i units
+            # oh, maybe I should do this without zEros. well, later.
+
+            if not 'input_to_e' in locals():
+                input_to_e = np.mean(input_w[:,:e_end],1)
+            else:
+                input_to_e = np.vstack([input_to_e,np.mean(input_w[:,:e_end],1)])
+
+            if not 'input_to_i' in locals():
+                input_to_i = np.mean(input_w[:,e_end:],1)
+            else:
+                input_to_i = np.vstack([input_to_i,np.mean(input_w[:,e_end:],1)])
+
+        fig, ax = plt.subplots(nrows=1, ncols=2)
+        ax[0].plot(input_to_e)
+        ax[0].set_title('input weights to excitatory units',fontname='Ubuntu')
+        ax[1].plot(input_to_i)
+        ax[1].set_title('input weights to inhibitory units',fontname='Ubuntu')
+
+        for i in range(0,len(ax)):
+            ax[i].set_xlabel('training epoch',fontname='Ubuntu')
+            ax[i].set_ylabel('average weights',fontname='Ubuntu')
+            for tick in ax[i].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[i].get_yticklabels():
+                tick.set_fontname("Ubuntu")
+
+        plt.suptitle('Evolution of input weights over training')
+        plt.subplots_adjust(wspace=0.5, hspace=0.5)
+        plt.draw()
+
+        save_fname = savepath+'/set_plots/spring/'+str(exp_path)+'_input_weights_over_time.png'
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
+
+
 def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs):
     # plot the average input connection strength from two populatons of
     # input channels (according to average rate) for the two coherence levels
@@ -1615,7 +1677,7 @@ def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs):
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
-            input_w = data['tv0.postweights']
+            input_w = data['tv0.postweights'][0]
             #for i in range(0,np.shape(input_w)[0]): # 100 trials
             # weights of each type to e units and to i units
             coh1_e.append(np.mean(input_w[coh1_idx,:e_end]))
