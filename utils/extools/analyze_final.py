@@ -1695,7 +1695,8 @@ def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs):
         epoch_rate_loss = []
 
         # get the truly naive weights
-        input_w = np.load('input_preweights.npy')
+        filepath = os.path.join(data_dir,xdir,"npz-data","input_preweights.npy")
+        input_w = np.load(filepath)
         coh1_e.append(np.mean(input_w[coh1_idx,:e_end]))
         coh1_i.append(np.mean(input_w[coh1_idx,e_end:]))
         coh0_e.append(np.mean(input_w[coh0_idx,:e_end]))
