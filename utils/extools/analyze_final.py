@@ -1694,7 +1694,7 @@ def input_channel_ratewise_weight_changes_fromCNN(exp_dirs=spec_nointoout_dirs_t
         coh1_i = []
         coh0_e = []
         coh0_i = []
-        epoch_rate_loss = []
+        epoch_task_loss = []
 
         # get the truly naive weights
         filepath = os.path.join(data_dir,xdir,"npz-data","input_preweights.npy")
