@@ -81,6 +81,8 @@ spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
 spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz"]
 spec_nointoout_dirs_rate = ["run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire","run-batch30-rateloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-rateloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
+spec_nointoout_dirs_task = ["run-batch30-taskloss-specinput0.2-nointoout-noinoutrewire","run-batch30-taskloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-taskloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
+
 
 def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='spring',rand_exp_idx=5):
     # generate a single functional network across all trials for a particular batch update (last) of a dual-trained network
@@ -1642,7 +1644,7 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
         del input_to_e
         del input_to_i
 
-def input_channel_ratewise_weight_changes_fromCNN(exp_dirs=spec_nointoout_dirs_rate,season='spring'):
+def input_channel_ratewise_weight_changes_fromCNN(exp_dirs=spec_nointoout_dirs_task,season='spring'):
     # determine which coherence level the input units prefer based on original CNN output file
     spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
     x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
@@ -1707,7 +1709,7 @@ def input_channel_ratewise_weight_changes_fromCNN(exp_dirs=spec_nointoout_dirs_r
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
             input_w = data['tv0.postweights'][0]
-            epoch_rate_loss.append(np.mean(data['step_rate_loss']))
+            epoch_task_loss.append(np.mean(data['step_task_loss']))
             #for i in range(0,np.shape(input_w)[0]): # 100 trials
             # weights of each type to e units and to i units
             coh1_e.append(np.mean(input_w[coh1_idx,:e_end]))
@@ -1732,15 +1734,15 @@ def input_channel_ratewise_weight_changes_fromCNN(exp_dirs=spec_nointoout_dirs_r
             for tick in ax[i].get_yticklabels():
                 tick.set_fontname("Ubuntu")
 
-        ax[2].plot(epoch_rate_loss)
+        ax[2].plot(epoch_task_loss)
         ax[2].set_ylabel('loss',fontname='Ubuntu')
-        ax[2].legend(['rate loss'],prop={"family":"Ubuntu"})
+        ax[2].legend(['task loss'],prop={"family":"Ubuntu"})
 
-        plt.suptitle('Evolution of input weights over rate training')
+        plt.suptitle('Evolution of input weights over task training')
         plt.subplots_adjust(wspace=1.0, hspace=1.0)
         plt.draw()
 
-        save_fname = savepath+'/set_plots/spring/'+str(exp_path)+'_rate_inputs_to_ei.png'
+        save_fname = savepath+'/set_plots/spring/'+str(exp_path)+'_task_inputs_to_ei.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
