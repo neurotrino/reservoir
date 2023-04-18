@@ -1578,13 +1578,17 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
         np_dir = os.path.join(data_dir, xdir, "npz-data")
         exp_path = xdir[-9:-1]
 
+        epoch_loss = []
+        rate_loss = []
+
         # loop through all training time for this experiment
         # now do weights over time
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
             input_w = data['tv0.postweights'][0]
-            loss = data['epoch_loss']
+            loss = data['step_task_loss']
+            rate_loss = data['step_rate_loss']
             #for i in range(0,np.shape(input_w)[0]): # 100 trials
             # weights of each type to e units and to i units
             # oh, maybe I should do this without zEros. well, later.
@@ -1599,10 +1603,8 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
             else:
                 input_to_i = np.vstack([input_to_i,np.mean(input_w[:,e_end:],1)])
 
-            if not 'epoch_loss' in locals():
-                epoch_loss = np.mean(loss)
-            else:
-                epoch_loss = np.vstack([epoch_loss, np.mean(loss)])
+            epoch_loss.append(np.mean(loss))
+            rate_loss.append(np.mean(rate_loss))
 
         fig, ax = plt.subplots(nrows=3, ncols=1)
         ax[0].plot(input_to_e)
@@ -1612,7 +1614,9 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
         ax[1].set_ylim([0,0.9])
         ax[1].set_title('input weights to inhibitory units',fontname='Ubuntu')
         ax[2].plot(epoch_loss)
-        ax[2].set_title('total loss')
+        ax[2].plot(rate_loss)
+        ax[2].legend(['task loss','rate loss'],prop={"family":"Ubuntu"})
+        ax[2].set_title('losses')
 
         for i in range(0,len(ax)):
             ax[i].set_xlabel('training epoch',fontname='Ubuntu')
@@ -1622,7 +1626,7 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
             for tick in ax[i].get_yticklabels():
                 tick.set_fontname("Ubuntu")
 
-        ax[2].set_ylabel('loss')
+        ax[2].set_ylabel('task loss')
 
         plt.suptitle('Evolution of input weights over training')
         plt.subplots_adjust(wspace=0.5, hspace=0.5)
