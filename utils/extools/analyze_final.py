@@ -1584,6 +1584,7 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
             input_w = data['tv0.postweights'][0]
+            loss = data['epoch_loss']
             #for i in range(0,np.shape(input_w)[0]): # 100 trials
             # weights of each type to e units and to i units
             # oh, maybe I should do this without zEros. well, later.
@@ -1598,11 +1599,20 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
             else:
                 input_to_i = np.vstack([input_to_i,np.mean(input_w[:,e_end:],1)])
 
-        fig, ax = plt.subplots(nrows=1, ncols=2)
+            if not 'epoch_loss' in locals():
+                epoch_loss = np.mean(loss)
+            else:
+                epoch_loss = np.vstack([epoch_loss, np.mean(loss)])
+
+        fig, ax = plt.subplots(nrows=3, ncols=1)
         ax[0].plot(input_to_e)
+        ax[0].set_ylim([0,0.9])
         ax[0].set_title('input weights to excitatory units',fontname='Ubuntu')
         ax[1].plot(input_to_i)
+        ax[1].set_ylim([0,0.9])
         ax[1].set_title('input weights to inhibitory units',fontname='Ubuntu')
+        ax[2].plot(epoch_loss)
+        ax[2].set_title('total loss')
 
         for i in range(0,len(ax)):
             ax[i].set_xlabel('training epoch',fontname='Ubuntu')
@@ -1611,6 +1621,8 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
                 tick.set_fontname("Ubuntu")
             for tick in ax[i].get_yticklabels():
                 tick.set_fontname("Ubuntu")
+
+        ax[2].set_ylabel('loss')
 
         plt.suptitle('Evolution of input weights over training')
         plt.subplots_adjust(wspace=0.5, hspace=0.5)
