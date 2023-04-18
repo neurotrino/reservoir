@@ -524,7 +524,7 @@ def rec_fns_based_on_input_fns(exp_dirs=spec_nointoout_dirs_rate,fn_dir='/data/r
 
     # save FNs
     np.savez_compressed(
-        fn_dir+'coherence_separate_fns_decile',
+        fn_dir+'coherence_separate_rate_fns_decile',
         **{
             "fns_coh0_naive": fns_coh0_naive,
             "fns_coh1_naive": fns_coh1_naive,
@@ -616,11 +616,11 @@ def within_coh_comparisons(exp_dirs=spec_nointoout_dirs_rate,fn_dir='/data/resul
     # load in trained data for each experiment
     for xdir in exp_data_dirs:
         np_dir = os.path.join(data_dir, xdir, "npz-data")
-        naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
-        #trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+        #naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
+        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
 
-        spikes = naive_data['spikes'][0]
-        true_y = naive_data['true_y'][0]
+        spikes = trained_data['spikes'][0]
+        true_y = trained_data['true_y'][0]
 
         # go thru all trials within this batch
         # determine if there was a coherence change or not
@@ -638,7 +638,7 @@ def within_coh_comparisons(exp_dirs=spec_nointoout_dirs_rate,fn_dir='/data/resul
 
     # save FNs
     np.savez_compressed(
-        fn_dir+'coherence_separate_naive_rate_fns',
+        fn_dir+'coherence_separate_trained_rate_fns',
         **{
             "fns_coh0": fns_coh0,
             "fns_coh1": fns_coh1
@@ -673,7 +673,7 @@ def within_coh_comparisons(exp_dirs=spec_nointoout_dirs_rate,fn_dir='/data/resul
     ax[1].legend(['ee','ei','ie','ii'])
     ax[1].set_title('Coherence label 1',fontname='Ubuntu')
 
-    plt.suptitle('Naive functional weights',fontname='Ubuntu')
+    plt.suptitle('Trained functional weights',fontname='Ubuntu')
 
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
 
@@ -688,7 +688,7 @@ def within_coh_comparisons(exp_dirs=spec_nointoout_dirs_rate,fn_dir='/data/resul
 
     plt.draw()
 
-    save_fname = fn_dir+'coherence_separate_naive_rate_fn_weights.png'
+    save_fname = fn_dir+'coherence_separate_trained_rate_fn_weights.png'
     plt.savefig(save_fname,dpi=300)
 
 
