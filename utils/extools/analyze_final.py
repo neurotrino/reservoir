@@ -1629,7 +1629,7 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
         ax[2].set_ylabel('task loss')
 
         plt.suptitle('Evolution of input weights over training')
-        plt.subplots_adjust(wspace=0.5, hspace=0.5)
+        plt.subplots_adjust(wspace=1.0, hspace=1.0)
         plt.draw()
 
         save_fname = savepath+'/set_plots/spring/'+str(exp_path)+'_input_weights_over_time.png'
@@ -1638,6 +1638,9 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
         # Teardown
         plt.clf()
         plt.close()
+
+        del coh0_channel_trial_rates
+        del coh1_channel_trial_rates
 
 
 def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs):
