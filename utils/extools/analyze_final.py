@@ -1644,7 +1644,7 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
         del input_to_e
         del input_to_i
 
-def input_channel_ratewise_weight_changes_fromCNN(exp_dirs=spec_nointoout_dirs,season='spring'):
+def input_channel_ratewise_weight_changes_fromCNN(exp_dirs=spec_input_dirs,exp_season='winter'):
     # determine which coherence level the input units prefer based on original CNN output file
     spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
     x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
@@ -1745,7 +1745,7 @@ def input_channel_ratewise_weight_changes_fromCNN(exp_dirs=spec_nointoout_dirs,s
         plt.subplots_adjust(wspace=1.0, hspace=1.0)
         plt.draw()
 
-        save_fname = savepath+'/set_plots/spring/'+str(exp_path)+'_inputs_to_ei.png'
+        save_fname = savepath+'/set_plots/'+exp_season+'/'+str(exp_path)+'_inputs_to_ei.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
@@ -1753,7 +1753,7 @@ def input_channel_ratewise_weight_changes_fromCNN(exp_dirs=spec_nointoout_dirs,s
         plt.close()
 
 
-def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs):
+def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs,exp_season='spring'):
     # plot the average input connection strength from two populatons of
     # input channels (according to average rate) for the two coherence levels
     for exp_string in exp_dirs:
@@ -1852,7 +1852,7 @@ def input_channel_ratewise_weight_changes(exp_dirs=save_inz_dirs):
         plt.subplots_adjust(wspace=1.0, hspace=1.0)
         plt.draw()
 
-        save_fname = savepath+'/set_plots/spring/'+str(exp_path)+'_inputs_to_ei.png'
+        save_fname = savepath+'/set_plots/'+exp_season+'/'+str(exp_path)+'_inputs_to_ei.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
