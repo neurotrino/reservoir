@@ -1456,6 +1456,159 @@ def plot_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring')
         plt.clf()
         plt.close()
 
+def plot_group_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+    # plot, over all of training time, the evolution of the average firing rates of each of the subpopulations that receive direct input channel connections
+    # separately for the two coherence levels
+    # and maybe also separately for e and i units
+    # do so only for no-coherence-change trials
+
+    # determine which coherence level the input units prefer based on original CNN output file
+    spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
+    x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
+    # determine each of the 16 channels' average rates over 600 x 4080 trials
+    # separate according to coherence level!
+    coherences = load_npz('/data/datasets/CNN_outputs/ch8_abs_ccd_coherences.npz')
+    y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None]
+
+    # for each of 600 trials
+    for i in range(0,np.shape(y)[0]):
+    # for each of 4080 time steps
+    # determine if coherence 1 or 0
+        coh0_idx = np.where(y[i]==0)[0]
+        coh1_idx = np.where(y[i]==1)[0]
+    # take average rates across that trial's timepoints for the same coherence level and append
+        if len(coh0_idx)>0:
+            if not 'coh0_channel_trial_rates' in locals():
+                coh0_channel_trial_rates = np.average(x[i][coh0_idx],0)
+            else:
+                coh0_channel_trial_rates = np.vstack([coh0_channel_trial_rates,np.average(x[i][coh0_idx],0)])
+
+        if len(coh1_idx)>0:
+            if not 'coh1_channel_trial_rates' in locals():
+                coh1_channel_trial_rates = np.average(x[i][coh1_idx],0)
+            else:
+                coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(x[i][coh1_idx],0)])
+
+    coh0_rates = np.average(coh0_channel_trial_rates,0)
+    coh1_rates = np.average(coh1_channel_trial_rates,0)
+    coh1_idx = np.where(coh1_rates>coh0_rates)[0]
+    coh0_idx = np.where(coh1_rates<coh0_rates)[0]
+
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # aggregate across all experiments and all trials
+    data_files = filenames(num_epochs, epochs_per_file)
+
+    for xdir in exp_data_dirs:
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+        exp_path = xdir[-9:-1]
+
+        # sized 16 x batch
+        e_coh0_rates = np.zeros([2,10000]) # rates in response to coh0 input, first row is units that receive more coh0-dom inputs, second is units that receive more coh1-dom inputs
+        e_coh1_rates = np.zeros([2,10000])
+        i_coh0_rates = np.zeros([2,10000])
+        i_coh1_rates = np.zeros([2,10000])
+
+        # find which units received more of each channel duo's input weights
+        filepath = os.path.join(data_dir,xdir,'npz-data','991-1000.npz')
+        data = np.load(filepath)
+        in_w = data['tv0.postweights'][99]
+        coh0_units = np.where(in_w[coh0_idx,:]>in_w[coh1_idx,:])[1]
+        coh1_units = np.where(in_w[coh1_idx,:]>in_w[coh0_idx,:])[1]
+
+        # loop through all experiments
+        for filename in data_files:
+            start_idx = (int(filename.split('-')[0])-1)*10
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            in_w = data['tv0.postweights']
+            true_y = data['true_y']
+            spikes = data['spikes']
+            for i in range(0,np.shape(in_w)[0]):
+                # go through all 30 trials
+                all_rates = []
+                cohs = []
+                for j in range(0,np.shape(true_y)[1]):
+                    # check if no change trial
+                    if true_y[i][j][0]==true_y[i][j][seq_len-1]:
+                        if true_y[i][j][0]==0: # if coherence 0 trial
+                            cohs.append(0)
+                        else:
+                            cohs.append(1)
+                        all_rates.append(np.average(spikes[i][j],0)) # avg firing rates for all 300 units
+
+                all_rates=np.array(all_rates)
+                cohs=np.array(cohs)
+                coh0_trials = np.where(cohs==0)[0]
+                coh1_trials = np.where(cohs==1)[0]
+
+                # get all types of unit groups' responses to coherence 0 trials
+                interm = all_rates[coh0_trials]
+                # e units that receive more input from coh0-driven channels
+                e_coh0_rates[0,i+start_idx] = np.mean(interm[:,coh0_units[coh0_units<e_end]])
+                # e units that receive more input from coh1-driven channels
+                e_coh0_rates[1,i+start_idx] = np.mean(interm[:,coh1_units[coh1_units<e_end]])
+                # i units that receive more input from coh0-driven channels
+                i_coh0_rates[0,i+start_idx] = np.mean(interm[:,coh0_units[coh0_units>=e_end]])
+                # i units that receive more input from coh1-driven channels
+                i_coh0_rates[1,i+start_idx] = np.mean(interm[:,coh1_units[coh1_units>=e_end]])
+
+                # now responses to all coherence 1 trials
+                interm = all_rates[coh1_trials]
+                e_coh1_rates[0,i+start_idx] = np.mean(interm[:,coh0_units[coh0_units<e_end]])
+                # e units that receive more input from coh1-driven channels
+                e_coh1_rates[1,i+start_idx] = np.mean(interm[:,coh1_units[coh1_units<e_end]])
+                # i units that receive more input from coh0-driven channels
+                i_coh1_rates[0,i+start_idx] = np.mean(interm[:,coh0_units[coh0_units>=e_end]])
+                # i units that receive more input from coh1-driven channels
+                i_coh1_rates[1,i+start_idx] = np.mean(interm[:,coh1_units[coh1_units>=e_end]])
+
+        # plot
+        fig, ax = plt.subplots(nrows=2, ncols=2)
+        ax[0,0].plot(np.transpose(e_coh0_rates),color=['dodgerblue','seagreen'])
+        ax[0,0].plot(np.transpose(i_coh0_rates),color=['darkorange','orangered'])
+        ax[0,0].set_title('coherence 0 trials',fontname='Ubuntu')
+        ax[0,0].legend(['0-driven e','1-driven e','0-driven i','1-driven i'])
+
+        ax[0,1].plot(np.transpose(e_coh1_rates),color=['dodgerblue','seagreen'])
+        ax[0,1].plot(np.transpose(i_coh1_rates),color=['darkorange','orangered'])
+        ax[0,1].set_title('coherence 1 trials',fontname='Ubuntu')
+        ax[0,1].legend(['0-driven e','1-driven e','0-driven i','1-driven i'])
+
+        ax[1,0].plot(np.mean(e_coh0_rates,0),color='dodgerblue')
+        ax[1,0].plot(np.mean(i_coh0_rates,0),color='orangered')
+        ax[1,0].set_title('coherence 0 trials',fontname='Ubuntu')
+        ax[1,0].legend(['all e','all i'])
+
+        ax[1,0].plot(np.mean(e_coh1_rates,0),color='dodgerblue')
+        ax[1,1].plot(np.mean(i_coh1_rates,0),color='orangered')
+        ax[1,1].set_title('coherence 1 trials',fontname='Ubuntu')
+        ax[1,1].legend(['all e','all i'])
+
+        ax = ax.flatten()
+        for i in range(0,len(ax)):
+            ax[i].set_xlabel('training epoch',fontname='Ubuntu')
+            ax[i].set_ylabel('average rate',fontname='Ubuntu')
+            for tick in ax[i].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[i].get_yticklabels():
+                tick.set_fontname("Ubuntu")
+
+        plt.suptitle('Average rates of recurrent subpopulations')
+
+        # Draw and save
+        plt.draw()
+        plt.subplots_adjust(wspace=0.4, hspace=0.7)
+        save_fname = savepath+'/set_plots/'+exp_season+'/'+exp_path+'_input_receiving_rates_grouped.png'
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
 
 # measure within-input-channel-receiving clustering vs outside / all
 
@@ -1643,6 +1796,7 @@ def input_channel_indiv_weight_changes(exp_dirs=save_inz_dirs):
 
         del input_to_e
         del input_to_i
+
 
 def input_channel_ratewise_weight_changes_fromCNN(exp_dirs=spec_input_dirs,exp_season='winter'):
     # determine which coherence level the input units prefer based on original CNN output file
