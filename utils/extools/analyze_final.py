@@ -1650,9 +1650,6 @@ def plot_input_grouped_rec_weights(exp_dirs=spec_nointoout_dirs,exp_season='spri
         else:
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
-    # aggregate across all experiments and all trials
-    data_files = filenames(num_epochs, epochs_per_file)
-
     # eventually plot something that is specific to each experiment
     # but otherwise 16 separate input channels populations, rates over all of the trial for a coherence level, over all of training
     # so ultimately x axis training epoch, y axis rate, 16 separate channels, maybe e and i separate and coherence level separate
@@ -1668,21 +1665,21 @@ def plot_input_grouped_rec_weights(exp_dirs=spec_nointoout_dirs,exp_season='spri
         in_w = data['tv0.postweights'][99]
 
         # find recurrent units that receive input primarily from one of the populations
-        coh0_units = np.where(in_w[coh0_idx,:]>in_w[coh1_idx,:])[1]
-        coh1_units = np.where(in_w[coh1_idx,:]>in_w[coh0_idx,:])[1]
+        coh0_units = np.where(np.sum(in_w[coh0_idx,:],0)>np.sum(in_w[coh1_idx,:],0))[0]
+        coh1_units = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:],0))[0]
 
         # plot
         fig, ax = plt.subplots(nrows=1, ncols=2)
-        ax[0].hist(w[coh0_units[coh0_units<e_end]][coh0_units[coh0_units<e_end]],density=True)
-        ax[0].hist(w[coh0_units[coh0_units<e_end]][coh0_units[coh0_units>=e_end]],density=True)
-        ax[0].hist(w[coh0_units[coh0_units>=e_end]][coh0_units[coh0_units<e_end]],density=True)
-        ax[0].hist(w[coh0_units[coh0_units>=e_end]][coh0_units[coh0_units>=e_end]],density=True)
+        ax[0].hist(w[coh0_units[coh0_units<e_end],coh0_units[coh0_units<e_end]],density=True)
+        ax[0].hist(w[coh0_units[coh0_units<e_end],coh0_units[coh0_units>=e_end]],density=True)
+        ax[0].hist(w[coh0_units[coh0_units>=e_end],coh0_units[coh0_units<e_end]],density=True)
+        ax[0].hist(w[coh0_units[coh0_units>=e_end],coh0_units[coh0_units>=e_end]],density=True)
         ax[0].set_title('0-driven units',fontname='Ubuntu')
 
-        ax[1].hist(w[coh1_units[coh1_units<e_end]][coh1_units[coh1_units<e_end]],density=True)
-        ax[1].hist(w[coh1_units[coh1_units<e_end]][coh1_units[coh1_units>=e_end]],density=True)
-        ax[1].hist(w[coh1_units[coh1_units>=e_end]][coh1_units[coh1_units<e_end]],density=True)
-        ax[1].hist(w[coh1_units[coh1_units>=e_end]][coh1_units[coh1_units>=e_end]],density=True)
+        ax[1].hist(w[coh1_units[coh1_units<e_end],coh1_units[coh1_units<e_end]],density=True)
+        ax[1].hist(w[coh1_units[coh1_units<e_end],coh1_units[coh1_units>=e_end]],density=True)
+        ax[1].hist(w[coh1_units[coh1_units>=e_end],coh1_units[coh1_units<e_end]],density=True)
+        ax[1].hist(w[coh1_units[coh1_units>=e_end],coh1_units[coh1_units>=e_end]],density=True)
         ax[1].set_title('1-driven units',fontname='Ubuntu')
 
         for i in range(0,len(ax)):
