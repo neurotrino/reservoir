@@ -1456,6 +1456,15 @@ def plot_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring')
         plt.clf()
         plt.close()
 
+
+# plot rates by input receiving group for delay period [1 to 0] and [0 to 1] (so a 4 x 4 with e and i units separate)
+# plot rates by input receiving group for failure to 1 when 0 and to 0 when 1
+# plot rates by input receiving group for correct 0 and correct 1
+
+# naive states as well?
+
+# generate functional graphs for the above as well?
+
 def plot_group_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     # plot, over all of training time, the evolution of the average firing rates of each of the subpopulations that receive direct input channel connections
     # separately for the two coherence levels
@@ -1507,7 +1516,6 @@ def plot_group_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='sp
         np_dir = os.path.join(data_dir, xdir, "npz-data")
         exp_path = xdir[-9:-1]
 
-        # sized 16 x batch
         e_coh0_rates = np.zeros([2,10000]) # rates in response to coh0 input, first row is units that receive more coh0-dom inputs, second is units that receive more coh1-dom inputs
         e_coh1_rates = np.zeros([2,10000])
         i_coh0_rates = np.zeros([2,10000])
@@ -1668,14 +1676,45 @@ def plot_input_grouped_rec_weights(exp_dirs=spec_nointoout_dirs,exp_season='spri
         coh0_units = np.where(np.sum(in_w[coh0_idx,:],0)>np.sum(in_w[coh1_idx,:],0))[0]
         coh1_units = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:],0))[0]
 
+        coh0_w = np.zeros([4,10000]) # average outgoing weights of units that receive more coh0-dom inputs
+        coh1_w = np.zeros([4,10000]) # average outgoing weights of units that receive more coh1-dom inputs
+
         coh0_e = coh0_units[coh0_units<e_end]
         coh0_i = coh0_units[coh0_units>=e_end]
         coh1_e = coh1_units[coh1_units<e_end]
         coh1_i = coh1_units[coh1_units>=e_end]
 
+        for filename in data_files:
+            start_idx = (int(filename.split('-')[0])-1)*10
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            in_w = data['tv0.postweights']
+            w = data['tv1.postweights']
+            for i in range(0,np.shape(w)[0]): # for each batch
+                coh0_w[0,i+start_idx] = np.mean(w[i][coh0_e,:][:,coh0_e])
+                coh0_w[1,i+start_idx] = np.mean(w[i][coh0_e,:][:,coh0_i])
+                coh0_w[2,i+start_idx] = np.mean(w[i][coh0_i,:][:,coh0_e])
+                coh0_w[3,i+start_idx] = np.mean(w[i][coh0_i,:][:,coh0_i])
+
+                coh1_w[0,i+start_idx] = np.mean(w[i][coh1_e,:][:,coh1_e])
+                coh1_w[1,i+start_idx] = np.mean(w[i][coh1_e,:][:,coh1_i])
+                coh1_w[2,i+start_idx] = np.mean(w[i][coh1_i,:][:,coh1_e])
+                coh1_w[3,i+start_idx] = np.mean(w[i][coh1_i,:][:,coh1_i])
+
         # plot
-        fig, ax = plt.subplots(nrows=1, ncols=2)
-        ax[0].hist(w[coh0_e,:][:,coh0_e].flatten(),bins=22,density=True)
+        fig, ax = plt.subplots(nrows=2, ncols=1)
+        ax[0].plot(coh0_w[0,:],color='dodgerblue')
+        ax[0].plot(coh0_w[1,:],color='seagreen')
+        ax[0].plot(coh0_w[2,:],color='darkorange')
+        ax[0].plot(coh0_w[3,:],color='orangered')
+        ax[0].set_title('0-driven units',fontname='Ubuntu')
+
+        ax[1].plot(coh1_w[0,:],color='dodgerblue')
+        ax[1].plot(coh1_w[1,:],color='seagreen')
+        ax[1].plot(coh1_w[2,:],color='darkorange')
+        ax[1].plot(coh1_w[3,:],color='orangered')
+        ax[1].set_title('1-driven units',fontname='Ubuntu')
+
+        """ax[0].hist(w[coh0_e,:][:,coh0_e].flatten(),bins=22,density=True)
         ax[0].hist(w[coh0_e,:][:,coh0_i].flatten(),bins=22,density=True)
         ax[0].hist(w[coh0_i,:][:,coh0_e].flatten(),bins=22,density=True)
         ax[0].hist(w[coh0_i,:][:,coh0_i].flatten(),bins=22,density=True)
@@ -1685,23 +1724,23 @@ def plot_input_grouped_rec_weights(exp_dirs=spec_nointoout_dirs,exp_season='spri
         ax[1].hist(w[coh1_e,:][:,coh1_i].flatten(),bins=22,density=True)
         ax[1].hist(w[coh1_i,:][:,coh1_e].flatten(),bins=22,density=True)
         ax[1].hist(w[coh1_i,:][:,coh1_i].flatten(),bins=22,density=True)
-        ax[1].set_title('1-driven units',fontname='Ubuntu')
+        ax[1].set_title('1-driven units',fontname='Ubuntu')"""
 
         for i in range(0,len(ax)):
-            ax[i].set_xlabel('weights',fontname='Ubuntu')
-            ax[i].set_ylabel('density',fontname='Ubuntu')
+            ax[i].set_xlabel('training epochs',fontname='Ubuntu')
+            ax[i].set_ylabel('average weights',fontname='Ubuntu')
             for tick in ax[i].get_xticklabels():
                 tick.set_fontname("Ubuntu")
             for tick in ax[i].get_yticklabels():
                 tick.set_fontname("Ubuntu")
             ax[i].legend(['ee','ei','ie','ii'],prop={"family":"Ubuntu"})
 
-        plt.suptitle('trained recurrent weights')
+        plt.suptitle('Recurrent weights')
 
         # Draw and save
         plt.draw()
         plt.subplots_adjust(wspace=0.4, hspace=0.7)
-        save_fname = savepath+'/set_plots/'+exp_season+'/'+exp_path+'_input_receiving_weights_grouped.png'
+        save_fname = savepath+'/set_plots/'+exp_season+'/'+exp_path+'_input_receiving_weights_grouped_overtime.png'
         plt.savefig(save_fname,dpi=300)
 
         # Teardown
