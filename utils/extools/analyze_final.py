@@ -1652,6 +1652,8 @@ def plot_input_grouped_rec_weights(exp_dirs=spec_nointoout_dirs,exp_season='spri
     coh1_idx = np.where(coh1_rates>coh0_rates)[0]
     coh0_idx = np.where(coh1_rates<coh0_rates)[0]
 
+    data_files = filenames(num_epochs, epochs_per_file)
+
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
             exp_data_dirs = get_experiments(data_dir, exp_string)
