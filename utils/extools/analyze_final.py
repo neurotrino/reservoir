@@ -1668,18 +1668,23 @@ def plot_input_grouped_rec_weights(exp_dirs=spec_nointoout_dirs,exp_season='spri
         coh0_units = np.where(np.sum(in_w[coh0_idx,:],0)>np.sum(in_w[coh1_idx,:],0))[0]
         coh1_units = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:],0))[0]
 
+        coh0_e = coh0_units[coh0_units<e_end]
+        coh0_i = coh0_units[coh0_units>=e_end]
+        coh1_e = coh1_units[coh1_units<e_end]
+        coh1_i = coh1_units[coh1_units>=e_end]
+
         # plot
         fig, ax = plt.subplots(nrows=1, ncols=2)
-        ax[0].hist(w[coh0_units[coh0_units<e_end],coh0_units[coh0_units<e_end]],density=True)
-        ax[0].hist(w[coh0_units[coh0_units<e_end],coh0_units[coh0_units>=e_end]],density=True)
-        ax[0].hist(w[coh0_units[coh0_units>=e_end],coh0_units[coh0_units<e_end]],density=True)
-        ax[0].hist(w[coh0_units[coh0_units>=e_end],coh0_units[coh0_units>=e_end]],density=True)
+        ax[0].hist(w[coh0_e][coh0_e],density=True)
+        ax[0].hist(w[coh0_e][coh0_i],density=True)
+        ax[0].hist(w[coh0_i][coh0_e],density=True)
+        ax[0].hist(w[coh0_i][coh0_i],density=True)
         ax[0].set_title('0-driven units',fontname='Ubuntu')
 
-        ax[1].hist(w[coh1_units[coh1_units<e_end],coh1_units[coh1_units<e_end]],density=True)
-        ax[1].hist(w[coh1_units[coh1_units<e_end],coh1_units[coh1_units>=e_end]],density=True)
-        ax[1].hist(w[coh1_units[coh1_units>=e_end],coh1_units[coh1_units<e_end]],density=True)
-        ax[1].hist(w[coh1_units[coh1_units>=e_end],coh1_units[coh1_units>=e_end]],density=True)
+        ax[1].hist(w[coh1_e][coh1_e],density=True)
+        ax[1].hist(w[coh1_e][coh1_i],density=True)
+        ax[1].hist(w[coh1_i][coh1_e],density=True)
+        ax[1].hist(w[coh1_i][coh1_i],density=True)
         ax[1].set_title('1-driven units',fontname='Ubuntu')
 
         for i in range(0,len(ax)):
