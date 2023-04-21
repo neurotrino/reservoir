@@ -1569,23 +1569,23 @@ def plot_group_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='sp
 
         # plot
         fig, ax = plt.subplots(nrows=2, ncols=2)
-        ax[0,0].plot(np.transpose(e_coh0_rates),color=['dodgerblue','seagreen'])
-        ax[0,0].plot(np.transpose(i_coh0_rates),color=['darkorange','orangered'])
+        ax[0,0].plot(np.transpose(e_coh0_rates))
+        ax[0,0].plot(np.transpose(i_coh0_rates))
         ax[0,0].set_title('coherence 0 trials',fontname='Ubuntu')
         ax[0,0].legend(['0-driven e','1-driven e','0-driven i','1-driven i'])
 
-        ax[0,1].plot(np.transpose(e_coh1_rates),color=['dodgerblue','seagreen'])
-        ax[0,1].plot(np.transpose(i_coh1_rates),color=['darkorange','orangered'])
+        ax[0,1].plot(np.transpose(e_coh1_rates))
+        ax[0,1].plot(np.transpose(i_coh1_rates))
         ax[0,1].set_title('coherence 1 trials',fontname='Ubuntu')
         ax[0,1].legend(['0-driven e','1-driven e','0-driven i','1-driven i'])
 
-        ax[1,0].plot(np.mean(e_coh0_rates,0),color='dodgerblue')
-        ax[1,0].plot(np.mean(i_coh0_rates,0),color='orangered')
+        ax[1,0].plot(np.mean(e_coh0_rates,0))
+        ax[1,0].plot(np.mean(i_coh0_rates,0))
         ax[1,0].set_title('coherence 0 trials',fontname='Ubuntu')
         ax[1,0].legend(['all e','all i'])
 
-        ax[1,0].plot(np.mean(e_coh1_rates,0),color='dodgerblue')
-        ax[1,1].plot(np.mean(i_coh1_rates,0),color='orangered')
+        ax[1,0].plot(np.mean(e_coh1_rates,0))
+        ax[1,1].plot(np.mean(i_coh1_rates,0))
         ax[1,1].set_title('coherence 1 trials',fontname='Ubuntu')
         ax[1,1].legend(['all e','all i'])
 
@@ -1609,6 +1609,103 @@ def plot_group_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='sp
         # Teardown
         plt.clf()
         plt.close()
+
+def plot_input_grouped_rec_weights(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+
+    # determine which coherence level the input units prefer based on original CNN output file
+    spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
+    x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
+    # determine each of the 16 channels' average rates over 600 x 4080 trials
+    # separate according to coherence level!
+    coherences = load_npz('/data/datasets/CNN_outputs/ch8_abs_ccd_coherences.npz')
+    y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None]
+
+    # for each of 600 trials
+    for i in range(0,np.shape(y)[0]):
+    # for each of 4080 time steps
+    # determine if coherence 1 or 0
+        coh0_idx = np.where(y[i]==0)[0]
+        coh1_idx = np.where(y[i]==1)[0]
+    # take average rates across that trial's timepoints for the same coherence level and append
+        if len(coh0_idx)>0:
+            if not 'coh0_channel_trial_rates' in locals():
+                coh0_channel_trial_rates = np.average(x[i][coh0_idx],0)
+            else:
+                coh0_channel_trial_rates = np.vstack([coh0_channel_trial_rates,np.average(x[i][coh0_idx],0)])
+
+        if len(coh1_idx)>0:
+            if not 'coh1_channel_trial_rates' in locals():
+                coh1_channel_trial_rates = np.average(x[i][coh1_idx],0)
+            else:
+                coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(x[i][coh1_idx],0)])
+
+    coh0_rates = np.average(coh0_channel_trial_rates,0)
+    coh1_rates = np.average(coh1_channel_trial_rates,0)
+    coh1_idx = np.where(coh1_rates>coh0_rates)[0]
+    coh0_idx = np.where(coh1_rates<coh0_rates)[0]
+
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # aggregate across all experiments and all trials
+    data_files = filenames(num_epochs, epochs_per_file)
+
+    # eventually plot something that is specific to each experiment
+    # but otherwise 16 separate input channels populations, rates over all of the trial for a coherence level, over all of training
+    # so ultimately x axis training epoch, y axis rate, 16 separate channels, maybe e and i separate and coherence level separate
+    # go thru a single experiment to verify that your array shapes are working correctly haha
+
+    for xdir in exp_data_dirs:
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+        exp_path = xdir[-9:-1]
+
+        filepath = os.path.join(np_dir, '991-1000.npz')
+        data = np.load(filepath)
+        w = data['tv1.postweights'][99]
+        in_w = data['tv0.postweights'][99]
+
+        # find recurrent units that receive input primarily from one of the populations
+        coh0_units = np.where(in_w[coh0_idx,:]>in_w[coh1_idx,:])[1]
+        coh1_units = np.where(in_w[coh1_idx,:]>in_w[coh0_idx,:])[1]
+
+        # plot
+        fig, ax = plt.subplots(nrows=1, ncols=2)
+        ax[0].hist(w[coh0_units[coh0_units<e_end]][coh0_units[coh0_units<e_end]],density=True)
+        ax[0].hist(w[coh0_units[coh0_units<e_end]][coh0_units[coh0_units>=e_end]],density=True)
+        ax[0].hist(w[coh0_units[coh0_units>=e_end]][coh0_units[coh0_units<e_end]],density=True)
+        ax[0].hist(w[coh0_units[coh0_units>=e_end]][coh0_units[coh0_units>=e_end]],density=True)
+        ax[0].set_title('0-driven units',fontname='Ubuntu')
+
+        ax[1].hist(w[coh1_units[coh1_units<e_end]][coh1_units[coh1_units<e_end]],density=True)
+        ax[1].hist(w[coh1_units[coh1_units<e_end]][coh1_units[coh1_units>=e_end]],density=True)
+        ax[1].hist(w[coh1_units[coh1_units>=e_end]][coh1_units[coh1_units<e_end]],density=True)
+        ax[1].hist(w[coh1_units[coh1_units>=e_end]][coh1_units[coh1_units>=e_end]],density=True)
+        ax[1].set_title('1-driven units',fontname='Ubuntu')
+
+        for i in range(0,len(ax)):
+            ax[i].set_xlabel('weights',fontname='Ubuntu')
+            ax[i].set_ylabel('density',fontname='Ubuntu')
+            for tick in ax[i].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[i].get_yticklabels():
+                tick.set_fontname("Ubuntu")
+            ax[i].legend(['ee','ei','ie','ii'],prop={"family":"Ubuntu"})
+
+        plt.suptitle('trained recurrent weights')
+
+        # Draw and save
+        plt.draw()
+        plt.subplots_adjust(wspace=0.4, hspace=0.7)
+        save_fname = savepath+'/set_plots/'+exp_season+'/'+exp_path+'_input_receiving_weights_grouped.png'
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
+
 
 # measure within-input-channel-receiving clustering vs outside / all
 
