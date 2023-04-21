@@ -1584,7 +1584,7 @@ def plot_group_input_receiving_rates(exp_dirs=spec_nointoout_dirs,exp_season='sp
         ax[1,0].set_title('coherence 0 trials',fontname='Ubuntu')
         ax[1,0].legend(['all e','all i'])
 
-        ax[1,0].plot(np.mean(e_coh1_rates,0))
+        ax[1,1].plot(np.mean(e_coh1_rates,0))
         ax[1,1].plot(np.mean(i_coh1_rates,0))
         ax[1,1].set_title('coherence 1 trials',fontname='Ubuntu')
         ax[1,1].legend(['all e','all i'])
