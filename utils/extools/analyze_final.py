@@ -84,6 +84,133 @@ spec_nointoout_dirs_rate = ["run-batch30-rateloss-specinput0.2-nointoout-noinout
 spec_nointoout_dirs_task = ["run-batch30-taskloss-specinput0.2-nointoout-noinoutrewire","run-batch30-taskloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-taskloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 
 
+def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_exp_idx=1):
+
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    xdir = exp_data_dirs[rand_exp_idx]
+    exp_path = xdir[-9:-1]
+
+
+    # arbitrary selection for now
+    #exp_path = '21.06.01'
+    #xdir = 'run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-20 21.06.01]'
+
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/spring/'+exp_path+'trained_trials'
+    if not os.path.isdir(spath)):
+        os.makedirs(spath)
+
+    np_dir = os.path.join(data_dir,xdir,"npz-data")
+    trained_data = np.load(os.path.join(np_dir,"991-1000.npz"))
+
+    # go thru final epoch trials
+    true_y = trained_data['true_y'][99]
+    pred_y = trained_data['pred_y'][99]
+    spikes = trained_data['spikes'][99]
+    w = trained_data['tv1.postweights'][99]
+    in_w = trained_data['tv0.postweights'][99]
+    in_spikes = trained_data['inputs'][99]
+
+    coh0_rates = []
+    coh1_rates = []
+    for i in range(0,len(true_y)):
+        if true_y[i][0]==true_y[i][seq_len-1]:
+            if true_y[i][0]==0:
+                coh0_rates.append(np.mean(input_spikes[i],1))
+            else:
+                coh1_rates.append(np.mean(input_spikes[i],1))
+    coh1_idx = np.where(np.array(coh1_rates)>np.array(coh0_rates))[0]
+    coh0_idx = np.where(np.array(coh1_rates)<np.array(coh0_rates))[0]
+
+    # go thru all trials in this batch
+    for i in range(0,len(true_y)):
+        # determine if there was a coherence change in this trial
+        if true_y[i][0] != true_y[i][seq_len-1]:
+            # if change in coherence, plot true_y, pred_y together
+            # rates of the 16 input channels together-ish
+            # rates of the two populations of input channels
+            # rates of e units and i units
+            # rates of e to e, ei, ie, ii
+            # rates e that receive mostly coh 0 vs coh 1 drive
+            # rates i that receive mostly coh 0 vs coh 1 drive
+
+            # alright, alright'
+            diffs = np.diff(true_y[i],axis=0)
+            # t_change is the first timestep of the new coherence level
+            t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
+            # find average pred before and after
+            pre_avg = np.average(pred_y[i][:t_change])
+            post_avg = np.average(pred_y[i][t_change:])
+            # determine the duration after coherence change until we first pass (pos or neg direction) the after-change average
+            if pre_avg < post_avg:
+                # if we are increasing coherence level, crossing is when we go above the 75th percentile of post-change preds
+                delay_dur = np.where(pred_y[i][t_change:]>np.quantile(pred_y[i][t_change:],0.75))[0][0]
+            elif pre_avg > post_avg:
+                # if we are decreasing coherence level, crossing is when we fall below the 25th percentile of post-change preds
+                delay_dur = np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0][0]
+
+            save_fname = spath+'/trial'+str(i)+'.png'
+            fig, ax = plt.subplots(nrows=5,ncols=1,figsize=(8,10))
+
+            ax[0].plot(pred_y,color='dodgerblue',alpha=0.5,label='prediction')
+            ax[0].plot(true_y,color='mediumblue',alpha=0.5,label='true y')
+            ax[0].vlines(t_change,ymin=np.min(pred_y),ymax=np.max(pred_y),color='red',label='t change')
+            ax[0].vlines(t_change+delay_dur,ymin=np.min(pred_y),ymax=np.max(pred_y),color='darkorange',label='t delay')
+            ax[0].set_ylabel('output',fontname='Ubuntu')
+            ax[0].set_title('output',fontname='Ubuntu')
+
+            # plot heatmap of the input spikes to different populations
+            sns.heatmap(in_spikes[i],cmap=GnBu,ax=[1])
+            ax[1].set_ylabel('spike rate',fontname='Ubuntu')
+            ax[1].set_title('input channel spikes',fontname='Ubuntu')
+
+            # plot average input rates across the two populations and overall
+            ax[2].plot(np.mean(in_spikes[i],0),color='dodgerblue',label='all inputs')
+            # find the two input populations
+            ax[2].plot(np.mean(in_spikes[i][coh0_idx,:],0),color='deeppink',label='coh 0 driven')
+            ax[2].plot(np.mean(in_spikes[i][coh1_idx,:],0),color='blueviolet',label='coh 1 driven')
+            ax[2].set_ylabel('spike rate',fontname='Ubuntu')
+            ax[2].set_title('input rates by group',fontname='Ubuntu')
+
+            ax[3].plot(np.mean(spikes[i][:e_end,:],0),color='dodgerblue',label='excit')
+            ax[3].plot(np.mean(spikes[i][e_end:,:],0),color='darkorange',label='inhib')
+            ax[3].set_ylabel('spike rate',fontname='Ubuntu')
+            ax[3].set_title('E and I rates',fontname='Ubuntu')
+
+            # plot rates of e units that mostly receive pop 1 vs pop 2
+            # plot rates of i units that mostly receive pop 1 vs pop 2
+            # find the units that mostly receive input from the two populations
+            coh0_rec = np.where(np.sum(in_w[coh0_idx,:],0)>np.sum(in_w[coh1_idx,:]),0)[0]
+            coh1_rec = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:]),0)[0]
+            ax[4].plot(np.mean(spikes[i][coh0_rec,:],0),color='deeppink',label='coh 0 driven')
+            ax[4].plot(np.mean(spikes[i][coh1_rec,:],0),color='blueviolet',label='coh 1 driven')
+            ax[4].set_ylabel('spike rate',fontname='Ubuntu')
+            ax[4].set_title('E and I rates by input group',fontname='Ubuntu')
+
+            for j in range(0,len(ax)):
+                ax[j].set_xlabel('time (ms)',fontname='Ubuntu')
+                ax[j].legend(prop={"family":"Ubuntu"})
+                for tick in ax[j].get_xticklabels():
+                    tick.set_fontname("Ubuntu")
+                for tick in ax[j].get_yticklabels():
+                    tick.set_fontname("Ubuntu")
+
+            plt.suptitle('measures for trial '+str(i))
+            plt.draw()
+            plt.subplots_adjust(wspace=1, hspace=1)
+            plt.draw()
+            plt.savefig(save_fname,dpi=300)
+
+            # Teardown
+            plt.clf()
+            plt.close()
+
+
 def single_fn_delay_recruit(rn_bin=10,exp_dirs=spec_input_dirs,exp_season='spring',rand_exp_idx=5):
     # generate a single functional network across all trials for a particular batch update (last) of a dual-trained network
     # or honestly maybe just constrained to a couple change trials for now
