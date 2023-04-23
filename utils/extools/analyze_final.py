@@ -165,7 +165,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[0].set_title('output',fontname='Ubuntu')
 
                 # plot heatmap of the input spikes to different populations
-                sns.heatmap(np.transpose(in_spikes[i]),cmap='crest',ax=[1])
+                sns.heatmap(np.transpose(in_spikes[i]),cmap='crest',ax=ax[1])
                 ax[1].set_ylabel('spike rate',fontname='Ubuntu')
                 ax[1].set_title('input channel spikes',fontname='Ubuntu')
 
