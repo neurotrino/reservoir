@@ -98,6 +98,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
         os.makedirs(spath)
 
     for xdir in exp_data_dirs:
+        print('begin new exp')
         exp_path = xdir[-9:-1]
 
         # arbitrary selection for now
