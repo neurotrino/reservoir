@@ -124,8 +124,8 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 else:
                     coh1_rates.append(np.mean(in_spikes[i],0))
         # find which of the 16 input channels respond more to one coherence level over the other
-        coh1_idx = np.where(np.array(coh1_rates)>np.array(coh0_rates))[0]
-        coh0_idx = np.where(np.array(coh1_rates)<np.array(coh0_rates))[0]
+        coh1_idx = np.where(np.mean(coh1_rates,0)>np.mean(coh0_rates,0))[0]
+        coh0_idx = np.where(np.mean(coh1_rates,0)<np.mean(coh0_rates,0))[0]
 
         # go thru all trials in this batch
         for i in range(0,len(true_y)):
