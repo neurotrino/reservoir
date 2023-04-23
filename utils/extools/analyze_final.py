@@ -120,9 +120,10 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
         for i in range(0,len(true_y)):
             if true_y[i][0]==true_y[i][seq_len-1]:
                 if true_y[i][0]==0:
-                    coh0_rates.append(np.mean(in_spikes[i],1))
+                    coh0_rates.append(np.mean(in_spikes[i],0))
                 else:
-                    coh1_rates.append(np.mean(in_spikes[i],1))
+                    coh1_rates.append(np.mean(in_spikes[i],0))
+        # find which of the 16 input channels respond more to one coherence level over the other
         coh1_idx = np.where(np.array(coh1_rates)>np.array(coh0_rates))[0]
         coh0_idx = np.where(np.array(coh1_rates)<np.array(coh0_rates))[0]
 
@@ -169,15 +170,15 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[1].set_title('input channel spikes',fontname='Ubuntu')
 
                 # plot average input rates across the two populations and overall
-                ax[2].plot(np.mean(in_spikes[i],0),color='dodgerblue',label='all inputs')
+                ax[2].plot(np.mean(in_spikes[i],1),color='dodgerblue',label='all inputs')
                 # find the two input populations
-                ax[2].plot(np.mean(in_spikes[i][coh0_idx,:],0),color='deeppink',label='coh 0 driven')
-                ax[2].plot(np.mean(in_spikes[i][coh1_idx,:],0),color='blueviolet',label='coh 1 driven')
+                ax[2].plot(np.mean(in_spikes[i][:,coh0_idx],1),color='deeppink',label='coh 0 driven')
+                ax[2].plot(np.mean(in_spikes[i][:,coh1_idx],1),color='blueviolet',label='coh 1 driven')
                 ax[2].set_ylabel('spike rate',fontname='Ubuntu')
                 ax[2].set_title('input rates by group',fontname='Ubuntu')
 
-                ax[3].plot(np.mean(spikes[i][:e_end,:],0),color='dodgerblue',label='excit')
-                ax[3].plot(np.mean(spikes[i][e_end:,:],0),color='darkorange',label='inhib')
+                ax[3].plot(np.mean(spikes[i][:,:e_end],1),color='dodgerblue',label='excit')
+                ax[3].plot(np.mean(spikes[i][:,e_end:],1),color='darkorange',label='inhib')
                 ax[3].set_ylabel('spike rate',fontname='Ubuntu')
                 ax[3].set_title('E and I rates',fontname='Ubuntu')
 
@@ -186,8 +187,8 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 # find the units that mostly receive input from the two populations
                 coh0_rec = np.where(np.sum(in_w[coh0_idx,:],0)>np.sum(in_w[coh1_idx,:]),0)[0]
                 coh1_rec = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:]),0)[0]
-                ax[4].plot(np.mean(spikes[i][coh0_rec,:],0),color='deeppink',label='coh 0 driven')
-                ax[4].plot(np.mean(spikes[i][coh1_rec,:],0),color='blueviolet',label='coh 1 driven')
+                ax[4].plot(np.mean(spikes[i][:,coh0_rec],1),color='deeppink',label='coh 0 driven')
+                ax[4].plot(np.mean(spikes[i][:,coh1_rec],1),color='blueviolet',label='coh 1 driven')
                 ax[4].set_ylabel('spike rate',fontname='Ubuntu')
                 ax[4].set_title('E and I rates by input group',fontname='Ubuntu')
 
