@@ -201,7 +201,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[3].plot(e_diff,color='dodgerblue',label='e coh1-coh0')
                 ax[3].plot(i_diff,color='mediumseagreen',label='i coh1-coh0')
                 ax[3].vlines(t_change,ymin=np.min(e_diff),ymax=np.max(e_diff),color='red',label='t change')
-                ax[3].vline(t_change+delay_dur,ymin=np.min(e_diff),ymax=np.max(e_diff),color='darkorange',label='t delay')
+                ax[3].vlines(t_change+delay_dur,ymin=np.min(e_diff),ymax=np.max(e_diff),color='darkorange',label='t delay')
                 ax[3].set_ylabel('spike rate difference',fontname='Ubuntu')
                 ax[3].set_title('average difference between e and i recurrent rates by dominant input group')
 
