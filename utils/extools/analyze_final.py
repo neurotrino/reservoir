@@ -169,19 +169,22 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[1].set_ylabel('spike rate',fontname='Ubuntu')
                 ax[1].set_title('input channel spikes',fontname='Ubuntu')
 
-
-                ax[2].plot(in_spikes[i],alpha=0.5)
+                # plot average input rates across the two populations and overall
+                #ax[2].plot(np.mean(in_spikes[i],1),color='dodgerblue',label='all inputs')
+                # find the two input populations
+                ax[2].plot(np.mean(in_spikes[i][:,coh0_idx],1),alpha=0.5,color='mediumseagreen',label='coh 0 driven')
+                ax[2].plot(np.mean(in_spikes[i][:,coh1_idx],1),alpha=0.5,color='yellowgreen',label='coh 1 driven')
                 ax[2].vlines(t_change,ymin=np.min(np.mean(in_spikes[i][:,coh1_idx],1)),ymax=np.max(np.mean(in_spikes[i][:,coh1_idx],1)),color='red',label='t change')
                 ax[2].vlines(t_change+delay_dur,ymin=np.min(np.mean(in_spikes[i][:,coh1_idx],1)),ymax=np.max(np.mean(in_spikes[i][:,coh1_idx],1)),color='darkorange',label='t delay')
                 ax[2].set_ylabel('spike rate',fontname='Ubuntu')
-                ax[2].set_title('input channel rates',fontname='Ubuntu')
+                ax[2].set_title('input rates by group',fontname='Ubuntu')
 
                 coh0_rec = np.where(np.sum(in_w[coh0_idx,:],0)>np.sum(in_w[coh1_idx,:],0))[0]
                 coh1_rec = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:],0))[0]
-                ax[3].plot(np.mean(spikes[i][:e_end,coh0_rec],1),alpha=0.5,color='dodgerblue',label='coh 0 driven e')
-                ax[3].plot(np.mean(spikes[i][:e_end,coh1_rec],1),alpha=0.5,color='teal',label='coh 1 driven e')
                 ax[3].plot(np.mean(spikes[i][e_end:,coh0_rec],1),alpha=0.5,color='orangered',label='coh 0 driven i')
                 ax[3].plot(np.mean(spikes[i][e_end:,coh1_rec],1),alpha=0.5,color='crimson',label='coh 1 driven i')
+                ax[3].plot(np.mean(spikes[i][:e_end,coh0_rec],1),alpha=0.5,color='dodgerblue',label='coh 0 driven e')
+                ax[3].plot(np.mean(spikes[i][:e_end,coh1_rec],1),alpha=0.5,color='teal',label='coh 1 driven e')
                 ax[3].vlines(t_change,ymin=np.min(np.mean(spikes[i][:,coh1_rec],1)),ymax=np.max(np.mean(spikes[i][:,coh1_rec],1)),color='red',label='t change')
                 ax[3].vlines(t_change+delay_dur,ymin=np.min(np.mean(spikes[i][:,coh1_rec],1)),ymax=np.max(np.mean(spikes[i][:,coh1_rec],1)),color='darkorange',label='t delay')
                 ax[3].set_ylabel('spike rate',fontname='Ubuntu')
@@ -228,7 +231,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
 
                 plt.suptitle('measures for trial '+str(i))
                 plt.draw()
-                plt.subplots_adjust(wspace=1.0, hspace=1.0)
+                plt.subplots_adjust(wspace=0.8, hspace=0.8)
                 plt.draw()
                 plt.savefig(save_fname,dpi=300)
 
