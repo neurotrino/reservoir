@@ -94,7 +94,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
 
     # check if folder exists, otherwise create it for saving files
     spath = '/data/results/experiment1/set_plots/spring/trained_trials'
-    if not os.path.isdir(spath)):
+    if not os.path.isdir(spath):
         os.makedirs(spath)
 
     for xdir in exp_data_dirs:
