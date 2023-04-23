@@ -181,10 +181,10 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
 
                 coh0_rec = np.where(np.sum(in_w[coh0_idx,:],0)>np.sum(in_w[coh1_idx,:],0))[0]
                 coh1_rec = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:],0))[0]
-                ax[3].plot(np.mean(spikes[i][e_end:,coh0_rec],1),alpha=0.5,color='orangered',label='coh 0 driven i')
-                ax[3].plot(np.mean(spikes[i][e_end:,coh1_rec],1),alpha=0.5,color='crimson',label='coh 1 driven i')
-                ax[3].plot(np.mean(spikes[i][:e_end,coh0_rec],1),alpha=0.5,color='dodgerblue',label='coh 0 driven e')
-                ax[3].plot(np.mean(spikes[i][:e_end,coh1_rec],1),alpha=0.5,color='teal',label='coh 1 driven e')
+                ax[3].plot(np.mean(spikes[i][:,coh0_rec[coh0_rec>=e_end]],1),alpha=0.5,color='dodgerblue',label='coh 0 driven e')
+                ax[3].plot(np.mean(spikes[i][:,coh1_rec[coh1_rec>=e_end]],1),alpha=0.5,color='teal',label='coh 1 driven e')
+                ax[3].plot(np.mean(spikes[i][:,coh0_rec[coh0_rec<e_end]],1),alpha=0.5,color='orangered',label='coh 0 driven i')
+                ax[3].plot(np.mean(spikes[i][:,coh1_rec[coh1_rec<e_end]],1),alpha=0.5,color='crimson',label='coh 1 driven i')
                 ax[3].vlines(t_change,ymin=np.min(np.mean(spikes[i][:,coh1_rec],1)),ymax=np.max(np.mean(spikes[i][:,coh1_rec],1)),color='red',label='t change')
                 ax[3].vlines(t_change+delay_dur,ymin=np.min(np.mean(spikes[i][:,coh1_rec],1)),ymax=np.max(np.mean(spikes[i][:,coh1_rec],1)),color='darkorange',label='t delay')
                 ax[3].set_ylabel('spike rate',fontname='Ubuntu')
@@ -231,7 +231,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
 
                 plt.suptitle('measures for trial '+str(i))
                 plt.draw()
-                plt.subplots_adjust(wspace=0.8, hspace=0.8)
+                plt.subplots_adjust(wspace=0.7, hspace=0.7)
                 plt.draw()
                 plt.savefig(save_fname,dpi=300)
 
