@@ -185,8 +185,8 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 # plot rates of e units that mostly receive pop 1 vs pop 2
                 # plot rates of i units that mostly receive pop 1 vs pop 2
                 # find the units that mostly receive input from the two populations
-                coh0_rec = np.where(np.sum(in_w[coh0_idx,:],0)>np.sum(in_w[coh1_idx,:]),0)[0]
-                coh1_rec = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:]),0)[0]
+                coh0_rec = np.where(np.sum(in_w[coh0_idx,:],0)>np.sum(in_w[coh1_idx,:],0))[0]
+                coh1_rec = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:],0))[0]
                 ax[4].plot(np.mean(spikes[i][:,coh0_rec],1),color='deeppink',label='coh 0 driven')
                 ax[4].plot(np.mean(spikes[i][:,coh1_rec],1),color='blueviolet',label='coh 1 driven')
                 ax[4].set_ylabel('spike rate',fontname='Ubuntu')
