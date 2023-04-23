@@ -157,15 +157,15 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 save_fname = spath+'/'+exp_path+'_trial'+str(i)+'.png'
                 fig, ax = plt.subplots(nrows=5,ncols=1,figsize=(8,11))
 
-                ax[0].plot(pred_y,color='dodgerblue',alpha=0.5,label='prediction')
-                ax[0].plot(true_y,color='mediumblue',alpha=0.5,label='true y')
-                ax[0].vlines(t_change,ymin=np.min(pred_y),ymax=np.max(pred_y),color='red',label='t change')
-                ax[0].vlines(t_change+delay_dur,ymin=np.min(pred_y),ymax=np.max(pred_y),color='darkorange',label='t delay')
+                ax[0].plot(pred_y[i],color='dodgerblue',alpha=0.5,label='prediction')
+                ax[0].plot(true_y[i],color='mediumblue',alpha=0.5,label='true y')
+                ax[0].vlines(t_change,ymin=np.min(pred_y[i]),ymax=np.max(pred_y[i]),color='red',label='t change')
+                ax[0].vlines(t_change+delay_dur,ymin=np.min(pred_y[i]),ymax=np.max(pred_y[i]),color='darkorange',label='t delay')
                 ax[0].set_ylabel('output',fontname='Ubuntu')
                 ax[0].set_title('output',fontname='Ubuntu')
 
                 # plot heatmap of the input spikes to different populations
-                sns.heatmap(in_spikes[i],cmap=GnBu,ax=[1])
+                sns.heatmap(np.transpose(in_spikes[i]),cmap=GnBu,ax=[1])
                 ax[1].set_ylabel('spike rate',fontname='Ubuntu')
                 ax[1].set_title('input channel spikes',fontname='Ubuntu')
 
