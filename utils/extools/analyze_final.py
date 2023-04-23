@@ -120,9 +120,9 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
         for i in range(0,len(true_y)):
             if true_y[i][0]==true_y[i][seq_len-1]:
                 if true_y[i][0]==0:
-                    coh0_rates.append(np.mean(input_spikes[i],1))
+                    coh0_rates.append(np.mean(in_spikes[i],1))
                 else:
-                    coh1_rates.append(np.mean(input_spikes[i],1))
+                    coh1_rates.append(np.mean(in_spikes[i],1))
         coh1_idx = np.where(np.array(coh1_rates)>np.array(coh0_rates))[0]
         coh0_idx = np.where(np.array(coh1_rates)<np.array(coh0_rates))[0]
 
