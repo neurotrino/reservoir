@@ -156,7 +156,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                     delay_dur = np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0][0]
 
                 save_fname = spath+'/'+exp_path+'_trial'+str(i)+'.png'
-                fig, ax = plt.subplots(nrows=4,ncols=1,figsize=(8,10))
+                fig, ax = plt.subplots(nrows=6,ncols=1,figsize=(8,11))
 
                 ax[0].plot(pred_y[i],color='dodgerblue',alpha=0.5,label='prediction')
                 ax[0].plot(true_y[i],color='mediumblue',alpha=0.5,label='true y')
@@ -170,6 +170,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[1].set_ylabel('spike rate',fontname='Ubuntu')
                 ax[1].set_title('input channel spikes',fontname='Ubuntu')
 
+                """
                 # plot average input rates across the two populations and overall
                 #ax[2].plot(np.mean(in_spikes[i],1),color='dodgerblue',label='all inputs')
                 # find the two input populations
@@ -178,10 +179,60 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[2].vlines(t_change,ymin=np.min(np.mean(in_spikes[i][:,coh1_idx],1)),ymax=np.max(np.mean(in_spikes[i][:,coh1_idx],1)),color='red',label='t change')
                 ax[2].vlines(t_change+delay_dur,ymin=np.min(np.mean(in_spikes[i][:,coh1_idx],1)),ymax=np.max(np.mean(in_spikes[i][:,coh1_idx],1)),color='darkorange',label='t delay')
                 ax[2].set_ylabel('spike rate',fontname='Ubuntu')
-                ax[2].set_title('input rates by group',fontname='Ubuntu')
+                ax[2].set_title('input rates by group',fontname='Ubuntu')"""
 
+                # plot the difference between average input rates of the two coherence-driven populations
+                # find the two input populations' difference
+                coh0_avg_rate = np.mean(in_spikes[i][:,coh0_idx],1)
+                coh1_avg_rate = np.mean(in_spikes[i][:,coh1_idx],1)
+                ax[2].plot(coh1_avg_rate-coh0_avg_rate,color='dodgerblue',label='coh1-coh0')
+                ax[2].vlines(t_change,ymin=np.min(coh1_avg_rate-coh0_avg_rate),ymax=np.max(coh1_avg_rate-coh0_avg_rate),color='red',label='t change')
+                ax[2].vlines(t_change+delay_dur,ymin=np.min(coh1_avg_rate-coh0_avg_rate),ymax=np.max(coh1_avg_rate-coh0_avg_rate),color='darkorange',label='t delay')
+                ax[2].set_ylabel('spike rate difference',fontname='Ubuntu')
+                ax[2].set_title('average difference in input group rates')
+
+                # plot the difference between coh0-driven e and coh1-driven e rates
+                # difference between coh0-driven i and coh0-driven i rates
                 coh0_rec = np.where(np.sum(in_w[coh0_idx,:],0)>np.sum(in_w[coh1_idx,:],0))[0]
                 coh1_rec = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:],0))[0]
+
+                e_diff = np.mean(spikes[i][:,coh1_rec[coh1_rec>=e_end]],1)-np.mean(spikes[i][:,coh0_rec[coh0_rec>=e_end]],1)
+                i_diff = np.mean(spikes[i][:,coh1_rec[coh1_rec<e_end]],1)-np.mean(spikes[i][:,coh0_rec[coh0_rec<e_end]],1)
+                ax[3].plot(e_diff,color='dodgerblue',label='e coh1-coh0')
+                ax[3].plot(i_diff,color='mediumseagreen',label='i coh1-coh0')
+                ax[3].vlines(t_change,ymin=np.min(e_diff),ymax=np.max(e_diff),color='red',label='t change')
+                ax[3].vline(t_change+delay_dur,ymin=np.min(e_diff),ymax=np.max(e_diff),color='darkorange',label='t delay')
+                ax[3].set_ylabel('spike rate difference',fontname='Ubuntu')
+                ax[3].set_title('average difference between e and i recurrent rates by dominant input group')
+
+                # plot the rates of recurrent e units that project more to e vs those that project more to i
+                # get the recurrent units that project more to e vs i and vice versa
+                more_to_e = np.where(np.sum(np.abs(w[:,:e_end]),1)>np.sum(np.abs(w[:,e_end:])))[0]
+                more_to_i = np.where(np.sum(np.abs(w[:,:e_end]),1)<np.sum(np.abs(w[:,e_end:])))[0]
+
+                """e_more_to_e = np.where(np.sum(np.abs(w[:e_end,:e_end]),1)>np.sum(np.abs(w[:e_end,e_end:]),1))[0]
+                e_more_to_i = np.where(np.sum(np.abs(w[:e_end,:e_end]),1)<np.sum(np.abs(w[:e_end,e_end:]),1))[0]
+                # plot the rates of recurrent i units that project more to i vs those that project more to e
+                i_more_to_e = np.where(np.sum(np.abs(w[e_end:,:e_end]),1)>np.sum(np.abs(w[e_end:,e_end:]),1))[0]
+                i_more_to_i = np.where(np.sum(np.abs(w[e_end:,:e_end]),1)<np.sum(np.abs(w[e_end:,e_end:]),1))[0]"""
+
+                # plot the rates of recurrent e units that project more to i vs recurrent i units that project more to e
+                ax[4].plot(np.mean(spikes[i][:,more_to_e[more_to_e<e_end]],1),alpha=0.5,color='slateblue',label='e driving e')
+                ax[4].plot(np.mean(spikes[i][:,more_to_e[more_to_e>=e_end]],1),alpha=0.5,color='dodgerblue',label='e driving i')
+                ax[4].plot(np.mean(spikes[i][:,more_to_i[more_to_i<e_end]],1),alpha=0.5,color='mediumseagreen',label='i driving e')
+                ax[4].plot(np.mean(spikes[i][:,more_to_i[more_to_i>=e_end]],1),alpha=0.5,color='yellowgreen',label='i driving i')
+                ax[4].set_ylabel('spike rate',fontname='Ubuntu')
+                ax[4].set_title('average e and i recurrent rates by dominant recurrent group')
+
+                # plot their differences
+                ax[5].plot(np.mean(spikes[i][:,:e_end],1)-np.mean(spikes[i][:,e_end:]),color='slateblue',label='e drive vs i drive')
+                ax[5].plot(np.mean(spikes[i][:,more_to_e[more_to_e<e_end]],1)-np.mean(spikes[i][:,more_to_e[more_to_e>=e_end]],1),color='dodgerblue',label='e drive to e vs i')
+                ax[5].plot(np.mean(spikes[i][:,more_to_i[more_to_i<e_end]],1)-np.mean(spikes[i][:,more_to_i[more_to_i>=e_end]],1),color='mediumseagreen',label='i drive to e vs i')
+                ax[5].plot(np.mean(spikes[i][:,more_to_e[more_to_e>=e_end]],1)-np.mean(spikes[i][:,more_to_i[more_to_i<e_end]],1),color='yellowgreen',label='e drive to i vs i drive to e')
+                ax[5].set_ylabel('spike rate difference',fontname='Ubuntu')
+                ax[5].set_title('average difference between recurrent rates by dominant recurrent group')
+
+                """
                 ax[3].plot(np.mean(spikes[i][:,coh0_rec[coh0_rec>=e_end]],1),alpha=0.5,color='slateblue',label='coh 0 driven e')
                 ax[3].plot(np.mean(spikes[i][:,coh1_rec[coh1_rec>=e_end]],1),alpha=0.5,color='dodgerblue',label='coh 1 driven e')
                 ax[3].plot(np.mean(spikes[i][:,coh0_rec[coh0_rec<e_end]],1),alpha=0.5,color='mediumseagreen',label='coh 0 driven i')
@@ -189,7 +240,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[3].vlines(t_change,ymin=np.min(np.mean(spikes[i][:,coh1_rec],1)),ymax=np.max(np.mean(spikes[i][:,coh1_rec],1)),color='red',label='t change')
                 ax[3].vlines(t_change+delay_dur,ymin=np.min(np.mean(spikes[i][:,coh1_rec],1)),ymax=np.max(np.mean(spikes[i][:,coh1_rec],1)),color='darkorange',label='t delay')
                 ax[3].set_ylabel('spike rate',fontname='Ubuntu')
-                ax[3].set_title('E and I rates by input group',fontname='Ubuntu')
+                ax[3].set_title('E and I rates by input group',fontname='Ubuntu')"""
 
                 """
                 # plot average input rates across the two populations and overall
@@ -232,7 +283,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
 
                 plt.suptitle('measures for trial '+str(i))
                 plt.draw()
-                plt.subplots_adjust(wspace=0.7, hspace=0.7)
+                plt.subplots_adjust(wspace=1.0, hspace=1.0)
                 plt.draw()
                 plt.savefig(save_fname,dpi=300)
 
