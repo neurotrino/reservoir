@@ -155,7 +155,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                     delay_dur = np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0][0]
 
                 save_fname = spath+'/'+exp_path+'_trial'+str(i)+'.png'
-                fig, ax = plt.subplots(nrows=5,ncols=1,figsize=(8,11))
+                fig, ax = plt.subplots(nrows=4,ncols=1,figsize=(8,10))
 
                 ax[0].plot(pred_y[i],color='dodgerblue',alpha=0.5,label='prediction')
                 ax[0].plot(true_y[i],color='mediumblue',alpha=0.5,label='true y')
@@ -169,6 +169,25 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[1].set_ylabel('spike rate',fontname='Ubuntu')
                 ax[1].set_title('input channel spikes',fontname='Ubuntu')
 
+
+                ax[2].plot(in_spikes[i],alpha=0.5)
+                ax[2].vlines(t_change,ymin=np.min(np.mean(in_spikes[i][:,coh1_idx],1)),ymax=np.max(np.mean(in_spikes[i][:,coh1_idx],1)),color='red',label='t change')
+                ax[2].vlines(t_change+delay_dur,ymin=np.min(np.mean(in_spikes[i][:,coh1_idx],1)),ymax=np.max(np.mean(in_spikes[i][:,coh1_idx],1)),color='darkorange',label='t delay')
+                ax[2].set_ylabel('spike rate',fontname='Ubuntu')
+                ax[2].set_title('input channel rates',fontname='Ubuntu')
+
+                coh0_rec = np.where(np.sum(in_w[coh0_idx,:],0)>np.sum(in_w[coh1_idx,:],0))[0]
+                coh1_rec = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:],0))[0]
+                ax[3].plot(np.mean(spikes[i][:e_end,coh0_rec],1),alpha=0.5,color='dodgerblue',label='coh 0 driven e')
+                ax[3].plot(np.mean(spikes[i][:e_end,coh1_rec],1),alpha=0.5,color='teal',label='coh 1 driven e')
+                ax[3].plot(np.mean(spikes[i][e_end:,coh0_rec],1),alpha=0.5,color='orangered',label='coh 0 driven i')
+                ax[3].plot(np.mean(spikes[i][e_end:,coh1_rec],1),alpha=0.5,color='crimson',label='coh 1 driven i')
+                ax[3].vlines(t_change,ymin=np.min(np.mean(spikes[i][:,coh1_rec],1)),ymax=np.max(np.mean(spikes[i][:,coh1_rec],1)),color='red',label='t change')
+                ax[3].vlines(t_change+delay_dur,ymin=np.min(np.mean(spikes[i][:,coh1_rec],1)),ymax=np.max(np.mean(spikes[i][:,coh1_rec],1)),color='darkorange',label='t delay')
+                ax[3].set_ylabel('spike rate',fontname='Ubuntu')
+                ax[3].set_title('E and I rates by input group',fontname='Ubuntu')
+
+                """
                 # plot average input rates across the two populations and overall
                 #ax[2].plot(np.mean(in_spikes[i],1),color='dodgerblue',label='all inputs')
                 # find the two input populations
@@ -193,10 +212,10 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 coh1_rec = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:],0))[0]
                 ax[4].plot(np.mean(spikes[i][:,coh0_rec],1),alpha=0.5,color='mediumseagreen',label='coh 0 driven')
                 ax[4].plot(np.mean(spikes[i][:,coh1_rec],1),alpha=0.5,color='yellowgreen',label='coh 1 driven')
-                ax[3].vlines(t_change,ymin=np.min(np.mean(spikes[i][:,coh1_rec],1)),ymax=np.max(np.mean(spikes[i][:,coh1_rec],1)),color='red',label='t change')
-                ax[3].vlines(t_change+delay_dur,ymin=np.min(np.mean(spikes[i][:,coh1_rec],1)),ymax=np.max(np.mean(spikes[i][:,coh1_rec],1)),color='darkorange',label='t delay')
+                ax[4].vlines(t_change,ymin=np.min(np.mean(spikes[i][:,coh1_rec],1)),ymax=np.max(np.mean(spikes[i][:,coh1_rec],1)),color='red',label='t change')
+                ax[4].vlines(t_change+delay_dur,ymin=np.min(np.mean(spikes[i][:,coh1_rec],1)),ymax=np.max(np.mean(spikes[i][:,coh1_rec],1)),color='darkorange',label='t delay')
                 ax[4].set_ylabel('spike rate',fontname='Ubuntu')
-                ax[4].set_title('E and I rates by input group',fontname='Ubuntu')
+                ax[4].set_title('E and I rates by input group',fontname='Ubuntu')"""
 
                 for j in range(0,len(ax)):
                     ax[j].set_xlabel('time (ms)',fontname='Ubuntu')
