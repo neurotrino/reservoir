@@ -165,20 +165,24 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[0].set_title('output',fontname='Ubuntu')
 
                 # plot heatmap of the input spikes to different populations
-                sns.heatmap(np.transpose(in_spikes[i]),cmap='crest',ax=ax[1])
+                sns.heatmap(np.transpose(in_spikes[i]),cmap='crest',cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
                 ax[1].set_ylabel('spike rate',fontname='Ubuntu')
                 ax[1].set_title('input channel spikes',fontname='Ubuntu')
 
                 # plot average input rates across the two populations and overall
-                ax[2].plot(np.mean(in_spikes[i],1),color='dodgerblue',label='all inputs')
+                #ax[2].plot(np.mean(in_spikes[i],1),color='dodgerblue',label='all inputs')
                 # find the two input populations
-                ax[2].plot(np.mean(in_spikes[i][:,coh0_idx],1),color='deeppink',label='coh 0 driven')
-                ax[2].plot(np.mean(in_spikes[i][:,coh1_idx],1),color='blueviolet',label='coh 1 driven')
+                ax[2].plot(np.mean(in_spikes[i][:,coh0_idx],1),alpha=0.5,color='mediumseagreen',label='coh 0 driven')
+                ax[2].plot(np.mean(in_spikes[i][:,coh1_idx],1),alpha=0.5,color='yellowgreen',label='coh 1 driven')
+                ax[2].vlines(t_change,ymin=np.min(np.mean(in_spikes[i][:,coh1_idx],1)),ymax=np.max(np.mean(in_spikes[i][:,coh1_idx],1)),color='red',label='t change')
+                ax[2].vlines(t_change+delay_dur,ymin=np.min(np.mean(in_spikes[i][:,coh1_idx],1)),ymax=np.max(np.mean(in_spikes[i][:,coh1_idx],1)),color='darkorange',label='t delay')
                 ax[2].set_ylabel('spike rate',fontname='Ubuntu')
                 ax[2].set_title('input rates by group',fontname='Ubuntu')
 
-                ax[3].plot(np.mean(spikes[i][:,:e_end],1),color='dodgerblue',label='excit')
-                ax[3].plot(np.mean(spikes[i][:,e_end:],1),color='darkorange',label='inhib')
+                ax[3].plot(np.mean(spikes[i][:,:e_end],1),alpha=0.5,color='dodgerblue',label='excit')
+                ax[3].plot(np.mean(spikes[i][:,e_end:],1),alpha=0.5,color='darkorange',label='inhib')
+                ax[3].vlines(t_change,ymin=np.min(np.mean(spikes[i][:,:e_end],1)),ymax=np.max(np.mean(spikes[i][:,:e_end],1)),color='red',label='t change')
+                ax[3].vlines(t_change+delay_dur,ymin=np.min(np.mean(spikes[i][:,:e_end],1)),ymax=np.max(np.mean(spikes[i][:,:e_end],1)),color='darkorange',label='t delay')
                 ax[3].set_ylabel('spike rate',fontname='Ubuntu')
                 ax[3].set_title('E and I rates',fontname='Ubuntu')
 
@@ -187,18 +191,21 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 # find the units that mostly receive input from the two populations
                 coh0_rec = np.where(np.sum(in_w[coh0_idx,:],0)>np.sum(in_w[coh1_idx,:],0))[0]
                 coh1_rec = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:],0))[0]
-                ax[4].plot(np.mean(spikes[i][:,coh0_rec],1),color='deeppink',label='coh 0 driven')
-                ax[4].plot(np.mean(spikes[i][:,coh1_rec],1),color='blueviolet',label='coh 1 driven')
+                ax[4].plot(np.mean(spikes[i][:,coh0_rec],1),alpha=0.5,color='mediumseagreen',label='coh 0 driven')
+                ax[4].plot(np.mean(spikes[i][:,coh1_rec],1),alpha=0.5,color='yellowgreen',label='coh 1 driven')
+                ax[3].vlines(t_change,ymin=np.min(np.mean(spikes[i][:,coh1_rec],1)),ymax=np.max(np.mean(spikes[i][:,coh1_rec],1)),color='red',label='t change')
+                ax[3].vlines(t_change+delay_dur,ymin=np.min(np.mean(spikes[i][:,coh1_rec],1)),ymax=np.max(np.mean(spikes[i][:,coh1_rec],1)),color='darkorange',label='t delay')
                 ax[4].set_ylabel('spike rate',fontname='Ubuntu')
                 ax[4].set_title('E and I rates by input group',fontname='Ubuntu')
 
                 for j in range(0,len(ax)):
                     ax[j].set_xlabel('time (ms)',fontname='Ubuntu')
-                    ax[j].legend(prop={"family":"Ubuntu"})
-                    for tick in ax[j].get_xticklabels():
-                        tick.set_fontname("Ubuntu")
-                    for tick in ax[j].get_yticklabels():
-                        tick.set_fontname("Ubuntu")
+                    if j!=1:
+                        ax[j].legend(prop={"family":"Ubuntu"})
+                        for tick in ax[j].get_xticklabels():
+                            tick.set_fontname("Ubuntu")
+                        for tick in ax[j].get_yticklabels():
+                            tick.set_fontname("Ubuntu")
 
                 plt.suptitle('measures for trial '+str(i))
                 plt.draw()
