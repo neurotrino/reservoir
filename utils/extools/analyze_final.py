@@ -200,8 +200,8 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 i_diff = np.mean(spikes[i][:,coh1_rec[coh1_rec>=e_end]],1)-np.mean(spikes[i][:,coh0_rec[coh0_rec>=e_end]],1)
                 ax[3].plot(e_diff,color='dodgerblue',label='e coh1-coh0')
                 ax[3].plot(i_diff,color='mediumseagreen',label='i coh1-coh0')
-                ax[3].vlines(t_change,ymin=np.min(e_diff),ymax=np.max(e_diff),color='red',label='t change')
-                ax[3].vlines(t_change+delay_dur,ymin=np.min(e_diff),ymax=np.max(e_diff),color='darkorange',label='t delay')
+                ax[3].vlines(t_change,ymin=np.min(i_diff),ymax=np.max(i_diff),color='red',label='t change')
+                ax[3].vlines(t_change+delay_dur,ymin=np.min(i_diff),ymax=np.max(i_diff),color='darkorange',label='t delay')
                 ax[3].set_ylabel('spike rate difference',fontname='Ubuntu')
                 ax[3].set_title('average difference between e and i recurrent rates by dominant input group')
 
@@ -212,10 +212,10 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 rns = trial_recruitment_graphs(w, fn, rn_binned_z, threshold=1)
 
                 # plot the average ee ei ie ii functional weights over time
-                ax[4].plot(np.mean(rns[:][:e_end,:e_end],1),alpha=0.6,color='slateblue',label='ee')
-                ax[4].plot(np.mean(rns[:][:e_end,e_end:],1),alpha=0.6,color='dodgerblue',label='ei')
-                ax[4].plot(np.mean(rns[:][e_end:,:e_end],1),alpha=0.6,color='mediumseagreen',label='ie')
-                ax[4].plot(np.mean(rns[:][e_end:,e_end:],1),alpha=0.6,color='yellowgreen',label='ii')
+                ax[4].plot(np.mean(rns[:,:e_end,:e_end],[1,2]),alpha=0.6,color='slateblue',label='ee')
+                ax[4].plot(np.mean(rns[:,:e_end,e_end:],[1,2]),alpha=0.6,color='dodgerblue',label='ei')
+                ax[4].plot(np.mean(rns[:,e_end:,:e_end],[1,2]),alpha=0.6,color='mediumseagreen',label='ie')
+                ax[4].plot(np.mean(rns[:,e_end:,e_end:],[1,2]),alpha=0.6,color='yellowgreen',label='ii')
                 ax[4].set_ylabel('weight',fontname='Ubuntu')
                 ax[4].vlines(int(t_change/10),ymin=np.min(rns),ymax=np.max(rns),color='red',label='t change')
                 ax[4].vlines(int((t_change+delay_dur)/10),ymin=np.min(rns),ymax=np.max(rns),color='darkorange',label='t delay')
