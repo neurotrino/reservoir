@@ -151,7 +151,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 # determine the duration after coherence change until we first pass (pos or neg direction) the after-change average
                 if pre_avg < post_avg:
                     # if we are increasing coherence level, crossing is when we go above the 75th percentile of post-change preds
-                    delay_dur = np.where(pred_y[i][t_change:]>np.quantile(pred_y[i][t_change:],0.75))[0]
+                    delay_dur = np.where(pred_y[i][t_change:]>np.quantile(pred_y[i][t_change:],0.75))[0][0]
                 elif pre_avg > post_avg:
                     # if we are decreasing coherence level, crossing is when we fall below the 25th percentile of post-change preds
                     delay_dur = np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0]
