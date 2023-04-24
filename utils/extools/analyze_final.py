@@ -206,9 +206,9 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[3].set_title('average difference between e and i recurrent rates by dominant input group')
 
                 # generate functional network and recruitment graphs for all timesteps of this trial
-                binned_z = fastbin(z=np.transpose(spikes[i]), bin_sz=10, num_units=300) # sharing 20 ms bins for everything for now
+                binned_z = fastbin(z=np.transpose(spikes[i]), bin_sz=20, num_units=300) # sharing 20 ms bins for everything for now
                 fn = simplest_confMI(binned_z,correct_signs=True)
-                rn_binned_z = fastbin(z=np.transpose(spikes[i]), bin_sz=10, num_units=300)
+                rn_binned_z = fastbin(z=np.transpose(spikes[i]), bin_sz=20, num_units=300)
                 rns = trial_recruitment_graphs(w, fn, rn_binned_z, threshold=1)
 
                 rns_ee = rns[:,:e_end,:e_end]
@@ -217,17 +217,23 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 rns_ii = rns[:,e_end:,e_end:]
 
                 # plot the average ee ei ie ii functional weights over time
-                if len(rns_ee[rns_ee!=0])>0:
+                """if len(rns_ee[rns_ee!=0])>0:
                     ax[4].plot(np.mean(rns_ee[:][rns_ee[:]!=0],1),alpha=0.6,color='slateblue',label='ee')
                 if len(rns_ei[rns_ei!=0])>0:
                     ax[4].plot(np.mean(rns_ei[:][rns_ei[:]!=0],1),alpha=0.6,color='dodgerblue',label='ei')
                 if len(rns_ie[rns_ie!=0])>0:
                     ax[4].plot(np.mean(rns_ie[:][rns_ie[:]!=0],1),alpha=0.6,color='mediumseagreen',label='ie')
                 if len(rns_ii[rns_ii!=0])>0:
-                    ax[4].plot(np.mean(rns_ii[:][rns_ii[:]!=0],1),alpha=0.6,color='yellowgreen',label='ii')
+                    ax[4].plot(np.mean(rns_ii[:][rns_ii[:]!=0],1),alpha=0.6,color='yellowgreen',label='ii')"""
+
+                # plotting like nonzero above only works if have at least one nonzero in each bin
+                ax[4].plot(np.mean(rns_ee,(1,2)),alpha=0.7,color='slateblue',label='ee')
+                ax[4].plot(np.mean(rns_ei,(1,2)),alpha=0.7,color='dodgerblue',label='ei')
+                ax[4].plot(np.mean(rns_ie,(1,2)),alpha=0.7,color='mediumseagreen',label='ie')
+                ax[4].plot(np.mean(rns_ii,(1,2)),alpha=0.7,color='yellowgreen',label='ii')
                 ax[4].set_ylabel('weight',fontname='Ubuntu')
-                ax[4].vlines(int(t_change/10),ymin=np.min(rns),ymax=np.max(rns),color='red',label='t change')
-                ax[4].vlines(int((t_change+delay_dur)/10),ymin=np.min(rns),ymax=np.max(rns),color='darkorange',label='t delay')
+                ax[4].vlines(int(t_change/20),ymin=np.min(rns),ymax=np.max(rns),color='red',label='t change')
+                ax[4].vlines(int((t_change+delay_dur)/20),ymin=np.min(rns),ymax=np.max(rns),color='darkorange',label='t delay')
                 ax[4].set_title('average recruitment weights')
                 # plot the average density of those over time as well
                 # plot the ee clustering and ii clustering over time as well
