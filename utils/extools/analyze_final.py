@@ -217,10 +217,14 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 rns_ii = rns[:,e_end:,e_end:]
 
                 # plot the average ee ei ie ii functional weights over time
-                ax[4].plot(np.mean(rns_ee[rns_ee!=0],(1,2)),alpha=0.6,color='slateblue',label='ee')
-                ax[4].plot(np.mean(rns_ei[rns_ei!=0],(1,2)),alpha=0.6,color='dodgerblue',label='ei')
-                ax[4].plot(np.mean(rns_ie[rns_ie!=0],(1,2)),alpha=0.6,color='mediumseagreen',label='ie')
-                ax[4].plot(np.mean(rns_ii[rns_ii!=0],(1,2)),alpha=0.6,color='yellowgreen',label='ii')
+                if len(rns_ee[rns_ee!=0])>0:
+                    ax[4].plot(np.mean(rns_ee[rns_ee!=0],(1,2)),alpha=0.6,color='slateblue',label='ee')
+                if len(rns_ei[rns_ei!=0])>0:
+                    ax[4].plot(np.mean(rns_ei[rns_ei!=0],(1,2)),alpha=0.6,color='dodgerblue',label='ei')
+                if len(rns_ie[rns_ie!=0])>0:
+                    ax[4].plot(np.mean(rns_ie[rns_ie!=0],(1,2)),alpha=0.6,color='mediumseagreen',label='ie')
+                if len(rns_ii[rns_ii!=0])>0:
+                    ax[4].plot(np.mean(rns_ii[rns_ii!=0],(1,2)),alpha=0.6,color='yellowgreen',label='ii')
                 ax[4].set_ylabel('weight',fontname='Ubuntu')
                 ax[4].vlines(int(t_change/10),ymin=np.min(rns),ymax=np.max(rns),color='red',label='t change')
                 ax[4].vlines(int((t_change+delay_dur)/10),ymin=np.min(rns),ymax=np.max(rns),color='darkorange',label='t delay')
