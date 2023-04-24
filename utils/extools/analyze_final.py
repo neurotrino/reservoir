@@ -28,6 +28,7 @@ from utils.extools.MI import simplest_confMI
 from utils.extools.MI import simplest_asym_confMI
 from utils.extools.analyze_dynamics import fastbin
 from utils.extools.analyze_dynamics import trial_recruitment_graphs
+from utils.extools.analyze_dynamics import asym_trial_recruitment_graphs
 from utils.extools.analyze_dynamics import threshold_fnet
 
 # ---- global variables -------------------------------------------------------
@@ -248,7 +249,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
 
                 binned_inz = fastbin(np.transpose(in_spikes[i]), 20, 16)
                 in_fn = simplest_asym_confMI(binned_inz, binned_z, correct_signs=False)
-                in_rns = trial_recruitment_graphs(in_w, in_fn, binned_inz, threshold=1)
+                in_rns = asym_trial_recruitment_graphs(in_w, in_fn, binned_inz, binned_z, threshold=1)
                 in_rns_e = in_rns[:,:,:e_end]
                 in_rns_i = in_rns[:,:,e_end:]
                 ax[5].plot(np.mean(in_rns_e,(1,2)),alpha=0.7,color='dodgerblue',label='in to e')

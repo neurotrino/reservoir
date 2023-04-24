@@ -2537,7 +2537,7 @@ def threshold_fnet(fnet, thr, copy=True):
     # Mask the array
     return ma.masked_array(fnet, mask, copy=copy, fill_value=0)
 
-def firing_buddy_mask(z, m):
+def firing_buddy_mask(z, m, z_post=None):
     """TODO: document function"""
 
     # Binary matrix where the value at i,j indicates if neurons
@@ -2546,8 +2546,15 @@ def firing_buddy_mask(z, m):
     # NOTE: I assumed w_bool was one-dimensional (unit axis)
     #       and that spikes was two-dimensionsional (unit axis,
     #       time axis)
-    b1 = np.tile(z, (*z.shape, 1))
-    b1 = b1.T * z
+
+    if z_post is None:
+        b1 = np.tile(z, (*z.shape, 1))
+        b1 = b1.T * z
+    else:
+    # for the units that spiked in this timestep (z),
+    # which of them truly have synaptic connections?
+        b1 = np.tile(z, (*z_post.shape, 1))
+        b1 = b1.T * z_post
 
     # Binary matrix where the value at i,j indicates if neurons
     # i and j simultaneously spiked at time t *and* that a
@@ -2574,6 +2581,32 @@ def trial_recruitment_graphs(w, fn, binned_z, threshold): # w is synaptic graph;
         # Indicies of all neurons with synaptic connections that
         # are firing together at this timestep
         fb_mask = firing_buddy_mask(binned_z[:, t], w_bool)
+
+        # if we found at least one nonzero synaptic connection
+        # between the active units fill in recruitment graph at
+        # those existing active indices using values from
+        # thresholded functional graph
+        rn[t, ...] = fn * fb_mask
+
+    return rn
+
+
+def asym_trial_recruitment_graphs(w, fn, binned_z, binned_post_z, threshold):
+    fn = threshold_fnet(fn, threshold, copy=False).filled()
+
+    # mask of 0's and 1's for whether actual synaptic connections exist
+    w_bool = np.where(w != 0, 1, 0)
+
+    segment_dur = np.shape(binned_z)[-1]
+    # aggregate recruitment graphs for this segment
+    rn = np.zeros(  # return variable
+        (segment_dur, fn.shape[0], fn.shape[1]),
+        dtype=object
+    )
+    for t in range(0,segment_dur):
+        # Indicies of all neurons with synaptic connections that
+        # are firing together at this timestep
+        fb_mask = firing_buddy_mask(binned_z[:, t], w_bool, binned_post_z[:, t])
 
         # if we found at least one nonzero synaptic connection
         # between the active units fill in recruitment graph at
