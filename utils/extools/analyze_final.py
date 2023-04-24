@@ -156,7 +156,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                     delay_dur = np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0][0]
 
                 save_fname = spath+'/'+exp_path+'_trial'+str(i)+'.png'
-                fig, ax = plt.subplots(nrows=5,ncols=1,figsize=(8,10))
+                fig, ax = plt.subplots(nrows=6,ncols=1,figsize=(8,11))
 
                 ax[0].plot(pred_y[i],color='dodgerblue',alpha=0.5,label='prediction')
                 ax[0].plot(true_y[i],color='mediumblue',alpha=0.5,label='true y')
@@ -234,11 +234,24 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[4].set_ylabel('weight',fontname='Ubuntu')
                 #ax[4].vlines(int(t_change/20),ymin=np.min(rns),ymax=np.max(rns),color='red',label='t change')
                 #ax[4].vlines(int((t_change+delay_dur)/20),ymin=np.min(rns),ymax=np.max(rns),color='darkorange',label='t delay')
-                ax[4].set_title('average recruitment weights')
+                ax[4].set_title('average recruitment weights',fontname='Ubuntu')
                 # plot the average density of those over time as well
                 # plot the ee clustering and ii clustering over time as well
                 # maybe just start with the first
                 # plot a vline according to corrected bin
+
+                densities = np.zeros([4,np.shape(rns)[0]])
+                for j in range(0,np.shape(rns)[0]):
+                    densities[0,j] = calc_density(rns_ee[j])
+                    densities[1,j] = calc_density(rns_ei[j])
+                    densities[2,j] = calc_density(rns_ie[j])
+                    densities[3,j] = calc_density(rns_ii[j])
+                colors=['slateblue','dodgerblue','mediumseagreen','yellowgreen']
+                labels=['ee','ei','ie','ii']
+                for j in range(0,4):
+                    ax[5].plot(densities[j,:],alpha=0.7,color=colors[j],label=labels[j])
+                ax[5].set_ylabel('density',fontname='Ubuntu')
+                ax[5].set_title('recruitment densities',fontname='Ubuntu')
 
                 """
                 # plot the rates of recurrent e units that project more to e vs those that project more to i
@@ -314,7 +327,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
 
                 plt.suptitle('measures for trial '+str(i))
                 plt.draw()
-                plt.subplots_adjust(wspace=0.8, hspace=0.8)
+                plt.subplots_adjust(wspace=1.0, hspace=1.0)
                 plt.draw()
                 plt.savefig(save_fname,dpi=300)
 
