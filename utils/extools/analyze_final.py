@@ -98,7 +98,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
         os.makedirs(spath)
 
     for xdir in exp_data_dirs:
-        xdir = 'run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz [2023-04-14 05.09.58]'
+        #xdir = 'run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz [2023-04-14 05.09.58]'
         print('begin new exp')
         exp_path = xdir[-9:-1]
 
@@ -151,10 +151,16 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 # determine the duration after coherence change until we first pass (pos or neg direction) the after-change average
                 if pre_avg < post_avg:
                     # if we are increasing coherence level, crossing is when we go above the 75th percentile of post-change preds
-                    delay_dur = np.where(pred_y[i][t_change:]>np.quantile(pred_y[i][t_change:],0.75))[0][0]
+                    if np.shape(np.where(pred_y[i][t_change:]>np.quantile(pred_y[i][t_change:],0.75))[0])[0]>0:
+                        delay_dur = np.where(pred_y[i][t_change:]>np.quantile(pred_y[i][t_change:],0.75))[0][0]
+                    else:
+                        delay_dur = np.where(pred_y[i][t_change:]>np.quantile(pred_y[i][t_change:],0.75))[0][0]
                 elif pre_avg > post_avg:
                     # if we are decreasing coherence level, crossing is when we fall below the 25th percentile of post-change preds
-                    delay_dur = np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0]
+                    if np.shape(np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0])[0]>0:
+                        delay_dur = np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0][0]
+                    else:
+                        delay_dur = np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0]
 
                 save_fname = spath+'/'+exp_path+'_trial'+str(i)+'.png'
                 fig, ax = plt.subplots(nrows=6,ncols=1,figsize=(8,11))
@@ -209,8 +215,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 # generate functional network and recruitment graphs for all timesteps of this trial
                 binned_z = fastbin(z=np.transpose(spikes[i]), bin_sz=20, num_units=300) # sharing 20 ms bins for everything for now
                 fn = simplest_confMI(binned_z,correct_signs=True)
-                rn_binned_z = fastbin(z=np.transpose(spikes[i]), bin_sz=20, num_units=300)
-                rns = trial_recruitment_graphs(w, fn, rn_binned_z, threshold=1)
+                rns = trial_recruitment_graphs(w, fn, binned_z, threshold=1)
 
                 rns_ee = rns[:,:e_end,:e_end]
                 rns_ei = rns[:,:e_end,e_end:]
@@ -235,12 +240,23 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[4].set_ylabel('weight',fontname='Ubuntu')
                 #ax[4].vlines(int(t_change/20),ymin=np.min(rns),ymax=np.max(rns),color='red',label='t change')
                 #ax[4].vlines(int((t_change+delay_dur)/20),ymin=np.min(rns),ymax=np.max(rns),color='darkorange',label='t delay')
-                ax[4].set_title('average recruitment weights',fontname='Ubuntu')
+                ax[4].set_title('average recurrent recruitment weights',fontname='Ubuntu')
                 # plot the average density of those over time as well
                 # plot the ee clustering and ii clustering over time as well
                 # maybe just start with the first
                 # plot a vline according to corrected bin
 
+                binned_inz = fastbin(np.transpose(in_spikes[i]), 20, 16)
+                in_fn = simplest_asym_confMI(binned_inz, binned_z, correct_signs=False)
+                in_rns = trial_recruitment_graphs(in_w, in_fn, binned_inz, threshold=1)
+                in_rns_e = in_rns[:,:,:e_end]
+                in_rns_i = in_rns[:,:,e_end:]
+                ax[5].plot(np.mean(in_rns_e,(1,2)),alpha=0.7,color='dodgerblue',label='in to e')
+                ax[5].plot(np.mean(in_rns_i,(1,2)),alpha=0.7,color='mediumseagreen',label='in to i')
+                ax[5].set_ylabel('weight',fontname='Ubuntu')
+                ax[5].set_title('average input recruitment weights',fontname='Ubuntu')
+
+                """
                 densities = np.zeros([4,np.shape(rns)[0]])
                 for j in range(0,np.shape(rns)[0]):
                     densities[0,j] = calc_density(rns_ee[j])
@@ -253,6 +269,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                     ax[5].plot(densities[j,:],alpha=0.7,color=colors[j],label=labels[j])
                 ax[5].set_ylabel('density',fontname='Ubuntu')
                 ax[5].set_title('recruitment densities',fontname='Ubuntu')
+                """
 
                 """
                 # plot the rates of recurrent e units that project more to e vs those that project more to i
