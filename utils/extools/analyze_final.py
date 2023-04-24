@@ -156,7 +156,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                     delay_dur = np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0][0]
 
                 save_fname = spath+'/'+exp_path+'_trial'+str(i)+'.png'
-                fig, ax = plt.subplots(nrows=6,ncols=1,figsize=(8,11))
+                fig, ax = plt.subplots(nrows=5,ncols=1,figsize=(8,10))
 
                 ax[0].plot(pred_y[i],color='dodgerblue',alpha=0.5,label='prediction')
                 ax[0].plot(true_y[i],color='mediumblue',alpha=0.5,label='true y')
@@ -196,8 +196,8 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 coh0_rec = np.where(np.sum(in_w[coh0_idx,:],0)>np.sum(in_w[coh1_idx,:],0))[0]
                 coh1_rec = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:],0))[0]
 
-                e_diff = np.mean(spikes[i][:,coh1_rec[coh1_rec>=e_end]],1)-np.mean(spikes[i][:,coh0_rec[coh0_rec>=e_end]],1)
-                i_diff = np.mean(spikes[i][:,coh1_rec[coh1_rec<e_end]],1)-np.mean(spikes[i][:,coh0_rec[coh0_rec<e_end]],1)
+                e_diff = np.mean(spikes[i][:,coh1_rec[coh1_rec<e_end]],1)-np.mean(spikes[i][:,coh0_rec[coh0_rec<e_end]],1)
+                i_diff = np.mean(spikes[i][:,coh1_rec[coh1_rec>=e_end]],1)-np.mean(spikes[i][:,coh0_rec[coh0_rec>=e_end]],1)
                 ax[3].plot(e_diff,color='dodgerblue',label='e coh1-coh0')
                 ax[3].plot(i_diff,color='mediumseagreen',label='i coh1-coh0')
                 ax[3].vlines(t_change,ymin=np.min(e_diff),ymax=np.max(e_diff),color='red',label='t change')
@@ -205,16 +205,31 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[3].set_ylabel('spike rate difference',fontname='Ubuntu')
                 ax[3].set_title('average difference between e and i recurrent rates by dominant input group')
 
+                # generate functional network and recruitment graphs for all timesteps of this trial
+                binned_z = fastbin(np.transpose(z=spikes[i]), bin_sz=10, num_units=300) # sharing 20 ms bins for everything for now
+                fn = simplest_confMI(binned_z,correct_signs=True)
+                rn_binned_z = fastbin(z=np.transpose(z=spikes[i]), bin_sz=10, num_units=300)
+                rns = trial_recruitment_graphs(w, fn, rn_binned_z, threshold=1)
+
+                # plot the average ee ei ie ii functional weights over time
+                ax[4].plot(np.mean(rns[:e_end,:e_end][:],0),alpha=0.6,color='slateblue',label='ee')
+                ax[4].plot(np.mean(rns[:e_end,e_end:][:],0),alpha=0.6,color='dodgerblue',label='ei')
+                ax[4].plot(np.mean(rns[e_end:,:e_end][:],0),alpha=0.6,color='mediumseagreen',label='ie')
+                ax[4].plot(np.mean(rns[e_end:,e_end:][:],0),alpha=0.6,color='yellowgreen',label='ii')
+                ax[4].set_ylabel('weight',fontname='Ubuntu')
+                ax[4].vlines(int(t_change/10),ymin=np.min(rns),ymax=np.max(rns),color='red',label='t change')
+                ax[4].vlines(int((t_change+delay_dur)/10),ymin=np.min(rns),ymax=np.max(rns),color='darkorange',label='t delay')
+                ax[4].set_title('average recruitment weights')
+                # plot the average density of those over time as well
+                # plot the ee clustering and ii clustering over time as well
+                # maybe just start with the first
+                # plot a vline according to corrected bin
+
+                """
                 # plot the rates of recurrent e units that project more to e vs those that project more to i
                 # get the recurrent units that project more to e vs i and vice versa
                 more_to_e = np.where(np.sum(np.abs(w[:,:e_end]),1)>np.sum(np.abs(w[:,e_end:])))[0]
                 more_to_i = np.where(np.sum(np.abs(w[:,:e_end]),1)<np.sum(np.abs(w[:,e_end:])))[0]
-
-                """e_more_to_e = np.where(np.sum(np.abs(w[:e_end,:e_end]),1)>np.sum(np.abs(w[:e_end,e_end:]),1))[0]
-                e_more_to_i = np.where(np.sum(np.abs(w[:e_end,:e_end]),1)<np.sum(np.abs(w[:e_end,e_end:]),1))[0]
-                # plot the rates of recurrent i units that project more to i vs those that project more to e
-                i_more_to_e = np.where(np.sum(np.abs(w[e_end:,:e_end]),1)>np.sum(np.abs(w[e_end:,e_end:]),1))[0]
-                i_more_to_i = np.where(np.sum(np.abs(w[e_end:,:e_end]),1)<np.sum(np.abs(w[e_end:,e_end:]),1))[0]"""
 
                 # plot the rates of recurrent e units that project more to i vs recurrent i units that project more to e
                 ax[4].plot(np.mean(spikes[i][:,more_to_e[more_to_e<e_end]],1),alpha=0.5,color='slateblue',label='e driving e')
@@ -231,6 +246,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[5].plot(np.mean(spikes[i][:,more_to_e[more_to_e>=e_end]],1)-np.mean(spikes[i][:,more_to_i[more_to_i<e_end]],1),color='yellowgreen',label='e drive to i vs i drive to e')
                 ax[5].set_ylabel('spike rate difference',fontname='Ubuntu')
                 ax[5].set_title('average difference between recurrent rates by dominant recurrent group')
+                """
 
                 """
                 ax[3].plot(np.mean(spikes[i][:,coh0_rec[coh0_rec>=e_end]],1),alpha=0.5,color='slateblue',label='coh 0 driven e')
@@ -283,7 +299,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
 
                 plt.suptitle('measures for trial '+str(i))
                 plt.draw()
-                plt.subplots_adjust(wspace=1.0, hspace=1.0)
+                plt.subplots_adjust(wspace=0.8, hspace=0.8)
                 plt.draw()
                 plt.savefig(save_fname,dpi=300)
 
