@@ -98,6 +98,7 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
         os.makedirs(spath)
 
     for xdir in exp_data_dirs:
+        xdir = 'run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz [2023-04-14 05.09.58]'
         print('begin new exp')
         exp_path = xdir[-9:-1]
 
