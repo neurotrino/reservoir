@@ -232,8 +232,8 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[4].plot(np.mean(rns_ie,(1,2)),alpha=0.7,color='mediumseagreen',label='ie')
                 ax[4].plot(np.mean(rns_ii,(1,2)),alpha=0.7,color='yellowgreen',label='ii')
                 ax[4].set_ylabel('weight',fontname='Ubuntu')
-                ax[4].vlines(int(t_change/20),ymin=np.min(rns),ymax=np.max(rns),color='red',label='t change')
-                ax[4].vlines(int((t_change+delay_dur)/20),ymin=np.min(rns),ymax=np.max(rns),color='darkorange',label='t delay')
+                #ax[4].vlines(int(t_change/20),ymin=np.min(rns),ymax=np.max(rns),color='red',label='t change')
+                #ax[4].vlines(int((t_change+delay_dur)/20),ymin=np.min(rns),ymax=np.max(rns),color='darkorange',label='t delay')
                 ax[4].set_title('average recruitment weights')
                 # plot the average density of those over time as well
                 # plot the ee clustering and ii clustering over time as well
