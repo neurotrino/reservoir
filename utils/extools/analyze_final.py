@@ -206,9 +206,9 @@ def single_trial_delay_corresp(exp_dirs=save_inz_dirs,exp_season='spring',rand_e
                 ax[3].set_title('average difference between e and i recurrent rates by dominant input group')
 
                 # generate functional network and recruitment graphs for all timesteps of this trial
-                binned_z = fastbin(np.transpose(z=spikes[i]), bin_sz=10, num_units=300) # sharing 20 ms bins for everything for now
+                binned_z = fastbin(z=np.transpose(spikes[i]), bin_sz=10, num_units=300) # sharing 20 ms bins for everything for now
                 fn = simplest_confMI(binned_z,correct_signs=True)
-                rn_binned_z = fastbin(np.transpose(z=spikes[i]), bin_sz=10, num_units=300)
+                rn_binned_z = fastbin(z=np.transpose(spikes[i]), bin_sz=10, num_units=300)
                 rns = trial_recruitment_graphs(w, fn, rn_binned_z, threshold=1)
 
                 # plot the average ee ei ie ii functional weights over time
