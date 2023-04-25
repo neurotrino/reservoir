@@ -192,25 +192,25 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         ax[0].hist(ho_ee[ho_ee!=0].flatten(),alpha=0.5,density=True,bins=30,label='ee',color='dodgerblue')
         ax[0].hist(ho_ei[ho_ei!=0].flatten(),alpha=0.5,density=True,bins=30,label='ei',color='mediumseagreen')
         ax[0].hist(ho_ie[ho_ie!=0].flatten(),alpha=0.5,density=True,bins=30,label='ie',color='darkorange')
-        ax[0].hist(ho_ii[ho_ii!=0].flatten(),alpha=0.5,density=True,bins=30,label='ii',color='orangred')
+        ax[0].hist(ho_ii[ho_ii!=0].flatten(),alpha=0.5,density=True,bins=30,label='ii',color='orangered')
         ax[0].set_title('coherence 1 tuned to coherence 1 tuned',fontname='Ubuntu')
 
         ax[1].hist(het_ee[het_ee!=0].flatten(),alpha=0.5,density=True,bins=30,label='ee',color='dodgerblue')
         ax[1].hist(het_ei[het_ei!=0].flatten(),alpha=0.5,density=True,bins=30,label='ei',color='mediumseagreen')
         ax[1].hist(het_ie[het_ie!=0].flatten(),alpha=0.5,density=True,bins=30,label='ie',color='darkorange')
-        ax[1].hist(het_ii[het_ii!=0].flatten(),alpha=0.5,density=True,bins=30,label='ii',color='orangred')
+        ax[1].hist(het_ii[het_ii!=0].flatten(),alpha=0.5,density=True,bins=30,label='ii',color='orangered')
         ax[1].set_title('coherence 1 tuned to coherence 0 tuned',fontname='Ubuntu')
 
         ax[2].hist(ero_ee[ero_ee!=0].flatten(),alpha=0.5,density=True,bins=30,label='ee',color='dodgerblue')
         ax[2].hist(ero_ei[ero_ei!=0].flatten(),alpha=0.5,density=True,bins=30,label='ei',color='mediumseagreen')
         ax[2].hist(ero_ie[ero_ie!=0].flatten(),alpha=0.5,density=True,bins=30,label='ie',color='darkorange')
-        ax[2].hist(ero_ii[ero_ii!=0].flatten(),alpha=0.5,density=True,bins=30,label='ii',color='orangred')
+        ax[2].hist(ero_ii[ero_ii!=0].flatten(),alpha=0.5,density=True,bins=30,label='ii',color='orangered')
         ax[2].set_title('coherence 0 tuned to coherence 1 tuned',fontname='Ubuntu')
 
         ax[3].hist(mo_ee[mo_ee!=0].flatten(),alpha=0.5,density=True,bins=30,label='ee',color='dodgerblue')
         ax[3].hist(mo_ei[mo_ei!=0].flatten(),alpha=0.5,density=True,bins=30,label='ei',color='mediumseagreen')
         ax[3].hist(mo_ie[mo_ie!=0].flatten(),alpha=0.5,density=True,bins=30,label='ie',color='darkorange')
-        ax[3].hist(mo_ii[mo_ii!=0].flatten(),alpha=0.5,density=True,bins=30,label='ii',color='orangred')
+        ax[3].hist(mo_ii[mo_ii!=0].flatten(),alpha=0.5,density=True,bins=30,label='ii',color='orangered')
         ax[3].set_title('coherence 0 tuned to coherence 0 tuned',fontname='Ubuntu')
 
         for j in range(0,len(ax)):
