@@ -127,7 +127,7 @@ def describe_tuning(exp_dirs=np.unique([save_inz_dirs,spec_nointoout_dirs]),exp_
         coh1_rec_rates = []
 
         for i in range(0,np.shape(true_y)[0]):
-            for j in range(0,np.shape(true_y)[1])
+            for j in range(0,np.shape(true_y)[1]):
                 if true_y[i][j][0]==true_y[i][j][seq_len-1]:
                     if true_y[i][j][0]==0:
                         coh0_rec_rates.append(np.mean(spikes[i][j],0))
