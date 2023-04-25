@@ -164,6 +164,9 @@ def describe_tuning(exp_dirs=spec_output_dirs,exp_season='fall'):
         ax[1].set_xlabel('average rate',fontname='Ubuntu')
         ax[1].set_ylabel('density',fontname='Ubuntu')
 
+        ax[1].set_xlim([0,np.maximum(coh1_rec_rates)])
+        ax[0].set_xlim([0,np.maximum(coh1_rec_rates)])
+
         for j in range(0,len(ax)):
             ax[j].legend(prop={"family":"Ubuntu"})
             for tick in ax[j].get_xticklabels():
