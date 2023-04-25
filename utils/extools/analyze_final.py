@@ -224,22 +224,22 @@ def single_trial_delay_corresp(exp_dirs=spec_nointoout_dirs,exp_season='spring',
                 #coh0_rec = np.where(np.sum(in_w[coh0_idx,:],0)>np.sum(in_w[coh1_idx,:],0))[0]
                 #coh1_rec = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:],0))[0]
 
-                coh0_rec_e_rate = np.mean(moving_average(np.tranpose(spikes[i][:e_end,coh0_rec_idx]),bin=10),0)
+                coh0_rec_e_rate = np.mean(moving_average(np.transpose(spikes[i][:e_end,coh0_rec_idx]),bin=10),0)
                 coh0_rec_i_rate = np.mean(moving_average(np.transpose(spikes[i][e_end:,coh0_rec_idx]),bin=10),0)
                 coh1_rec_e_rate = np.mean(moving_average(np.transpose(spikes[i][:e_end,coh1_rec_idx]),bin=10),0)
-                coh1_rec_i_rate = np.mean(moving_average(np.tranpose(spikes[i][e_end:,coh1_rec_idx]),bin=10),0)
+                coh1_rec_i_rate = np.mean(moving_average(np.transpose(spikes[i][e_end:,coh1_rec_idx]),bin=10),0)
                 ax[3].plot(coh1_rec_e_rate-coh0_rec_e_rate,color='slateblue',label='e coh1-coh0')
                 ax[3].plot(coh1_rec_i_rate-coh0_rec_i_rate,color='mediumseagreen',label='i coh1-coh0')
                 ax[3].set_ylabel('spike rate difference',fontname='Ubuntu')
                 ax[3].set_title('average difference between e and i recurrent rates by dominant input group',fontname='Ubuntu')
 
-                input_avg_rates = moving_average(np.tranpose(in_spikes[i][:coh0_idx]),bin=10)
+                input_avg_rates = moving_average(np.transpose(in_spikes[i][:coh0_idx]),bin=10)
                 for j in range(0,shape(input_avg_rates)[0]):
                     ax[4].plot(input_avg_rates[j])
                 ax[4].set_ylabel('moving spike rate',fontname='Ubuntu')
                 ax[4].set_title('coh0 driven input channels',fontname='Ubuntu')
 
-                input_avg_rates = moving_average(np.tranpose(in_spikes[i][:coh1_idx]),bin=10)
+                input_avg_rates = moving_average(np.transpose(in_spikes[i][:coh1_idx]),bin=10)
                 for j in range(0,shape(input_avg_rates)[0]):
                     ax[5].plot(input_avg_rates[j])
                 ax[5].set_ylabel('moving spike rate',fontname='Ubuntu')
