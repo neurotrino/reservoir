@@ -96,7 +96,7 @@ def moving_average(spikes,bin):
     return moving_avg # still in the shape of [units] in first dimension
 
 
-def single_trial_delay_corresp(exp_dirs=spec_output_dirs,exp_season='fall',rand_exp_idx=1):
+def single_trial_delay_corresp(exp_dirs=spec_nointoout_dirs,exp_season='season',rand_exp_idx=1):
 
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
@@ -182,7 +182,7 @@ def single_trial_delay_corresp(exp_dirs=spec_output_dirs,exp_season='fall',rand_
                     else:
                         delay_dur = np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0]
 
-                save_fname = spath+'/'+exp_path+'_bin10_trial'+str(i)+'.png'
+                save_fname = spath+'/'+exp_path+'_bin20_trial'+str(i)+'.png'
                 fig, ax = plt.subplots(nrows=6,ncols=1,figsize=(8,11))
 
                 ax[0].plot(pred_y[i],color='dodgerblue',alpha=0.5,label='prediction')
@@ -210,8 +210,8 @@ def single_trial_delay_corresp(exp_dirs=spec_output_dirs,exp_season='fall',rand_
 
                 # plot the difference between average input rates of the two coherence-driven populations
                 # find the two input populations' difference
-                coh0_avg_rate = np.mean(moving_average(np.transpose(in_spikes[i][:,coh0_idx]),bin=10),0)
-                coh1_avg_rate = np.mean(moving_average(np.transpose(in_spikes[i][:,coh1_idx]),bin=10),0)
+                coh0_avg_rate = np.mean(moving_average(np.transpose(in_spikes[i][:,coh0_idx]),bin=20),0)
+                coh1_avg_rate = np.mean(moving_average(np.transpose(in_spikes[i][:,coh1_idx]),bin=20),0)
                 ax[2].plot(coh1_avg_rate-coh0_avg_rate,color='dodgerblue',label='coh1-coh0')
                 #ax[2].vlines(t_change,ymin=np.min(coh1_avg_rate-coh0_avg_rate),ymax=np.max(coh1_avg_rate-coh0_avg_rate),color='red',label='t change')
                 #ax[2].vlines(t_change+delay_dur,ymin=np.min(coh1_avg_rate-coh0_avg_rate),ymax=np.max(coh1_avg_rate-coh0_avg_rate),color='darkorange',label='t delay')
@@ -224,22 +224,22 @@ def single_trial_delay_corresp(exp_dirs=spec_output_dirs,exp_season='fall',rand_
                 #coh0_rec = np.where(np.sum(in_w[coh0_idx,:],0)>np.sum(in_w[coh1_idx,:],0))[0]
                 #coh1_rec = np.where(np.sum(in_w[coh1_idx,:],0)>np.sum(in_w[coh0_idx,:],0))[0]
 
-                coh0_rec_e_rate = np.mean(moving_average(np.transpose(spikes[i][:,coh0_rec_idx[coh0_rec_idx<e_end]]),bin=10),0)
-                coh0_rec_i_rate = np.mean(moving_average(np.transpose(spikes[i][:,coh0_rec_idx[coh0_rec_idx>=e_end]]),bin=10),0)
-                coh1_rec_e_rate = np.mean(moving_average(np.transpose(spikes[i][:,coh1_rec_idx[coh1_rec_idx<e_end]]),bin=10),0)
-                coh1_rec_i_rate = np.mean(moving_average(np.transpose(spikes[i][:,coh1_rec_idx[coh1_rec_idx>=e_end]]),bin=10),0)
+                coh0_rec_e_rate = np.mean(moving_average(np.transpose(spikes[i][:,coh0_rec_idx[coh0_rec_idx<e_end]]),bin=20),0)
+                coh0_rec_i_rate = np.mean(moving_average(np.transpose(spikes[i][:,coh0_rec_idx[coh0_rec_idx>=e_end]]),bin=20),0)
+                coh1_rec_e_rate = np.mean(moving_average(np.transpose(spikes[i][:,coh1_rec_idx[coh1_rec_idx<e_end]]),bin=20),0)
+                coh1_rec_i_rate = np.mean(moving_average(np.transpose(spikes[i][:,coh1_rec_idx[coh1_rec_idx>=e_end]]),bin=20),0)
                 ax[3].plot(coh1_rec_e_rate-coh0_rec_e_rate,color='slateblue',label='e coh1-coh0')
                 ax[3].plot(coh1_rec_i_rate-coh0_rec_i_rate,color='mediumseagreen',label='i coh1-coh0')
                 ax[3].set_ylabel('spike rate difference',fontname='Ubuntu')
                 ax[3].set_title('average difference between e and i recurrent rates by dominant input group',fontname='Ubuntu')
 
-                input_avg_rates = moving_average(np.transpose(in_spikes[i][:,coh0_idx]),bin=10)
+                input_avg_rates = moving_average(np.transpose(in_spikes[i][:,coh0_idx]),bin=20)
                 for j in range(0,np.shape(input_avg_rates)[0]):
                     ax[4].plot(input_avg_rates[j])
                 ax[4].set_ylabel('moving spike rate',fontname='Ubuntu')
                 ax[4].set_title('coh0 driven input channels',fontname='Ubuntu')
 
-                input_avg_rates = moving_average(np.transpose(in_spikes[i][:,coh1_idx]),bin=10)
+                input_avg_rates = moving_average(np.transpose(in_spikes[i][:,coh1_idx]),bin=20)
                 for j in range(0,np.shape(input_avg_rates)[0]):
                     ax[5].plot(input_avg_rates[j])
                 ax[5].set_ylabel('moving spike rate',fontname='Ubuntu')
