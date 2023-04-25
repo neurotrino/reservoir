@@ -145,6 +145,8 @@ def describe_tuning(exp_dirs=np.unique([save_inz_dirs,spec_nointoout_dirs]),exp_
         coh0_rec_rates = np.array(coh0_rec_rates)
         coh1_rec_rates = np.array(coh1_rec_rates)
 
+        fig, ax = plt.subplots(nrows=2,ncols=1))
+
         # for each unit, plot their average rate to one vs the other
         ax[0].hist((coh0_rec_rates[:,coh1_rec_idx[coh1_rec_idx<e_end]]).flatten(),alpha=0.5,color='dodgerblue',bins=30,density=True,label='coh1-driven e')
         ax[0].hist((coh0_rec_rates[:,coh1_rec_idx[coh1_rec_idx>=e_end]]).flatten(),alpha=0.5,color='darkorange',bins=30,density=True,label='coh1-driven i')
