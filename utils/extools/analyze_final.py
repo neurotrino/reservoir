@@ -227,7 +227,7 @@ def single_trial_delay_corresp(exp_dirs=spec_nointoout_dirs,exp_season='spring',
                 coh0_rec_e_rate = np.mean(moving_average(np.tranpose(spikes[i][:e_end,coh0_rec_idx]),bin=10),0)
                 coh0_rec_i_rate = np.mean(moving_average(np.transpose(spikes[i][e_end:,coh0_rec_idx]),bin=10),0)
                 coh1_rec_e_rate = np.mean(moving_average(np.transpose(spikes[i][:e_end,coh1_rec_idx]),bin=10),0)
-                coh1_rec_i_rate = np.mean(moving_average(np.tranpose(spikes[i][e_end:,coh1_rec_idx],bin=10),0)
+                coh1_rec_i_rate = np.mean(moving_average(np.tranpose(spikes[i][e_end:,coh1_rec_idx]),bin=10),0)
                 ax[3].plot(coh1_rec_e_rate-coh0_rec_e_rate,color='slateblue',label='e coh1-coh0')
                 ax[3].plot(coh1_rec_i_rate-coh0_rec_i_rate,color='mediumseagreen',label='i coh1-coh0')
                 ax[3].set_ylabel('spike rate difference',fontname='Ubuntu')
