@@ -166,25 +166,25 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
 
         # name them as homo and hetero lol
 
-        ho_ee=np.mean(w[:][coh1_e,coh1_e],0)
-        ho_ei=np.mean(w[:][coh1_e,coh1_i],0)
-        ho_ie=np.mean(w[:][coh1_i,coh1_e],0)
-        ho_ii=np.mean(w[:][coh1_i,coh1_i],0)
+        ho_ee=np.mean(w[:,coh1_e,coh1_e],0)
+        ho_ei=np.mean(w[:,coh1_e,coh1_i],0)
+        ho_ie=np.mean(w[:,coh1_i,coh1_e],0)
+        ho_ii=np.mean(w[:,coh1_i,coh1_i],0)
 
-        het_ee=np.mean(w[:][coh1_e,coh0_e],0)
-        het_ei=np.mean(w[:][coh1_e,coh0_i],0)
-        het_ie=np.mean(w[:][coh1_i,coh0_e],0)
-        het_ii=np.mean(w[:][coh1_i,coh0_i],0)
+        het_ee=np.mean(w[:,coh1_e,coh0_e],0)
+        het_ei=np.mean(w[:,coh1_e,coh0_i],0)
+        het_ie=np.mean(w[:,coh1_i,coh0_e],0)
+        het_ii=np.mean(w[:,coh1_i,coh0_i],0)
 
-        ero_np.mean(w[:][coh0_e,coh1_e],0)
-        ero_np.mean(w[:][coh0_e,coh1_i],0)
-        ero_np.mean(w[:][coh0_i,coh1_e],0)
-        ero_np.mean(w[:][coh0_i,coh1_i],0)
+        ero_np.mean(w[:,coh0_e,coh1_e],0)
+        ero_np.mean(w[:,coh0_e,coh1_i],0)
+        ero_np.mean(w[:,coh0_i,coh1_e],0)
+        ero_np.mean(w[:,coh0_i,coh1_i],0)
 
-        mo_np.mean(w[:][coh0_e,coh0_e],0)
-        mo_np.mean(w[:][coh0_e,coh0_i],0)
-        mo_np.mean(w[:][coh0_i,coh0_e],0)
-        mo_np.mean(w[:][coh0_i,coh0_i],0)
+        mo_np.mean(w[:,coh0_e,coh0_e],0)
+        mo_np.mean(w[:,coh0_e,coh0_i],0)
+        mo_np.mean(w[:,coh0_i,coh0_e],0)
+        mo_np.mean(w[:,coh0_i,coh0_i],0)
 
         fig, ax = plt.subplots(nrows=2,ncols=2)
         ax = ax.flatten()
@@ -268,14 +268,14 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
 
         for i in range(0,np.shape(temporal_w)[0]): # again over all training time
             for j in range(0,np.shape(temporal_w)[1]):
-                coh0_ee.append(np.mean(temporal_w[i][j][coh0_e,coh0_e]))
-                coh0_ei.append(np.mean(temporal_w[i][j][coh0_e,coh0_i]))
-                coh0_ie.append(np.mean(temporal_w[i][j][coh0_i,coh0_e]))
-                coh0_ii.append(np.mean(temporal_w[i][j][coh0_i,coh0_i]))
-                coh1_ee.append(np.mean(temporal_w[i][j][coh1_e,coh1_e]))
-                coh1_ei.append(np.mean(temporal_w[i][j][coh1_e,coh1_i]))
-                coh1_ie.append(np.mean(temporal_w[i][j][coh1_i,coh1_e]))
-                coh1_ii.append(np.mean(temporal_w[i][j][coh1_i,coh1_i]))
+                coh0_ee.append(np.mean(temporal_w[i,j,coh0_e,coh0_e]))
+                coh0_ei.append(np.mean(temporal_w[i,j,coh0_e,coh0_i]))
+                coh0_ie.append(np.mean(temporal_w[i,j,coh0_i,coh0_e]))
+                coh0_ii.append(np.mean(temporal_w[i,j,coh0_i,coh0_i]))
+                coh1_ee.append(np.mean(temporal_w[i,j,coh1_e,coh1_e]))
+                coh1_ei.append(np.mean(temporal_w[i,j,coh1_e,coh1_i]))
+                coh1_ie.append(np.mean(temporal_w[i,j,coh1_i,coh1_e]))
+                coh1_ii.append(np.mean(temporal_w[i,j,coh1_i,coh1_i]))
 
         ax[1].plot(coh0_ee,color='slateblue',label='ee')
         ax[1].plot(coh0_ei,color='mediumseagreen',label='ei')
