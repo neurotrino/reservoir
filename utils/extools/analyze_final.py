@@ -96,7 +96,7 @@ def moving_average(spikes,bin):
     return moving_avg # still in the shape of [units] in first dimension
 
 
-def single_trial_delay_corresp(exp_dirs=spec_nointoout_dirs,exp_season='spring',rand_exp_idx=1):
+def single_trial_delay_corresp(exp_dirs=spec_output_dirs,exp_season='fall',rand_exp_idx=1):
 
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
@@ -105,7 +105,7 @@ def single_trial_delay_corresp(exp_dirs=spec_nointoout_dirs,exp_season='spring',
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
     # check if folder exists, otherwise create it for saving files
-    spath = '/data/results/experiment1/set_plots/spring/trained_trials'
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/trained_trials'
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
