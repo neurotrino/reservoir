@@ -105,7 +105,7 @@ def single_trial_delay_corresp(exp_dirs=spec_nointoout_dirs,exp_season='season',
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
     # check if folder exists, otherwise create it for saving files
-    spath = '/data/results/experiment1/set_plots/'+exp_season+'/trained_trials'
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/naive_trials'
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
@@ -119,15 +119,17 @@ def single_trial_delay_corresp(exp_dirs=spec_nointoout_dirs,exp_season='season',
         #xdir = 'run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-20 21.06.01]'
 
         np_dir = os.path.join(data_dir,xdir,"npz-data")
+        naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
         trained_data = np.load(os.path.join(np_dir,"991-1000.npz"))
+        data=naive_data
 
         # go thru final epoch trials
-        true_y = trained_data['true_y'][99]
-        pred_y = trained_data['pred_y'][99]
-        spikes = trained_data['spikes'][99]
-        w = trained_data['tv1.postweights'][99]
-        in_w = trained_data['tv0.postweights'][99]
-        in_spikes = trained_data['inputs'][99]
+        true_y = data['true_y'][99]
+        pred_y = data['pred_y'][99]
+        spikes = data['spikes'][99]
+        w = data['tv1.postweights'][99]
+        in_w = data['tv0.postweights'][99]
+        in_spikes = data['inputs'][99]
 
         coh0_rates = []
         coh1_rates = []
