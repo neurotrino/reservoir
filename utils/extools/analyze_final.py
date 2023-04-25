@@ -159,10 +159,10 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         coh1_rec_rates = np.array(coh1_rec_rates)
 
         # just average weights to begin with?
-        coh1_e = coh1_rec_idx[coh1_rec_idx<e_end]
-        coh1_i = coh1_rec_idx[coh1_rec_idx>=e_end]
-        coh0_e = coh0_rec_idx[coh0_rec_idx<e_end]
-        coh0_i = coh0_rec_idx[coh0_rec_idx>=e_end]
+        coh1_e = np.array(coh1_rec_idx[coh1_rec_idx<e_end])
+        coh1_i = np.array(coh1_rec_idx[coh1_rec_idx>=e_end])
+        coh0_e = np.array(coh0_rec_idx[coh0_rec_idx<e_end])
+        coh0_i = np.array(coh0_rec_idx[coh0_rec_idx>=e_end])
 
         # name them as homo and hetero lol
 
