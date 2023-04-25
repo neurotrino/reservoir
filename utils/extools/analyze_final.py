@@ -145,26 +145,33 @@ def describe_tuning(exp_dirs=np.unique([save_inz_dirs,spec_nointoout_dirs]),exp_
         coh0_rec_rates = np.array(coh0_rec_rates)
         coh1_rec_rates = np.array(coh1_rec_rates)
 
-        fig, ax = plt.subplots(nrows=2,ncols=1))
+        fig, ax = plt.subplots(nrows=2,ncols=1)
 
         # for each unit, plot their average rate to one vs the other
         ax[0].hist((coh0_rec_rates[:,coh1_rec_idx[coh1_rec_idx<e_end]]).flatten(),alpha=0.5,color='dodgerblue',bins=30,density=True,label='coh1-driven e')
         ax[0].hist((coh0_rec_rates[:,coh1_rec_idx[coh1_rec_idx>=e_end]]).flatten(),alpha=0.5,color='darkorange',bins=30,density=True,label='coh1-driven i')
         ax[0].hist((coh0_rec_rates[:,coh0_rec_idx[coh0_rec_idx<e_end]]).flatten(),alpha=0.5,color='mediumseagreen',bins=30,density=True,label='coh0-driven e')
         ax[0].hist((coh0_rec_rates[:,coh0_rec_idx[coh0_rec_idx>=e_end]]).flatten(),alpha=0.5,color='orangered',bins=30,density=True,label='coh0-driven i')
-        ax[0].set_title('rates on coherence 0 trials')
-        ax[0].set_xlabel('average rate')
-        ax[0].set_ylabel('density')
+        ax[0].set_title('rates on coherence 0 trials',fontname='Ubuntu')
+        ax[0].set_xlabel('average rate',fontname='Ubuntu')
+        ax[0].set_ylabel('density',fontname='Ubuntu')
 
         ax[1].hist((coh1_rec_rates[:,coh1_rec_idx[coh1_rec_idx<e_end]]).flatten(),alpha=0.5,color='dodgerblue',bins=30,density=True,label='coh1-driven e')
         ax[1].hist((coh1_rec_rates[:,coh1_rec_idx[coh1_rec_idx>=e_end]]).flatten(),alpha=0.5,color='darkorange',bins=30,density=True,label='coh1-driven i')
         ax[1].hist((coh1_rec_rates[:,coh0_rec_idx[coh0_rec_idx<e_end]]).flatten(),alpha=0.5,color='mediumseagreen',bins=30,density=True,label='coh0-driven e')
         ax[1].hist((coh1_rec_rates[:,coh0_rec_idx[coh0_rec_idx>=e_end]]).flatten(),alpha=0.5,color='orangered',bins=30,density=True,label='coh0-driven i')
-        ax[1].set_title('rates on coherence 1 trials')
-        ax[1].set_xlabel('average rate')
-        ax[1].set_ylabel('density')
+        ax[1].set_title('rates on coherence 1 trials',fontname='Ubuntu')
+        ax[1].set_xlabel('average rate',fontname='Ubuntu')
+        ax[1].set_ylabel('density',fontname='Ubuntu')
 
-        plt.suptitle('Trained firing rates to coherence level')
+        for j in range(0,len(ax)):
+            ax[j].legend(prop={"family":"Ubuntu"})
+            for tick in ax[j].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[j].get_yticklabels():
+                tick.set_fontname("Ubuntu")
+
+        plt.suptitle('Trained firing rates to coherence level',fontname='Ubuntu')
 
         save_fname = spath+'/'+exp_path+'_trained_rates_by_coherence.png'
         plt.subplots_adjust(hspace=0.5,wspace=0.5)
