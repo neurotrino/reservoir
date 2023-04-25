@@ -250,7 +250,7 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
 
                 clustering = nx.clustering(Gi, nodes=Gi.nodes, weight="weight")
                 clustering = list(clustering.items())
-                i_clustering.append(np.mean(np.array(i_clustering)[:, 1]))
+                i_clustering.append(np.mean(np.array(clustering)[:, 1]))
 
         ax[0].plot(e_clustering,color='dodgerblue',label='ee')
         ax[0].plot(i_clustering,color='orangered',label='ii')
