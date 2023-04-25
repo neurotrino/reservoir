@@ -233,13 +233,13 @@ def single_trial_delay_corresp(exp_dirs=spec_nointoout_dirs,exp_season='spring',
                 ax[3].set_ylabel('spike rate difference',fontname='Ubuntu')
                 ax[3].set_title('average difference between e and i recurrent rates by dominant input group',fontname='Ubuntu')
 
-                input_avg_rates = moving_average(np.transpose(in_spikes[i][:coh0_idx]),bin=10)
+                input_avg_rates = moving_average(np.transpose(in_spikes[i][:,coh0_idx]),bin=10)
                 for j in range(0,np.shape(input_avg_rates)[0]):
                     ax[4].plot(input_avg_rates[j])
                 ax[4].set_ylabel('moving spike rate',fontname='Ubuntu')
                 ax[4].set_title('coh0 driven input channels',fontname='Ubuntu')
 
-                input_avg_rates = moving_average(np.transpose(in_spikes[i][:coh1_idx]),bin=10)
+                input_avg_rates = moving_average(np.transpose(in_spikes[i][:,coh1_idx]),bin=10)
                 for j in range(0,np.shape(input_avg_rates)[0]):
                     ax[5].plot(input_avg_rates[j])
                 ax[5].set_ylabel('moving spike rate',fontname='Ubuntu')
