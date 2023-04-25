@@ -80,7 +80,8 @@ for xdir in data_dirs:
 spec_output_dirs = ["run-batch30-specout-onlinerate0.1-savey","run-batch30-dualloss-silence","run-batch30-dualloss-swaplabels"]
 spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
 spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
-save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz"]
+save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz"]
+save_inz_dirs_rate = ["run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz"]
 spec_nointoout_dirs_rate = ["run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire","run-batch30-rateloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-rateloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 spec_nointoout_dirs_task = ["run-batch30-taskloss-specinput0.2-nointoout-noinoutrewire","run-batch30-taskloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-taskloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 
@@ -96,7 +97,7 @@ def moving_average(spikes,bin):
     return moving_avg # still in the shape of [units] in first dimension
 
 
-def single_trial_delay_corresp(exp_dirs=spec_nointoout_dirs,exp_season='season',rand_exp_idx=1):
+def single_trial_delay_corresp(exp_dirs=save_inz_dirs_rate,exp_season='spring',rand_exp_idx=1):
 
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
@@ -105,7 +106,7 @@ def single_trial_delay_corresp(exp_dirs=spec_nointoout_dirs,exp_season='season',
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
     # check if folder exists, otherwise create it for saving files
-    spath = '/data/results/experiment1/set_plots/'+exp_season+'/naive_trials'
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/trained_trials'
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
@@ -121,7 +122,7 @@ def single_trial_delay_corresp(exp_dirs=spec_nointoout_dirs,exp_season='season',
         np_dir = os.path.join(data_dir,xdir,"npz-data")
         naive_data = np.load(os.path.join(np_dir,"41-50.npz"))
         trained_data = np.load(os.path.join(np_dir,"991-1000.npz"))
-        data=naive_data
+        data=trained_data
 
         # go thru final epoch trials
         true_y = data['true_y'][99]
@@ -184,7 +185,7 @@ def single_trial_delay_corresp(exp_dirs=spec_nointoout_dirs,exp_season='season',
                     else:
                         delay_dur = np.where(pred_y[i][t_change:]<np.quantile(pred_y[i][t_change:],0.25))[0]
 
-                save_fname = spath+'/'+exp_path+'_bin20_trial'+str(i)+'.png'
+                save_fname = spath+'/'+exp_path+'_bin20_rate_trial'+str(i)+'.png'
                 fig, ax = plt.subplots(nrows=6,ncols=1,figsize=(8,11))
 
                 ax[0].plot(pred_y[i],color='dodgerblue',alpha=0.5,label='prediction')
