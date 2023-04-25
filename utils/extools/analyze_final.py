@@ -119,7 +119,7 @@ def single_trial_delay_corresp(exp_dirs=spec_nointoout_dirs,exp_season='season',
         #xdir = 'run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire [2023-03-20 21.06.01]'
 
         np_dir = os.path.join(data_dir,xdir,"npz-data")
-        naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
+        naive_data = np.load(os.path.join(np_dir,"41-50.npz"))
         trained_data = np.load(os.path.join(np_dir,"991-1000.npz"))
         data=naive_data
 
