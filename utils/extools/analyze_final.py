@@ -239,17 +239,18 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         e_clustering = []
         i_clustering = []
         for i in range(0,np.shape(temporal_w)[0]):
+            for j in range(0,np.shape(temporal_w)[1]):
 
-            # look also at clustering within ee and ii
-            _, Ge, Gi = _nets_from_weights(temporal_w[i])
+                # look also at clustering within ee and ii
+                _, Ge, Gi = _nets_from_weights(temporal_w[i][j])
 
-            clustering = nx.clustering(Ge, nodes=Ge.nodes, weight="weight")
-            clustering = list(clustering.items())
-            e_clustering.append(np.mean(np.array(clustering)[:, 1]))
+                clustering = nx.clustering(Ge, nodes=Ge.nodes, weight="weight")
+                clustering = list(clustering.items())
+                e_clustering.append(np.mean(np.array(clustering)[:, 1]))
 
-            clustering = nx.clustering(Gi, nodes=Gi.nodes, weight="weight")
-            clustering = list(clustering.items())
-            i_clustering.append(np.mean(np.array(i_clustering)[:, 1]))
+                clustering = nx.clustering(Gi, nodes=Gi.nodes, weight="weight")
+                clustering = list(clustering.items())
+                i_clustering.append(np.mean(np.array(i_clustering)[:, 1]))
 
         ax[0].plot(e_clustering,color='dodgerblue',label='ee')
         ax[0].plot(i_clustering,color='orangered',label='ii')
