@@ -128,7 +128,7 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
 
         # collect weights over all of training
         temporal_w = []
-        datafiles = filenames(num_epochs, epochs_per_file)
+        data_files = filenames(num_epochs, epochs_per_file)
 
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
