@@ -166,25 +166,25 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
 
         # name them as homo and hetero lol
 
-        ho_ee=np.mean(w[:,coh1_e,coh1_e],0)
-        ho_ei=np.mean(w[:,coh1_e,coh1_i],0)
-        ho_ie=np.mean(w[:,coh1_i,coh1_e],0)
-        ho_ii=np.mean(w[:,coh1_i,coh1_i],0)
+        ho_ee=np.mean(w[:,:,:][:,coh1_e,:][:,:,coh1_e],0)
+        ho_ei=np.mean(w[:,:,:][:,coh1_e,:][:,:,coh1_i],0)
+        ho_ie=np.mean(w[:,:,:][:,coh1_i,:][:,:,coh1_e],0)
+        ho_ii=np.mean(w[:,:,:][:,coh1_i,:][:,:,coh1_i],0)
 
-        het_ee=np.mean(w[:,coh1_e,coh0_e],0)
-        het_ei=np.mean(w[:,coh1_e,coh0_i],0)
-        het_ie=np.mean(w[:,coh1_i,coh0_e],0)
-        het_ii=np.mean(w[:,coh1_i,coh0_i],0)
+        het_ee=np.mean(w[:,:,:][:,coh1_e,:][:,:,coh0_e],0)
+        het_ei=np.mean(w[:,:,:][:,coh1_e,:][:,:,coh0_i],0)
+        het_ie=np.mean(w[:,:,:][:,coh1_i,:][:,:,coh0_e],0)
+        het_ii=np.mean(w[:,:,:][:,coh1_i,:][:,:,coh0_i],0)
 
-        ero_np.mean(w[:,coh0_e,coh1_e],0)
-        ero_np.mean(w[:,coh0_e,coh1_i],0)
-        ero_np.mean(w[:,coh0_i,coh1_e],0)
-        ero_np.mean(w[:,coh0_i,coh1_i],0)
+        ero_np.mean(w[:,:,:][:,coh0_e,:][:,:,coh1_e],0)
+        ero_np.mean(w[:,:,:][:,coh0_e,:][:,:,coh1_i],0)
+        ero_np.mean(w[:,:,:][:,coh0_i,:][:,:,coh1_e],0)
+        ero_np.mean(w[:,:,:][:,coh0_i,:][:,:,coh1_i],0)
 
-        mo_np.mean(w[:,coh0_e,coh0_e],0)
-        mo_np.mean(w[:,coh0_e,coh0_i],0)
-        mo_np.mean(w[:,coh0_i,coh0_e],0)
-        mo_np.mean(w[:,coh0_i,coh0_i],0)
+        mo_np.mean(w[:,:,:][:,coh0_e,:][:,:,coh0_e],0)
+        mo_np.mean(w[:,:,:][:,coh0_e,:][:,:,coh0_i],0)
+        mo_np.mean(w[:,:,:][:,coh0_i,:][:,:,coh0_e],0)
+        mo_np.mean(w[:,:,:][:,coh0_i,:][:,:,coh0_i],0)
 
         fig, ax = plt.subplots(nrows=2,ncols=2)
         ax = ax.flatten()
