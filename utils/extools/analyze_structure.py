@@ -1002,21 +1002,19 @@ def plot_eigvc_dist_experiments():
             plt.clf()
             plt.close()
 
+def histplot_clustering(g, c, lbl):
+    """Plot graph clustering."""
+
+    # Compute/format clustering
+    clustering = nx.clustering(g, nodes=g.nodes, weight="weight")
+    clustering = list(clustering.items())
+    clustering = np.array(clustering)[:, 1]
+
+    # Plot
+    _histplot_by_bin_count(np.ravel(clustering), c, lbl)
 
 def plot_clustering_dist_experiments():
     """TODO: document function"""
-
-    def _histplot_clustering(g, c, lbl):
-        """Plot graph clustering."""
-
-        # Compute/format clustering
-        clustering = nx.clustering(g, nodes=g.nodes, weight="weight")
-        clustering = list(clustering.items())
-        clustering = np.array(clustering)[:, 1]
-
-        # Plot
-        _histplot_by_bin_count(np.ravel(clustering), c, lbl)
-
 
     experiments = get_experiments(data_dir, experiment_string)
     plt_string = ["epoch0", "epoch10", "epoch100", "epoch1000"]

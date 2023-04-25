@@ -26,6 +26,7 @@ from utils.extools.fn_analysis import calc_density
 from utils.extools.fn_analysis import out_degree
 from utils.extools.MI import simplest_confMI
 from utils.extools.MI import simplest_asym_confMI
+from utils.extools.analyze_structure import _nets_from_weights
 from utils.extools.analyze_dynamics import fastbin
 from utils.extools.analyze_dynamics import trial_recruitment_graphs
 from utils.extools.analyze_dynamics import asym_trial_recruitment_graphs
@@ -95,6 +96,231 @@ def moving_average(spikes,bin):
     for t in range(0,dur_binned):
         moving_avg[:,t] = np.mean(spikes[:,t:t+bin],1)
     return moving_avg # still in the shape of [units] in first dimension
+
+
+def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+    # look at tuning to coherence level
+    # look at connections between units in accordance to tuning to coherence level
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/'+exp_season
+    if not os.path.isdir(spath):
+        os.makedirs(spath)
+
+    for xdir in exp_data_dirs:
+        print('begin new exp')
+        exp_path = xdir[-9:-1]
+
+        np_dir = os.path.join(data_dir,xdir,"npz-data")
+        naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
+        trained_data = np.load(os.path.join(np_dir,"991-1000.npz"))
+        data=trained_data
+
+        # go thru final epoch trials
+        true_y = data['true_y']
+        spikes = data['spikes']
+        w = data['tv1.postweights']
+
+        # collect weights over all of training
+        temporal_w = []
+        datafiles = filenames(num_epochs, epochs_per_file)
+
+        for filename in data_files:
+            start_idx = (int(filename.split('-')[0])-1)*10
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            temp_data = np.load(filepath)
+            temporal_w.append(temp_data['tv1.postweights'])
+
+        # find which units respond more to input of a certain coh level across batches and trials
+        coh0_rec_rates = []
+        coh1_rec_rates = []
+
+        for i in range(0,np.shape(true_y)[0]):
+            for j in range(0,np.shape(true_y)[1]):
+                if true_y[i][j][0]==true_y[i][j][seq_len-1]:
+                    if true_y[i][j][0]==0:
+                        coh0_rec_rates.append(np.mean(spikes[i][j],0))
+                    else:
+                        coh1_rec_rates.append(np.mean(spikes[i][j],0))
+
+        # find which of the 300 recurrent units respond more on average to one coherence level over the other
+        coh1_rec_idx = np.where(np.mean(coh1_rec_rates,0)>np.mean(coh0_rec_rates,0))[0]
+        print('there are '+str(len(coh1_rec_idx[coh1_rec_idx<e_end]))+' coh1-tuned e units')
+        print('there are '+str(len(coh1_rec_idx[coh1_rec_idx>=e_end]))+' coh1-tuned i units')
+        coh0_rec_idx = np.where(np.mean(coh1_rec_rates,0)<np.mean(coh0_rec_rates,0))[0]
+        print('there are '+str(len(coh0_rec_idx[coh0_rec_idx<e_end]))+' coh0-tuned e units')
+        print('there are '+str(len(coh0_rec_idx[coh0_rec_idx>=e_end]))+' coh0-tuned i units')
+
+        coh0_rec_rates = np.array(coh0_rec_rates)
+        coh1_rec_rates = np.array(coh1_rec_rates)
+
+        # just average weights to begin with?
+        coh1_e = coh1_rec_idx[coh1_rec_idx<e_end]
+        coh1_i = coh1_rec_idx[coh1_rec_idx>=e_end]
+        coh0_e = coh0_rec_idx[coh0_rec_idx<e_end]
+        coh0_i = coh0_rec_idx[coh0_rec_idx>=e_end]
+
+        # name them as homo and hetero lol
+
+        ho_ee=np.mean(w[:][coh1_e,coh1_e],0)
+        ho_ei=np.mean(w[:][coh1_e,coh1_i],0)
+        ho_ie=np.mean(w[:][coh1_i,coh1_e],0)
+        ho_ii=np.mean(w[:][coh1_i,coh1_i],0)
+
+        het_ee=np.mean(w[:][coh1_e,coh0_e],0)
+        het_ei=np.mean(w[:][coh1_e,coh0_i],0)
+        het_ie=np.mean(w[:][coh1_i,coh0_e],0)
+        het_ii=np.mean(w[:][coh1_i,coh0_i],0)
+
+        ero_np.mean(w[:][coh0_e,coh1_e],0)
+        ero_np.mean(w[:][coh0_e,coh1_i],0)
+        ero_np.mean(w[:][coh0_i,coh1_e],0)
+        ero_np.mean(w[:][coh0_i,coh1_i],0)
+
+        mo_np.mean(w[:][coh0_e,coh0_e],0)
+        mo_np.mean(w[:][coh0_e,coh0_i],0)
+        mo_np.mean(w[:][coh0_i,coh0_e],0)
+        mo_np.mean(w[:][coh0_i,coh0_i],0)
+
+        fig, ax = plt.subplots(nrows=2,ncols=2)
+        ax = ax.flatten()
+
+        ax[0].hist(ho_ee[ho_ee!=0].flatten(),alpha=0.5,density=True,bins=30,label='ee',color='dodgerblue')
+        ax[0].hist(ho_ei[ho_ei!=0].flatten(),alpha=0.5,density=True,bins=30,label='ei',color='mediumseagreen')
+        ax[0].hist(ho_ie[ho_ie!=0].flatten(),alpha=0.5,density=True,bins=30,label='ie',color='darkorange')
+        ax[0].hist(ho_ii[ho_ii!=0].flatten(),alpha=0.5,density=True,bins=30,label='ii',color='orangred')
+        ax[0].set_title('coherence 1 tuned to coherence 1 tuned',fontname='Ubuntu')
+
+        ax[1].hist(het_ee[het_ee!=0].flatten(),alpha=0.5,density=True,bins=30,label='ee',color='dodgerblue')
+        ax[1].hist(het_ei[het_ei!=0].flatten(),alpha=0.5,density=True,bins=30,label='ei',color='mediumseagreen')
+        ax[1].hist(het_ie[het_ie!=0].flatten(),alpha=0.5,density=True,bins=30,label='ie',color='darkorange')
+        ax[1].hist(het_ii[het_ii!=0].flatten(),alpha=0.5,density=True,bins=30,label='ii',color='orangred')
+        ax[1].set_title('coherence 1 tuned to coherence 0 tuned',fontname='Ubuntu')
+
+        ax[2].hist(ero_ee[ero_ee!=0].flatten(),alpha=0.5,density=True,bins=30,label='ee',color='dodgerblue')
+        ax[2].hist(ero_ei[ero_ei!=0].flatten(),alpha=0.5,density=True,bins=30,label='ei',color='mediumseagreen')
+        ax[2].hist(ero_ie[ero_ie!=0].flatten(),alpha=0.5,density=True,bins=30,label='ie',color='darkorange')
+        ax[2].hist(ero_ii[ero_ii!=0].flatten(),alpha=0.5,density=True,bins=30,label='ii',color='orangred')
+        ax[2].set_title('coherence 0 tuned to coherence 1 tuned',fontname='Ubuntu')
+
+        ax[3].hist(mo_ee[mo_ee!=0].flatten(),alpha=0.5,density=True,bins=30,label='ee',color='dodgerblue')
+        ax[3].hist(mo_ei[mo_ei!=0].flatten(),alpha=0.5,density=True,bins=30,label='ei',color='mediumseagreen')
+        ax[3].hist(mo_ie[mo_ie!=0].flatten(),alpha=0.5,density=True,bins=30,label='ie',color='darkorange')
+        ax[3].hist(mo_ii[mo_ii!=0].flatten(),alpha=0.5,density=True,bins=30,label='ii',color='orangred')
+        ax[3].set_title('coherence 0 tuned to coherence 0 tuned',fontname='Ubuntu')
+
+        for j in range(0,len(ax)):
+            ax[j].set_ylabel('density',fontname='Ubuntu')
+            ax[j].set_xlabel('weights',fontname='Ubuntu')
+            ax[j].legend(prop={"family":"Ubuntu"})
+            for tick in ax[j].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[j].get_yticklabels():
+                tick.set_fontname("Ubuntu")
+
+        plt.suptitle('average trained recurrent weights by tuning',fontname='Ubuntu')
+
+        save_fname = spath+'/'+exp_path+'_weights_by_tuning_quad.png'
+        plt.subplots_adjust(hspace=0.5,wspace=0.5)
+        plt.draw()
+        plt.savefig(save_fname,dpi=300)
+        # Teardown
+        plt.clf()
+        plt.close()
+
+        # clustering part
+        fig, ax = plt.subplots(nrows=3,ncols=1,figsize=(5,6))
+
+        # collect over time
+        e_clustering = []
+        i_clustering = []
+        for i in range(0,np.shape(temporal_w)[0]):
+
+            # look also at clustering within ee and ii
+            _, Ge, Gi = _nets_from_weights(temporal_w[i])
+
+            clustering = nx.clustering(Ge, nodes=Ge.nodes, weight="weight")
+            clustering = list(clustering.items())
+            e_clustering.append(np.mean(np.array(clustering)[:, 1]))
+
+            clustering = nx.clustering(Gi, nodes=Gi.nodes, weight="weight")
+            clustering = list(clustering.items())
+            i_clustering.append(np.mean(np.array(i_clustering)[:, 1]))
+
+        ax[0].plot(e_clustering,color='dodgerblue',label='ee')
+        ax[0].plot(i_clustering,color='orangered',label='ii')
+        ax[0].set_title('recurrent clustering over time',fontname='Ubuntu')
+        ax[0].set_ylabel('clustering',fontname='Ubuntu')
+
+        # plot weights based on coh tuning over time
+        coh0_ee = []
+        coh0_ei = []
+        coh0_ie = []
+        coh0_ii = []
+        coh1_ee = []
+        coh1_ei = []
+        coh1_ie = []
+        coh1_ii = []
+
+        for i in range(0,np.shape(temporal_w)[0]): # again over all training time
+            for j in range(0,np.shape(temporal_w)[1]):
+                coh0_ee.append(np.mean(temporal_w[i][j][coh0_e,coh0_e]))
+                coh0_ei.append(np.mean(temporal_w[i][j][coh0_e,coh0_i]))
+                coh0_ie.append(np.mean(temporal_w[i][j][coh0_i,coh0_e]))
+                coh0_ii.append(np.mean(temporal_w[i][j][coh0_i,coh0_i]))
+                coh1_ee.append(np.mean(temporal_w[i][j][coh1_e,coh1_e]))
+                coh1_ei.append(np.mean(temporal_w[i][j][coh1_e,coh1_i]))
+                coh1_ie.append(np.mean(temporal_w[i][j][coh1_i,coh1_e]))
+                coh1_ii.append(np.mean(temporal_w[i][j][coh1_i,coh1_i]))
+
+        ax[1].plot(coh0_ee,color='slateblue',label='ee')
+        ax[1].plot(coh0_ei,color='mediumseagreen',label='ei')
+        ax[1].plot(coh0_ie,color='darkorange',label='ie')
+        ax[1].plot(coh0_ii,color='orangered',label='ii')
+        ax[1].set_title('coherence 0 tuned recurrent connections',fontname='Ubuntu')
+        ax[1].set_ylabel('average weight',fontname='Ubuntu')
+
+        ax[2].plot(coh1_ee,color='slateblue',label='ee')
+        ax[2].plot(coh1_ei,color='mediumseagreen',label='ei')
+        ax[2].plot(coh1_ie,color='darkorange',label='ie')
+        ax[2].plot(coh1_ii,color='orangered',label='ii')
+        ax[2].set_title('coherence 1 tuned recurrent connections',fontname='Ubuntu')
+        ax[2].set_ylabel('average weight',fontname='Ubuntu')
+
+        for j in range(0,len(ax)):
+            ax[j].set_xlabel('training time')
+            ax[j].legend(prop={"family":"Ubuntu"})
+            for tick in ax[j].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[j].get_yticklabels():
+                tick.set_fontname("Ubuntu")
+
+        plt.suptitle('recurrent connectivity by coherence tuning',fontname='Ubuntu')
+        save_fname = spath+'/'+exp_path+'_weights_by_tuning_over_training.png'
+        plt.subplots_adjust(hspace=0.8,wspace=0.8)
+        plt.draw()
+        plt.savefig(save_fname,dpi=300)
+        # Teardown
+        plt.clf()
+        plt.close()
+
+
+        """
+        # look at clustering for ee and ii units that had the largest weight changes from naive to trained
+        naive_w = naive_data['tv1.postweights'][0]
+        trained_w = w[99]
+        w_diff = np.abs(trained_w-naive_w)
+        thr = np.quantile(w_diff, 0.25)
+        greatest_delta_ws = np.where(w_diff[w_diff>thr])[0]
+
+        _, Ge, Gi = _nets_from_weights(greatest_delta_ws)"""
+
+
 
 def describe_tuning(exp_dirs=spec_output_dirs,exp_season='fall'):
     # plot the coherence-tuning properties of the recurrent units
