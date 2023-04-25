@@ -131,7 +131,6 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         datafiles = filenames(num_epochs, epochs_per_file)
 
         for filename in data_files:
-            start_idx = (int(filename.split('-')[0])-1)*10
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             temp_data = np.load(filepath)
             temporal_w.append(temp_data['tv1.postweights'])
