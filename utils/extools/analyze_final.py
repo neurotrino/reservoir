@@ -96,6 +96,83 @@ def moving_average(spikes,bin):
         moving_avg[:,t] = np.mean(spikes[:,t:t+bin],1)
     return moving_avg # still in the shape of [units] in first dimension
 
+def describe_tuning(exp_dirs=np.unique([save_inz_dirs,spec_nointoout_dirs]),exp_season='spring'):
+    # plot the coherence-tuning properties of the recurrent units
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/'+exp_season
+    if not os.path.isdir(spath):
+        os.makedirs(spath)
+
+    for xdir in exp_data_dirs:
+        print('begin new exp')
+        exp_path = xdir[-9:-1]
+
+        np_dir = os.path.join(data_dir,xdir,"npz-data")
+        naive_data = np.load(os.path.join(np_dir,"41-50.npz"))
+        trained_data = np.load(os.path.join(np_dir,"991-1000.npz"))
+        data=trained_data
+
+        # go thru final epoch trials
+        true_y = data['true_y']
+        spikes = data['spikes']
+
+        # find which units respond more to input of a certain coh level across batches and trials
+        coh0_rec_rates = []
+        coh1_rec_rates = []
+
+        for i in range(0,np.shape(true_y)[0]):
+            for j in range(0,np.shape(true_y)[1])
+                if true_y[i][j][0]==true_y[i][j][seq_len-1]:
+                    if true_y[i][j][0]==0:
+                        coh0_rec_rates.append(np.mean(spikes[i][j],0))
+                    else:
+                        coh1_rec_rates.append(np.mean(spikes[i][j],0))
+
+        # find which of the 300 recurrent units respond more on average to one coherence level over the other
+        coh1_rec_idx = np.where(np.mean(coh1_rec_rates,0)>np.mean(coh0_rec_rates,0))[0]
+        print('there are '+str(len(coh1_rec_idx[coh1_rec_idx<e_end]))+' coh1-tuned e units')
+        print('there are '+str(len(coh1_rec_idx[coh1_rec_idx>=e_end]))+' coh1-tuned i units')
+        coh0_rec_idx = np.where(np.mean(coh1_rec_rates,0)<np.mean(coh0_rec_rates,0))[0]
+        print('there are '+str(len(coh0_rec_idx[coh0_rec_idx<e_end]))+' coh0-tuned e units')
+        print('there are '+str(len(coh0_rec_idx[coh0_rec_idx>=e_end]))+' coh0-tuned i units')
+
+        coh0_rec_rates = np.array(coh0_rec_rates)
+        coh1_rec_rates = np.array(coh1_rec_rates)
+
+        # for each unit, plot their average rate to one vs the other
+        ax[0].hist((coh0_rec_rates[:,coh1_rec_idx[coh1_rec_idx<e_end]]).flatten(),alpha=0.5,color='dodgerblue',bins=30,density=True,label='coh1-driven e')
+        ax[0].hist((coh0_rec_rates[:,coh1_rec_idx[coh1_rec_idx>=e_end]]).flatten(),alpha=0.5,color='darkorange',bins=30,density=True,label='coh1-driven i')
+        ax[0].hist((coh0_rec_rates[:,coh0_rec_idx[coh0_rec_idx<e_end]]).flatten(),alpha=0.5,color='mediumseagreen',bins=30,density=True,label='coh0-driven e')
+        ax[0].hist((coh0_rec_rates[:,coh0_rec_idx[coh0_rec_idx>=e_end]]).flatten(),alpha=0.5,color='orangered',bins=30,density=True,label='coh0-driven i')
+        ax[0].set_title('rates on coherence 0 trials')
+        ax[0].set_xlabel('average rate')
+        ax[0].set_ylabel('density')
+
+        ax[1].hist((coh1_rec_rates[:,coh1_rec_idx[coh1_rec_idx<e_end]]).flatten(),alpha=0.5,color='dodgerblue',bins=30,density=True,label='coh1-driven e')
+        ax[1].hist((coh1_rec_rates[:,coh1_rec_idx[coh1_rec_idx>=e_end]]).flatten(),alpha=0.5,color='darkorange',bins=30,density=True,label='coh1-driven i')
+        ax[1].hist((coh1_rec_rates[:,coh0_rec_idx[coh0_rec_idx<e_end]]).flatten(),alpha=0.5,color='mediumseagreen',bins=30,density=True,label='coh0-driven e')
+        ax[1].hist((coh1_rec_rates[:,coh0_rec_idx[coh0_rec_idx>=e_end]]).flatten(),alpha=0.5,color='orangered',bins=30,density=True,label='coh0-driven i')
+        ax[1].set_title('rates on coherence 1 trials')
+        ax[1].set_xlabel('average rate')
+        ax[1].set_ylabel('density')
+
+        plt.suptitle('Trained firing rates to coherence level')
+
+        save_fname = spath+'/'+exp_path+'_trained_rates_by_coherence.png'
+        plt.subplots_adjust(hspace=0.5,wspace=0.5)
+        plt.draw()
+        plt.savefig(save_fname,dpi=300)
+
+        # Teardown
+        plt.clf()
+        plt.close()
+
 
 def single_trial_delay_corresp(exp_dirs=save_inz_dirs_rate,exp_season='spring',rand_exp_idx=1):
 
