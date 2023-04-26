@@ -189,6 +189,9 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         fig, ax = plt.subplots(nrows=2,ncols=2)
         ax = ax.flatten()
 
+        # we actually probably just want to plot their average weights over all of training time....
+        # first thing in the morning
+
         ax[0].hist(ho_ee[ho_ee!=0].flatten(),alpha=0.5,density=True,bins=30,label='ee',color='dodgerblue')
         ax[0].hist(ho_ei[ho_ei!=0].flatten(),alpha=0.5,density=True,bins=30,label='ei',color='mediumseagreen')
         ax[0].hist(ho_ie[ho_ie!=0].flatten(),alpha=0.5,density=True,bins=30,label='ie',color='darkorange')
@@ -269,14 +272,14 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
 
         for i in range(0,np.shape(temporal_w)[0]): # again over all training time
             for j in range(0,np.shape(temporal_w)[1]):
-                coh0_ee.append(np.mean(temporal_w[i,j,coh0_e,coh0_e]))
-                coh0_ei.append(np.mean(temporal_w[i,j,coh0_e,coh0_i]))
-                coh0_ie.append(np.mean(temporal_w[i,j,coh0_i,coh0_e]))
-                coh0_ii.append(np.mean(temporal_w[i,j,coh0_i,coh0_i]))
-                coh1_ee.append(np.mean(temporal_w[i,j,coh1_e,coh1_e]))
-                coh1_ei.append(np.mean(temporal_w[i,j,coh1_e,coh1_i]))
-                coh1_ie.append(np.mean(temporal_w[i,j,coh1_i,coh1_e]))
-                coh1_ii.append(np.mean(temporal_w[i,j,coh1_i,coh1_i]))
+                coh0_ee.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_e,:][:,:,:,coh0_e]))
+                coh0_ei.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_e,:][:,:,:,coh0_i]))
+                coh0_ie.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_i,:][:,:,:,coh0_e]))
+                coh0_ii.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_i,:][:,:,:,coh0_i]))
+                coh1_ee.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_e,:][:,:,:,coh1_e]))
+                coh1_ei.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_e,:][:,:,:,coh1_i]))
+                coh1_ie.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_i,:][:,:,:,coh1_e]))
+                coh1_ii.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_i,:][:,:,:,coh1_i]))
 
         ax[1].plot(coh0_ee,color='slateblue',label='ee')
         ax[1].plot(coh0_ei,color='mediumseagreen',label='ei')
