@@ -246,18 +246,21 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
             # look also at clustering within ee and ii
             _, Ge, Gi = _nets_from_weights(temporal_w[i])
 
-            clustering = nx.clustering(Ge, nodes=Ge.nodes, weight="weight")
-            clustering = list(clustering.items())
-            e_clustering.append(np.mean(np.array(clustering)[:, 1]))
+            e_clustering.append(nx.average_clustering(Ge, nodes=Ge.nodes, weight="weight"))
+            #clustering = list(clustering.items())
+            #e_clustering.append(np.mean(np.array(clustering)[:, 1]))
 
-            clustering = nx.clustering(Gi, nodes=Gi.nodes, weight="weight")
-            clustering = list(clustering.items())
-            i_clustering.append(np.mean(np.array(clustering)[:, 1]))
+            i_clustering.append(nx.average_clustering(Gi, nodes=Gi.nodes, weight="weight"))
+            #clustering = list(clustering.items())
+            #i_clustering.append(np.mean(np.array(clustering)[:, 1]))
 
         ax[0].plot(e_clustering,color='dodgerblue',label='ee')
         ax[0].plot(i_clustering,color='orangered',label='ii')
         ax[0].set_title('recurrent clustering over time',fontname='Ubuntu')
         ax[0].set_ylabel('clustering',fontname='Ubuntu')
+
+        print('final e clustering is '+str(e_clustering[99]))
+        print('final i clustering is '+str(i_clustering[99]))
 
         # plot weights based on coh tuning over time
         coh0_ee = []
