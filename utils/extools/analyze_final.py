@@ -133,7 +133,7 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             temp_data = np.load(filepath)
-            temporal_w.append(temp_data['tv1.postweights'])
+            temporal_w.append(temp_data['tv1.postweights'][99])
 
         # find which units respond more to input of a certain coh level across batches and trials
         coh0_rec_rates = []
@@ -242,18 +242,17 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         e_clustering = []
         i_clustering = []
         for i in range(0,np.shape(temporal_w)[0]):
-            for j in range(0,np.shape(temporal_w)[1]):
 
-                # look also at clustering within ee and ii
-                _, Ge, Gi = _nets_from_weights(temporal_w[i][j])
+            # look also at clustering within ee and ii
+            _, Ge, Gi = _nets_from_weights(temporal_w[i])
 
-                clustering = nx.clustering(Ge, nodes=Ge.nodes, weight="weight")
-                clustering = list(clustering.items())
-                e_clustering.append(np.mean(np.array(clustering)[:, 1]))
+            clustering = nx.clustering(Ge, nodes=Ge.nodes, weight="weight")
+            clustering = list(clustering.items())
+            e_clustering.append(np.mean(np.array(clustering)[:, 1]))
 
-                clustering = nx.clustering(Gi, nodes=Gi.nodes, weight="weight")
-                clustering = list(clustering.items())
-                i_clustering.append(np.mean(np.array(clustering)[:, 1]))
+            clustering = nx.clustering(Gi, nodes=Gi.nodes, weight="weight")
+            clustering = list(clustering.items())
+            i_clustering.append(np.mean(np.array(clustering)[:, 1]))
 
         ax[0].plot(e_clustering,color='dodgerblue',label='ee')
         ax[0].plot(i_clustering,color='orangered',label='ii')
@@ -282,27 +281,26 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         ero_ie = []
         ero_ii = []
 
-        for i in range(0,np.shape(temporal_w)[0]): # again over all training time
-            for j in range(0,np.shape(temporal_w)[1]):
-                coh0_ee.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_e,:][:,:,:,coh0_e]))
-                coh0_ei.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_e,:][:,:,:,coh0_i]))
-                coh0_ie.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_i,:][:,:,:,coh0_e]))
-                coh0_ii.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_i,:][:,:,:,coh0_i]))
+        for i in range(0,np.shape(temporal_w)[0]): # again over all training time, but now just one per file (100) instead of craziness (10000)
+            coh0_ee.append(np.mean(temporal_w[i,:,:][:,coh0_e,:][:,:,coh0_e]))
+            coh0_ei.append(np.mean(temporal_w[i,:,:][:,coh0_e,:][:,:,coh0_i]))
+            coh0_ie.append(np.mean(temporal_w[i,:,:][:,coh0_i,:][:,:,coh0_e]))
+            coh0_ii.append(np.mean(temporal_w[i,:,:][:,coh0_i,:][:,:,coh0_i]))
 
-                coh1_ee.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_e,:][:,:,:,coh1_e]))
-                coh1_ei.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_e,:][:,:,:,coh1_i]))
-                coh1_ie.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_i,:][:,:,:,coh1_e]))
-                coh1_ii.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_i,:][:,:,:,coh1_i]))
+            coh1_ee.append(np.mean(temporal_w[i,:,:][:,coh1_e,:][:,:,coh1_e]))
+            coh1_ei.append(np.mean(temporal_w[i,:,:][:,coh1_e,:][:,:,coh1_i]))
+            coh1_ie.append(np.mean(temporal_w[i,:,:][:,coh1_i,:][:,:,coh1_e]))
+            coh1_ii.append(np.mean(temporal_w[i,:,:][:,coh1_i,:][:,:,coh1_i]))
 
-                het_ee.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_e,:][:,:,:,coh1_e]))
-                het_ei.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_e,:][:,:,:,coh1_i]))
-                het_ie.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_i,:][:,:,:,coh1_e]))
-                het_ii.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_i,:][:,:,:,coh1_i]))
+            het_ee.append(np.mean(temporal_w[i,:,:][:,coh0_e,:][:,:,coh1_e]))
+            het_ei.append(np.mean(temporal_w[i,:,:][:,coh0_e,:][:,:,coh1_i]))
+            het_ie.append(np.mean(temporal_w[i,:,:][:,coh0_i,:][:,:,coh1_e]))
+            het_ii.append(np.mean(temporal_w[i,:,:][:,coh0_i,:][:,:,coh1_i]))
 
-                ero_ee.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_e,:][:,:,:,coh0_e]))
-                ero_ei.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_e,:][:,:,:,coh0_i]))
-                ero_ie.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_i,:][:,:,:,coh0_e]))
-                ero_ii.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_i,:][:,:,:,coh0_i]))
+            ero_ee.append(np.mean(temporal_w[i,:,:][:,coh1_e,:][:,:,coh0_e]))
+            ero_ei.append(np.mean(temporal_w[i,:,:][:,coh1_e,:][:,:,coh0_i]))
+            ero_ie.append(np.mean(temporal_w[i,:,:][:,coh1_i,:][:,:,coh0_e]))
+            ero_ii.append(np.mean(temporal_w[i,:,:][:,coh1_i,:][:,:,coh0_i]))
 
         ax[1].plot(coh0_ee,color='slateblue',label='ee')
         ax[1].plot(coh0_ei,color='mediumseagreen',label='ei')
