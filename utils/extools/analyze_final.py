@@ -236,7 +236,7 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         plt.close()
 
         # clustering part
-        fig, ax = plt.subplots(nrows=3,ncols=1,figsize=(5,6))
+        fig, ax = plt.subplots(nrows=5,ncols=1,figsize=(8,11))
 
         # collect over time
         e_clustering = []
@@ -270,16 +270,39 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         coh1_ie = []
         coh1_ii = []
 
+        # coh 0 to 1
+        het_ee = []
+        het_ei = []
+        het_ie = []
+        het_ii = []
+
+        # coh 1 to 0
+        ero_ee = []
+        ero_ei = []
+        ero_ie = []
+        ero_ii = []
+
         for i in range(0,np.shape(temporal_w)[0]): # again over all training time
             for j in range(0,np.shape(temporal_w)[1]):
                 coh0_ee.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_e,:][:,:,:,coh0_e]))
                 coh0_ei.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_e,:][:,:,:,coh0_i]))
                 coh0_ie.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_i,:][:,:,:,coh0_e]))
                 coh0_ii.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_i,:][:,:,:,coh0_i]))
+
                 coh1_ee.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_e,:][:,:,:,coh1_e]))
                 coh1_ei.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_e,:][:,:,:,coh1_i]))
                 coh1_ie.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_i,:][:,:,:,coh1_e]))
                 coh1_ii.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_i,:][:,:,:,coh1_i]))
+
+                het_ee.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_e,:][:,:,:,coh1_e]))
+                het_ei.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_e,:][:,:,:,coh1_i]))
+                het_ie.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_i,:][:,:,:,coh1_e]))
+                het_ii.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh0_i,:][:,:,:,coh1_i]))
+
+                ero_ee.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_e,:][:,:,:,coh0_e]))
+                ero_ei.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_e,:][:,:,:,coh0_i]))
+                ero_ie.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_i,:][:,:,:,coh0_e]))
+                ero_ii.append(np.mean(temporal_w[i,:,:,:][:,j,:,:][:,:,coh1_i,:][:,:,:,coh0_i]))
 
         ax[1].plot(coh0_ee,color='slateblue',label='ee')
         ax[1].plot(coh0_ei,color='mediumseagreen',label='ei')
@@ -295,6 +318,20 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         ax[2].set_title('coherence 1 tuned recurrent connections',fontname='Ubuntu')
         ax[2].set_ylabel('average weight',fontname='Ubuntu')
 
+        ax[3].plot(het_ee,color='slateblue',label='ee')
+        ax[3].plot(het_ei,color='mediumseagreen',label='ei')
+        ax[3].plot(het_ie,color='darkorange',label='ie')
+        ax[3].plot(het_ii,color='orangered',label='ii')
+        ax[3].set_title('coherence 0 to coherence 1 tuned recurrent connections',fontname='Ubuntu')
+        ax[3].set_ylabel('average weight',fontname='Ubuntu')
+
+        ax[4].plot(ero_ee,color='slateblue',label='ee')
+        ax[4].plot(ero_ei,color='mediumseagreen',label='ei')
+        ax[4].plot(ero_ie,color='darkorange',label='ie')
+        ax[4].plot(ero_ii,color='orangered',label='ii')
+        ax[4].set_title('coherence 1 to coherence 0 tuned recurrent connections',fontname='Ubuntu')
+        ax[4].set_ylabel('average weight',fontname='Ubuntu')
+
         for j in range(0,len(ax)):
             ax[j].set_xlabel('training time')
             ax[j].legend(prop={"family":"Ubuntu"})
@@ -305,7 +342,7 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
 
         plt.suptitle('recurrent connectivity by coherence tuning',fontname='Ubuntu')
         save_fname = spath+'/'+exp_path+'_weights_by_tuning_over_training.png'
-        plt.subplots_adjust(hspace=0.8,wspace=0.8)
+        plt.subplots_adjust(hspace=1.0,wspace=1.0)
         plt.draw()
         plt.savefig(save_fname,dpi=300)
         # Teardown
