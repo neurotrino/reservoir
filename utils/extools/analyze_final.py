@@ -244,7 +244,7 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         for i in range(0,np.shape(temporal_w)[0]):
 
             # look also at clustering within ee and ii
-            _, Ge, Gi = _nets_from_weights(temporal_w[i])
+            _, Ge, Gi = _nets_from_weights(np.abs(temporal_w[i]))
 
             e_clustering.append(nx.average_clustering(Ge, nodes=Ge.nodes, weight="weight"))
             #clustering = list(clustering.items())
@@ -256,8 +256,8 @@ def describe_ei_by_tuning(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
 
         ax[0].plot(e_clustering,color='dodgerblue',label='ee')
         ax[0].plot(i_clustering,color='orangered',label='ii')
-        ax[0].set_title('recurrent clustering over time',fontname='Ubuntu')
-        ax[0].set_ylabel('clustering',fontname='Ubuntu')
+        ax[0].set_title('absolute recurrent clustering over time',fontname='Ubuntu')
+        ax[0].set_ylabel('absolute weighted clustering',fontname='Ubuntu')
 
         print('final e clustering is '+str(e_clustering[99]))
         print('final i clustering is '+str(i_clustering[99]))
