@@ -190,12 +190,44 @@ def dists_of_input_rates(exp_dirs=[save_inz_dirs,save_inz_dirs_rate],exp_season=
 
             if '-swaplabels' in xdir: # not unswaplabels
                 true_y = ~true_y.astype(int) + 2
-
+"""
 
 def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_dir=save_inz_dirs_rate,exp_season='spring'):
     # characterize the connectivity from the input layer to recurrent
     # plot over the course of training with shaded error bars
     # for not-save-inz experiments, get the information about input channels' coherence tunings from the original CNN output file
+    spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
+    x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
+    # determine each of the 16 channels' average rates over 600 x 4080 trials
+    # separate according to coherence level!
+    coherences = load_npz('/data/datasets/CNN_outputs/ch8_abs_ccd_coherences.npz')
+    y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None]
+
+    # for each of 600 trials
+    for i in range(0,np.shape(y)[0]):
+    # for each of 4080 time steps
+    # determine if coherence 1 or 0
+        coh0_idx = np.where(y[i]==0)[0]
+        coh1_idx = np.where(y[i]==1)[0]
+    # take average rates across that trial's timepoints for the same coherence level and append
+        if len(coh0_idx)>0:
+            if not 'coh0_channel_trial_rates' in locals():
+                coh0_channel_trial_rates = np.average(x[i][coh0_idx],0)
+            else:
+                coh0_channel_trial_rates = np.vstack([coh0_channel_trial_rates,np.average(x[i][coh0_idx],0)])
+
+        if len(coh1_idx)>0:
+            if not 'coh1_channel_trial_rates' in locals():
+                coh1_channel_trial_rates = np.average(x[i][coh1_idx],0)
+            else:
+                coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(x[i][coh1_idx],0)])
+
+    coh0_rates = np.average(coh0_channel_trial_rates,0)
+    coh1_rates = np.average(coh1_channel_trial_rates,0)
+    # default based on , these are the input channels that have
+    default_coh1_idx = np.where(coh1_rates>coh0_rates)[0]
+    default_coh0_idx = np.where(coh1_rates<coh0_rates)[0]
+
     # get a number distribution to quantify this, maybe for each experiment
     # the ratio between avg weight from input coh0 and coh1 to e and i recurrent units at the beginning and at the end of training
     # 0_to_e/0_to_i = 1 at beginning
@@ -207,7 +239,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
     # aggregate across all experiments and all trials
     data_files = filenames(num_epochs, epochs_per_file)
 
-"""
+
 
 def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_dir=spec_nointoout_dirs_task,rate_exp_dir=spec_nointoout_dirs_rate,exp_season='spring'):
     # determine tuning of each recurrent unit across each of these experiments
@@ -238,11 +270,6 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_di
     coh1_i_ct = []
     coh0_e_ct = []
     coh0_i_ct = []
-
-    all_coh1_e_rates = []
-    all_coh1_i_rates = []
-    all_coh0_e_rates = []
-    all_coh0_i_rates = []
 
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
@@ -284,10 +311,25 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_di
         coh1_rec_rates = np.array(coh1_rec_rates)
 
         # get all these e and i units' actual rates in response to trials of each coherence level
-        all_coh0_e_rates.append(coh0_rec_rates[:,:e_end].flatten())
-        all_coh0_i_rates.append(coh0_rec_rates[:,e_end:].flatten())
-        all_coh1_e_rates.append(coh1_rec_rates[:,:e_end].flatten())
-        all_coh1_i_rates.append(coh1_rec_rates[:,e_end:].flatten())
+        if not 'all_coh0_e_rates' in locals():
+            all_coh0_e_rates = coh0_rec_rates[:,:e_end].flatten()
+        else:
+            all_coh0_e_rates = np.hstack([all_coh0_e_rates,coh0_rec_rates[:,:e_end].flatten()])
+
+        if not 'all_coh0_i_rates' in locals():
+            all_coh0_i_rates = coh0_rec_rates[:,e_end:].flatten())
+        else:
+            all_coh0_i_rates = np.hstack([all_coh0_i_rates,coh0_rec_rates[:,e_end:].flatten()])
+
+        if not 'all_coh1_e_rates' in locals():
+            all_coh1_e_rates = coh1_rec_rates[:,:e_end].flatten()
+        else:
+            all_coh1_e_rates = np.hstack([all_coh1_e_rates,coh1_rec_rates[:,:e_end].flatten()])
+
+        if not 'all_coh1_i_rates' in locals():
+            all_coh1_i_rates = coh1_rec_rates[:,e_end:].flatten()
+        else:
+            all_coh1_i_rates = np.hstack([all_coh1_i_rates,coh1_rec_rates[:,e_end:].flatten()])
 
     trained_ct = [coh1_e_ct,coh1_i_ct,coh0_e_ct,coh0_i_ct]
 
@@ -309,10 +351,10 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_di
     coh0_e_ct = []
     coh0_i_ct = []
 
-    all_coh1_e_rates = []
-    all_coh1_i_rates = []
-    all_coh0_e_rates = []
-    all_coh0_i_rates = []
+    del all_coh1_e_rates
+    del all_coh1_i_rates
+    del all_coh0_e_rates
+    del all_coh0_i_rates
 
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
@@ -354,10 +396,25 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_di
         coh1_rec_rates = np.array(coh1_rec_rates)
 
         # get all these e and i units' actual rates in response to trials of each coherence level
-        all_coh0_e_rates.append(coh0_rec_rates[:,:e_end].flatten())
-        all_coh0_i_rates.append(coh0_rec_rates[:,e_end:].flatten())
-        all_coh1_e_rates.append(coh1_rec_rates[:,:e_end].flatten())
-        all_coh1_i_rates.append(coh1_rec_rates[:,e_end:].flatten())
+        if not 'all_coh0_e_rates' in locals():
+            all_coh0_e_rates = coh0_rec_rates[:,:e_end].flatten()
+        else:
+            all_coh0_e_rates = np.hstack([all_coh0_e_rates,coh0_rec_rates[:,:e_end].flatten()])
+
+        if not 'all_coh0_i_rates' in locals():
+            all_coh0_i_rates = coh0_rec_rates[:,e_end:].flatten())
+        else:
+            all_coh0_i_rates = np.hstack([all_coh0_i_rates,coh0_rec_rates[:,e_end:].flatten()])
+
+        if not 'all_coh1_e_rates' in locals():
+            all_coh1_e_rates = coh1_rec_rates[:,:e_end].flatten()
+        else:
+            all_coh1_e_rates = np.hstack([all_coh1_e_rates,coh1_rec_rates[:,:e_end].flatten()])
+
+        if not 'all_coh1_i_rates' in locals():
+            all_coh1_i_rates = coh1_rec_rates[:,e_end:].flatten()
+        else:
+            all_coh1_i_rates = np.hstack([all_coh1_i_rates,coh1_rec_rates[:,e_end:].flatten()])
 
     naive_ct = [coh1_e_ct,coh1_i_ct,coh0_e_ct,coh0_i_ct]
     # the natural question that arises is: is it the SAME units?
@@ -391,7 +448,7 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_di
 
 
 # plot over the course of training how MANY units become tuned
-"""
+
 def tuned_rec_layer_over_training():
     # plot over the course of training with shaded error bars
     # plot the average weight within and between coherence tuning of recurrent layer units
@@ -399,6 +456,7 @@ def tuned_rec_layer_over_training():
     # get the numbers (avg and std weight for all of these connection types? shape tho?) for the weight distributions at the beginning and end of training
 
 
+"""
 # below this line are NOT priorities for now
 
 #def input_amp_or_supp_based_on_training(dual_exp_dir,task_exp_dir,rate_exp_dir):
