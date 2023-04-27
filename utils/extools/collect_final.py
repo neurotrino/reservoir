@@ -294,13 +294,13 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_di
     fig, ax = plt.subplots(nrows=2,ncols=2)
     ax = ax.flatten()
 
-    ax[0].hist(all_coh0_e_rates,density=True,bins=30,alpha=0.6,label='trained ('+str(np.mean(coh0_e_ct))+' avg units)')
+    ax[0].hist(all_coh0_e_rates.flatten(),density=True,bins=30,alpha=0.6,label='trained ('+str(int(np.mean(coh0_e_ct)))+' avg units)')
     ax[0].set_title('coh 0 tuned e units',fontname='Ubuntu')
-    ax[1].hist(all_coh0_i_rates,density=True,bins=30,alpha=0.6,label='trained ('+str(np.mean(coh0_i_ct))+' avg units)')
+    ax[1].hist(all_coh0_i_rates.flatten(),density=True,bins=30,alpha=0.6,label='trained ('+str(int(np.mean(coh0_i_ct)))+' avg units)')
     ax[1].set_title('coh 0 tuned i units',fontname='Ubuntu')
-    ax[2].hist(all_coh1_e_rates,density=True,bins=30,alpha=0.6,label='trained ('+str(np.mean(coh1_e_ct))+' avg units)')
+    ax[2].hist(all_coh1_e_rates.flatten(),density=True,bins=30,alpha=0.6,label='trained ('+str(int(np.mean(coh1_e_ct)))+' avg units)')
     ax[2].set_title('coh 1 tuned e units',fontname='Ubuntu')
-    ax[3].hist(all_coh1_i_rates,density=True,bins=30,alpha=0.6,label='trained ('+str(np.mean(coh1_i_ct))+' avg units)')
+    ax[3].hist(all_coh1_i_rates.flatten(),density=True,bins=30,alpha=0.6,label='trained ('+str(int(np.mean(coh1_i_ct)))+' avg units)')
     ax[3].set_title('coh 1 tuned i units',fontname='Ubuntu')
 
     # and then repeat for naive
@@ -363,15 +363,15 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_di
     # the natural question that arises is: is it the SAME units?
     # are the Most Important ones the same units?
 
-    ax[0].hist(all_coh0_e_rates,density=True,bins=30,alpha=0.6,label='naive ('+str(np.mean(coh0_e_ct))+' avg units)')
-    ax[1].hist(all_coh0_i_rates,density=True,bins=30,alpha=0.6,label='naive ('+str(np.mean(coh0_i_ct))+' avg units)')
-    ax[2].hist(all_coh1_e_rates,density=True,bins=30,alpha=0.6,label='naive ('+str(np.mean(coh1_e_ct))+' avg units)')
-    ax[3].hist(all_coh1_i_rates,density=True,bins=30,alpha=0.6,label='naive ('+str(np.mean(coh1_i_ct))+' avg units)')
+    ax[0].hist(all_coh0_e_rates.flatten(),density=True,bins=30,alpha=0.6,label='naive ('+str(int(np.mean(coh0_e_ct)))+' avg units)')
+    ax[1].hist(all_coh0_i_rates.flatten(),density=True,bins=30,alpha=0.6,label='naive ('+str(int(np.mean(coh0_i_ct)))+' avg units)')
+    ax[2].hist(all_coh1_e_rates.flatten(),density=True,bins=30,alpha=0.6,label='naive ('+str(int(np.mean(coh1_e_ct)))+' avg units)')
+    ax[3].hist(all_coh1_i_rates.flatten(),density=True,bins=30,alpha=0.6,label='naive ('+str(int(np.mean(coh1_i_ct)))+' avg units)')
 
     for j in range(0,len(ax)):
         ax[j].set_ylabel('density',fontname='Ubuntu')
         ax[j].set_xlabel('rates (Hz)',fontname='Ubuntu')
-        ax[j].legend(prop={"family":"Ubuntu"})
+        ax[j].legend(fontsize="12",prop={"family":"Ubuntu"})
         for tick in ax[j].get_xticklabels():
             tick.set_fontname("Ubuntu")
         for tick in ax[j].get_yticklabels():
