@@ -101,6 +101,7 @@ save_inz_dirs_rate = ["run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire
 spec_nointoout_dirs_rate = ["run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz","run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire","run-batch30-rateloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-rateloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 spec_nointoout_dirs_task = ["run-batch30-taskloss-specinput0.2-nointoout-noinoutrewire","run-batch30-taskloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-taskloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 
+"""
 def dists_of_all_weights(dual_exp_dir=spec_nointoout_dirs,task_exp_dir=spec_nointoout_dirs_task,rate_exp_dir=spec_nointoout_dirs_rate,exp_season='spring'):
     # aggregate over all experiments of this type
     # plot distributions in naive state
@@ -203,6 +204,8 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
 
     # aggregate across all experiments and all trials
     data_files = filenames(num_epochs, epochs_per_file)
+
+"""
 
 def characterize_tuned_rec_populations(exp_dirs=[spec_nointoout_dirs,save_inz_dirs],task_exp_dir=spec_nointoout_dirs_task,rate_exp_dir=spec_nointoout_dirs_rate,exp_season='spring'):
     # determine tuning of each recurrent unit across each of these experiments
@@ -385,8 +388,8 @@ def characterize_tuned_rec_populations(exp_dirs=[spec_nointoout_dirs,save_inz_di
     return [trained_ct,naive_ct]
 
 
-# plot over the course of training how MANY units become tuned 
-
+# plot over the course of training how MANY units become tuned
+"""
 def tuned_rec_layer_over_training():
     # plot over the course of training with shaded error bars
     # plot the average weight within and between coherence tuning of recurrent layer units
@@ -404,3 +407,4 @@ def labeled_lines(exp_dir=spec_input_dirs,exp_season='winter'):
     # demonstrate the relationship between sum of input weights and sum of output weights
     # do so across all experiments of this type
     # plot some sort of line? or something? to show the relationship?
+"""
