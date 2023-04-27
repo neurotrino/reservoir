@@ -448,7 +448,7 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_di
 
 
 # plot over the course of training how MANY units become tuned
-
+"""
 def tuned_rec_layer_over_training():
     # plot over the course of training with shaded error bars
     # plot the average weight within and between coherence tuning of recurrent layer units
@@ -456,7 +456,7 @@ def tuned_rec_layer_over_training():
     # get the numbers (avg and std weight for all of these connection types? shape tho?) for the weight distributions at the beginning and end of training
 
 
-"""
+
 # below this line are NOT priorities for now
 
 #def input_amp_or_supp_based_on_training(dual_exp_dir,task_exp_dir,rate_exp_dir):
