@@ -219,13 +219,13 @@ def characterize_tuned_rec_populations(exp_dirs=[spec_nointoout_dirs,save_inz_di
     # compare between dual, task, rate training
     # as best you can
 
-    exp_dirs = np.unique(exp_dirs.flatten())
-
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
             exp_data_dirs = get_experiments(data_dir, exp_string)
         else:
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    exp_data_dirs = np.unique(exp_data_dirs)
 
     # check if folder exists, otherwise create it for saving files
     spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
