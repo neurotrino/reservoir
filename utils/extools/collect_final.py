@@ -207,7 +207,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
 
 """
 
-def characterize_tuned_rec_populations(exp_dirs=[spec_nointoout_dirs,save_inz_dirs],task_exp_dir=spec_nointoout_dirs_task,rate_exp_dir=spec_nointoout_dirs_rate,exp_season='spring'):
+def characterize_tuned_rec_populations(exp_dirs=np.hstack([spec_nointoout_dirs,save_inz_dirs]),task_exp_dir=spec_nointoout_dirs_task,rate_exp_dir=spec_nointoout_dirs_rate,exp_season='spring'):
     # determine tuning of each recurrent unit across each of these experiments
     # according to trials of single coherence level only
     # include save inz as well into these spring experimental categories, okay
