@@ -317,7 +317,7 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_di
             all_coh0_e_rates = np.hstack([all_coh0_e_rates,coh0_rec_rates[:,:e_end].flatten()])
 
         if not 'all_coh0_i_rates' in locals():
-            all_coh0_i_rates = coh0_rec_rates[:,e_end:].flatten())
+            all_coh0_i_rates = coh0_rec_rates[:,e_end:].flatten()
         else:
             all_coh0_i_rates = np.hstack([all_coh0_i_rates,coh0_rec_rates[:,e_end:].flatten()])
 
@@ -402,7 +402,7 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_di
             all_coh0_e_rates = np.hstack([all_coh0_e_rates,coh0_rec_rates[:,:e_end].flatten()])
 
         if not 'all_coh0_i_rates' in locals():
-            all_coh0_i_rates = coh0_rec_rates[:,e_end:].flatten())
+            all_coh0_i_rates = coh0_rec_rates[:,e_end:].flatten()
         else:
             all_coh0_i_rates = np.hstack([all_coh0_i_rates,coh0_rec_rates[:,e_end:].flatten()])
 
