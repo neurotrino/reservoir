@@ -281,7 +281,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
 """
 
 
-def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,exp_season='spring',mix_tuned_indices=True,plot_counts=False):
+def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,exp_season='spring',mix_tuned_indices=True,plot_counts=True):
     # determine tuning of each recurrent unit across each of these experiments
     # according to trials of single coherence level only
     # include save inz as well into these spring experimental categories, okay
@@ -696,16 +696,16 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,exp_season=
 
         # want to visually compare the avg number of tuned units in naive and trained cases
 
-        ax[0].hist(trained_ct[2].flatten(),alpha=0.7,density=True,label='coh0-tuned trained')
-        ax[0].hist(trained_ct[0].flatten(),alpha=0.7,density=True,label='coh1-tuned trained')
-        ax[0].hist(naive_ct[2].flatten(),alpha=0.7,density=True,label='coh0-tuned naive')
-        ax[0].hist(naive_ct[0].flatten(),alpha=0.7,density=True,label='coh1-tuned naive')
+        ax[0].hist(np.array(trained_ct[2]).flatten(),alpha=0.7,density=True,label='coh0-tuned trained')
+        ax[0].hist(np.array(trained_ct[0]).flatten(),alpha=0.7,density=True,label='coh1-tuned trained')
+        ax[0].hist(np.array(naive_ct[2]).flatten(),alpha=0.7,density=True,label='coh0-tuned naive')
+        ax[0].hist(np.array(aive_ct[0]).flatten(),alpha=0.7,density=True,label='coh1-tuned naive')
         ax[0].set_title('Number of E units that are tuned',fontname='Ubuntu')
 
-        ax[1].hist(trained_ct[3].flatten(),alpha=0.7,density=True,label='coh0-tuned trained')
-        ax[1].hist(trained_ct[1].flatten(),alpha=0.7,density=True,label='coh1-tuned trained')
-        ax[1].hist(naive_ct[3].flatten(),alpha=0.7,density=True,label='coh0-tuned naive')
-        ax[1].hist(naive_ct[1].flatten(),alpha=0.7,density=True,label='coh1-tuned naive')
+        ax[1].hist(np.array(trained_ct[3]).flatten(),alpha=0.7,density=True,label='coh0-tuned trained')
+        ax[1].hist(np.array(trained_ct[1]).flatten(),alpha=0.7,density=True,label='coh1-tuned trained')
+        ax[1].hist(np.array(naive_ct[3]).flatten(),alpha=0.7,density=True,label='coh0-tuned naive')
+        ax[1].hist(np.array(naive_ct[1]).flatten(),alpha=0.7,density=True,label='coh1-tuned naive')
         ax[1].set_title('Number of I units that are tuned',fontname='Ubuntu')
 
         plt.suptitle('Quantities of tuned recurrent units',fontname='Ubuntu')
