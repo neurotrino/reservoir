@@ -101,7 +101,7 @@ save_inz_dirs_rate = ["run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire
 spec_nointoout_dirs_rate = ["run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz","run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire","run-batch30-rateloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-rateloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 spec_nointoout_dirs_task = ["run-batch30-taskloss-specinput0.2-nointoout-noinoutrewire","run-batch30-taskloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-taskloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 all_spring_dual_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz"]
-
+all_save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz","run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz"]
 
 # this is all a general sort of thing, once you do one (mostly figure out shading and dist comparisons) it'll come easily
 
@@ -140,73 +140,59 @@ def all_losses_over_training(exp_dir=spec_nointoout_dirs,exp_season='spring'):
     # plot mean with shading over time course of training for task and rate loss
     # have a better way to describe this eventually
     # split into change and no-change trials to describe performance? that might be worthwhile
-
+"""
 
 # SEE IF YOU CAN COMPLETE ALL THE BELOW TODAY
 # ONE PER HOUR, SUPER DOABLE
 
-def dists_of_input_rates(exp_dirs=[save_inz_dirs,save_inz_dirs_rate],exp_season='spring'):
+def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plots=True):
     # also bring in the rate trained ones too. just anything that contains saveinz; also the original CNN outputs too
-    # plot the distribution of rates of each channel in response to the two coherence levels
-    # do so for all 16 channels together (and measure, compare their distributions)
-    # do so for each channel separately and describe just how close their firing rates are to each coherence level
-
-    # from CNN output
-    # determine which coherence level the input units prefer based on original CNN output file
-    spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
-    CNN_x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
-    # determine each of the 16 channels' average rates over 600 x 4080 trials
-    # separate according to coherence level!
-    coherences = load_npz('/data/datasets/CNN_outputs/ch8_abs_ccd_coherences.npz')
-    CNN_y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None]
-
-    exp_dirs = np.unique(exp_dirs.flatten())
-
-    for exp_string in exp_dirs:
-        if not 'exp_data_dirs' in locals():
-            exp_data_dirs = get_experiments(data_dir, exp_string)
-        else:
-            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
     # check if folder exists, otherwise create it for saving files
     spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
-    for xdir in exp_data_dirs: # loop through experiments
-        np_dir = os.path.join(data_dir, xdir, "npz-data")
-        exp_path = xdir[-9:-1]
-
-        for filename in data_files:
-            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
-
-            data = np.load(filepath)
-
-        #np_dir = os.path.join(data_dir,xdir,"npz-data")
-        #naive_data = np.load(os.path.join(np_dir,"1-10.npz"))
-        #trained_data = np.load(os.path.join(np_dir,"991-1000.npz"))
-
-        # do for both naive and trained
-            in_spikes = trained_data['inputs']
-            true_y = trained_data['true_y']
-
-            if '-swaplabels' in xdir: # not unswaplabels
-                true_y = ~true_y.astype(int) + 2
-"""
-
-"""
-def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_dir=save_inz_dirs_rate,exp_season='spring'):
-    # characterize the connectivity from the input layer to recurrent
-    # plot over the course of training with shaded error bars
-    # for not-save-inz experiments, get the information about input channels' coherence tunings from the original CNN output file
+    # from CNN (original CNN output file)
     spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
     x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
     # determine each of the 16 channels' average rates over 600 x 4080 trials
     # separate according to coherence level!
     coherences = load_npz('/data/datasets/CNN_outputs/ch8_abs_ccd_coherences.npz')
     y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None]
+    y = np.squeeze(y)
 
-    # for each of 600 trials
+    # from actual data
+    # from actual experiment now
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # aggregate across all experiments and all trials
+    data_files = filenames(num_epochs, epochs_per_file)
+
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+
+            data = np.load(filepath)
+            # simply too many if we don't just take the final batch
+            in_spikes = data['inputs'][99]
+            true_y = data['true_y'][99]
+            if '-swaplabels' in xdir: # not unswaplabels
+                true_y = ~true_y.astype(int) + 2
+
+            true_y = np.reshape(true_y,np.shape(true_y)[0],seq_len])
+            in_spikes = np.reshape(in_spikes,[np.shape(in_spikes)[0],seq_len,np.shape(in_spikes)[2]])
+
+            y=np.vstack([y,true_y])
+            x=np.vstack([x,in_spikes])
+
+    # for each of ALL trials (from CNN and experimental)
     for i in range(0,np.shape(y)[0]):
     # for each of 4080 time steps
     # determine if coherence 1 or 0
@@ -225,11 +211,72 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
             else:
                 coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(x[i][coh1_idx],0)])
 
+    # average across all trials for a given channel (16)
     coh0_rates = np.average(coh0_channel_trial_rates,0)
     coh1_rates = np.average(coh1_channel_trial_rates,0)
-    # default based on CNN outputs originally, these are the input channels that have "tuning"
-    default_coh1_idx = np.where(coh1_rates>coh0_rates)[0]
-    default_coh0_idx = np.where(coh1_rates<coh0_rates)[0]
+
+    coh0_channels = np.where(np.mean(coh1_rates,0)<np.mean(coh0_rates,0))[0]
+    coh1_channels = np.where(np.mean(coh1_rates,0)>np.mean(coh0_rates,0))[0]
+
+    # plot the distribution of rates of each channel in response to the two coherence levels
+    # do so for all 16 channels together (and measure, compare their distributions)
+    # do so for each channel separately and describe just how close their firing rates are to each coherence level
+
+    if make_plots:
+        # PLOT RATES OF TUNED CHANNELS TOGETHER FOR COH0 AND COH1 TRIALS
+        # stack over subplots: coh0 tuned on top, coh 1 tuned on bottom
+        # adjust axes to be the same
+
+        fig, ax = plt.subplots(nrows=2,ncols=2)
+        ax = ax.flatten()
+
+        ax[0].hist(coh0_channel_trial_rates[:,coh0_channels],density=True,bins=30,alpha=0.7,label='rates to coh 0 trials')
+        ax[0].hist(coh1_channel_trial_rates[:,coh0_channels],density=True,bins=30,alpha=0.7,label='rates to coh 1 trials')
+        ax[0].set_title('Coherence 0 tuned input channels',fontname='Ubuntu')
+
+        ax[1].hist(coh0_channel_trial_rates[:,coh1_channels],density=True,bins=30,alpha=0.7,label='rates to coh 0 trials')
+        ax[1].hist(coh1_channel_trial_rates[:,coh1_channels],density=True,bins=30,alpha=0.7,label='rates to coh 1 trials')
+        ax[1].set_title('Coherence 1 tuned input channels',fontname='Ubuntu')
+
+        # hopefully can visually (and numerically) see that input channels don't differ all that much in their responses
+        # even though they are sliiiightly tuned
+
+        # PLOT RATES OF ALL CHANNELS TO COH0 AND COH1 (regardless of tuning)
+        ax[2].hist(coh0_channel_trial_rates.flatten(),density=True,bins=30,alpha=0.7)
+        ax[2].set_title("All channels' rates to coh 0 trials",fontname='Ubuntu')
+
+        ax[3].hist(coh1_channel_trial_rates.flatten(),density=True,bins=30,alpha=0.7)
+        ax[3].set_title("All channels' rates to coh 1 trials",fontname='Ubuntu')
+
+        plt.suptitle('Responses of 16 input channels to different coherences',fontname='Ubuntu')
+
+        for j in range(0,len(ax)):
+            ax[j].set_ylabel('density',fontname='Ubuntu')
+            ax[j].set_xlabel('rates (Hz)',fontname='Ubuntu')
+            if j < 2:
+                ax[j].legend(fontsize="11",prop={"family":"Ubuntu"})
+            for tick in ax[j].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[j].get_yticklabels():
+                tick.set_fontname("Ubuntu")
+
+        save_fname = spath+'/input_channel_rates_test.png'
+
+        plt.subplots_adjust(hspace=0.5,wspace=0.5)
+        plt.draw()
+        plt.savefig(save_fname,dpi=300)
+        # Teardown
+        plt.clf()
+        plt.close()
+
+    return [coh0_channels,coh1_channels]
+
+def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_dir=save_inz_dirs_rate,exp_season='spring'):
+    # characterize the connectivity from the input layer to recurrent
+    # plot over the course of training with shaded error bars
+    # compare for rate- and dual-trained
+
+    # ACTUALLY YOU NEED TO DO THIS FOR INDIVIDUAL EXPERIMENTS BECAUSE WE ARE FOLLOWING LABELS NOT ACTUAL COHERENCE
 
     # from actual experiment now
     for exp_string in dual_exp_dir:
@@ -245,7 +292,6 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
 
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
-        exp_path = xdir[-9:-1]
 
         # determine experimentally the input channels that are most responsive to coh 0 or coh 1
         # or this can be part of a different prior function...
@@ -256,6 +302,8 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
             data = np.load(filepath)
             spikes = data['spikes']
             true_y = data['true_y']
+
+            [coh0_ins, coh1_ins] = get_input_tuning_single_exp(spikes,true_y)
 
             # aggregate the mean connectivity strength from the two tuned input populations to e and i units
             # maybe it's too much to do it over more than just the last batch trial for each file
@@ -275,10 +323,6 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
     # 0_to_e/0_to_i < 1 at end
     # 1_to_e/1_to_e > 1 at end
     # that's a good start
-
-    # aggregate across all experiments and all trials
-    data_files = filenames(num_epochs, epochs_per_file)
-"""
 
 
 def characterize_tuned_rec_populations(exp_dirs=spec_nointoout_dirs_rate,exp_season='spring',mix_tuned_indices=False,plot_counts=True):
@@ -456,13 +500,6 @@ def characterize_tuned_rec_populations(exp_dirs=spec_nointoout_dirs_rate,exp_sea
     coh1_i_ct = []
     coh0_e_ct = []
     coh0_i_ct = []
-
-    """
-    del all_coh1_e_rates
-    del all_coh1_i_rates
-    del all_coh0_e_rates
-    del all_coh0_i_rates
-    """
 
     del all_0e_to_0_rates
     del all_0e_to_1_rates
