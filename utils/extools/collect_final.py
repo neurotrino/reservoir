@@ -186,7 +186,7 @@ def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plo
             if '-swaplabels' in xdir: # not unswaplabels
                 true_y = ~true_y.astype(int) + 2
 
-            true_y = np.reshape(true_y,np.shape(true_y)[0],seq_len])
+            true_y = np.reshape(true_y,[np.shape(true_y)[0],seq_len])
             in_spikes = np.reshape(in_spikes,[np.shape(in_spikes)[0],seq_len,np.shape(in_spikes)[2]])
 
             y=np.vstack([y,true_y])
