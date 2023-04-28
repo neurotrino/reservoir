@@ -334,7 +334,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
 
-        [coh0_ins, coh1_ins] = get_input_tuning_single_exp(xdir)
+        [coh0_idx, coh1_idx] = get_input_tuning_single_exp(xdir)
 
         # get the truly naive weights
         filepath = os.path.join(data_dir,xdir,"npz-data","input_preweights.npy")
