@@ -194,6 +194,7 @@ def dists_of_input_rates(exp_dirs=[save_inz_dirs,save_inz_dirs_rate],exp_season=
                 true_y = ~true_y.astype(int) + 2
 """
 
+"""
 def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_dir=save_inz_dirs_rate,exp_season='spring'):
     # characterize the connectivity from the input layer to recurrent
     # plot over the course of training with shaded error bars
@@ -277,7 +278,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
 
     # aggregate across all experiments and all trials
     data_files = filenames(num_epochs, epochs_per_file)
-
+"""
 
 
 def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_dir=spec_nointoout_dirs_task,rate_exp_dir=spec_nointoout_dirs_rate,exp_season='spring'):
