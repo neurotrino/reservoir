@@ -281,7 +281,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
 """
 
 
-def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_dir=spec_nointoout_dirs_task,rate_exp_dir=spec_nointoout_dirs_rate,exp_season='spring'):
+def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,exp_season='spring',mix_tuned_indices=True,plot_counts=False):
     # determine tuning of each recurrent unit across each of these experiments
     # according to trials of single coherence level only
     # include save inz as well into these spring experimental categories, okay
@@ -506,13 +506,20 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_di
 
         ######{{{{   FIND THE INDICES OF E AND I UNITS THAT ARE TUNED IN THE NAIVE STATE   }}}}#######
         # specify that these are the naive tuned indices; we do not care about them in the comparison plots for now
+
         coh1_naive_rec_idx = np.where(np.mean(coh1_rec_rates,0)>np.mean(coh0_rec_rates,0))[0]
+        coh0_naive_rec_idx = np.where(np.mean(coh1_rec_rates,0)<np.mean(coh0_rec_rates,0))[0]
+
+        coh0_e_ct.append(len(coh0_naive_rec_idx[coh0_naive_rec_idx<e_end]))
+        coh0_i_ct.append(len(coh0_naive_rec_idx[coh0_naive_rec_idx>=e_end]))
+
         coh1_e_ct.append(len(coh1_naive_rec_idx[coh1_naive_rec_idx<e_end]))
         coh1_i_ct.append(len(coh1_naive_rec_idx[coh1_naive_rec_idx>=e_end]))
 
-        coh0_naive_rec_idx = np.where(np.mean(coh1_rec_rates,0)<np.mean(coh0_rec_rates,0))[0]
-        coh0_e_ct.append(len(coh0_naive_rec_idx[coh0_naive_rec_idx<e_end]))
-        coh0_i_ct.append(len(coh0_naive_rec_idx[coh0_naive_rec_idx>=e_end]))
+        ######{{{{   OPTION TO EITHER USE THE TRAINED TUNING INDICES TO INDEX THE NAIVE TRIALS FOR RATE CALCULATIONS OR THE NAIVE TUNING INDICES THEMSELVES   }}}}#######
+        if mix_tuned_indices:
+            coh0_rec_idx = coh0_naive_rec_idx
+            coh1_rec_idx = coh1_naive_rec_idx
 
         coh0_rec_rates = np.array(coh0_rec_rates)
         coh1_rec_rates = np.array(coh1_rec_rates)
@@ -668,9 +675,12 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_di
         for tick in ax[j].get_yticklabels():
             tick.set_fontname("Ubuntu")
 
-    plt.suptitle('Rates of tuned recurrent units in response to different coherences',fontname='Ubuntu')
-
-    save_fname = spath+'/characterize_tuning_trainedidx_test.png'
+    if mix_tuned_indices:
+        save_fname = spath+'/characterize_tuning_mixedidx_test.png'
+        plt.suptitle('Rates of tuned recurrent units; tuning defined by trained state',fontname='Ubuntu')
+    else:
+        save_fname = spath+'/characterize_tuning_trainedidx_test.png'
+        plt.suptitle('Rates of tuned recurrent units; tuning defined within states',fontname='Ubuntu')
     plt.subplots_adjust(hspace=0.5,wspace=0.5)
     plt.draw()
     plt.savefig(save_fname,dpi=300)
@@ -679,42 +689,43 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_di
     plt.close()
 
 
-    ######{{{{   CREATE NEW PLOT SHOWING COUNTS OF TUNED E AND I UNITS IN NAIVE AND TRAINED STATES   }}}}#######
-    fig, ax = plt.subplots(nrows=2,ncols=2)
-    ax = ax.flatten()
+    if plot_counts:
+        ######{{{{   CREATE NEW PLOT SHOWING COUNTS OF TUNED E AND I UNITS IN NAIVE AND TRAINED STATES   }}}}#######
+        fig, ax = plt.subplots(nrows=2,ncols=2)
+        ax = ax.flatten()
 
-    # want to visually compare the avg number of tuned units in naive and trained cases
+        # want to visually compare the avg number of tuned units in naive and trained cases
 
-    ax[0].hist(trained_ct[2].flatten(),alpha=0.7,density=True,label='coh0-tuned trained')
-    ax[0].hist(trained_ct[0].flatten(),alpha=0.7,density=True,label='coh1-tuned trained')
-    ax[0].hist(naive_ct[2].flatten(),alpha=0.7,density=True,label='coh0-tuned naive')
-    ax[0].hist(naive_ct[0].flatten(),alpha=0.7,density=True,label='coh1-tuned naive')
-    ax[0].set_title('Number of E units that are tuned',fontname='Ubuntu')
+        ax[0].hist(trained_ct[2].flatten(),alpha=0.7,density=True,label='coh0-tuned trained')
+        ax[0].hist(trained_ct[0].flatten(),alpha=0.7,density=True,label='coh1-tuned trained')
+        ax[0].hist(naive_ct[2].flatten(),alpha=0.7,density=True,label='coh0-tuned naive')
+        ax[0].hist(naive_ct[0].flatten(),alpha=0.7,density=True,label='coh1-tuned naive')
+        ax[0].set_title('Number of E units that are tuned',fontname='Ubuntu')
 
-    ax[1].hist(trained_ct[3].flatten(),alpha=0.7,density=True,label='coh0-tuned trained')
-    ax[1].hist(trained_ct[1].flatten(),alpha=0.7,density=True,label='coh1-tuned trained')
-    ax[1].hist(naive_ct[3].flatten(),alpha=0.7,density=True,label='coh0-tuned naive')
-    ax[1].hist(naive_ct[1].flatten(),alpha=0.7,density=True,label='coh1-tuned naive')
-    ax[1].set_title('Number of I units that are tuned',fontname='Ubuntu')
+        ax[1].hist(trained_ct[3].flatten(),alpha=0.7,density=True,label='coh0-tuned trained')
+        ax[1].hist(trained_ct[1].flatten(),alpha=0.7,density=True,label='coh1-tuned trained')
+        ax[1].hist(naive_ct[3].flatten(),alpha=0.7,density=True,label='coh0-tuned naive')
+        ax[1].hist(naive_ct[1].flatten(),alpha=0.7,density=True,label='coh1-tuned naive')
+        ax[1].set_title('Number of I units that are tuned',fontname='Ubuntu')
 
-    plt.suptitle('Quantities of tuned recurrent units',fontname='Ubuntu')
+        plt.suptitle('Quantities of tuned recurrent units',fontname='Ubuntu')
 
-    for j in range(0,len(ax)):
-        ax[j].set_ylabel('density',fontname='Ubuntu')
-        ax[j].set_xlabel('number of units',fontname='Ubuntu')
-        ax[j].legend(fontsize="12",prop={"family":"Ubuntu"})
-        for tick in ax[j].get_xticklabels():
-            tick.set_fontname("Ubuntu")
-        for tick in ax[j].get_yticklabels():
-            tick.set_fontname("Ubuntu")
+        for j in range(0,len(ax)):
+            ax[j].set_ylabel('density',fontname='Ubuntu')
+            ax[j].set_xlabel('number of units',fontname='Ubuntu')
+            ax[j].legend(fontsize="12",prop={"family":"Ubuntu"})
+            for tick in ax[j].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[j].get_yticklabels():
+                tick.set_fontname("Ubuntu")
 
-    save_fname = spath+'/count_tuning_test.png'
-    plt.subplots_adjust(hspace=0.5,wspace=0.5)
-    plt.draw()
-    plt.savefig(save_fname,dpi=300)
-    # Teardown
-    plt.clf()
-    plt.close()
+        save_fname = spath+'/count_tuning_test.png'
+        plt.subplots_adjust(hspace=0.5,wspace=0.5)
+        plt.draw()
+        plt.savefig(save_fname,dpi=300)
+        # Teardown
+        plt.clf()
+        plt.close()
 
 
     ######{{{{   FOR LATER: CREATE NEW PLOT SHOWING THE RATE DISTRIBUTIONS OF NAIVE-TUNED-INDEXED E AND I UNITS IN BOTH NAIVE AND TRAINED TRIALS   }}}}#######
