@@ -92,6 +92,8 @@ fig, ax = plt.subplots(nrows=5, ncols=1)
 for xdir in data_dirs:
 """
 
+data_files = filenames(num_epochs, epochs_per_file)
+
 #ALL DUAL TRAINED TO BEGIN WITH:
 spec_output_dirs = ["run-batch30-specout-onlinerate0.1-savey","run-batch30-dualloss-silence","run-batch30-dualloss-swaplabels"]
 spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
@@ -271,7 +273,37 @@ def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plo
 
     return [coh0_channels,coh1_channels]
 
-"""
+def get_input_tuning_single_exp(xdir):
+
+    for filename in data_files:
+        filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+        data = np.load(filepath)
+        input_z = data['inputs']
+        # shaped [100 batches x 30 trials x 4080 timesteps x 16 units]
+        true_y = data['true_y'] # shaped [100 batches x 30 trials x 4080 timesteps]
+        for i in range(0,np.shape(true_y)[0]): # for batch
+            for j in range(0,np.shape(true_y)[1]): # for trial
+                coh0_idx = np.where(true_y[i][j]==0)[0]
+                coh1_idx = np.where(true_y[i][j]==1)[0]
+                if len(coh0_idx)>0:
+                    if not 'coh0_channel_trial_rates' in locals():
+                        coh0_channel_trial_rates = np.average(input_z[i][j][coh0_idx],0)
+                    else:
+                        coh0_channel_trial_rates = np.vstack([coh0_channel_trial_rates,np.average(input_z[i][j][coh0_idx],0)])
+
+                if len(coh1_idx)>0:
+                    if not 'coh1_channel_trial_rates' in locals():
+                        coh1_channel_trial_rates = np.average(input_z[i][j][coh1_idx],0)
+                    else:
+                        coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(input_z[i][j][coh1_idx],0)])
+
+    coh1_channel_rates = np.array(np.mean(coh1_channel_trial_rates,0))
+    coh0_channel_rates = np.array(np.mean(coh0_channel_trial_rates,0))
+    coh1_idx = np.where(coh1_channel_rates>coh0_channel_rates)[0]
+    coh0_idx = np.where(coh1_channel_rates<coh0_channel_rates)[0]
+
+    return [coh0_idx,coh1_idx]
+
 def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_dir=save_inz_dirs_rate,exp_season='spring'):
     # characterize the connectivity from the input layer to recurrent
     # plot over the course of training with shaded error bars
@@ -291,20 +323,104 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
+    # aggregate over all experiments
+    coh1_e = []
+    coh1_i = []
+    coh0_e = []
+    coh0_i = []
+    epoch_task_loss = []
+    epoch_rate_loss = []
+
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
 
-        # determine experimentally the input channels that are most responsive to coh 0 or coh 1
-        # or this can be part of a different prior function...
+        [coh0_ins, coh1_ins] = get_input_tuning_single_exp(xdir)
 
+        # get the truly naive weights
+        filepath = os.path.join(data_dir,xdir,"npz-data","input_preweights.npy")
+        input_w = np.load(filepath)
+        coh1_e.append(np.mean(input_w[coh1_idx,:e_end]))
+        coh1_i.append(np.mean(input_w[coh1_idx,e_end:]))
+        coh0_e.append(np.mean(input_w[coh0_idx,:e_end]))
+        coh0_i.append(np.mean(input_w[coh0_idx,e_end:]))
+
+        # now do weights over time
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            input_w = data['tv0.postweights'][0] # just the singular for now; too much data and noise otherwise
+            epoch_task_loss.append(np.mean(data['step_task_loss']))
+            epoch_rate_loss.append(np.mean(data['step_rate_loss']))
+            #for i in range(0,np.shape(input_w)[0]): # 100 trials
+            # weights of each type to e units and to i units
+            coh1_e.append(np.mean(input_w[coh1_idx,:e_end]))
+            coh1_i.append(np.mean(input_w[coh1_idx,e_end:]))
+            coh0_e.append(np.mean(input_w[coh0_idx,:e_end]))
+            coh0_i.append(np.mean(input_w[coh0_idx,e_end:]))
+
+    fig, ax = plt.subplots(nrows=3, ncols=1)
+
+    coh1_e_mean = np.mean(coh1_e,(0,1))
+    coh1_e_std = np.std(coh1_e,(0,1))
+    coh0_e_mean = np.mean(coh0_e,(0,1))
+    coh0_e_std = np.std(coh0_e,(0,1))
+
+    ax[0].plot(coh1_e_mean, label='coh 1 tuned inputs')
+    ax[0].fill_between(coh1_e_mean, coh1_e_mean-coh1_e_std, coh1_e_mean+coh1_e_std, alpha=0.4)
+    ax[0].plot(coh0_e_mean, label='coh 0 tuned inputs')
+    ax[0].fill_between(coh0_e_mean, coh0_e_mean-coh0_e_std, coh0_e_mean+coh0_e_std, alpha=0.4)
+    ax[0].set_title('input weights to excitatory units',fontname='Ubuntu')
+
+    coh1_i_mean = np.mean(coh1_i,(0,1))
+    coh1_i_std = np.mean(coh1_i,(0,1))
+    coh0_i_mean = np.mean(coh0_i,(0,1))
+    coh0_i_std = np.mean(coh0_i,(0,1))
+
+    ax[1].plot(coh1_i_mean, label='coh 1 tuned inputs')
+    ax[1].fill_between(coh1_i_mean, coh1_i_mean-coh1_i_std, coh1_i_mean+coh1_i_std, alpha=0.4)
+    ax[1].plot(coh0_i_mean, label='coh 0 tuned inputs')
+    ax[1].fill_between(coh0_i_mean, coh0_i_mean-coh0_i_std, coh0_i_mean+coh0_i_std, alpha=0.4)
+    ax[1].set_title('input weights to inhibitory units',fontname='Ubuntu')
+
+    task_mean = np.mean(epoch_task_loss,(0,1))
+    task_error = np.std(epoch_task_loss,(0,1))
+    ax[2].plot(task_mean, label='task loss')
+    ax[2].fill_between(task_mean, task_mean-task_error, task_mean+task_error, alpha=0.4)
+
+    rate_mean = np.mean(epoch_rate_loss,(0,1))
+    rate_error = np.std(epoch_rate_loss,(0,1))
+    ax[2].plot(rate_mean, label='rate loss')
+    ax[2].fill_between(rate_mean, rate_mean+rate_error, rate_mean+rate_error, alpha=0.4) #other options include edgecolor='#CC4F1B', facecolor='#FF9848'
+
+    ax[2].set_ylabel('loss',fontname='Ubuntu')
+    #ax[2].legend(['task loss','rate loss'],fontsize="11",prop={"family":"Ubuntu"})
+
+    for j in range(0,len(ax)):
+        ax[j].set_ylabel('average weights',fontname='Ubuntu')
+        ax[j].set_xlabel('training epoch',fontname='Ubuntu')
+        ax[j].legend(prop={"family":"Ubuntu"})
+        for tick in ax[j].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[j].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+
+    plt.suptitle('Evolution of input weights over training',fontname='Ubuntu')
+    plt.subplots_adjust(wspace=1.0, hspace=1.0)
+    plt.draw()
+
+    save_fname = spath+'/inputs_to_ei_test.png'
+    plt.savefig(save_fname,dpi=300)
+    # Teardown
+    plt.clf()
+    plt.close()
+
+    """
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
 
             data = np.load(filepath)
             spikes = data['spikes']
             true_y = data['true_y']
-
-            [coh0_ins, coh1_ins] = get_input_tuning_single_exp(spikes,true_y)
 
             # aggregate the mean connectivity strength from the two tuned input populations to e and i units
             # maybe it's too much to do it over more than just the last batch trial for each file
@@ -316,6 +432,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
             coh0in_to_e/coh0in_to_i
             coh1in_to_e/coh1in_to_i
             # aggregate over all experiments
+    """
 
     # get a number distribution to quantify this, maybe for each experiment
     # the ratio between avg weight from input coh0 and coh1 to e and i recurrent units at the beginning and at the end of training
@@ -324,7 +441,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
     # 0_to_e/0_to_i < 1 at end
     # 1_to_e/1_to_e > 1 at end
     # that's a good start
-"""
+
 
 def characterize_tuned_rec_populations(exp_dirs=spec_nointoout_dirs_rate,exp_season='spring',mix_tuned_indices=False,plot_counts=True):
     # determine tuning of each recurrent unit across each of these experiments
