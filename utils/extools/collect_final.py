@@ -669,7 +669,7 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,exp_season=
     for j in range(0,len(ax)):
         ax[j].set_ylabel('density',fontname='Ubuntu')
         ax[j].set_xlabel('rates (Hz)',fontname='Ubuntu')
-        ax[j].legend(fontsize="12",prop={"family":"Ubuntu"})
+        ax[j].legend(fontsize="11",prop={"family":"Ubuntu"})
         for tick in ax[j].get_xticklabels():
             tick.set_fontname("Ubuntu")
         for tick in ax[j].get_yticklabels():
@@ -677,10 +677,10 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,exp_season=
 
     if mix_tuned_indices:
         save_fname = spath+'/characterize_tuning_mixedidx_test.png'
-        plt.suptitle('Rates of tuned recurrent units; tuning defined by trained state',fontname='Ubuntu')
+        plt.suptitle('Rates of tuned recurrent units; tuning defined within state',fontname='Ubuntu')
     else:
         save_fname = spath+'/characterize_tuning_trainedidx_test.png'
-        plt.suptitle('Rates of tuned recurrent units; tuning defined within states',fontname='Ubuntu')
+        plt.suptitle('Rates of tuned recurrent units; tuning defined by trained state',fontname='Ubuntu')
     plt.subplots_adjust(hspace=0.5,wspace=0.5)
     plt.draw()
     plt.savefig(save_fname,dpi=300)
@@ -699,7 +699,7 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,exp_season=
         ax[0].hist(np.array(trained_ct[2]).flatten(),alpha=0.7,density=True,label='coh0-tuned trained')
         ax[0].hist(np.array(trained_ct[0]).flatten(),alpha=0.7,density=True,label='coh1-tuned trained')
         ax[0].hist(np.array(naive_ct[2]).flatten(),alpha=0.7,density=True,label='coh0-tuned naive')
-        ax[0].hist(np.array(aive_ct[0]).flatten(),alpha=0.7,density=True,label='coh1-tuned naive')
+        ax[0].hist(np.array(naive_ct[0]).flatten(),alpha=0.7,density=True,label='coh1-tuned naive')
         ax[0].set_title('Number of E units that are tuned',fontname='Ubuntu')
 
         ax[1].hist(np.array(trained_ct[3]).flatten(),alpha=0.7,density=True,label='coh0-tuned trained')
@@ -713,7 +713,7 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,exp_season=
         for j in range(0,len(ax)):
             ax[j].set_ylabel('density',fontname='Ubuntu')
             ax[j].set_xlabel('number of units',fontname='Ubuntu')
-            ax[j].legend(fontsize="12",prop={"family":"Ubuntu"})
+            ax[j].legend(fontsize="11",prop={"family":"Ubuntu"})
             for tick in ax[j].get_xticklabels():
                 tick.set_fontname("Ubuntu")
             for tick in ax[j].get_yticklabels():
