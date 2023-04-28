@@ -271,6 +271,7 @@ def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plo
 
     return [coh0_channels,coh1_channels]
 
+"""
 def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_dir=save_inz_dirs_rate,exp_season='spring'):
     # characterize the connectivity from the input layer to recurrent
     # plot over the course of training with shaded error bars
@@ -323,7 +324,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
     # 0_to_e/0_to_i < 1 at end
     # 1_to_e/1_to_e > 1 at end
     # that's a good start
-
+"""
 
 def characterize_tuned_rec_populations(exp_dirs=spec_nointoout_dirs_rate,exp_season='spring',mix_tuned_indices=False,plot_counts=True):
     # determine tuning of each recurrent unit across each of these experiments
