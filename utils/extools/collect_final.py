@@ -614,7 +614,7 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,task_exp_di
 
         # separate plot and set of numbers showing just how many e and i units on average (dist) are tuned to 0 or 1 in the naive and the trained states
 
-        """
+    """
         if not 'all_coh0_i_rates' in locals():
             all_coh0_i_rates = coh0_rec_rates[:,e_end:].flatten()
         else:
