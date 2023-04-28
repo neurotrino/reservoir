@@ -281,7 +281,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
 """
 
 
-def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,exp_season='spring',mix_tuned_indices=True,plot_counts=True):
+def characterize_tuned_rec_populations(exp_dirs=spec_nointoout_dirs_rate,exp_season='spring',mix_tuned_indices=False,plot_counts=True):
     # determine tuning of each recurrent unit across each of these experiments
     # according to trials of single coherence level only
     # include save inz as well into these spring experimental categories, okay
@@ -676,10 +676,10 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,exp_season=
             tick.set_fontname("Ubuntu")
 
     if mix_tuned_indices:
-        save_fname = spath+'/characterize_tuning_mixedidx_test.png'
+        save_fname = spath+'/characterize_tuning_mixedidx_rate_test.png'
         plt.suptitle('Rates of tuned recurrent units; tuning defined within state',fontname='Ubuntu')
     else:
-        save_fname = spath+'/characterize_tuning_trainedidx_test.png'
+        save_fname = spath+'/characterize_tuning_trainedidx_rate_test.png'
         plt.suptitle('Rates of tuned recurrent units; tuning defined by trained state',fontname='Ubuntu')
     plt.subplots_adjust(hspace=0.5,wspace=0.5)
     plt.draw()
@@ -719,7 +719,7 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,exp_season=
             for tick in ax[j].get_yticklabels():
                 tick.set_fontname("Ubuntu")
 
-        save_fname = spath+'/count_tuning_test.png'
+        save_fname = spath+'/count_tuning_rate_test.png'
         plt.subplots_adjust(hspace=0.5,wspace=0.5)
         plt.draw()
         plt.savefig(save_fname,dpi=300)
@@ -729,6 +729,12 @@ def characterize_tuned_rec_populations(exp_dirs=all_spring_dual_dirs,exp_season=
 
 
     ######{{{{   FOR LATER: CREATE NEW PLOT SHOWING THE RATE DISTRIBUTIONS OF NAIVE-TUNED-INDEXED E AND I UNITS IN BOTH NAIVE AND TRAINED TRIALS   }}}}#######
+
+    # want a way to also quantify the extent to which units are tuned
+    # like the ratio of their mean responses to i vs their mean responses to e
+    # in both the trained and naive states for both coherence level trials
+    # and for different varieties of training
+    # this is the task for tomorrow
 
     return [trained_ct,naive_ct]
 
