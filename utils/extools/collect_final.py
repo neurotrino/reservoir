@@ -994,27 +994,6 @@ def tuned_rec_layer_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spri
         coh0_i = np.array(coh0_rec_idx[coh0_rec_idx>=e_end])
 
         # name them as homo and hetero lol
-
-        ho_ee=np.mean(w[:,:,:][:,coh1_e,:][:,:,coh1_e],0)
-        ho_ei=np.mean(w[:,:,:][:,coh1_e,:][:,:,coh1_i],0)
-        ho_ie=np.mean(w[:,:,:][:,coh1_i,:][:,:,coh1_e],0)
-        ho_ii=np.mean(w[:,:,:][:,coh1_i,:][:,:,coh1_i],0)
-
-        het_ee=np.mean(w[:,:,:][:,coh1_e,:][:,:,coh0_e],0)
-        het_ei=np.mean(w[:,:,:][:,coh1_e,:][:,:,coh0_i],0)
-        het_ie=np.mean(w[:,:,:][:,coh1_i,:][:,:,coh0_e],0)
-        het_ii=np.mean(w[:,:,:][:,coh1_i,:][:,:,coh0_i],0)
-
-        ero_ee = np.mean(w[:,:,:][:,coh0_e,:][:,:,coh1_e],0)
-        ero_ei = np.mean(w[:,:,:][:,coh0_e,:][:,:,coh1_i],0)
-        ero_ie = np.mean(w[:,:,:][:,coh0_i,:][:,:,coh1_e],0)
-        ero_ii = np.mean(w[:,:,:][:,coh0_i,:][:,:,coh1_i],0)
-
-        mo_ee = np.mean(w[:,:,:][:,coh0_e,:][:,:,coh0_e],0)
-        mo_ei = np.mean(w[:,:,:][:,coh0_e,:][:,:,coh0_i],0)
-        mo_ie = np.mean(w[:,:,:][:,coh0_i,:][:,:,coh0_e],0)
-        mo_ii = np.mean(w[:,:,:][:,coh0_i,:][:,:,coh0_i],0)
-
         # plot weights based on coh tuning over time
 
         for i in range(0,np.shape(temporal_w)[0]): # again over all training time, but now just one per file (100) instead of craziness (10000)
