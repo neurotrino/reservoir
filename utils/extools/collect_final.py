@@ -199,12 +199,12 @@ def dists_of_all_weights(dual_exp_dir=save_inz_dirs,exp_season='spring'):
     all_w_rec = np.array(all_w_rec)
     all_w_out = np.array(all_w_out)
 
-    return [all_w_in,all_w_rec,all_w_out]
+    #return [all_w_in,all_w_rec,all_w_out]
 
     fig, ax = plt.subplots(nrows=3, ncols=1)
     ax = ax.flatten()
 
-    epochs = np.shape(all_w_rec)[1]
+    epochs = np.arange(0,np.shape(all_w_rec)[1])
 
     mean_w_e_in = np.mean(all_w_in[:,:,:,:e_end],(0,2,3))
     std_w_e_in = np.std(all_w_in[:,:,:,:e_end],(0,2,3))
@@ -309,7 +309,6 @@ def dists_of_all_weights(dual_exp_dir=save_inz_dirs,exp_season='spring'):
     ax[2].hist(all_w_rec[:,end_idx,e_end:,e_end:][all_w_rec[:,end_idx,e_end:,e_end:]!=0].flatten(),bins=30,density=True,alpha=0.8,color='orangered',label='trained i to i')
 
     ax[3].set_title('recurrent i weights',fontname='Ubuntu')
-
 
     for j in range(0,len(ax)):
         ax[j].set_ylabel('density',fontname='Ubuntu')
