@@ -1196,70 +1196,70 @@ def tuned_rec_layer_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spri
 
     coh0_ee_mean = np.mean(coh0_ee,0)
     coh0_ee_std = np.std(coh0_ee,0)
-    ax[0].plot(coh0_ee_mean,color='slateblue',label='ee')
+    ax[0].plot(np.arange(0,epochs),coh0_ee_mean,color='slateblue',label='ee')
     ax[0].fill_between(np.arange(0,epochs),coh0_ee_mean-coh0_ee_std, coh0_ee_mean+coh0_ee_std, alpha=0.4, facecolor='slateblue')
 
     coh0_ei_mean = np.mean(coh0_ei,0)
     coh0_ei_std = np.std(coh0_ei,0)
-    ax[0].plot(coh0_ei_mean,color='mediumseagreen',label='ei')
+    ax[0].plot(np.arange(0,epochs),coh0_ei_mean,color='mediumseagreen',label='ei')
     ax[0].fill_between(np.arange(0,epochs),coh0_ei_mean-coh0_ei_std, coh0_ei_mean+coh0_ei_std, alpha=0.4, facecolor='mediumseagreen')
 
     coh0_ie_mean = np.mean(coh0_ie,0)
     coh0_ie_std = np.std(coh0_ie,0)
-    ax[0].plot(coh0_ie_mean,color='darkorange',label='ie')
+    ax[0].plot(np.arange(0,epochs),coh0_ie_mean,color='darkorange',label='ie')
     ax[0].fill_between(np.arange(0,epochs),coh0_ie_mean-coh0_ie_std, coh0_ie_mean+coh0_ie_std, alpha=0.4, facecolor='darkorange')
 
     coh0_ii_mean = np.mean(coh0_ii,0)
     coh0_ii_std = np.std(coh0_ii,0)
-    ax[0].plot(coh0_ii_mean,color='orangered',label='ii')
+    ax[0].plot(np.arange(0,epochs),coh0_ii_mean,color='orangered',label='ii')
     ax[0].fill_between(np.arange(0,epochs),coh0_ii_mean-coh0_ii_std, coh0_ii_mean+coh0_ii_std, alpha=0.4, facecolor='orangered')
 
     ax[0].set_title('coherence 0 tuned recurrent connections',fontname='Ubuntu')
     ax[0].set_ylabel('average weight',fontname='Ubuntu')
 
 
-    ax[1].plot(np.mean(coh1_ee,0),color='slateblue',label='ee')
+    ax[1].plot(np.arange(0,epochs),np.mean(coh1_ee,0),color='slateblue',label='ee')
     ax[1].fill_between(np.arange(0,epochs),np.mean(coh1_ee,0)-np.std(coh1_ee,0), np.mean(coh1_ee,0)+np.std(coh1_ee,0), alpha=0.4, facecolor='slateblue')
 
-    ax[1].plot(np.mean(coh1_ei,0),color='mediumseagreen',label='ei')
+    ax[1].plot(np.arange(0,epochs),np.mean(coh1_ei,0),color='mediumseagreen',label='ei')
     ax[1].fill_between(np.arange(0,epochs),np.mean(coh1_ei,0)-np.std(coh1_ei,0), np.mean(coh1_ei,0)+np.std(coh1_ei,0), alpha=0.4, facecolor='mediumseagreen')
 
-    ax[1].plot(np.mean(coh1_ie,0),color='darkorange',label='ie')
+    ax[1].plot(np.arange(0,epochs),np.mean(coh1_ie,0),color='darkorange',label='ie')
     ax[1].fill_between(np.arange(0,epochs),np.mean(coh1_ie,0)-np.std(coh1_ie,0), np.mean(coh1_ie,0)+np.std(coh1_ie,0), alpha=0.4, facecolor='darkorange')
 
-    ax[1].plot(np.mean(coh1_ii,0),color='orangered',label='ii')
+    ax[1].plot(np.arange(0,epochs),np.mean(coh1_ii,0),color='orangered',label='ii')
     ax[1].fill_between(np.arange(0,epochs),np.mean(coh1_ii,0)-np.std(coh1_ii,0), np.mean(coh1_ii,0)+np.std(coh1_ii,0), alpha=0.4, facecolor='orangered')
 
     ax[1].set_title('coherence 1 tuned recurrent connections',fontname='Ubuntu')
     ax[1].set_ylabel('average weight',fontname='Ubuntu')
 
 
-    ax[2].plot(np.mean(het_ee,0),color='slateblue',label='ee')
+    ax[2].plot(np.arange(0,epochs),np.mean(het_ee,0),color='slateblue',label='ee')
     ax[2].fill_between(np.arange(0,epochs),np.mean(het_ee,0)-np.std(het_ee,0), np.mean(het_ee,0)+np.std(het_ee,0), alpha=0.4, facecolor='slateblue')
 
-    ax[2].plot(np.mean(het_ei,0),color='mediumseagreen',label='ei')
+    ax[2].plot(np.arange(0,epochs),np.mean(het_ei,0),color='mediumseagreen',label='ei')
     ax[2].fill_between(np.arange(0,epochs),np.mean(het_ei,0)-np.std(het_ei,0), np.mean(het_ei,0)+np.std(het_ei,0), alpha=0.4, facecolor='mediumseagreen')
 
-    ax[2].plot(np.mean(het_ie,0),color='darkorange',label='ie')
+    ax[2].plot(np.arange(0,epochs),np.mean(het_ie,0),color='darkorange',label='ie')
     ax[2].fill_between(np.arange(0,epochs),np.mean(het_ie,0)-np.std(het_ie,0), np.mean(het_ie,0)+np.std(het_ie,0), alpha=0.4, facecolor='darkorange')
 
-    ax[2].plot(np.mean(het_ii,0),color='orangered',label='ii')
+    ax[2].plot(np.arange(0,epochs),np.mean(het_ii,0),color='orangered',label='ii')
     ax[2].fill_between(np.arange(0,epochs),np.mean(het_ii,0)-np.std(het_ii,0), np.mean(het_ii,0)+np.std(het_ii,0), alpha=0.4, facecolor='orangered')
 
     ax[2].set_title('coherence 0 to coherence 1 tuned recurrent connections',fontname='Ubuntu')
     ax[2].set_ylabel('average weight',fontname='Ubuntu')
 
 
-    ax[3].plot(np.mean(ero_ee,0),color='slateblue',label='ee')
+    ax[3].plot(np.arange(0,epochs),np.mean(ero_ee,0),color='slateblue',label='ee')
     ax[3].fill_between(np.arange(0,epochs),np.mean(ero_ee,0)-np.std(ero_ee,0), np.mean(ero_ee,0)+np.std(ero_ee,0), alpha=0.4, facecolor='slateblue')
 
-    ax[3].plot(np.mean(ero_ei,0),color='mediumseagreen',label='ei')
+    ax[3].plot(np.arange(0,epochs),np.mean(ero_ei,0),color='mediumseagreen',label='ei')
     ax[3].fill_between(np.arange(0,epochs),np.mean(ero_ei,0)-np.std(ero_ei,0), np.mean(ero_ei,0)+np.std(ero_ei,0), alpha=0.4, facecolor='mediumseagreen')
 
-    ax[3].plot(np.mean(ero_ie,0),color='darkorange',label='ie')
+    ax[3].plot(np.arange(0,epochs),np.mean(ero_ie,0),color='darkorange',label='ie')
     ax[3].fill_between(np.arange(0,epochs),np.mean(ero_ie,0)-np.std(ero_ie,0), np.mean(ero_ie,0)+np.std(ero_ie,0), alpha=0.4, facecolor='darkorange')
 
-    ax[3].plot(np.mean(ero_ii,0),color='orangered',label='ii')
+    ax[3].plot(np.arange(0,epochs),np.mean(ero_ii,0),color='orangered',label='ii')
     ax[3].fill_between(np.arange(0,epochs),np.mean(ero_ii,0)-np.std(ero_ii,0), np.mean(ero_ii,0)+np.std(ero_ii,0), alpha=0.4, facecolor='orangered')
 
     ax[3].set_title('coherence 1 to coherence 0 tuned recurrent connections',fontname='Ubuntu')
