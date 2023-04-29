@@ -1275,7 +1275,7 @@ def tuned_rec_layer_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spri
         for tick in ax[j].get_yticklabels():
             tick.set_fontname("Ubuntu")
 
-    plt.suptitle('recurrent connectivity by coherence tuning',fontname='Ubuntu')
+    plt.suptitle('Recurrent Connectivity by Coherence Tuning',fontname='Ubuntu')
     save_fname = spath+'/rec_weights_by_tuning_over_training_test.png'
     plt.subplots_adjust(hspace=0.8,wspace=0.8)
     plt.draw()
@@ -1283,6 +1283,12 @@ def tuned_rec_layer_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spri
     # Teardown
     plt.clf()
     plt.close()
+
+    print('shape of means and stds:')
+    print(np.shape(np.mean(ero_ii,0)))
+    print(np.shape(np.std(ero_ii,0)))
+
+    return [ero_ee, ero_ei, ero_ie, ero_ii]
 
 """
 # below this line are NOT priorities for now
