@@ -342,7 +342,7 @@ def get_input_tuning_single_exp(xdir):
 
     return [coh0_idx,coh1_idx]
 
-def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,rate_exp_dir=save_inz_dirs_rate,exp_season='spring'):
+def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,exp_season='spring'):
     # characterize the connectivity from the input layer to recurrent
     # plot over the course of training with shaded error bars
     # compare for rate- and dual-trained
@@ -455,9 +455,9 @@ def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,rat
     ax[0].set_title('input weights to excitatory units',fontname='Ubuntu')
 
     coh1_i_mean = np.mean(coh1_i,0)
-    coh1_i_std = np.mean(coh1_i,0)
+    coh1_i_std = np.std(coh1_i,0)
     coh0_i_mean = np.mean(coh0_i,0)
-    coh0_i_std = np.mean(coh0_i,0)
+    coh0_i_std = np.std(coh0_i,0)
 
     ax[1].plot(np.arange(0,epochs),coh1_i_mean, label='coh 1 tuned inputs', color='darkorange')
     ax[1].fill_between(np.arange(0,epochs),coh1_i_mean-coh1_i_std, coh1_i_mean+coh1_i_std, alpha=0.4, facecolor='slateblue')
