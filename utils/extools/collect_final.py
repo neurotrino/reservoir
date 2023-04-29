@@ -981,7 +981,7 @@ def characterize_tuned_rec_populations(exp_dirs=spec_nointoout_dirs_rate,exp_sea
 
 # plot over the course of training how MANY units become tuned
 
-def tuned_rec_layer_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
+def tuned_rec_layer_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
     # plot over the course of training with shaded error bars
     # plot the average weight within and between coherence tuning of recurrent layer units
     # make sure all axes are comparable
