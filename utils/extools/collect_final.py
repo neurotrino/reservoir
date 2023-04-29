@@ -275,6 +275,41 @@ def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plo
 
     return [coh0_channels,coh1_channels]
 
+
+def get_input_tuning_from_CNN():
+    spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
+    x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
+    # determine each of the 16 channels' average rates over 600 x 4080 trials
+    # separate according to coherence level!
+    coherences = load_npz('/data/datasets/CNN_outputs/ch8_abs_ccd_coherences.npz')
+    y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None]
+
+    # for each of 600 trials
+    for i in range(0,np.shape(y)[0]):
+    # for each of 4080 time steps
+    # determine if coherence 1 or 0
+        coh0_idx = np.where(y[i]==0)[0]
+        coh1_idx = np.where(y[i]==1)[0]
+    # take average rates across that trial's timepoints for the same coherence level and append
+        if len(coh0_idx)>0:
+            if not 'coh0_channel_trial_rates' in locals():
+                coh0_channel_trial_rates = np.average(x[i][coh0_idx],0)
+            else:
+                coh0_channel_trial_rates = np.vstack([coh0_channel_trial_rates,np.average(x[i][coh0_idx],0)])
+
+        if len(coh1_idx)>0:
+            if not 'coh1_channel_trial_rates' in locals():
+                coh1_channel_trial_rates = np.average(x[i][coh1_idx],0)
+            else:
+                coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(x[i][coh1_idx],0)])
+
+    coh0_rates = np.average(coh0_channel_trial_rates,0)
+    coh1_rates = np.average(coh1_channel_trial_rates,0)
+    coh1_idx = np.where(coh1_rates>coh0_rates)[0]
+    coh0_idx = np.where(coh1_rates<coh0_rates)[0]
+
+    return [coh0_idx,coh1_idx]
+
 def get_input_tuning_single_exp(xdir):
 
     for filename in data_files:
@@ -306,7 +341,7 @@ def get_input_tuning_single_exp(xdir):
 
     return [coh0_idx,coh1_idx]
 
-def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_dir=save_inz_dirs_rate,exp_season='spring'):
+def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,rate_exp_dir=save_inz_dirs_rate,exp_season='spring'):
     # characterize the connectivity from the input layer to recurrent
     # plot over the course of training with shaded error bars
     # compare for rate- and dual-trained
@@ -325,6 +360,9 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
+    # get default input tunings from CNN outputs 
+    [default_coh0_idx, default_coh1_idx] = get_input_tuning_from_CNN()
+
     # aggregate over all experiments
 
     for xdir in exp_data_dirs: # loop through experiments
@@ -337,7 +375,14 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
         epoch_task_loss_exp = []
         epoch_rate_loss_exp = []
 
-        [coh0_idx, coh1_idx] = get_input_tuning_single_exp(xdir)
+        # check if inputs is saved; otherwise use defaults
+
+        filepath = os.path.join(data_dir, xdir, "npz-data", '1-10.npz')
+        data = np.load(filepath)
+        if 'inputs' in data:
+            [coh0_idx, coh1_idx] = get_input_tuning_single_exp(xdir)
+        else:
+            [coh0_idx, coh1_idx] = [default_coh0_idx, default_coh1_idx]
 
         # get the truly naive weights
         filepath = os.path.join(data_dir,xdir,"npz-data","input_preweights.npy")
@@ -396,9 +441,9 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
     print('shape of coh1_e (coherence 1 tuned input channels to recurrent excitatory units): ')
     print(np.shape(coh1_e))
     coh1_e_mean = np.mean(coh1_e,0)
-    coh1_e_std = np.std(coh1_e,0)
+    coh1_e_std = np.std(coh1_e,1)
     coh0_e_mean = np.mean(coh0_e,0)
-    coh0_e_std = np.std(coh0_e,0)
+    coh0_e_std = np.std(coh0_e,1)
 
     ax[0].plot(coh1_e_mean, label='coh 1 tuned inputs', color='slateblue')
     ax[0].fill_between(coh1_e_mean, coh1_e_mean-coh1_e_std, coh1_e_mean+coh1_e_std, alpha=0.4, facecolor='slateblue')
@@ -407,9 +452,9 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
     ax[0].set_title('input weights to excitatory units',fontname='Ubuntu')
 
     coh1_i_mean = np.mean(coh1_i,0)
-    coh1_i_std = np.mean(coh1_i,0)
+    coh1_i_std = np.mean(coh1_i,1)
     coh0_i_mean = np.mean(coh0_i,0)
-    coh0_i_std = np.mean(coh0_i,0)
+    coh0_i_std = np.mean(coh0_i,1)
 
     ax[1].plot(coh1_i_mean, label='coh 1 tuned inputs', color='darkorange')
     ax[1].fill_between(coh1_i_mean, coh1_i_mean-coh1_i_std, coh1_i_mean+coh1_i_std, alpha=0.4, facecolor='slateblue')
@@ -431,7 +476,8 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
     #ax[2].legend(['task loss','rate loss'],fontsize="11",prop={"family":"Ubuntu"})
 
     for j in range(0,len(ax)):
-        ax[j].set_ylabel('average weights',fontname='Ubuntu')
+        if j < 2:
+            ax[j].set_ylabel('average weights',fontname='Ubuntu')
         ax[j].set_xlabel('training epoch',fontname='Ubuntu')
         ax[j].legend(prop={"family":"Ubuntu"})
         for tick in ax[j].get_xticklabels():
