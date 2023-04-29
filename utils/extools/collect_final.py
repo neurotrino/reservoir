@@ -278,40 +278,40 @@ def dists_of_all_weights(dual_exp_dir=save_inz_dirs,exp_season='spring'):
 
     # input layer
     end_idx = np.shape(all_w_in)[1]-1
-    ax[0].hist(all_w_in[:,0,:,:e_end][all_w_in[:,0,:,:e_end]!=0].flatten(),bins=30,density=True,alpha=0.4,color='slateblue',label='naive in to e')
-    ax[0].hist(all_w_in[:,end_idx,:,:e_end][all_w_in[:,end_idx,:,:e_end]!=0].flatten(),bins=30,density=True,alpha=0.8,color='slateblue',label='trained in to e')
+    ax[0].hist(all_w_in[:,0,:,:e_end][all_w_in[:,0,:,:e_end]!=0].flatten(),bins=30,alpha=0.4,color='slateblue',label='naive in to e')
+    ax[0].hist(all_w_in[:,end_idx,:,:e_end][all_w_in[:,end_idx,:,:e_end]!=0].flatten(),bins=30,alpha=0.8,color='slateblue',label='trained in to e')
 
-    ax[0].hist(all_w_in[:,0,:,e_end:][all_w_in[:,0,:,e_end:]!=0].flatten(),bins=30,density=True,alpha=0.4,color='orangered',label='naive in to i')
-    ax[0].hist(all_w_in[:,end_idx,:,e_end:][all_w_in[:,end_idx,:,e_end:]!=0].flatten(),bins=30,density=True,alpha=0.8,color='orangered',label='trained in to i')
+    ax[0].hist(all_w_in[:,0,:,e_end:][all_w_in[:,0,:,e_end:]!=0].flatten(),bins=30,alpha=0.4,color='orangered',label='naive in to i')
+    ax[0].hist(all_w_in[:,end_idx,:,e_end:][all_w_in[:,end_idx,:,e_end:]!=0].flatten(),bins=30,alpha=0.8,color='orangered',label='trained in to i')
 
     ax[0].set_title('input weights',fontname='Ubuntu')
 
     # output layer
-    ax[1].hist(all_w_out[:,0,:e_end,:][all_w_out[:,0,:e_end,:]!=0].flatten(),bins=30,density=True,alpha=0.4,color='slateblue',label='naive e to out')
-    ax[1].hist(all_w_out[:,end_idx,:e_end,:][all_w_out[:,end_idx,:e_end,:]!=0].flatten(),bins=30,density=True,alpha=0.8,color='slateblue',label='trained e to out')
+    ax[1].hist(all_w_out[:,0,:e_end,:][all_w_out[:,0,:e_end,:]!=0].flatten(),bins=30,alpha=0.4,color='slateblue',label='naive e to out')
+    ax[1].hist(all_w_out[:,end_idx,:e_end,:][all_w_out[:,end_idx,:e_end,:]!=0].flatten(),bins=30,alpha=0.8,color='slateblue',label='trained e to out')
 
-    ax[1].hist(all_w_out[:,0,e_end:,:][all_w_out[:,0,e_end:,:]!=0].flatten(),bins=30,density=True,alpha=0.4,color='orangered',label='naive i to out')
-    ax[1].hist(all_w_out[:,end_idx,e_end:,:][all_w_out[:,end_idx,e_end:,:]!=0].flatten(),bins=30,density=True,alpha=0.8,color='orangered',label='trained i to out')
+    ax[1].hist(all_w_out[:,0,e_end:,:][all_w_out[:,0,e_end:,:]!=0].flatten(),bins=30,alpha=0.4,color='orangered',label='naive i to out')
+    ax[1].hist(all_w_out[:,end_idx,e_end:,:][all_w_out[:,end_idx,e_end:,:]!=0].flatten(),bins=30,alpha=0.8,color='orangered',label='trained i to out')
 
     ax[1].set_title('output weights',fontname='Ubuntu')
 
     # recurrent layer e units
-    ax[2].hist(all_w_rec[:,0,:e_end,:e_end][all_w_rec[:,0,:e_end,:e_end]!=0].flatten(),bins=30,density=True,alpha=0.4,color='slateblue',label='naive e to e')
-    ax[2].hist(all_w_rec[:,end_idx,:e_end,:e_end][all_w_rec[:,end_idx,:e_end,:e_end]!=0].flatten(),bins=30,density=True,alpha=0.8,color='slateblue',label='trained e to e')
-    ax[2].hist(all_w_rec[:,0,:e_end,e_end:][all_w_rec[:,0,:e_end,e_end:]!=0].flatten(),bins=30,density=True,alpha=0.4,color='mediumseagreen',label='naive e to i')
-    ax[2].hist(all_w_rec[:,end_idx,:e_end,e_end:][all_w_rec[:,end_idx,:e_end,e_end:]!=0].flatten(),bins=30,density=True,alpha=0.8,color='mediumseagreen',label='trained e to i')
+    ax[2].hist(all_w_rec[:,0,:e_end,:e_end][all_w_rec[:,0,:e_end,:e_end]!=0].flatten(),bins=30,alpha=0.4,color='slateblue',label='naive e to e')
+    ax[2].hist(all_w_rec[:,end_idx,:e_end,:e_end][all_w_rec[:,end_idx,:e_end,:e_end]!=0].flatten(),bins=30,alpha=0.8,color='slateblue',label='trained e to e')
+    ax[2].hist(all_w_rec[:,0,:e_end,e_end:][all_w_rec[:,0,:e_end,e_end:]!=0].flatten(),bins=30,alpha=0.4,color='mediumseagreen',label='naive e to i')
+    ax[2].hist(all_w_rec[:,end_idx,:e_end,e_end:][all_w_rec[:,end_idx,:e_end,e_end:]!=0].flatten(),bins=30,alpha=0.8,color='mediumseagreen',label='trained e to i')
     ax[2].set_title('recurrent e weights',fontname='Ubuntu')
 
     # recurrent layer i units
-    ax[2].hist(all_w_rec[:,0,e_end:,:e_end][all_w_rec[:,0,e_end:,:e_end]!=0].flatten(),bins=30,density=True,alpha=0.4,color='darkorange',label='naive i to e')
-    ax[2].hist(all_w_rec[:,end_idx,e_end:,:e_end][all_w_rec[:,end_idx,e_end:,:e_end]!=0].flatten(),bins=30,density=True,alpha=0.8,color='darkorange',label='trained i to e')
-    ax[2].hist(all_w_rec[:,0,e_end:,e_end:][all_w_rec[:,0,e_end:,e_end:]!=0].flatten(),bins=30,density=True,alpha=0.4,color='orangered',label='naive i to i')
-    ax[2].hist(all_w_rec[:,end_idx,e_end:,e_end:][all_w_rec[:,end_idx,e_end:,e_end:]!=0].flatten(),bins=30,density=True,alpha=0.8,color='orangered',label='trained i to i')
+    ax[3].hist(all_w_rec[:,0,e_end:,:e_end][all_w_rec[:,0,e_end:,:e_end]!=0].flatten(),bins=30,alpha=0.4,color='darkorange',label='naive i to e')
+    ax[3].hist(all_w_rec[:,end_idx,e_end:,:e_end][all_w_rec[:,end_idx,e_end:,:e_end]!=0].flatten(),bins=30,alpha=0.8,color='darkorange',label='trained i to e')
+    ax[3].hist(all_w_rec[:,0,e_end:,e_end:][all_w_rec[:,0,e_end:,e_end:]!=0].flatten(),bins=30,alpha=0.4,color='orangered',label='naive i to i')
+    ax[3].hist(all_w_rec[:,end_idx,e_end:,e_end:][all_w_rec[:,end_idx,e_end:,e_end:]!=0].flatten(),bins=30,alpha=0.8,color='orangered',label='trained i to i')
 
     ax[3].set_title('recurrent i weights',fontname='Ubuntu')
 
     for j in range(0,len(ax)):
-        ax[j].set_ylabel('density',fontname='Ubuntu')
+        ax[j].set_ylabel('count',fontname='Ubuntu')
         ax[j].set_xlabel('weights',fontname='Ubuntu')
         ax[j].legend(prop={"family":"Ubuntu"})
         for tick in ax[j].get_xticklabels():
@@ -328,8 +328,6 @@ def dists_of_all_weights(dual_exp_dir=save_inz_dirs,exp_season='spring'):
     plt.clf()
     plt.close()
 
-"""
-
 def dists_of_all_rates(exp_dir=spec_input_dirs,exp_season='winter'):
     # aggregate over all experiments of this type
     # do so separately for coh0 and coh1 only trials!
@@ -338,6 +336,8 @@ def dists_of_all_rates(exp_dir=spec_input_dirs,exp_season='winter'):
     # do for rate trained as well
     # make everything on comparable axes
     # return means and stds, save in some file
+
+"""
 
 def dists_of_all_synch(exp_dir=spec_input_dirs,exp_season='winter'):
     # aggregate over all experiments of this type
