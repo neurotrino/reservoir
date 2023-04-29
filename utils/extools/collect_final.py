@@ -107,8 +107,7 @@ all_save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-
 
 # this is all a general sort of thing, once you do one (mostly figure out shading and dist comparisons) it'll come easily
 
-"""
-def dists_of_all_weights(dual_exp_dir=spec_nointoout_dirs,task_exp_dir=spec_nointoout_dirs_task,rate_exp_dir=spec_nointoout_dirs_rate,exp_season='spring'):
+def dists_of_all_weights(dual_exp_dir=save_inz_dirs,exp_season='spring'):
     # aggregate over all experiments of this type
     # plot distributions in naive state
     # plot distributions in trained state
@@ -119,6 +118,205 @@ def dists_of_all_weights(dual_exp_dir=spec_nointoout_dirs,task_exp_dir=spec_noin
     # make everything on comparable axes
     # look for the 5x input multiplier; do something about that (plot separately / not at all?)
     # return means and stds (even if not proper) of the weight distributions, or save in some file
+
+    # from actual experiment now
+    for exp_string in dual_exp_dir:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    if not os.path.isdir(spath):
+        os.makedirs(spath)
+
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        w_in = []
+        w_rec = []
+        w_out = []
+
+        # get the truly naive weights
+        filepath = os.path.join(data_dir,xdir,"npz-data","input_preweights.npy")
+        if 'inputx5' in xdir:
+            input_w = np.load(filepath)
+        else:
+            input_w = np.load(filepath)*5
+        filepath = os.path.join(data_dir,xdir,"npz-data","main_preweights.npy")
+        w = np.load(filepath)
+        filepath = os.path.join(data_dir,xdir,"npz-data","output_preweights.npy")
+        output_w = np.load(filepath)
+
+        # aggregate
+        # over training time but also vstack into all_w later
+        w_in.append(input_w)
+        w_rec.append(w)
+        w_out.append(output_w)
+        # [experiment x epoch x 300 x 300]
+
+        # now do weights over time
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            if 'inputx5' in xdir:
+                input_w = data['tv0.postweights'][0] # just the singular for now; too much data and noise otherwise
+            else:
+                input_w = data['tv0.postweights'][0]*5
+            rec_w = data['tv1.postweights'][0]
+            out_w = data['tv2.postweights'][0]
+
+            w_in.append(input_w)
+            w_rec.append(rec_w)
+            w_out.append(out_w)
+
+        if not "all_w_in" in locals():
+            all_w_in = w_in
+        else:
+            all_w_in = np.vstack([all_w_in, w_in])
+
+        if not "all_w_rec" in locals():
+            all_w_rec = w_rec
+        else:
+            all_w_rec = np.vstack([all_w_rec, w_rec])
+
+        if not "all_w_out" in locals():
+            all_w_out = w_out
+        else:
+            all_w_out = np.vstack([all_w_out, w_out])
+
+    return [all_w_in,all_w_rec,all_w_out]
+
+    fig, ax = plt.subplots(nrows=3, ncols=1)
+    ax = ax.flatten()
+
+    epochs = np.shape(all_w_rec)[1]
+
+    mean_w_e_in = np.mean(all_w_in[:,:,:,:e_end],(0,2,3))
+    std_w_e_in = np.std(all_w_in[:,:,:,:e_end],(0,2,3))
+    ax[0].plot(epochs,mean_w_e_in,color='slateblue',label='input to e')
+    ax[0].fill_between(epochs,mean_w_e_in-std_w_e_in,mean_w_e_in+std_w_e_in,facecolor='slateblue',alpha=0.4)
+
+    mean_w_i_in = np.mean(all_w_in[:,:,:,e_end:],(0,2,3))
+    std_w_i_in = np.std(all_w_in[:,:,:,e_end:],(0,2,3))
+    ax[0].plot(epochs,mean_w_i_in,color='orangered',label='input to i')
+    ax[0].fill_between(epochs,mean_w_i_in-std_w_i_in,mean_w_i_in+std_w_i_in,facecolor='orangered',alpha=0.4)
+
+    ax[0].set_title('input weights',fontname='Ubuntu')
+
+    mean_w_ee_rec = np.mean(all_w_rec[:,:,:e_end,:e_end],(0,2,3))
+    std_w_ee_rec = np.std(all_w_rec[:,:,:e_end,:e_end],(0,2,3))
+    ax[1].plot(epochs,mean_w_ee_rec,color='slateblue',label='e to e')
+    ax[1].fill_between(epochs,mean_w_ee_rec-std_w_ee_rec,mean_w_ee_rec+std_w_ee_rec,facecolor='slateblue',alpha=0.4)
+
+    mean_w_ei_rec = np.mean(all_w_rec[:,:,:e_end,e_end:],(0,2,3))
+    std_w_ei_rec = np.std(all_w_rec[:,:,:e_end,e_end:],(0,2,3))
+    ax[1].plot(epochs,mean_w_ei_rec,color='mediumseagreen',label='e to i')
+    ax[1].fill_between(epochs,mean_w_ei_rec-std_w_ei_rec,mean_w_ei_rec+std_w_ei_rec,facecolor='mediumseagreen',alpha=0.4)
+
+    mean_w_ie_rec = np.mean(all_w_rec[:,:,e_end:,:e_end],(0,2,3))
+    std_w_ie_rec = np.std(all_w_rec[:,:,e_end:,:e_end],(0,2,3))
+    ax[1].plot(epochs,mean_w_ii_rec,color='darkorange',label='i to e')
+    ax[1].fill_between(epochs,mean_w_ii_rec-std_w_ii_rec,mean_w_ii_rec+std_w_ii_rec,facecolor='darkorange',alpha=0.4)
+
+    mean_w_ii_rec = np.mean(all_w_rec[:,:,e_end:,e_end:],(0,2,3))
+    std_w_ii_rec = np.std(all_w_rec[:,:,e_end:,e_end:],(0,2,3))
+    ax[1].plot(epochs,mean_w_ie_rec,color='orangered',label='i to i')
+    ax[1].fill_between(epochs,mean_w_ie_rec-std_w_ie_rec,mean_w_ie_rec+std_w_ie_rec,facecolor='orangered',alpha=0.4)
+
+    ax[1].set_title('recurrent weights',fontname='Ubuntu')
+
+    mean_w_e_out = np.mean(all_w_out[:,:,:e_end,:],(0,2,3))
+    std_w_e_out = np.std(all_w_out[:,:,:e_end,:],(0,2,3))
+    ax[2].plot(epochs,mean_w_e_out,color='slateblue',label='e to output')
+    ax[2].fill_between(epochs,mean_w_e_out-std_w_e_out,mean_w_e_out+std_w_e_out,facecolor='slateblue',alpha=0.4)
+
+    mean_w_i_out = np.mean(all_w_out[:,:,e_end:,:],(0,2,3))
+    std_w_i_out = np.std(all_w_out[:,:,e_end:,:],(0,2,3))
+    ax[2].plot(epochs,mean_w_i_out,color='orangered',label='i to output')
+    ax[2].fill_between(epochs,mean_w_i_out-std_w_i_out,mean_w_i_out+std_w_i_out,facecolor='orangered',alpha=0.4)
+
+    ax[2].set_title('output weights',fontname='Ubuntu')
+
+    plt.suptitle('Average weights over training time',fontname='Ubuntu')
+
+    for j in range(0,len(ax)):
+        ax[j].set_ylabel('average weights',fontname='Ubuntu')
+        ax[j].set_xlabel('training epoch',fontname='Ubuntu')
+        ax[j].legend(prop={"family":"Ubuntu"})
+        for tick in ax[j].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[j].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+
+    save_fname = spath+'/avg_weights_over_time_test.png'
+
+    plt.subplots_adjust(hspace=1.0,wspace=1.0)
+    plt.draw()
+    plt.savefig(save_fname,dpi=300)
+    # Teardown
+    plt.clf()
+    plt.close()
+
+    # PLOT DISTRIBUTIONS OF NAIVE AND TRAINED WEIGHTS NOW
+    fig, ax = plt.subplots(nrows=2, ncols=2)
+    ax = ax.flatten()
+
+    # input layer
+    end_idx = np.shape(all_w_in)[1]-1
+    ax[0].hist(all_w_in[:,0,:,:e_end][all_w_in[:,0,:,:e_end]!=0].flatten(),bins=30,density=True,alpha=0.4,color='slateblue',label='naive in to e')
+    ax[0].hist(all_w_in[:,end_idx,:,:e_end][all_w_in[:,end_idx,:,:e_end]!=0].flatten(),bins=30,density=True,alpha=0.8,color='slateblue',label='trained in to e')
+
+    ax[0].hist(all_w_in[:,0,:,e_end:][all_w_in[:,0,:,e_end:]!=0].flatten(),bins=30,density=True,alpha=0.4,color='orangered',label='naive in to i')
+    ax[0].hist(all_w_in[:,end_idx,:,e_end:][all_w_in[:,end_idx,:,e_end:]!=0].flatten(),bins=30,density=True,alpha=0.8,color='orangered',label='trained in to i')
+
+    ax[0].set_title('input weights',fontname='Ubuntu')
+
+    # output layer
+    ax[1].hist(all_w_out[:,0,:e_end,:][all_w_out[:,0,:e_end,:]!=0].flatten(),bins=30,density=True,alpha=0.4,color='slateblue',label='naive e to out')
+    ax[1].hist(all_w_out[:,end_idx,:e_end,:][all_w_out[:,end_idx,:e_end,:]!=0].flatten(),bins=30,density=True,alpha=0.8,color='slateblue',label='trained e to out')
+
+    ax[1].hist(all_w_out[:,0,e_end:,:][all_w_out[:,0,e_end:,:]!=0].flatten(),bins=30,density=True,alpha=0.4,color='orangered',label='naive i to out')
+    ax[1].hist(all_w_out[:,end_idx,e_end:,:][all_w_out[:,end_idx,e_end:,:]!=0].flatten(),bins=30,density=True,alpha=0.8,color='orangered',label='trained i to out')
+
+    ax[1].set_title('output weights',fontname='Ubuntu')
+
+    # recurrent layer e units
+    ax[2].hist(all_w_rec[:,0,:e_end,:e_end][all_w_rec[:,0,:e_end,:e_end]!=0].flatten(),bins=30,density=True,alpha=0.4,color='slateblue',label='naive e to e')
+    ax[2].hist(all_w_rec[:,end_idx,:e_end,:e_end][all_w_rec[:,end_idx,:e_end,:e_end]!=0].flatten(),bins=30,density=True,alpha=0.8,color='slateblue',label='trained e to e')
+    ax[2].hist(all_w_rec[:,0,:e_end,e_end:][all_w_rec[:,0,:e_end,e_end:]!=0].flatten(),bins=30,density=True,alpha=0.4,color='mediumseagreen',label='naive e to i')
+    ax[2].hist(all_w_rec[:,end_idx,:e_end,e_end:][all_w_rec[:,end_idx,:e_end,e_end:]!=0].flatten(),bins=30,density=True,alpha=0.8,color='mediumseagreen',label='trained e to i')
+    ax[2].set_title('recurrent e weights',fontname='Ubuntu')
+
+    # recurrent layer i units
+    ax[2].hist(all_w_rec[:,0,e_end:,:e_end][all_w_rec[:,0,e_end:,:e_end]!=0].flatten(),bins=30,density=True,alpha=0.4,color='darkorange',label='naive i to e')
+    ax[2].hist(all_w_rec[:,end_idx,e_end:,:e_end][all_w_rec[:,end_idx,e_end:,:e_end]!=0].flatten(),bins=30,density=True,alpha=0.8,color='darkorange',label='trained i to e')
+    ax[2].hist(all_w_rec[:,0,e_end:,e_end:][all_w_rec[:,0,e_end:,e_end:]!=0].flatten(),bins=30,density=True,alpha=0.4,color='orangered',label='naive i to i')
+    ax[2].hist(all_w_rec[:,end_idx,e_end:,e_end:][all_w_rec[:,end_idx,e_end:,e_end:]!=0].flatten(),bins=30,density=True,alpha=0.8,color='orangered',label='trained i to i')
+
+    ax[3].set_title('recurrent i weights',fontname='Ubuntu')
+
+
+    for j in range(0,len(ax)):
+        ax[j].set_ylabel('density',fontname='Ubuntu')
+        ax[j].set_xlabel('weights',fontname='Ubuntu')
+        ax[j].legend(prop={"family":"Ubuntu"})
+        for tick in ax[j].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[j].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+
+    save_fname = spath+'/naive_trained_w_dists_test.png'
+
+    plt.subplots_adjust(hspace=0.6,wspace=0.6)
+    plt.draw()
+    plt.savefig(save_fname,dpi=300)
+    # Teardown
+    plt.clf()
+    plt.close()
+
+"""
 
 def dists_of_all_rates(exp_dir=spec_input_dirs,exp_season='winter'):
     # aggregate over all experiments of this type
@@ -460,9 +658,9 @@ def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,exp
     coh0_i_std = np.std(coh0_i,0)
 
     ax[1].plot(np.arange(0,epochs),coh1_i_mean, label='coh 1 tuned inputs', color='darkorange')
-    ax[1].fill_between(np.arange(0,epochs),coh1_i_mean-coh1_i_std, coh1_i_mean+coh1_i_std, alpha=0.4, facecolor='slateblue')
+    ax[1].fill_between(np.arange(0,epochs),coh1_i_mean-coh1_i_std, coh1_i_mean+coh1_i_std, alpha=0.4, facecolor='darkorange')
     ax[1].plot(np.arange(0,epochs),coh0_i_mean, label='coh 0 tuned inputs', color='orangered')
-    ax[1].fill_between(np.arange(0,epochs),coh0_i_mean-coh0_i_std, coh0_i_mean+coh0_i_std, alpha=0.4, facecolor='mediumseagreen')
+    ax[1].fill_between(np.arange(0,epochs),coh0_i_mean-coh0_i_std, coh0_i_mean+coh0_i_std, alpha=0.4, facecolor='orangered')
     ax[1].set_title('input weights to inhibitory units',fontname='Ubuntu')
 
     epochs = np.shape(epoch_task_loss)[1]
@@ -478,7 +676,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,exp
     ax[2].fill_between(np.arange(0,epochs),rate_mean+rate_error, rate_mean+rate_error, alpha=0.4, facecolor='orangered') #other options include edgecolor='#CC4F1B', facecolor='#FF9848'
 
     ax[2].set_ylabel('loss',fontname='Ubuntu')
-    #ax[2].legend(['task loss','rate loss'],fontsize="11",prop={"family":"Ubuntu"})
+    ax[2].set_title('losses')
 
     for j in range(0,len(ax)):
         if j < 2:
