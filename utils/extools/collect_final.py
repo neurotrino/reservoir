@@ -220,6 +220,8 @@ def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plo
     coh0_channels = np.where(np.mean(coh1_rates,0)<np.mean(coh0_rates,0))[0]
     coh1_channels = np.where(np.mean(coh1_rates,0)>np.mean(coh0_rates,0))[0]
 
+    return [coh0_channels, coh1_channels]
+
     # plot the distribution of rates of each channel in response to the two coherence levels
     # do so for all 16 channels together (and measure, compare their distributions)
     # do so for each channel separately and describe just how close their firing rates are to each coherence level
@@ -244,10 +246,10 @@ def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plo
         # even though they are sliiiightly tuned
 
         # PLOT RATES OF ALL CHANNELS TO COH0 AND COH1 (regardless of tuning)
-        ax[2].hist(coh0_channel_trial_rates.flatten(),density=True,bins=30,alpha=0.7)
+        ax[2].hist(coh0_channel_trial_rates,density=True,bins=30,alpha=0.7)
         ax[2].set_title("All channels' rates to coh 0 trials",fontname='Ubuntu')
 
-        ax[3].hist(coh1_channel_trial_rates.flatten(),density=True,bins=30,alpha=0.7)
+        ax[3].hist(coh1_channel_trial_rates,density=True,bins=30,alpha=0.7)
         ax[3].set_title("All channels' rates to coh 1 trials",fontname='Ubuntu')
 
         plt.suptitle('Responses of 16 input channels to different coherences',fontname='Ubuntu')
