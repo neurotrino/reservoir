@@ -218,17 +218,18 @@ def dists_of_all_weights(dual_exp_dir=all_spring_dual_dirs,exp_season='spring'):
     means.append(np.mean(all_w_rec[:,0,:e_end,e_end:]))
     stds.append(np.std(all_w_rec[:,0,:e_end,e_end:]))
     # rec ie
-    means.append(np.mean(all_w_rec[:,0,:e_end,e_end:]))
-    stds.append(np.std(all_w_rec[:,0,:e_end,e_end:]))
+    means.append(np.mean(all_w_rec[:,0,e_end:,:e_end]))
+    stds.append(np.std(all_w_rec[:,0,e_end:,:e_end]))
     # rec ii
     means.append(np.mean(all_w_rec[:,0,e_end:,e_end:]))
     stds.append(np.std(all_w_rec[:,0,e_end:,e_end:]))
     # e to out
-    means.append(np.mean(all_w_out[:,0,e_end:,:]))
-    stds.append(np.std(all_w_out[:,0,e_end:,:]))
-    # i to out
     means.append(np.mean(all_w_out[:,0,:e_end,:]))
     stds.append(np.std(all_w_out[:,0,:e_end,:]))
+    # i to out
+    means.append(np.mean(all_w_out[:,0,e_end:,:]))
+    stds.append(np.std(all_w_out[:,0,e_end:,:]))
+
     naive_means = means
     naive_stds = stds
 
@@ -248,17 +249,18 @@ def dists_of_all_weights(dual_exp_dir=all_spring_dual_dirs,exp_season='spring'):
     means.append(np.mean(all_w_rec[:,end_idx,:e_end,e_end:]))
     stds.append(np.std(all_w_rec[:,end_idx,:e_end,e_end:]))
     # rec ie
-    means.append(np.mean(all_w_rec[:,end_idx,:e_end,e_end:]))
-    stds.append(np.std(all_w_rec[:,end_idx,:e_end,e_end:]))
+    means.append(np.mean(all_w_rec[:,end_idx,e_end:,:e_end]))
+    stds.append(np.std(all_w_rec[:,end_idx,e_end:,:e_end]))
     # rec ii
     means.append(np.mean(all_w_rec[:,end_idx,e_end:,e_end:]))
     stds.append(np.std(all_w_rec[:,end_idx,e_end:,e_end:]))
     # e to out
-    means.append(np.mean(all_w_out[:,end_idx,e_end:,:]))
-    stds.append(np.std(all_w_out[:,end_idx,e_end:,:]))
-    # i to out
     means.append(np.mean(all_w_out[:,end_idx,:e_end,:]))
     stds.append(np.std(all_w_out[:,end_idx,:e_end,:]))
+    # i to out
+    means.append(np.mean(all_w_out[:,end_idx,e_end:,:]))
+    stds.append(np.std(all_w_out[:,end_idx,e_end:,:]))
+
 
     return [naive_means,naive_stds,means,stds,all_w_in,all_w_rec,all_w_out]
 
