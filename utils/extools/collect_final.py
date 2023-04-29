@@ -328,6 +328,8 @@ def dists_of_all_weights(dual_exp_dir=save_inz_dirs,exp_season='spring'):
     plt.clf()
     plt.close()
 
+    
+"""
 def dists_of_all_rates(exp_dir=spec_input_dirs,exp_season='winter'):
     # aggregate over all experiments of this type
     # do so separately for coh0 and coh1 only trials!
@@ -337,7 +339,37 @@ def dists_of_all_rates(exp_dir=spec_input_dirs,exp_season='winter'):
     # make everything on comparable axes
     # return means and stds, save in some file
 
-"""
+    for exp_string in dual_exp_dir:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    if not os.path.isdir(spath):
+        os.makedirs(spath)
+
+    all_0_rates = []
+    all_1_rates = []
+
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        rec_0_rates = []
+        rec_1_rates = []
+
+        # rates over time
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            spikes = data['spikes'][0] # just the first epoch bc oh boy
+
+            for i in range(0,np.shape(spikes)[0]):
+                # determine if coherence 0 or coherence 1 trial
+                # spike rates of all units
+
+
 
 def dists_of_all_synch(exp_dir=spec_input_dirs,exp_season='winter'):
     # aggregate over all experiments of this type
