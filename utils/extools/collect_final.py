@@ -131,6 +131,10 @@ def dists_of_all_weights(dual_exp_dir=save_inz_dirs,exp_season='spring'):
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
+    all_w_in = []
+    all_w_rec = []
+    all_w_out = []
+
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
 
@@ -171,6 +175,7 @@ def dists_of_all_weights(dual_exp_dir=save_inz_dirs,exp_season='spring'):
             w_rec.append(rec_w)
             w_out.append(out_w)
 
+        """
         if not "all_w_in" in locals():
             all_w_in = w_in
         else:
@@ -185,6 +190,14 @@ def dists_of_all_weights(dual_exp_dir=save_inz_dirs,exp_season='spring'):
             all_w_out = w_out
         else:
             all_w_out = np.vstack([all_w_out, w_out])
+        """
+        all_w_in.append(w_in)
+        all_w_rec.append(w_rec)
+        all_w_out.append(w_out)
+
+    all_w_in = np.array(all_w_in)
+    all_w_rec = np.array(all_w_rec)
+    all_w_out = np.array(all_w_out)
 
     return [all_w_in,all_w_rec,all_w_out]
 
