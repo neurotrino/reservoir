@@ -663,7 +663,6 @@ def characterize_tuned_rec_populations(exp_dirs=spec_nointoout_dirs_rate,exp_sea
     del all_1i_to_0_rates
     del all_1i_to_1_rates
 
-
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
         exp_path = xdir[-9:-1]
@@ -950,29 +949,29 @@ def tuned_rec_layer_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spri
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
-    coh0_ee = []
-    coh0_ei = []
-    coh0_ie = []
-    coh0_ii = []
-
-    coh1_ee = []
-    coh1_ei = []
-    coh1_ie = []
-    coh1_ii = []
-
-    # coh 0 to 1
-    het_ee = []
-    het_ei = []
-    het_ie = []
-    het_ii = []
-
-    # coh 1 to 0
-    ero_ee = []
-    ero_ei = []
-    ero_ie = []
-    ero_ii = []
-
     for xdir in exp_data_dirs:
+        coh0_ee_ = []
+        coh0_ei_ = []
+        coh0_ie_ = []
+        coh0_ii_ = []
+
+        coh1_ee_ = []
+        coh1_ei_ = []
+        coh1_ie_ = []
+        coh1_ii_ = []
+
+        # coh 0 to 1
+        het_ee_ = []
+        het_ei_ = []
+        het_ie_ = []
+        het_ii_ = []
+
+        # coh 1 to 0
+        ero_ee_ = []
+        ero_ei_ = []
+        ero_ie_ = []
+        ero_ii_ = []
+
         print('begin new exp')
         exp_path = xdir[-9:-1]
 
@@ -1030,25 +1029,106 @@ def tuned_rec_layer_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spri
         # plot weights based on coh tuning over time
 
         for i in range(0,np.shape(temporal_w)[0]): # again over all training time, but now just one per file (100) instead of craziness (10000)
-            coh0_ee.append(np.mean(temporal_w[i][coh0_e,:][:,coh0_e]))
-            coh0_ei.append(np.mean(temporal_w[i][coh0_e,:][:,coh0_i]))
-            coh0_ie.append(np.mean(temporal_w[i][coh0_i,:][:,coh0_e]))
-            coh0_ii.append(np.mean(temporal_w[i][coh0_i,:][:,coh0_i]))
+            coh0_ee_.append(np.mean(temporal_w[i][coh0_e,:][:,coh0_e]))
+            coh0_ei_.append(np.mean(temporal_w[i][coh0_e,:][:,coh0_i]))
+            coh0_ie_.append(np.mean(temporal_w[i][coh0_i,:][:,coh0_e]))
+            coh0_ii_.append(np.mean(temporal_w[i][coh0_i,:][:,coh0_i]))
 
-            coh1_ee.append(np.mean(temporal_w[i][coh1_e,:][:,coh1_e]))
-            coh1_ei.append(np.mean(temporal_w[i][coh1_e,:][:,coh1_i]))
-            coh1_ie.append(np.mean(temporal_w[i][coh1_i,:][:,coh1_e]))
-            coh1_ii.append(np.mean(temporal_w[i][coh1_i,:][:,coh1_i]))
+            coh1_ee_.append(np.mean(temporal_w[i][coh1_e,:][:,coh1_e]))
+            coh1_ei_.append(np.mean(temporal_w[i][coh1_e,:][:,coh1_i]))
+            coh1_ie_.append(np.mean(temporal_w[i][coh1_i,:][:,coh1_e]))
+            coh1_ii_.append(np.mean(temporal_w[i][coh1_i,:][:,coh1_i]))
 
-            het_ee.append(np.mean(temporal_w[i][coh0_e,:][:,coh1_e]))
-            het_ei.append(np.mean(temporal_w[i][coh0_e,:][:,coh1_i]))
-            het_ie.append(np.mean(temporal_w[i][coh0_i,:][:,coh1_e]))
-            het_ii.append(np.mean(temporal_w[i][coh0_i,:][:,coh1_i]))
+            het_ee_.append(np.mean(temporal_w[i][coh0_e,:][:,coh1_e]))
+            het_ei_.append(np.mean(temporal_w[i][coh0_e,:][:,coh1_i]))
+            het_ie_.append(np.mean(temporal_w[i][coh0_i,:][:,coh1_e]))
+            het_ii_.append(np.mean(temporal_w[i][coh0_i,:][:,coh1_i]))
 
-            ero_ee.append(np.mean(temporal_w[i][coh1_e,:][:,coh0_e]))
-            ero_ei.append(np.mean(temporal_w[i][coh1_e,:][:,coh0_i]))
-            ero_ie.append(np.mean(temporal_w[i][coh1_i,:][:,coh0_e]))
-            ero_ii.append(np.mean(temporal_w[i][coh1_i,:][:,coh0_i]))
+            ero_ee_.append(np.mean(temporal_w[i][coh1_e,:][:,coh0_e]))
+            ero_ei_.append(np.mean(temporal_w[i][coh1_e,:][:,coh0_i]))
+            ero_ie_.append(np.mean(temporal_w[i][coh1_i,:][:,coh0_e]))
+            ero_ii_.append(np.mean(temporal_w[i][coh1_i,:][:,coh0_i]))
+
+        if not "coh0_ee" in locals():
+            coh0_ee = coh0_ee_
+        else:
+            coh0_ee = np.vstack([coh0_ee, coh0_ee_])
+
+        if not "coh0_ei" in locals():
+            coh0_ei = coh0_ei_
+        else:
+            coh0_ei = np.vstack([coh0_ei, coh0_ei_])
+
+        if not "coh0_ie" in locals():
+            coh0_ie = coh0_ie_
+        else:
+            coh0_ie = np.vstack([coh0_ie, coh0_ie_])
+
+        if not "coh0_ii" in locals():
+            coh0_ii = coh0_ii_
+        else:
+            coh0_ii = np.vstack([coh0_ii, coh0_ii_])
+
+        if not "coh1_ee" in locals():
+            coh1_ee = coh1_ee_
+        else:
+            coh1_ee = np.vstack([coh1_ee, coh1_ee_])
+
+        if not "coh1_ei" in locals():
+            coh1_ei = coh1_ei_
+        else:
+            coh1_ei = np.vstack([coh1_ei, coh1_ei_])
+
+        if not "coh1_ie" in locals():
+            coh1_ie = coh1_ie_
+        else:
+            coh1_ie = np.vstack([coh1_ie, coh1_ie_])
+
+        if not "coh1_ii" in locals():
+            coh1_ii = coh1_ii_
+        else:
+            coh1_ii = np.vstack([coh1_ii, coh1_ii_])
+
+        if not "het_ee" in locals():
+            het_ee = het_ee_
+        else:
+            het_ee = np.vstack([het_ee, het_ee_])
+
+        if not "het_ei" in locals():
+            het_ei = het_ei_
+        else:
+            het_ei = np.vstack([het_ei, het_ei_])
+
+        if not "het_ie" in locals():
+            het_ie = het_ie_
+        else:
+            het_ie = np.vstack([het_ie, het_ie_])
+
+        if not "het_ii" in locals():
+            het_ii = het_ii_
+        else:
+            het_ii = np.vstack([het_ii, het_ii_])
+
+        if not "ero_ee" in locals():
+            ero_ee = ero_ee_
+        else:
+            ero_ee = np.vstack([ero_ee, ero_ee_])
+
+        if not "ero_ei" in locals():
+            ero_ei = ero_ei_
+        else:
+            ero_ei = np.vstack([ero_ei, ero_ei_])
+
+        if not "ero_ie" in locals():
+            ero_ie = ero_ie_
+        else:
+            ero_ie = np.vstack([ero_ie, ero_ie_])
+
+        if not "ero_ii" in locals():
+            ero_ii = ero_ii_
+        else:
+            ero_ii = np.vstack([ero_ii, ero_ii_])
+
 
     fig, ax = plt.subplots(nrows=4,ncols=1,figsize=(8,10))
 
@@ -1124,6 +1204,7 @@ def tuned_rec_layer_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spri
     ax[3].set_ylabel('average weight',fontname='Ubuntu')
 
     for j in range(0,len(ax)):
+        ax[j].set_ylim([-1.5,0.3])
         ax[j].set_xlabel('training epoch')
         ax[j].legend(prop={"family":"Ubuntu"})
         for tick in ax[j].get_xticklabels():
@@ -1139,7 +1220,6 @@ def tuned_rec_layer_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spri
     # Teardown
     plt.clf()
     plt.close()
-
 
 """
 # below this line are NOT priorities for now
