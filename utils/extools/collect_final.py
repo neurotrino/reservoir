@@ -328,9 +328,8 @@ def dists_of_all_weights(dual_exp_dir=save_inz_dirs,exp_season='spring'):
     plt.clf()
     plt.close()
 
-    
-"""
-def dists_of_all_rates(exp_dir=spec_input_dirs,exp_season='winter'):
+
+def dists_of_all_rates(exp_dir=save_inz_dirs,exp_season='spring'):
     # aggregate over all experiments of this type
     # do so separately for coh0 and coh1 only trials!
     # plot distributions in naive state
@@ -350,26 +349,130 @@ def dists_of_all_rates(exp_dir=spec_input_dirs,exp_season='winter'):
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
-    all_0_rates = []
-    all_1_rates = []
+    rec_0_e_rates = []
+    rec_0_i_rates = []
+    rec_1_i_rates = []
+    rec_0_i_rates = []
 
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
 
-        rec_0_rates = []
-        rec_1_rates = []
+        coh0_exp_rates = []
+        coh1_exp_rates = []
+        # eventually sized 100 x units
 
         # rates over time
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
-            spikes = data['spikes'][0] # just the first epoch bc oh boy
+            spikes = data['spikes'][0]
+            # shaped [100 batches x 30 trials x 4080 timesteps x 300 units]
+            true_y = data['true_y'][0] # shaped [100 batches x 30 trials x 4080 timesteps]
+            for i in range(0,np.shape(true_y)[0]): # for batch
+                for j in range(0,np.shape(true_y)[1]): # for trial
+                    coh0_idx = np.where(true_y[i][j]==0)[0]
+                    coh1_idx = np.where(true_y[i][j]==1)[0]
+                    if len(coh0_idx)>0:
+                        if not 'coh0_trial_rates' in locals():
+                            coh0_trial_rates = np.average(spikes[i][j][coh0_idx],0) # average across time, not units (yet)
+                        else:
+                            coh0_trial_rates = np.vstack([coh0_trial_rates,np.average(spikes[i][j][coh0_idx],0)]) # stack trials, mean across 4080 timesteps, but preserve units
 
-            for i in range(0,np.shape(spikes)[0]):
-                # determine if coherence 0 or coherence 1 trial
-                # spike rates of all units
+                    if len(coh1_idx)>0:
+                        if not 'coh1_trial_rates' in locals():
+                            coh1_trial_rates = np.average(spikes[i][j][coh1_idx],0)
+                        else:
+                            coh1_trial_rates = np.vstack([coh1_trial_rates,np.average(spikes[i][j][coh1_idx],0)])
 
+            # average across coherence level trials in this file
+            coh0_exp_rates.append(np.mean(coh0_trial_rates,0)) # mean across trials, but preserve units; single vector of 300 per file (100 files)
+            coh1_exp_rates.append(np.mean(coh1_trial_rates,0))
 
+        rec_0_e_rates.append(coh0_exp_rates[:,:e_end])
+        rec_0_i_rates.append(coh0_exp_rates[:,e_end:])
+        rec_1_e_rates.append(coh1_exp_rates[:,:e_end])
+        rec_1_i_rates.append(coh1_exp_rates[:,e_end:])
+
+    fig, ax = plt.subplots(nrows=2,ncols=1)
+    ax = ax.flatten()
+
+    # plot rates over time
+    epochs=np.arange(0,np.shape(rec_0_e_rates)[0])
+    ax[0].plot(epochs,np.mean(rec_0_e_rates,1),label='e units',color='slateblue')
+    ax[0].fill_between(epochs,np.mean(rec_0_e_rates,1)-np.std(rec_0_e_rates,1),np.mean(rec_0_e_rates,1)+np.std(rec_0_e_rates,1),facecolor='slateblue',alpha=0.4)
+    ax[0].plot(epochs,np.mean(rec_0_i_rates,1),label='i units',color='orangered')
+    ax[0].fill_between(epochs,np.mean(rec_0_i_rates,1)-np.std(rec_0_i_rates,1),np.mean(rec_0_i_rates,1)+np.std(rec_0_i_rates,1),facecolor='orangered',alpha=0.4)
+    ax[0].set_title('rates to coherence 0 trials',fontname='Ubuntu')
+
+    ax[1].plot(epochs,np.mean(rec_1_e_rates,1),label='e units',color='slateblue')
+    ax[1].fill_between(epochs,np.mean(rec_1_e_rates,1)-np.std(rec_1_e_rates,1),np.mean(rec_1_e_rates,1)+np.std(rec_1_e_rates,1),facecolor='slateblue',alpha=0.4)
+    ax[1].plot(epochs,np.mean(rec_1_i_rates,1),label='i units',color='orangered')
+    ax[1].fill_between(epochs,np.mean(rec_1_i_rates,1)-np.std(rec_1_i_rates,1),np.mean(rec_1_i_rates,1)+np.std(rec_1_i_rates,1),facecolor='orangered',alpha=0.4)
+    ax[1].set_title('rates to coherence 1 trials',fontname='Ubuntu')
+
+    for j in range(0,len(ax)):
+        ax[j].set_ylabel('average rates',fontname='Ubuntu')
+        ax[j].set_xlabel('training epoch',fontname='Ubuntu')
+        ax[j].legend(prop={"family":"Ubuntu"})
+        for tick in ax[j].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[j].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+
+    plt.suptitle('Evolution of rates over training',fontname='Ubuntu')
+    plt.subplots_adjust(wspace=0.9, hspace=0.9)
+    plt.draw()
+
+    save_fname = spath+'/rates_over_training_test.png'
+    plt.savefig(save_fname,dpi=300)
+    # Teardown
+    plt.clf()
+    plt.close()
+
+    # plot distributions of naive and trained rates
+
+    rec_0_e_rates[0,:e_end]
+    rec_1_e_rates[0,:e_end]
+    rec_0_i_rates[0,e_end:]
+    rec_1_i_rates[0,e_end:]
+
+    fig, ax = plt.subplots(nrows=1,ncols=2)
+    ax = ax.flatten()
+
+    end_idx = np.shape(rec_1_e_rates)[0]-1
+
+    ax[0].hist(rec_1_e_rates[0,:e_end].flatten(),bins=20,density=True,label='e in response to 1',alpha=0.5,color='slateblue')
+    ax[0].hist(rec_0_e_rates[0,:e_end].flatten(),bins=20,density=True,label='e in response to 0',alpha=0.5,color='mediumseagreen')
+    ax[0].hist(rec_1_i_rates[0,e_end:].flatten(),bins=20,density=True,label='i in response to 1',alpha=0.5,color='darkorange')
+    ax[0].hist(rec_0_i_rates[0,e_end:].flatten(),bins=20,density=True,label='i in response to 0',alpha=0.5,color='orangered')
+    ax[0].set_title('naive',fontname='Ubuntu')
+
+    ax[0].hist(rec_1_e_rates[end_idx,:e_end].flatten(),bins=20,density=True,label='e in response to 1',alpha=0.5,color='slateblue')
+    ax[0].hist(rec_0_e_rates[end_idx,:e_end].flatten(),bins=20,density=True,label='e in response to 0',alpha=0.5,color='mediumseagreen')
+    ax[0].hist(rec_1_i_rates[end_idx,e_end:].flatten(),bins=20,density=True,label='i in response to 1',alpha=0.5,color='darkorange')
+    ax[0].hist(rec_0_i_rates[end_idx,e_end:].flatten(),bins=20,density=True,label='i in response to 0',alpha=0.5,color='orangered')
+    ax[0].set_title('trained',fontname='Ubuntu')
+
+    for j in range(0,len(ax)):
+        ax[j].set_ylabel('average rates',fontname='Ubuntu')
+        ax[j].set_xlabel('training epoch',fontname='Ubuntu')
+        ax[j].legend(prop={"family":"Ubuntu"})
+        for tick in ax[j].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[j].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+
+    plt.suptitle('Distribution of rates',fontname='Ubuntu')
+    plt.subplots_adjust(wspace=0.6, hspace=0.6)
+    plt.draw()
+
+    save_fname = spath+'/naive_trained_rates_dist_test.png'
+    plt.savefig(save_fname,dpi=300)
+    # Teardown
+    plt.clf()
+    plt.close()
+
+"""
 
 def dists_of_all_synch(exp_dir=spec_input_dirs,exp_season='winter'):
     # aggregate over all experiments of this type
