@@ -300,7 +300,7 @@ def dists_of_all_weights(dual_exp_dir=all_spring_dual_dirs,exp_season='spring'):
     [D_out_e, p_out_e] = scipy.stats.kstest(out_e_naive.flatten(),out_e_trained.flatten())
     [D_out_i, p_out_i] = scipy.stats.kstest(out_i_naive.flatten(),out_i_trained.flatten())
 
-    return [naive_means,naive_stds,means,stds,all_w_in,[D_in_e,D_in_i,D_rec_ee,D_rec_ei,D_rec_ie,D_rec_ii,D_out_e,D_out_i],[p_in_e,p_in_i,p_rec_ee,p_rec_ei,p_rec_ie,p_rec_ii,p_out_e,p_out_i],[D_naive_es,D_naive_is,D_trained_es,D_trained_is],[p_naive_es,p_naive_is,p_trained_es,p_trained_is]]
+    return [naive_means,naive_stds,means,stds,[D_in_e,D_in_i,D_rec_ee,D_rec_ei,D_rec_ie,D_rec_ii,D_out_e,D_out_i],[p_in_e,p_in_i,p_rec_ee,p_rec_ei,p_rec_ie,p_rec_ii,p_out_e,p_out_i],[D_naive_es,D_naive_is,D_trained_es,D_trained_is],[p_naive_es,p_naive_is,p_trained_es,p_trained_is]]
 
     fig, ax = plt.subplots(nrows=3, ncols=1)
     ax = ax.flatten()
@@ -594,7 +594,7 @@ def all_losses_over_training(exp_dir=spec_nointoout_dirs,exp_season='spring'):
 # SEE IF YOU CAN COMPLETE ALL THE BELOW TODAY
 # ONE PER HOUR, SUPER DOABLE
 
-def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plots=True):
+def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plots=False):
     # also bring in the rate trained ones too. just anything that contains saveinz; also the original CNN outputs too
 
     # check if folder exists, otherwise create it for saving files
@@ -666,6 +666,9 @@ def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plo
 
     coh0_channels = np.where(np.mean(coh1_rates,0)<np.mean(coh0_rates,0))[0]
     coh1_channels = np.where(np.mean(coh1_rates,0)>np.mean(coh0_rates,0))[0]
+
+    # KS TEST COMPARISONS NOW
+    return [coh0_rates,coh1_rates]
 
     return [coh0_channels, coh1_channels]
 
