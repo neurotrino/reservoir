@@ -1267,7 +1267,7 @@ def tuned_rec_layer_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spri
 
     for j in range(0,len(ax)):
         ax[j].set_xlim(left=0,right=100)
-        ax[j].set_ylim(bottom=-1.5,top=0.3)
+        #ax[j].set_ylim(bottom=-1.5,top=0.3)
         ax[j].set_xlabel('training epoch')
         ax[j].legend(prop={"family":"Ubuntu"})
         for tick in ax[j].get_xticklabels():
