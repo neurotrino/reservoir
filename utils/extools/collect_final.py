@@ -326,39 +326,70 @@ def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,rate_exp_d
         os.makedirs(spath)
 
     # aggregate over all experiments
-    coh1_e = []
-    coh1_i = []
-    coh0_e = []
-    coh0_i = []
-    epoch_task_loss = []
-    epoch_rate_loss = []
 
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        coh1_e_exp = []
+        coh1_i_exp = []
+        coh0_e_exp = []
+        coh0_i_exp = []
+        epoch_task_loss_exp = []
+        epoch_rate_loss_exp = []
 
         [coh0_idx, coh1_idx] = get_input_tuning_single_exp(xdir)
 
         # get the truly naive weights
         filepath = os.path.join(data_dir,xdir,"npz-data","input_preweights.npy")
         input_w = np.load(filepath)
-        coh1_e.append(np.mean(input_w[coh1_idx,:e_end]))
-        coh1_i.append(np.mean(input_w[coh1_idx,e_end:]))
-        coh0_e.append(np.mean(input_w[coh0_idx,:e_end]))
-        coh0_i.append(np.mean(input_w[coh0_idx,e_end:]))
+        coh1_e_exp.append(np.mean(input_w[coh1_idx,:e_end]))
+        coh1_i_exp.append(np.mean(input_w[coh1_idx,e_end:]))
+        coh0_e_exp.append(np.mean(input_w[coh0_idx,:e_end]))
+        coh0_i_exp.append(np.mean(input_w[coh0_idx,e_end:]))
 
         # now do weights over time
         for filename in data_files:
             filepath = os.path.join(data_dir, xdir, "npz-data", filename)
             data = np.load(filepath)
             input_w = data['tv0.postweights'][0] # just the singular for now; too much data and noise otherwise
-            epoch_task_loss.append(np.mean(data['step_task_loss']))
-            epoch_rate_loss.append(np.mean(data['step_rate_loss']))
+            epoch_task_loss_exp.append(np.mean(data['step_task_loss']))
+            epoch_rate_loss_exp.append(np.mean(data['step_rate_loss']))
             #for i in range(0,np.shape(input_w)[0]): # 100 trials
             # weights of each type to e units and to i units
-            coh1_e.append(np.mean(input_w[coh1_idx,:e_end]))
-            coh1_i.append(np.mean(input_w[coh1_idx,e_end:]))
-            coh0_e.append(np.mean(input_w[coh0_idx,:e_end]))
-            coh0_i.append(np.mean(input_w[coh0_idx,e_end:]))
+            coh1_e_exp.append(np.mean(input_w[coh1_idx,:e_end]))
+            coh1_i_exp.append(np.mean(input_w[coh1_idx,e_end:]))
+            coh0_e_exp.append(np.mean(input_w[coh0_idx,:e_end]))
+            coh0_i_exp.append(np.mean(input_w[coh0_idx,e_end:]))
+
+        if not "coh1_e" in locals():
+            coh1_e = coh1_e_exp
+        else:
+            coh1_e = np.vstack([coh1_e, coh1_e_exp])
+
+        if not "coh1_i" in locals():
+            coh1_i = coh1_i_exp
+        else:
+            coh1_i = np.vstack([coh1_i, coh1_i_exp])
+
+        if not "coh0_e" in locals():
+            coh0_e = coh0_e_exp
+        else:
+            coh0_e = np.vstack([coh0_e, coh0_e_exp])
+
+        if not "coh0_i" in locals():
+            coh0_i = coh0_i_exp
+        else:
+            coh0_i = np.vstack([coh0_i, coh0_i_exp])
+
+        if not "epoch_task_loss" in locals():
+            epoch_task_loss = epoch_task_loss_exp
+        else:
+            epoch_task_loss = np.vstack([epoch_task_loss, epoch_task_loss_exp])
+
+        if not "epoch_rate_loss" in locals():
+            epoch_rate_loss = epoch_rate_loss_exp
+        else:
+            epoch_rate_loss = np.vstack([epoch_rate_loss, epoch_rate_loss_exp])
 
     fig, ax = plt.subplots(nrows=3, ncols=1)
 
