@@ -594,7 +594,7 @@ def all_losses_over_training(exp_dir=spec_nointoout_dirs,exp_season='spring'):
 # SEE IF YOU CAN COMPLETE ALL THE BELOW TODAY
 # ONE PER HOUR, SUPER DOABLE
 
-def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plots=False):
+def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plots=True):
     # also bring in the rate trained ones too. just anything that contains saveinz; also the original CNN outputs too
 
     # check if folder exists, otherwise create it for saving files
@@ -664,15 +664,8 @@ def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plo
     coh0_rates = np.average(coh0_channel_trial_rates,0)
     coh1_rates = np.average(coh1_channel_trial_rates,0)
 
-    coh0_channels = np.where(np.mean(coh1_rates,0)<np.mean(coh0_rates,0))[0]
-    coh1_channels = np.where(np.mean(coh1_rates,0)>np.mean(coh0_rates,0))[0]
-
-    # KS TEST COMPARISONS NOW
-    return [coh0_rates,coh1_rates]
-
-
-
-    return [coh0_channels, coh1_channels]
+    coh0_channels = np.where(coh1_rates<coh0_rates)[0]
+    coh1_channels = np.where(coh1_rates>coh0_rates)[0]
 
     # plot the distribution of rates of each channel in response to the two coherence levels
     # do so for all 16 channels together (and measure, compare their distributions)
@@ -716,7 +709,7 @@ def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plo
             for tick in ax[j].get_yticklabels():
                 tick.set_fontname("Ubuntu")
 
-        save_fname = spath+'/input_channel_rates_test.png'
+        save_fname = spath+'/input_channel_rates.png'
 
         plt.subplots_adjust(hspace=0.5,wspace=0.5)
         plt.draw()
@@ -725,7 +718,8 @@ def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plo
         plt.clf()
         plt.close()
 
-    return [coh0_channels,coh1_channels]
+    # KS TEST COMPARISONS NOW
+    return [coh0_channel_trial_rates,coh1_channel_trial_rates]
 
 
 def get_input_tuning_from_CNN():
@@ -1549,99 +1543,106 @@ def tuned_rec_layer_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
             ero_ie_.append(np.mean(temporal_w[i][coh1_i,:][:,coh0_e]))
             ero_ii_.append(np.mean(temporal_w[i][coh1_i,:][:,coh0_i]))
 
-        print('shape of intermediate coh0_ee data: ')
-        print(np.shape(coh0_ee_))
+        if not np.isnan(coh0_ee_).any():
+            if not "coh0_ee" in locals():
+                coh0_ee = coh0_ee_
+            else:
+                coh0_ee = np.vstack([coh0_ee, coh0_ee_])
 
-        if not "coh0_ee" in locals():
-            coh0_ee = coh0_ee_
-        else:
-            coh0_ee = np.vstack([coh0_ee, coh0_ee_])
+        if not np.isnan(coh0_ei_).any():
+            if not "coh0_ei" in locals():
+                coh0_ei = coh0_ei_
+            else:
+                coh0_ei = np.vstack([coh0_ei, coh0_ei_])
 
-        print('new shape of collected coh0_ee data: ')
-        print(np.shape(coh0_ee))
+        if not np.isnan(coh0_ie_).any():
+            if not "coh0_ie" in locals():
+                coh0_ie = coh0_ie_
+            else:
+                coh0_ie = np.vstack([coh0_ie, coh0_ie_])
 
-        if not "coh0_ei" in locals():
-            coh0_ei = coh0_ei_
-        else:
-            coh0_ei = np.vstack([coh0_ei, coh0_ei_])
+        if not np.isnan(coh0_ii_).any():
+            if not "coh0_ii" in locals():
+                coh0_ii = coh0_ii_
+            else:
+                coh0_ii = np.vstack([coh0_ii, coh0_ii_])
 
-        if not "coh0_ie" in locals():
-            coh0_ie = coh0_ie_
-        else:
-            coh0_ie = np.vstack([coh0_ie, coh0_ie_])
+        if not np.isnan(coh1_ee_).any():
+            if not "coh1_ee" in locals():
+                coh1_ee = coh1_ee_
+            else:
+                coh1_ee = np.vstack([coh1_ee, coh1_ee_])
 
-        if not "coh0_ii" in locals():
-            coh0_ii = coh0_ii_
-        else:
-            coh0_ii = np.vstack([coh0_ii, coh0_ii_])
+        if not np.isnan(coh1_ei_).any():
+            if not "coh1_ei" in locals():
+                coh1_ei = coh1_ei_
+            else:
+                coh1_ei = np.vstack([coh1_ei, coh1_ei_])
 
-        if not "coh1_ee" in locals():
-            coh1_ee = coh1_ee_
-        else:
-            coh1_ee = np.vstack([coh1_ee, coh1_ee_])
+        if not np.isnan(coh1_ie_).any():
+            if not "coh1_ie" in locals():
+                coh1_ie = coh1_ie_
+            else:
+                coh1_ie = np.vstack([coh1_ie, coh1_ie_])
 
-        if not "coh1_ei" in locals():
-            coh1_ei = coh1_ei_
-        else:
-            coh1_ei = np.vstack([coh1_ei, coh1_ei_])
+        if not np.isnan(coh1_ii_).any():
+            if not "coh1_ii" in locals():
+                coh1_ii = coh1_ii_
+            else:
+                coh1_ii = np.vstack([coh1_ii, coh1_ii_])
 
-        if not "coh1_ie" in locals():
-            coh1_ie = coh1_ie_
-        else:
-            coh1_ie = np.vstack([coh1_ie, coh1_ie_])
+        if not np.isnan(het_ee_).any():
+            if not "het_ee" in locals():
+                het_ee = het_ee_
+            else:
+                het_ee = np.vstack([het_ee, het_ee_])
 
-        if not "coh1_ii" in locals():
-            coh1_ii = coh1_ii_
-        else:
-            coh1_ii = np.vstack([coh1_ii, coh1_ii_])
+        if not np.isnan(het_ei_).any():
+            if not "het_ei" in locals():
+                het_ei = het_ei_
+            else:
+                het_ei = np.vstack([het_ei, het_ei_])
 
-        if not "het_ee" in locals():
-            het_ee = het_ee_
-        else:
-            het_ee = np.vstack([het_ee, het_ee_])
+        if not np.isnan(het_ie_).any():
+            if not "het_ie" in locals():
+                het_ie = het_ie_
+            else:
+                het_ie = np.vstack([het_ie, het_ie_])
 
-        if not "het_ei" in locals():
-            het_ei = het_ei_
-        else:
-            het_ei = np.vstack([het_ei, het_ei_])
+        if not np.isnan(het_ii_).any():
+            if not "het_ii" in locals():
+                het_ii = het_ii_
+            else:
+                het_ii = np.vstack([het_ii, het_ii_])
 
-        if not "het_ie" in locals():
-            het_ie = het_ie_
-        else:
-            het_ie = np.vstack([het_ie, het_ie_])
+        if not np.isnan(ero_ee_).any():
+            if not "ero_ee" in locals():
+                ero_ee = ero_ee_
+            else:
+                ero_ee = np.vstack([ero_ee, ero_ee_])
 
-        if not "het_ii" in locals():
-            het_ii = het_ii_
-        else:
-            het_ii = np.vstack([het_ii, het_ii_])
+        if not np.isnan(ero_ei_).any():
+            if not "ero_ei" in locals():
+                ero_ei = ero_ei_
+            else:
+                ero_ei = np.vstack([ero_ei, ero_ei_])
 
-        if not "ero_ee" in locals():
-            ero_ee = ero_ee_
-        else:
-            ero_ee = np.vstack([ero_ee, ero_ee_])
+        if not np.isnan(ero_ie_).any():
+            if not "ero_ie" in locals():
+                ero_ie = ero_ie_
+            else:
+                ero_ie = np.vstack([ero_ie, ero_ie_])
 
-        if not "ero_ei" in locals():
-            ero_ei = ero_ei_
-        else:
-            ero_ei = np.vstack([ero_ei, ero_ei_])
-
-        if not "ero_ie" in locals():
-            ero_ie = ero_ie_
-        else:
-            ero_ie = np.vstack([ero_ie, ero_ie_])
-
-        if not "ero_ii" in locals():
-            ero_ii = ero_ii_
-        else:
-            ero_ii = np.vstack([ero_ii, ero_ii_])
-
+        if not np.isnan(ero_ii_).any():
+            if not "ero_ii" in locals():
+                ero_ii = ero_ii_
+            else:
+                ero_ii = np.vstack([ero_ii, ero_ii_])
 
     print('shape of final ero_ii data: ')
     print(np.shape(ero_ii))
     print('shape of final coh0_ee data: ')
     print(np.shape(coh0_ee))
-
-    return [coh0_ee,coh0_ei,coh0_ie,coh0_ii,coh1_ee,coh1_ei,coh1_ie,coh1_ii,het_ee,het_ei,het_ie,het_ii,ero_ee,ero_ei,ero_ie,ero_ii]
 
     fig, ax = plt.subplots(nrows=4,ncols=1,figsize=(8,10))
 
@@ -1702,7 +1703,6 @@ def tuned_rec_layer_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
     ax[2].set_title('coherence 0 to coherence 1 tuned recurrent connections',fontname='Ubuntu')
     ax[2].set_ylabel('average weight',fontname='Ubuntu')
 
-
     ax[3].plot(np.arange(0,epochs),np.mean(ero_ee,0),color='slateblue',label='ee')
     ax[3].fill_between(np.arange(0,epochs),np.mean(ero_ee,0)-np.std(ero_ee,0), np.mean(ero_ee,0)+np.std(ero_ee,0), alpha=0.4, facecolor='slateblue')
 
@@ -1729,7 +1729,7 @@ def tuned_rec_layer_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
             tick.set_fontname("Ubuntu")
 
     plt.suptitle('Recurrent Connectivity by Coherence Tuning',fontname='Ubuntu')
-    save_fname = spath+'/rec_weights_by_tuning_over_training_test.png'
+    save_fname = spath+'/rec_weights_by_tuning_over_training.png'
     plt.subplots_adjust(hspace=0.8,wspace=0.8)
     plt.draw()
     plt.savefig(save_fname,dpi=300)
@@ -1737,11 +1737,10 @@ def tuned_rec_layer_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
     plt.clf()
     plt.close()
 
-    print('shape of means and stds:')
-    print(np.shape(np.mean(ero_ii,0)))
-    print(np.shape(np.std(ero_ii,0)))
+    return [coh0_ee,coh0_ei,coh0_ie,coh0_ii,coh1_ee,coh1_ei,coh1_ie,coh1_ii,het_ee,het_ei,het_ie,het_ii,ero_ee,ero_ei,ero_ie,ero_ii]
 
-    return [ero_ee, ero_ei, ero_ie, ero_ii]
+    # COMPARE
+
 
 """
 # below this line are NOT priorities for now
