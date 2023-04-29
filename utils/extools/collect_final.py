@@ -446,10 +446,12 @@ def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,rat
     coh0_e_mean = np.mean(coh0_e,0)
     coh0_e_std = np.std(coh0_e,0)
 
+    epochs = np.shape(coh1_e)[1]
+
     ax[0].plot(coh1_e_mean, label='coh 1 tuned inputs', color='slateblue')
-    ax[0].fill_between(coh1_e_mean-coh1_e_std, coh1_e_mean+coh1_e_std, alpha=0.4, facecolor='slateblue')
+    ax[0].fill_between(np.arange(0,epochs),coh1_e_mean-coh1_e_std, coh1_e_mean+coh1_e_std, alpha=0.4, facecolor='slateblue')
     ax[0].plot(coh0_e_mean, label='coh 0 tuned inputs', color='mediumseagreen')
-    ax[0].fill_between(coh0_e_mean-coh0_e_std, coh0_e_mean+coh0_e_std, alpha=0.4, facecolor='mediumseagreen')
+    ax[0].fill_between(np.arange(0,epochs),coh0_e_mean-coh0_e_std, coh0_e_mean+coh0_e_std, alpha=0.4, facecolor='mediumseagreen')
     ax[0].set_title('input weights to excitatory units',fontname='Ubuntu')
 
     coh1_i_mean = np.mean(coh1_i,0)
@@ -458,20 +460,22 @@ def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,rat
     coh0_i_std = np.mean(coh0_i,0)
 
     ax[1].plot(coh1_i_mean, label='coh 1 tuned inputs', color='darkorange')
-    ax[1].fill_between(coh1_i_mean-coh1_i_std, coh1_i_mean+coh1_i_std, alpha=0.4, facecolor='slateblue')
+    ax[1].fill_between(np.arange(0,epochs),coh1_i_mean-coh1_i_std, coh1_i_mean+coh1_i_std, alpha=0.4, facecolor='slateblue')
     ax[1].plot(coh0_i_mean, label='coh 0 tuned inputs', color='orangered')
-    ax[1].fill_between(coh0_i_mean-coh0_i_std, coh0_i_mean+coh0_i_std, alpha=0.4, facecolor='mediumseagreen')
+    ax[1].fill_between(np.arange(0,epochs),coh0_i_mean-coh0_i_std, coh0_i_mean+coh0_i_std, alpha=0.4, facecolor='mediumseagreen')
     ax[1].set_title('input weights to inhibitory units',fontname='Ubuntu')
+
+    epochs = np.shape(epoch_task_loss)[1]
 
     task_mean = np.mean(epoch_task_loss,0)
     task_error = np.std(epoch_task_loss,0)
     ax[2].plot(task_mean, label='task loss', color='darkorange')
-    ax[2].fill_between(task_mean-task_error, task_mean+task_error, alpha=0.4, facecolor='darkorange')
+    ax[2].fill_between(np.arange(0,epochs),task_mean-task_error, task_mean+task_error, alpha=0.4, facecolor='darkorange')
 
     rate_mean = np.mean(epoch_rate_loss,0)
     rate_error = np.std(epoch_rate_loss,0)
     ax[2].plot(rate_mean, label='rate loss', color='orangered')
-    ax[2].fill_between(rate_mean+rate_error, rate_mean+rate_error, alpha=0.4, facecolor='orangered') #other options include edgecolor='#CC4F1B', facecolor='#FF9848'
+    ax[2].fill_between(np.arange(0,epochs),rate_mean+rate_error, rate_mean+rate_error, alpha=0.4, facecolor='orangered') #other options include edgecolor='#CC4F1B', facecolor='#FF9848'
 
     ax[2].set_ylabel('loss',fontname='Ubuntu')
     #ax[2].legend(['task loss','rate loss'],fontsize="11",prop={"family":"Ubuntu"})
