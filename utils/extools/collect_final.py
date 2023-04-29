@@ -139,6 +139,7 @@ def dists_of_all_synch(exp_dir=spec_input_dirs,exp_season='winter'):
     # return means and stds, save in some file
 
 def all_losses_over_training(exp_dir=spec_nointoout_dirs,exp_season='spring'):
+    # PRETTY MUCH ALREADY DONE
     # plot mean with shading over time course of training for task and rate loss
     # have a better way to describe this eventually
     # split into change and no-change trials to describe performance? that might be worthwhile
@@ -441,36 +442,36 @@ def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,rat
     print('shape of coh1_e (coherence 1 tuned input channels to recurrent excitatory units): ')
     print(np.shape(coh1_e))
     coh1_e_mean = np.mean(coh1_e,0)
-    coh1_e_std = np.std(coh1_e,1)
+    coh1_e_std = np.std(coh1_e,0)
     coh0_e_mean = np.mean(coh0_e,0)
-    coh0_e_std = np.std(coh0_e,1)
+    coh0_e_std = np.std(coh0_e,0)
 
     ax[0].plot(coh1_e_mean, label='coh 1 tuned inputs', color='slateblue')
-    ax[0].fill_between(coh1_e_mean, coh1_e_mean-coh1_e_std, coh1_e_mean+coh1_e_std, alpha=0.4, facecolor='slateblue')
+    ax[0].fill_between(coh1_e_mean-coh1_e_std, coh1_e_mean+coh1_e_std, alpha=0.4, facecolor='slateblue')
     ax[0].plot(coh0_e_mean, label='coh 0 tuned inputs', color='mediumseagreen')
-    ax[0].fill_between(coh0_e_mean, coh0_e_mean-coh0_e_std, coh0_e_mean+coh0_e_std, alpha=0.4, facecolor='mediumseagreen')
+    ax[0].fill_between(coh0_e_mean-coh0_e_std, coh0_e_mean+coh0_e_std, alpha=0.4, facecolor='mediumseagreen')
     ax[0].set_title('input weights to excitatory units',fontname='Ubuntu')
 
     coh1_i_mean = np.mean(coh1_i,0)
-    coh1_i_std = np.mean(coh1_i,1)
+    coh1_i_std = np.mean(coh1_i,0)
     coh0_i_mean = np.mean(coh0_i,0)
-    coh0_i_std = np.mean(coh0_i,1)
+    coh0_i_std = np.mean(coh0_i,0)
 
     ax[1].plot(coh1_i_mean, label='coh 1 tuned inputs', color='darkorange')
-    ax[1].fill_between(coh1_i_mean, coh1_i_mean-coh1_i_std, coh1_i_mean+coh1_i_std, alpha=0.4, facecolor='slateblue')
+    ax[1].fill_between(coh1_i_mean-coh1_i_std, coh1_i_mean+coh1_i_std, alpha=0.4, facecolor='slateblue')
     ax[1].plot(coh0_i_mean, label='coh 0 tuned inputs', color='orangered')
-    ax[1].fill_between(coh0_i_mean, coh0_i_mean-coh0_i_std, coh0_i_mean+coh0_i_std, alpha=0.4, facecolor='mediumseagreen')
+    ax[1].fill_between(coh0_i_mean-coh0_i_std, coh0_i_mean+coh0_i_std, alpha=0.4, facecolor='mediumseagreen')
     ax[1].set_title('input weights to inhibitory units',fontname='Ubuntu')
 
     task_mean = np.mean(epoch_task_loss,0)
     task_error = np.std(epoch_task_loss,0)
     ax[2].plot(task_mean, label='task loss', color='darkorange')
-    ax[2].fill_between(task_mean, task_mean-task_error, task_mean+task_error, alpha=0.4, facecolor='darkorange')
+    ax[2].fill_between(task_mean-task_error, task_mean+task_error, alpha=0.4, facecolor='darkorange')
 
     rate_mean = np.mean(epoch_rate_loss,0)
     rate_error = np.std(epoch_rate_loss,0)
     ax[2].plot(rate_mean, label='rate loss', color='orangered')
-    ax[2].fill_between(rate_mean, rate_mean+rate_error, rate_mean+rate_error, alpha=0.4, facecolor='orangered') #other options include edgecolor='#CC4F1B', facecolor='#FF9848'
+    ax[2].fill_between(rate_mean+rate_error, rate_mean+rate_error, alpha=0.4, facecolor='orangered') #other options include edgecolor='#CC4F1B', facecolor='#FF9848'
 
     ax[2].set_ylabel('loss',fontname='Ubuntu')
     #ax[2].legend(['task loss','rate loss'],fontsize="11",prop={"family":"Ubuntu"})
@@ -1188,78 +1189,78 @@ def tuned_rec_layer_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spri
     fig, ax = plt.subplots(nrows=4,ncols=1,figsize=(8,10))
 
     coh0_ee_mean = np.mean(coh0_ee,0)
-    coh0_ee_std = np.std(coh0_ee,1)
+    coh0_ee_std = np.std(coh0_ee,0)
     ax[0].plot(coh0_ee_mean,color='slateblue',label='ee')
-    ax[0].fill_between(coh0_ee_mean, coh0_ee_mean-coh0_ee_std, coh0_ee_mean+coh0_ee_std, alpha=0.4, facecolor='slateblue')
+    ax[0].fill_between(coh0_ee_mean-coh0_ee_std, coh0_ee_mean+coh0_ee_std, alpha=0.4, facecolor='slateblue')
 
     coh0_ei_mean = np.mean(coh0_ei,0)
-    coh0_ei_std = np.std(coh0_ei,1)
+    coh0_ei_std = np.std(coh0_ei,0)
     ax[0].plot(coh0_ei_mean,color='mediumseagreen',label='ei')
-    ax[0].fill_between(coh0_ei_mean, coh0_ei_mean-coh0_ei_std, coh0_ei_mean+coh0_ei_std, alpha=0.4, facecolor='mediumseagreen')
+    ax[0].fill_between(coh0_ei_mean-coh0_ei_std, coh0_ei_mean+coh0_ei_std, alpha=0.4, facecolor='mediumseagreen')
 
     coh0_ie_mean = np.mean(coh0_ie,0)
-    coh0_ie_std = np.std(coh0_ie,1)
+    coh0_ie_std = np.std(coh0_ie,0)
     ax[0].plot(coh0_ie_mean,color='darkorange',label='ie')
-    ax[0].fill_between(coh0_ie_mean, coh0_ie_mean-coh0_ie_std, coh0_ie_mean+coh0_ie_std, alpha=0.4, facecolor='darkorange')
+    ax[0].fill_between(coh0_ie_mean-coh0_ie_std, coh0_ie_mean+coh0_ie_std, alpha=0.4, facecolor='darkorange')
 
     coh0_ii_mean = np.mean(coh0_ii,0)
-    coh0_ii_std = np.std(coh0_ii,1)
+    coh0_ii_std = np.std(coh0_ii,0)
     ax[0].plot(coh0_ii_mean,color='orangered',label='ii')
-    ax[0].fill_between(coh0_ii_mean, coh0_ii_mean-coh0_ii_std, coh0_ii_mean+coh0_ii_std, alpha=0.4, facecolor='orangered')
+    ax[0].fill_between(coh0_ii_mean-coh0_ii_std, coh0_ii_mean+coh0_ii_std, alpha=0.4, facecolor='orangered')
 
     ax[0].set_title('coherence 0 tuned recurrent connections',fontname='Ubuntu')
     ax[0].set_ylabel('average weight',fontname='Ubuntu')
 
 
     ax[1].plot(np.mean(coh1_ee,0),color='slateblue',label='ee')
-    ax[1].fill_between(np.mean(coh1_ee,0), np.mean(coh1_ee,0)-np.std(coh1_ee,1), np.mean(coh1_ee,0)+np.std(coh1_ee,1), alpha=0.4, facecolor='slateblue')
+    ax[1].fill_between(np.mean(coh1_ee,0)-np.std(coh1_ee,0), np.mean(coh1_ee,0)+np.std(coh1_ee,0), alpha=0.4, facecolor='slateblue')
 
     ax[1].plot(np.mean(coh1_ei,0),color='mediumseagreen',label='ei')
-    ax[1].fill_between(np.mean(coh1_ei,0), np.mean(coh1_ei,0)-np.std(coh1_ei,1), np.mean(coh1_ei,0)+np.std(coh1_ei,1), alpha=0.4, facecolor='mediumseagreen')
+    ax[1].fill_between(np.mean(coh1_ei,0)-np.std(coh1_ei,0), np.mean(coh1_ei,0)+np.std(coh1_ei,0), alpha=0.4, facecolor='mediumseagreen')
 
     ax[1].plot(np.mean(coh1_ie,0),color='darkorange',label='ie')
-    ax[1].fill_between(np.mean(coh1_ie,0), np.mean(coh1_ie,0)-np.std(coh1_ie,1), np.mean(coh1_ie,0)+np.std(coh1_ie,1), alpha=0.4, facecolor='darkorange')
+    ax[1].fill_between(np.mean(coh1_ie,0)-np.std(coh1_ie,0), np.mean(coh1_ie,0)+np.std(coh1_ie,0), alpha=0.4, facecolor='darkorange')
 
     ax[1].plot(np.mean(coh1_ii,0),color='orangered',label='ii')
-    ax[1].fill_between(np.mean(coh1_ii,0), np.mean(coh1_ii,0)-np.std(coh1_ii,1), np.mean(coh1_ii,0)+np.std(coh1_ii,1), alpha=0.4, facecolor='orangered')
+    ax[1].fill_between(np.mean(coh1_ii,0)-np.std(coh1_ii,0), np.mean(coh1_ii,0)+np.std(coh1_ii,0), alpha=0.4, facecolor='orangered')
 
     ax[1].set_title('coherence 1 tuned recurrent connections',fontname='Ubuntu')
     ax[1].set_ylabel('average weight',fontname='Ubuntu')
 
 
     ax[2].plot(np.mean(het_ee,0),color='slateblue',label='ee')
-    ax[2].fill_between(np.mean(het_ee,0), np.mean(het_ee,0)-np.std(het_ee,1), np.mean(het_ee,0)+np.std(het_ee,1), alpha=0.4, facecolor='slateblue')
+    ax[2].fill_between(np.mean(het_ee,0)-np.std(het_ee,0), np.mean(het_ee,0)+np.std(het_ee,0), alpha=0.4, facecolor='slateblue')
 
     ax[2].plot(np.mean(het_ei,0),color='mediumseagreen',label='ei')
-    ax[2].fill_between(np.mean(het_ei,0), np.mean(het_ei,0)-np.std(het_ei,1), np.mean(het_ei,0)+np.std(het_ei,1), alpha=0.4, facecolor='mediumseagreen')
+    ax[2].fill_between(np.mean(het_ei,0)-np.std(het_ei,0), np.mean(het_ei,0)+np.std(het_ei,0), alpha=0.4, facecolor='mediumseagreen')
 
     ax[2].plot(np.mean(het_ie,0),color='darkorange',label='ie')
-    ax[2].fill_between(np.mean(het_ie,0), np.mean(het_ie,0)-np.std(het_ie,1), np.mean(het_ie,0)+np.std(het_ie,1), alpha=0.4, facecolor='darkorange')
+    ax[2].fill_between(np.mean(het_ie,0)-np.std(het_ie,0), np.mean(het_ie,0)+np.std(het_ie,0), alpha=0.4, facecolor='darkorange')
 
     ax[2].plot(np.mean(het_ii,0),color='orangered',label='ii')
-    ax[2].fill_between(np.mean(het_ii,0), np.mean(het_ii,0)-np.std(het_ii,1), np.mean(het_ii,0)+np.std(het_ii,1), alpha=0.4, facecolor='orangered')
+    ax[2].fill_between(np.mean(het_ii,0)-np.std(het_ii,0), np.mean(het_ii,0)+np.std(het_ii,0), alpha=0.4, facecolor='orangered')
 
     ax[2].set_title('coherence 0 to coherence 1 tuned recurrent connections',fontname='Ubuntu')
     ax[2].set_ylabel('average weight',fontname='Ubuntu')
 
 
     ax[3].plot(np.mean(ero_ee,0),color='slateblue',label='ee')
-    ax[3].fill_between(np.mean(ero_ee,0), np.mean(ero_ee,0)-np.std(ero_ee,1), np.mean(ero_ee,0)+np.std(ero_ee,1), alpha=0.4, facecolor='slateblue')
+    ax[3].fill_between(np.mean(ero_ee,0)-np.std(ero_ee,0), np.mean(ero_ee,0)+np.std(ero_ee,0), alpha=0.4, facecolor='slateblue')
 
     ax[3].plot(np.mean(ero_ei,0),color='mediumseagreen',label='ei')
-    ax[3].fill_between(np.mean(ero_ei,0), np.mean(ero_ei,0)-np.std(ero_ei,1), np.mean(ero_ei,0)+np.std(ero_ei,1), alpha=0.4, facecolor='mediumseagreen')
+    ax[3].fill_between(np.mean(ero_ei,0)-np.std(ero_ei,0), np.mean(ero_ei,0)+np.std(ero_ei,0), alpha=0.4, facecolor='mediumseagreen')
 
     ax[3].plot(np.mean(ero_ie,0),color='darkorange',label='ie')
-    ax[3].fill_between(np.mean(ero_ie,0), np.mean(ero_ie,0)-np.std(ero_ie,1), np.mean(ero_ie,0)+np.std(ero_ie,1), alpha=0.4, facecolor='darkorange')
+    ax[3].fill_between(np.mean(ero_ie,0)-np.std(ero_ie,0), np.mean(ero_ie,0)+np.std(ero_ie,0), alpha=0.4, facecolor='darkorange')
 
     ax[3].plot(np.mean(ero_ii,0),color='orangered',label='ii')
-    ax[3].fill_between(np.mean(ero_ii,0), np.mean(ero_ii,0)-np.std(ero_ii,1), np.mean(ero_ii,0)+np.std(ero_ii,1), alpha=0.4, facecolor='orangered')
+    ax[3].fill_between(np.mean(ero_ii,0)-np.std(ero_ii,0), np.mean(ero_ii,0)+np.std(ero_ii,0), alpha=0.4, facecolor='orangered')
 
     ax[3].set_title('coherence 1 to coherence 0 tuned recurrent connections',fontname='Ubuntu')
     ax[3].set_ylabel('average weight',fontname='Ubuntu')
 
     for j in range(0,len(ax)):
-        #ax[j].set_ylim(bottom=-1.5,top=0.3)
+        ax[j].set_ylim(bottom=-1.5,top=0.3)
         ax[j].set_xlabel('training epoch')
         ax[j].legend(prop={"family":"Ubuntu"})
         for tick in ax[j].get_xticklabels():
