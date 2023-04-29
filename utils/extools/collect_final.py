@@ -329,7 +329,7 @@ def dists_of_all_weights(dual_exp_dir=save_inz_dirs,exp_season='spring'):
     plt.close()
 
 
-def dists_of_all_rates(exp_dir=save_inz_dirs,exp_season='spring'):
+def dists_of_all_rates(dual_exp_dir=save_inz_dirs,exp_season='spring'):
     # aggregate over all experiments of this type
     # do so separately for coh0 and coh1 only trials!
     # plot distributions in naive state
