@@ -107,7 +107,7 @@ all_save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-
 
 # this is all a general sort of thing, once you do one (mostly figure out shading and dist comparisons) it'll come easily
 
-def dists_of_all_weights(dual_exp_dir=save_inz_dirs,exp_season='spring'):
+def dists_of_all_weights(dual_exp_dir=all_spring_dual_dirs,exp_season='spring'):
     # aggregate over all experiments of this type
     # plot distributions in naive state
     # plot distributions in trained state
@@ -200,6 +200,75 @@ def dists_of_all_weights(dual_exp_dir=save_inz_dirs,exp_season='spring'):
     all_w_out = np.array(all_w_out)
 
     #return [all_w_in,all_w_rec,all_w_out]
+
+    # CHARACTERIZE DISTRIBUTIONS
+    end_idx = np.shape(all_w_in)[1]-1
+    means = []
+    stds = []
+    # in to e
+    means.append(np.mean(all_w_in[:,0,:,:e_end]))
+    stds.append(np.std(all_w_in[:,0,:,:e_end]))
+    # in to i
+    means.append(np.mean(all_w_in[:,0,:,e_end:]))
+    stds.append(np.std(all_w_in[:,0,:,e_end:]))
+    # rec ee
+    means.append(np.mean(all_w_rec[:,0,:e_end,:e_end]))
+    stds.append(np.std(all_w_rec[:,0,:e_end,:e_end]))
+    # rec ei
+    means.append(np.mean(all_w_rec[:,0,:e_end,e_end:]))
+    stds.append(np.std(all_w_rec[:,0,:e_end,e_end:]))
+    # rec ie
+    means.append(np.mean(all_w_rec[:,0,:e_end,e_end:]))
+    stds.append(np.std(all_w_rec[:,0,:e_end,e_end:]))
+    # rec ii
+    means.append(np.mean(all_w_rec[:,0,e_end:,e_end:]))
+    stds.append(np.std(all_w_rec[:,0,e_end:,e_end:]))
+    # e to out
+    means.append(np.mean(all_w_out[:,0,e_end:,:]))
+    stds.append(np.std(all_w_out[:,0,e_end:,:]))
+    # i to out
+    means.append(np.mean(all_w_out[:,0,:e_end,:]))
+    stds.append(np.std(all_w_out[:,0,:e_end,:]))
+    naive_means = means
+    naive_stds = stds
+
+    # now do trained
+    means = []
+    stds = []
+    # in to e
+    means.append(np.mean(all_w_in[:,end_idx,:,:e_end]))
+    stds.append(np.std(all_w_in[:,end_idx,:,:e_end]))
+    # in to i
+    means.append(np.mean(all_w_in[:,end_idx,:,e_end:]))
+    stds.append(np.std(all_w_in[:,end_idx,:,e_end:]))
+    # rec ee
+    means.append(np.mean(all_w_rec[:,end_idx,:e_end,:e_end]))
+    stds.append(np.std(all_w_rec[:,end_idx,:e_end,:e_end]))
+    # rec ei
+    means.append(np.mean(all_w_rec[:,end_idx,:e_end,e_end:]))
+    stds.append(np.std(all_w_rec[:,end_idx,:e_end,e_end:]))
+    # rec ie
+    means.append(np.mean(all_w_rec[:,end_idx,:e_end,e_end:]))
+    stds.append(np.std(all_w_rec[:,end_idx,:e_end,e_end:]))
+    # rec ii
+    means.append(np.mean(all_w_rec[:,end_idx,e_end:,e_end:]))
+    stds.append(np.std(all_w_rec[:,end_idx,e_end:,e_end:]))
+    # e to out
+    means.append(np.mean(all_w_out[:,end_idx,e_end:,:]))
+    stds.append(np.std(all_w_out[:,end_idx,e_end:,:]))
+    # i to out
+    means.append(np.mean(all_w_out[:,end_idx,:e_end,:]))
+    stds.append(np.std(all_w_out[:,end_idx,:e_end,:]))
+
+    return [naive_means,naive_stds,means,stds,all_w_in,all_w_rec,all_w_out]
+
+    # COMPARE DISTRIBUTIONS
+    # we want to show how similar and different are the rates of
+    # naive vs trained e units
+    # naive vs trained i units
+    # naive e vs i units
+    # trained e vs i units
+
 
     fig, ax = plt.subplots(nrows=3, ncols=1)
     ax = ax.flatten()
@@ -397,17 +466,17 @@ def dists_of_all_rates(dual_exp_dir=save_inz_dirs,exp_season='spring'):
     ax = ax.flatten()
 
     # plot rates over time
-    epochs=np.arange(0,np.shape(rec_0_e_rates)[0])
-    ax[0].plot(epochs,np.mean(rec_0_e_rates,1),label='e units',color='slateblue')
-    ax[0].fill_between(epochs,np.mean(rec_0_e_rates,1)-np.std(rec_0_e_rates,1),np.mean(rec_0_e_rates,1)+np.std(rec_0_e_rates,1),facecolor='slateblue',alpha=0.4)
-    ax[0].plot(epochs,np.mean(rec_0_i_rates,1),label='i units',color='orangered')
-    ax[0].fill_between(epochs,np.mean(rec_0_i_rates,1)-np.std(rec_0_i_rates,1),np.mean(rec_0_i_rates,1)+np.std(rec_0_i_rates,1),facecolor='orangered',alpha=0.4)
+    epochs=np.arange(0,np.shape(rec_0_e_rates)[1])
+    ax[0].plot(epochs,np.mean(rec_0_e_rates,(0,2)),label='e units',color='slateblue')
+    ax[0].fill_between(epochs,np.mean(rec_0_e_rates,(0,2))-np.std(rec_0_e_rates,(0,2)),np.mean(rec_0_e_rates,(0,2))+np.std(rec_0_e_rates,(0,2)),facecolor='slateblue',alpha=0.4)
+    ax[0].plot(epochs,np.mean(rec_0_i_rates,(0,2)),label='i units',color='orangered')
+    ax[0].fill_between(epochs,np.mean(rec_0_i_rates,(0,2))-np.std(rec_0_i_rates,(0,2)),np.mean(rec_0_i_rates,(0,2))+np.std(rec_0_i_rates,(0,2)),facecolor='orangered',alpha=0.4)
     ax[0].set_title('rates to coherence 0 trials',fontname='Ubuntu')
 
-    ax[1].plot(epochs,np.mean(rec_1_e_rates,1),label='e units',color='slateblue')
-    ax[1].fill_between(epochs,np.mean(rec_1_e_rates,1)-np.std(rec_1_e_rates,1),np.mean(rec_1_e_rates,1)+np.std(rec_1_e_rates,1),facecolor='slateblue',alpha=0.4)
-    ax[1].plot(epochs,np.mean(rec_1_i_rates,1),label='i units',color='orangered')
-    ax[1].fill_between(epochs,np.mean(rec_1_i_rates,1)-np.std(rec_1_i_rates,1),np.mean(rec_1_i_rates,1)+np.std(rec_1_i_rates,1),facecolor='orangered',alpha=0.4)
+    ax[1].plot(epochs,np.mean(rec_1_e_rates,(0,2)),label='e units',color='slateblue')
+    ax[1].fill_between(epochs,np.mean(rec_1_e_rates,(0,2))-np.std(rec_1_e_rates,(0,2)),np.mean(rec_1_e_rates,(0,2))+np.std(rec_1_e_rates,(0,2)),facecolor='slateblue',alpha=0.4)
+    ax[1].plot(epochs,np.mean(rec_1_i_rates,(0,2)),label='i units',color='orangered')
+    ax[1].fill_between(epochs,np.mean(rec_1_i_rates,(0,2))-np.std(rec_1_i_rates,(0,2)),np.mean(rec_1_i_rates,(0,2))+np.std(rec_1_i_rates,(0,2)),facecolor='orangered',alpha=0.4)
     ax[1].set_title('rates to coherence 1 trials',fontname='Ubuntu')
 
     for j in range(0,len(ax)):
@@ -431,26 +500,26 @@ def dists_of_all_rates(dual_exp_dir=save_inz_dirs,exp_season='spring'):
 
     # plot distributions of naive and trained rates
 
-    rec_0_e_rates[0,:e_end]
-    rec_1_e_rates[0,:e_end]
-    rec_0_i_rates[0,e_end:]
-    rec_1_i_rates[0,e_end:]
+    rec_0_e_rates[:,0,:e_end]
+    rec_1_e_rates[:,0,:e_end]
+    rec_0_i_rates[:,0,e_end:]
+    rec_1_i_rates[:,0,e_end:]
 
     fig, ax = plt.subplots(nrows=1,ncols=2)
     ax = ax.flatten()
 
-    end_idx = np.shape(rec_1_e_rates)[0]-1
+    end_idx = np.shape(rec_1_e_rates)[1]-1
 
-    ax[0].hist(rec_1_e_rates[0,:e_end].flatten(),bins=20,density=True,label='e in response to 1',alpha=0.5,color='slateblue')
-    ax[0].hist(rec_0_e_rates[0,:e_end].flatten(),bins=20,density=True,label='e in response to 0',alpha=0.5,color='mediumseagreen')
-    ax[0].hist(rec_1_i_rates[0,e_end:].flatten(),bins=20,density=True,label='i in response to 1',alpha=0.5,color='darkorange')
-    ax[0].hist(rec_0_i_rates[0,e_end:].flatten(),bins=20,density=True,label='i in response to 0',alpha=0.5,color='orangered')
+    ax[0].hist(rec_1_e_rates[:,0,:e_end].flatten(),bins=20,density=True,label='e in response to 1',alpha=0.5,color='slateblue')
+    ax[0].hist(rec_0_e_rates[:,0,:e_end].flatten(),bins=20,density=True,label='e in response to 0',alpha=0.5,color='mediumseagreen')
+    ax[0].hist(rec_1_i_rates[:,0,e_end:].flatten(),bins=20,density=True,label='i in response to 1',alpha=0.5,color='darkorange')
+    ax[0].hist(rec_0_i_rates[:,0,e_end:].flatten(),bins=20,density=True,label='i in response to 0',alpha=0.5,color='orangered')
     ax[0].set_title('naive',fontname='Ubuntu')
 
-    ax[0].hist(rec_1_e_rates[end_idx,:e_end].flatten(),bins=20,density=True,label='e in response to 1',alpha=0.5,color='slateblue')
-    ax[0].hist(rec_0_e_rates[end_idx,:e_end].flatten(),bins=20,density=True,label='e in response to 0',alpha=0.5,color='mediumseagreen')
-    ax[0].hist(rec_1_i_rates[end_idx,e_end:].flatten(),bins=20,density=True,label='i in response to 1',alpha=0.5,color='darkorange')
-    ax[0].hist(rec_0_i_rates[end_idx,e_end:].flatten(),bins=20,density=True,label='i in response to 0',alpha=0.5,color='orangered')
+    ax[0].hist(rec_1_e_rates[:,end_idx,:e_end].flatten(),bins=20,density=True,label='e in response to 1',alpha=0.5,color='slateblue')
+    ax[0].hist(rec_0_e_rates[:,end_idx,:e_end].flatten(),bins=20,density=True,label='e in response to 0',alpha=0.5,color='mediumseagreen')
+    ax[0].hist(rec_1_i_rates[:,end_idx,e_end:].flatten(),bins=20,density=True,label='i in response to 1',alpha=0.5,color='darkorange')
+    ax[0].hist(rec_0_i_rates[:,end_idx,e_end:].flatten(),bins=20,density=True,label='i in response to 0',alpha=0.5,color='orangered')
     ax[0].set_title('trained',fontname='Ubuntu')
 
     for j in range(0,len(ax)):
