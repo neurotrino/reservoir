@@ -1094,7 +1094,7 @@ def tuned_rec_layer_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spri
             ero_ii_.append(np.mean(temporal_w[i][coh1_i,:][:,coh0_i]))
 
         print('shape of intermediate coh0_ee data: ')
-        print(np.shape(coh0_ee))
+        print(np.shape(coh0_ee_))
 
         if not "coh0_ee" in locals():
             coh0_ee = coh0_ee_
@@ -1102,7 +1102,7 @@ def tuned_rec_layer_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spri
             coh0_ee = np.vstack([coh0_ee, coh0_ee_])
 
         print('new shape of collected coh0_ee data: ')
-        print(np.shape(coh0_ee_))
+        print(np.shape(coh0_ee))
 
         if not "coh0_ei" in locals():
             coh0_ei = coh0_ei_
