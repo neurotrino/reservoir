@@ -230,13 +230,13 @@ def dists_of_all_weights(dual_exp_dir=save_inz_dirs,exp_season='spring'):
 
     mean_w_ie_rec = np.mean(all_w_rec[:,:,e_end:,:e_end],(0,2,3))
     std_w_ie_rec = np.std(all_w_rec[:,:,e_end:,:e_end],(0,2,3))
-    ax[1].plot(epochs,mean_w_ii_rec,color='darkorange',label='i to e')
-    ax[1].fill_between(epochs,mean_w_ii_rec-std_w_ii_rec,mean_w_ii_rec+std_w_ii_rec,facecolor='darkorange',alpha=0.4)
+    ax[1].plot(epochs,mean_w_ie_rec,color='darkorange',label='i to e')
+    ax[1].fill_between(epochs,mean_w_ie_rec-std_w_ie_rec,mean_w_ie_rec+std_w_ie_rec,facecolor='darkorange',alpha=0.4)
 
     mean_w_ii_rec = np.mean(all_w_rec[:,:,e_end:,e_end:],(0,2,3))
     std_w_ii_rec = np.std(all_w_rec[:,:,e_end:,e_end:],(0,2,3))
-    ax[1].plot(epochs,mean_w_ie_rec,color='orangered',label='i to i')
-    ax[1].fill_between(epochs,mean_w_ie_rec-std_w_ie_rec,mean_w_ie_rec+std_w_ie_rec,facecolor='orangered',alpha=0.4)
+    ax[1].plot(epochs,mean_w_ii_rec,color='orangered',label='i to i')
+    ax[1].fill_between(epochs,mean_w_ii_rec-std_w_ii_rec,mean_w_ii_rec+std_w_ii_rec,facecolor='orangered',alpha=0.4)
 
     ax[1].set_title('recurrent weights',fontname='Ubuntu')
 
