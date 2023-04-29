@@ -11,6 +11,7 @@ import seaborn as sns
 import networkx as nx
 
 from scipy.sparse import load_npz
+from scipy.stats import kstest
 
 # ---- internal imports -------------------------------------------------------
 sys.path.append("../")
@@ -261,16 +262,45 @@ def dists_of_all_weights(dual_exp_dir=all_spring_dual_dirs,exp_season='spring'):
     means.append(np.mean(all_w_out[:,end_idx,e_end:,:]))
     stds.append(np.std(all_w_out[:,end_idx,e_end:,:]))
 
-
-    return [naive_means,naive_stds,means,stds,all_w_in,all_w_rec,all_w_out]
-
     # COMPARE DISTRIBUTIONS
     # we want to show how similar and different are the rates of
-    # naive vs trained e units
-    # naive vs trained i units
-    # naive e vs i units
-    # trained e vs i units
 
+    in_e_naive = all_w_in[:,0,:,:e_end]
+    in_e_trained = all_w_in[:,end_idx,:,:e_end]
+    in_i_naive = all_w_in[:,0,:,e_end:]
+    in_i_trained = all_w_in[:,end_idx,:,e_end:]
+
+    rec_ee_naive = all_w_rec[:,0,:e_end,:e_end]
+    rec_ee_trained = all_w_rec[:,end_idx,:e_end,:e_end]
+    rec_ei_naive = all_w_rec[:,0,:e_end,e_end:]
+    rec_ei_trained = all_w_rec[:,end_idx,:e_end,e_end:]
+    rec_ie_naive = all_w_rec[:,0,e_end:,:e_end]
+    rec_ie_trained = all_w_rec[:,end_idx,e_end:,:e_end]
+    rec_ii_naive = all_w_rec[:,0,e_end:,e_end:]
+    rec_ii_trained = all_w_rec[:,end_idx,e_end:,e_end:]
+
+    out_e_naive = all_w_out[:,0,:e_end,:]
+    out_e_trained = all_w_out[:,end_idx,:e_end,:]
+    out_i_naive = all_w_out[:,0,e_end:,:]
+    out_i_trained = all_w_out[:,end_idx,e_end:,:]
+
+    [D_in_e, p_in_e] = scipy.stats.kstest(in_e_naive.flatten(),in_e_trained.flatten())
+    [D_in_i, p_in_i] = scipy.stats.kstest(in_i_naive.flatten(),in_i_trained.flatten())
+
+    [D_rec_ee, p_rec_ee] = scipy.stats.kstest(rec_ee_naive.flatten(),rec_ee_trained.flatten())
+    [D_rec_ei, p_rec_ei] = scipy.stats.kstest(rec_ei_naive.flatten(),rec_ei_trained.flatten())
+    [D_rec_ie, p_rec_ie] = scipy.stats.kstest(rec_ie_naive.flatten(),rec_ie_trained.flatten())
+    [D_rec_ii, p_rec_ii] = scipy.stats.kstest(rec_ii_naive.flatten(),rec_ii_trained.flatten())
+
+    [D_naive_es,p_naive_es] = scipy.stats.kstest(rec_ee_naive.flatten(),rec_ei_naive.flatten())
+    [D_naive_is,p_naive_is] = scipy.stats.kstest(rec_ie_naive.flatten(),rec_ii_naive.flatten())
+    [D_trained_es,p_trained_es] = scipy.stats.kstest(rec_ee_trained.flatten(),rec_ei_trained.flatten())
+    [D_trained_is,p_trained_is] = scipy.stats.kstest(rec_ie_trained.flatten(),rec_ii_trained.flatten())
+
+    [D_out_e, p_out_e] = scipy.stats.kstest(out_e_naive.flatten(),out_e_trained.flatten())
+    [D_out_i, p_out_i] = scipy.stats.kstest(out_i_naive.flatten(),out_i_trained.flatten())
+
+    return [naive_means,naive_stds,means,stds,all_w_in,[D_in_e,D_in_i,D_rec_ee,D_rec_ei,D_rec_ie,D_rec_ii,D_out_e,D_out_i],[p_in_e,p_in_i,p_rec_ee,p_rec_ei,p_rec_ie,p_rec_ii,p_out_e,p_out_i],[D_naive_es,D_naive_is,D_trained_es,D_trained_is],[p_naive_es,p_naive_is,p_trained_es,p_trained_is]]
 
     fig, ax = plt.subplots(nrows=3, ncols=1)
     ax = ax.flatten()
