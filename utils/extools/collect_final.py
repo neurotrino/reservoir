@@ -670,6 +670,8 @@ def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plo
     # KS TEST COMPARISONS NOW
     return [coh0_rates,coh1_rates]
 
+
+
     return [coh0_channels, coh1_channels]
 
     # plot the distribution of rates of each channel in response to the two coherence levels
@@ -1638,6 +1640,8 @@ def tuned_rec_layer_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
     print(np.shape(ero_ii))
     print('shape of final coh0_ee data: ')
     print(np.shape(coh0_ee))
+
+    return [coh0_ee,coh0_ei,coh0_ie,coh0_ii,coh1_ee,coh1_ei,coh1_ie,coh1_ii,het_ee,het_ei,het_ie,het_ii,ero_ee,ero_ei,ero_ie,ero_ii]
 
     fig, ax = plt.subplots(nrows=4,ncols=1,figsize=(8,10))
 
