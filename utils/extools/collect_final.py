@@ -1022,7 +1022,7 @@ def tuned_rec_layer_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spri
         exp_path = xdir[-9:-1]
 
         np_dir = os.path.join(data_dir,xdir,"npz-data")
-        data = os.path.join(np_dir,'991-1000.npz')
+        data = np.load(os.path.join(np_dir,'991-1000.npz'))
         spikes=data['spikes']
         true_y=data['true_y']
 
