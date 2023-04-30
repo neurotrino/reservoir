@@ -1486,7 +1486,7 @@ def characterize_tuned_rec_populations(exp_dirs=spec_nointoout_dirs_rate,exp_sea
 
 # plot over the course of training how MANY units become tuned
 
-def tuned_rec_layer_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
+def tuned_rec_layer_over_training(exp_dirs=spec_nointoout_dirs_rate,exp_season='spring_rate'):
     # plot over the course of training with shaded error bars
     # plot the average weight within and between coherence tuning of recurrent layer units
     # make sure all axes are comparable
@@ -1699,11 +1699,6 @@ def tuned_rec_layer_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
             else:
                 ero_ii = np.vstack([ero_ii, ero_ii_])
 
-    print('shape of final ero_ii data: ')
-    print(np.shape(ero_ii))
-    print('shape of final coh0_ee data: ')
-    print(np.shape(coh0_ee))
-
     fig, ax = plt.subplots(nrows=4,ncols=1,figsize=(8,10))
 
     epochs = np.shape(coh0_ee)[1]
@@ -1788,8 +1783,8 @@ def tuned_rec_layer_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
         for tick in ax[j].get_yticklabels():
             tick.set_fontname("Ubuntu")
 
-    plt.suptitle('Recurrent Connectivity by Coherence Tuning',fontname='Ubuntu')
-    save_fname = spath+'/rec_weights_by_tuning_over_training.png'
+    plt.suptitle('Recurrent Connectivity by Coherence Tuning: Rate Trained',fontname='Ubuntu')
+    save_fname = spath+'/rec_weights_by_tuning_over_ratetraining.png'
     plt.subplots_adjust(hspace=0.8,wspace=0.8)
     plt.draw()
     plt.savefig(save_fname,dpi=300)
@@ -1797,7 +1792,7 @@ def tuned_rec_layer_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
     plt.clf()
     plt.close()
 
-    #return arrs = [coh0_ee,coh0_ei,coh0_ie,coh0_ii,coh1_ee,coh1_ei,coh1_ie,coh1_ii,het_ee,het_ei,het_ie,het_ii,ero_ee,ero_ei,ero_ie,ero_ii]
+    return [coh0_ee,coh0_ei,coh0_ie,coh0_ii,coh1_ee,coh1_ei,coh1_ie,coh1_ii,het_ee,het_ei,het_ie,het_ii,ero_ee,ero_ei,ero_ie,ero_ii]
 
     # COMPARE
 
