@@ -108,7 +108,7 @@ all_save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-
 
 # this is all a general sort of thing, once you do one (mostly figure out shading and dist comparisons) it'll come easily
 
-def dists_of_all_weights(dual_exp_dir=all_spring_dual_dirs,exp_season='spring'):
+def dists_of_all_weights(dual_exp_dir=spec_nointoout_dirs_task,exp_season='spring_task'):
     # aggregate over all experiments of this type
     # plot distributions in naive state
     # plot distributions in trained state
@@ -379,35 +379,35 @@ def dists_of_all_weights(dual_exp_dir=all_spring_dual_dirs,exp_season='spring'):
 
     # input layer
     end_idx = np.shape(all_w_in)[1]-1
-    ax[0].hist(all_w_in[:,0,:,:e_end][all_w_in[:,0,:,:e_end]!=0].flatten(),bins=30,alpha=0.4,color='slateblue',label='naive in to e')
-    ax[0].hist(all_w_in[:,end_idx,:,:e_end][all_w_in[:,end_idx,:,:e_end]!=0].flatten(),bins=30,alpha=0.8,color='slateblue',label='trained in to e')
+    ax[0].hist(all_w_in[:,0,:,:e_end][all_w_in[:,0,:,:e_end]!=0].flatten(),density=True,bins=30,alpha=0.4,color='slateblue',label='naive in to e')
+    ax[0].hist(all_w_in[:,end_idx,:,:e_end][all_w_in[:,end_idx,:,:e_end]!=0].flatten(),density=True,bins=30,alpha=0.8,color='slateblue',label='trained in to e')
 
-    ax[0].hist(all_w_in[:,0,:,e_end:][all_w_in[:,0,:,e_end:]!=0].flatten(),bins=30,alpha=0.4,color='orangered',label='naive in to i')
-    ax[0].hist(all_w_in[:,end_idx,:,e_end:][all_w_in[:,end_idx,:,e_end:]!=0].flatten(),bins=30,alpha=0.8,color='orangered',label='trained in to i')
+    ax[0].hist(all_w_in[:,0,:,e_end:][all_w_in[:,0,:,e_end:]!=0].flatten(),density=True,bins=30,alpha=0.4,color='orangered',label='naive in to i')
+    ax[0].hist(all_w_in[:,end_idx,:,e_end:][all_w_in[:,end_idx,:,e_end:]!=0].flatten(),density=True,bins=30,alpha=0.8,color='orangered',label='trained in to i')
 
     ax[0].set_title('input weights',fontname='Ubuntu')
 
     # output layer
-    ax[1].hist(all_w_out[:,0,:e_end,:][all_w_out[:,0,:e_end,:]!=0].flatten(),bins=30,alpha=0.4,color='slateblue',label='naive e to out')
-    ax[1].hist(all_w_out[:,end_idx,:e_end,:][all_w_out[:,end_idx,:e_end,:]!=0].flatten(),bins=30,alpha=0.8,color='slateblue',label='trained e to out')
+    ax[1].hist(all_w_out[:,0,:e_end,:][all_w_out[:,0,:e_end,:]!=0].flatten(),density=True,bins=30,alpha=0.4,color='slateblue',label='naive e to out')
+    ax[1].hist(all_w_out[:,end_idx,:e_end,:][all_w_out[:,end_idx,:e_end,:]!=0].flatten(),density=True,bins=30,alpha=0.8,color='slateblue',label='trained e to out')
 
-    ax[1].hist(all_w_out[:,0,e_end:,:][all_w_out[:,0,e_end:,:]!=0].flatten(),bins=30,alpha=0.4,color='orangered',label='naive i to out')
-    ax[1].hist(all_w_out[:,end_idx,e_end:,:][all_w_out[:,end_idx,e_end:,:]!=0].flatten(),bins=30,alpha=0.8,color='orangered',label='trained i to out')
+    ax[1].hist(all_w_out[:,0,e_end:,:][all_w_out[:,0,e_end:,:]!=0].flatten(),density=True,bins=30,alpha=0.4,color='orangered',label='naive i to out')
+    ax[1].hist(all_w_out[:,end_idx,e_end:,:][all_w_out[:,end_idx,e_end:,:]!=0].flatten(),density=True,bins=30,alpha=0.8,color='orangered',label='trained i to out')
 
     ax[1].set_title('output weights',fontname='Ubuntu')
 
     # recurrent layer e units
-    ax[2].hist(all_w_rec[:,0,:e_end,:e_end][all_w_rec[:,0,:e_end,:e_end]!=0].flatten(),bins=30,alpha=0.4,color='slateblue',label='naive e to e')
-    ax[2].hist(all_w_rec[:,end_idx,:e_end,:e_end][all_w_rec[:,end_idx,:e_end,:e_end]!=0].flatten(),bins=30,alpha=0.8,color='slateblue',label='trained e to e')
-    ax[2].hist(all_w_rec[:,0,:e_end,e_end:][all_w_rec[:,0,:e_end,e_end:]!=0].flatten(),bins=30,alpha=0.4,color='mediumseagreen',label='naive e to i')
-    ax[2].hist(all_w_rec[:,end_idx,:e_end,e_end:][all_w_rec[:,end_idx,:e_end,e_end:]!=0].flatten(),bins=30,alpha=0.8,color='mediumseagreen',label='trained e to i')
+    ax[2].hist(all_w_rec[:,0,:e_end,:e_end][all_w_rec[:,0,:e_end,:e_end]!=0].flatten(),density=True,bins=30,alpha=0.4,color='slateblue',label='naive e to e')
+    ax[2].hist(all_w_rec[:,end_idx,:e_end,:e_end][all_w_rec[:,end_idx,:e_end,:e_end]!=0].flatten(),density=True,bins=30,alpha=0.8,color='slateblue',label='trained e to e')
+    ax[2].hist(all_w_rec[:,0,:e_end,e_end:][all_w_rec[:,0,:e_end,e_end:]!=0].flatten(),density=True,bins=30,alpha=0.4,color='mediumseagreen',label='naive e to i')
+    ax[2].hist(all_w_rec[:,end_idx,:e_end,e_end:][all_w_rec[:,end_idx,:e_end,e_end:]!=0].flatten(),density=True,bins=30,alpha=0.8,color='mediumseagreen',label='trained e to i')
     ax[2].set_title('recurrent e weights',fontname='Ubuntu')
 
     # recurrent layer i units
-    ax[3].hist(all_w_rec[:,0,e_end:,:e_end][all_w_rec[:,0,e_end:,:e_end]!=0].flatten(),bins=30,alpha=0.4,color='darkorange',label='naive i to e')
-    ax[3].hist(all_w_rec[:,end_idx,e_end:,:e_end][all_w_rec[:,end_idx,e_end:,:e_end]!=0].flatten(),bins=30,alpha=0.8,color='darkorange',label='trained i to e')
-    ax[3].hist(all_w_rec[:,0,e_end:,e_end:][all_w_rec[:,0,e_end:,e_end:]!=0].flatten(),bins=30,alpha=0.4,color='orangered',label='naive i to i')
-    ax[3].hist(all_w_rec[:,end_idx,e_end:,e_end:][all_w_rec[:,end_idx,e_end:,e_end:]!=0].flatten(),bins=30,alpha=0.8,color='orangered',label='trained i to i')
+    ax[3].hist(all_w_rec[:,0,e_end:,:e_end][all_w_rec[:,0,e_end:,:e_end]!=0].flatten(),density=True,bins=30,alpha=0.4,color='darkorange',label='naive i to e')
+    ax[3].hist(all_w_rec[:,end_idx,e_end:,:e_end][all_w_rec[:,end_idx,e_end:,:e_end]!=0].flatten(),density=True,bins=30,alpha=0.8,color='darkorange',label='trained i to e')
+    ax[3].hist(all_w_rec[:,0,e_end:,e_end:][all_w_rec[:,0,e_end:,e_end:]!=0].flatten(),density=True,bins=30,alpha=0.4,color='orangered',label='naive i to i')
+    ax[3].hist(all_w_rec[:,end_idx,e_end:,e_end:][all_w_rec[:,end_idx,e_end:,e_end:]!=0].flatten(),density=True,bins=30,alpha=0.8,color='orangered',label='trained i to i')
 
     ax[3].set_title('recurrent i weights',fontname='Ubuntu')
 
@@ -814,7 +814,7 @@ def get_input_tuning_single_exp(xdir):
 
     return [coh0_idx,coh1_idx]
 
-def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,exp_season='spring'):
+def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_rate,exp_season='spring_rate'):
     # characterize the connectivity from the input layer to recurrent
     # plot over the course of training with shaded error bars
     # compare for rate- and dual-trained
@@ -879,6 +879,8 @@ def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,exp
             coh0_e_exp.append(np.mean(input_w[coh0_idx,:e_end]))
             coh0_i_exp.append(np.mean(input_w[coh0_idx,e_end:]))
 
+            # you may want to expand this and grab ALL of the weights
+
         if not "coh1_e" in locals():
             coh1_e = coh1_e_exp
         else:
@@ -909,12 +911,39 @@ def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,exp
         else:
             epoch_rate_loss = np.vstack([epoch_rate_loss, epoch_rate_loss_exp])
 
-    return [coh1_e,coh0_e,coh1_i,coh0_i]
+    """
+    # CHARACTERIZE AND COMPARE
+    # naive and trained means and stds
+    # order is avg coherence 1 tuned input to e, avg coherence 0 tuned input to e, avg coherence 1 tuned input to i, avg coherence 0 tuned input to i
+    naive_means = [np.mean(coh1_e[:,0],0), np.mean(coh0_e[:,0],0), np.mean(coh1_i[:,0],0), np.mean(coh0_i[:,0],0)]
+    naive_stds = [np.std(coh1_e[:,0],0), np.std(coh0_e[:,0],0), np.std(coh1_i[:,0],0), np.std(coh0_i[:,0],0)]
+
+    trained_means = [np.mean(coh1_e[:,100],0), np.mean(coh0_e[:,100],0), np.mean(coh1_i[:,100],0), np.mean(coh0_i[:,100],0)]
+    trained_stds = [np.std(coh1_e[:,100],0), np.std(coh0_e[:,100],0), np.std(coh1_i[:,100],0), np.std(coh0_i[:,100],0)]
+
+    # in naive state
+    # e recipients of 0 or 1 drive
+    [D,p] = scipy.stats.kstest(coh0_e[:,0],coh1_e[:,0])
+    # i recipients of 0 or 1 drive
+    [D,p] = scipy.stats.kstest(coh0_i[:,0],coh1_i[:,0])
+
+    # in trained state
+    # e recipients of 0 or 1 drive
+    [D,p] = scipy.stats.kstest(coh0_e[:,100],coh1_e[:,100])
+    # i recipients of 0 or 1 drive
+    [D,p] = scipy.stats.kstest(coh0_i[:,100],coh1_i[:,100])
+
+    # ratios
+    np.mean(coh0_e[:,0])/np.mean(coh0_i[:,0])
+    np.mean(coh1_e[:,0])/np.mean(coh1_i[:,0])
+
+    np.mean(coh0_e[:,100])/np.mean(coh0_i[:,100])
+    np.mean(coh1_e[:,100])/np.mean(coh1_i[:,100])
+
+    """
 
     fig, ax = plt.subplots(nrows=3, ncols=1)
 
-    print('shape of coh1_e (coherence 1 tuned input channels to recurrent excitatory units): ')
-    print(np.shape(coh1_e))
     coh1_e_mean = np.mean(coh1_e,0)
     coh1_e_std = np.std(coh1_e,0)
     coh0_e_mean = np.mean(coh0_e,0)
@@ -964,15 +993,17 @@ def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,exp
         for tick in ax[j].get_yticklabels():
             tick.set_fontname("Ubuntu")
 
-    plt.suptitle('Evolution of input weights over training',fontname='Ubuntu')
+    plt.suptitle('Evolution of input weights over rate-training',fontname='Ubuntu')
     plt.subplots_adjust(wspace=1.0, hspace=1.0)
     plt.draw()
 
-    save_fname = spath+'/corrected_inputs_to_ei_test.png'
+    save_fname = spath+'/corrected_inputs_to_ei_rate.png'
     plt.savefig(save_fname,dpi=300)
     # Teardown
     plt.clf()
     plt.close()
+
+    return [coh1_e,coh0_e,coh1_i,coh0_i]
 
     """
         for filename in data_files:
