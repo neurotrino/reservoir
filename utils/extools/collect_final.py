@@ -721,6 +721,33 @@ def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plo
     # KS TEST COMPARISONS NOW
     return [coh0_channel_trial_rates,coh1_channel_trial_rates]
 
+    """
+    # compare for within each of 16 channels
+    Ds = []
+    ps = []
+    for i in range(0,np.shape(coh0_channel_trial_rates)[1]):
+...     [D,p]=scipy.stats.kstest(coh0_channel_trial_rates[:,i],coh1_channel_trial_rates[:,i])
+...     Ds.append(D)
+...     ps.append(p)
+
+    # for all together
+    [D,p] = scipy.stats.kstest(coh0_channel_trial_rates.flatten(),coh1_channel_trial_rates.flatten())
+
+    # for within coherence tunings
+    [D,p] = scipy.stats.kstest(coh0_channel_trial_rates[:,coh0_channels].flatten(),coh1_channel_trial_rates[:,coh0_channels].flatten())
+    # For the group that are considered tuned altogether to 1, rates to coherence 0 vs 1
+    [D,p] = scipy.stats.kstest(coh0_channel_trial_rates[:,coh1_channels].flatten(),coh1_channel_trial_rates[:,coh1_channels].flatten())
+
+    np.mean(coh0_channel_trial_rates[:,coh1_channels])
+    np.mean(coh1_channel_trial_rates[:,coh1_channels])
+    np.mean(coh0_channel_trial_rates[:,coh0_channels])
+    np.mean(coh1_channel_trial_rates[:,coh0_channels])
+    np.std(coh0_channel_trial_rates[:,coh1_channels])
+    np.std(coh1_channel_trial_rates[:,coh1_channels])
+    np.std(coh0_channel_trial_rates[:,coh0_channels])
+    np.std(coh1_channel_trial_rates[:,coh0_channels])
+"""
+
 
 def get_input_tuning_from_CNN():
     spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
@@ -881,6 +908,8 @@ def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,exp
             epoch_rate_loss = epoch_rate_loss_exp
         else:
             epoch_rate_loss = np.vstack([epoch_rate_loss, epoch_rate_loss_exp])
+
+    return [coh1_e,coh0_e,coh1_i,coh0_i]
 
     fig, ax = plt.subplots(nrows=3, ncols=1)
 
@@ -1737,9 +1766,55 @@ def tuned_rec_layer_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
     plt.clf()
     plt.close()
 
-    return [coh0_ee,coh0_ei,coh0_ie,coh0_ii,coh1_ee,coh1_ei,coh1_ie,coh1_ii,het_ee,het_ei,het_ie,het_ii,ero_ee,ero_ei,ero_ie,ero_ii]
+    return arrs = [coh0_ee,coh0_ei,coh0_ie,coh0_ii,coh1_ee,coh1_ei,coh1_ie,coh1_ii,het_ee,het_ei,het_ie,het_ii,ero_ee,ero_ei,ero_ie,ero_ii]
 
     # COMPARE
+
+    """
+    naive_means = []
+    naive_stds = []
+    trained_means = []
+    trained_stds = []
+    for arr in arrs:
+        naive_means.append(np.mean(arr[:,0]))
+        naive_stds.append(np.std(arr[:,0]))
+        trained_means.append(np.mean(arr[:,99]))
+        trained_stds.append(np.std(arr[:,99]))
+
+    # now look at just trained
+    within_coh = [coh0_ee,coh0_ei,coh0_ie,coh0_ii,coh1_ee,coh1_ei,coh1_ie,coh1_ii]
+    between_coh = [het_ee,het_ei,het_ie,het_ii,ero_ee,ero_ei,ero_ie,ero_ii]
+    within_Ds = []
+    within_ps = []
+    btwn_Ds = []
+    btwn_ps = []
+    for i in range(0,len(within_coh)/2):
+        [D,p] = scipy.stats.kstest(within_coh[i][:,99],within_coh[i+4][:,99])
+        within_Ds.append(D)
+        within_ps.append(p)
+        [D,p] = scipy.stats.kstest(between_coh[i][:,99],between_coh[i+4][:,99])
+        btwn_Ds.append(D)
+        btwn_ps.append(p)
+
+    within_ii = np.hstack([coh0_ii[:,99],coh1_ii[:,99]])
+    within_ie = np.hstack([coh0_ie[:,99],coh1_ie[:,99]])
+    btwn_ii = np.hstack([het_ii[:,99],ero_ii[:,99]])
+    btwn_ie = np.hstack([het_ie[:,99],ero_ie[:,99]])
+
+    [D,p] = scipy.stats.kstest(within_ii,btwn_ii)
+    [D,p] = scipy.stats.kstest(within_ii,within_ie)
+    [D,p] = scipy.stats.kstest(within_ie,btwn_ie)
+    [D,p] = scipy.stats.kstest(btwn_ii,btwn_ie)
+
+    # quantify with naive vs trained ratios
+    # within coherence i / between coherence i trained
+    np.mean([het_ii[:,99],ero_ii[:,99],het_ie[:,99],ero_ie[:,99]])/np.mean([coh0_ii[:,99],coh0_ii[:,99],coh1_ie[:,99],coh1_ie[:,99]])
+    #1.904
+    # within coherence i / between coherence i trained
+    np.mean([het_ii[:,0],ero_ii[:,0],het_ie[:,0],ero_ie[:,0]])/np.mean([coh0_ii[:,0],coh0_ii[:,0],coh1_ie[:,0],coh1_ie[:,0]])
+    #1.196
+
+    """
 
 
 """
