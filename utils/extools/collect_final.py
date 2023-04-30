@@ -1766,7 +1766,7 @@ def tuned_rec_layer_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
     plt.clf()
     plt.close()
 
-    return arrs = [coh0_ee,coh0_ei,coh0_ie,coh0_ii,coh1_ee,coh1_ei,coh1_ie,coh1_ii,het_ee,het_ei,het_ie,het_ii,ero_ee,ero_ei,ero_ie,ero_ii]
+    #return arrs = [coh0_ee,coh0_ei,coh0_ie,coh0_ii,coh1_ee,coh1_ei,coh1_ie,coh1_ii,het_ee,het_ei,het_ie,het_ii,ero_ee,ero_ei,ero_ie,ero_ii]
 
     # COMPARE
 
