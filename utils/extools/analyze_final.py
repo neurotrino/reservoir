@@ -157,7 +157,7 @@ def plot_all_weight_dists(exp_dirs=save_inz_dirs,exp_season='spring'): # just fo
     sns.kdeplot(in_i_trained[in_i_trained!=0],color='darkorange',label='to i',ax=ax[1])
     ax[1].set_title('trained input',fontname='Ubuntu')
     plt.suptitle('Input Layer Weights',fontname='Ubuntu')
-    plt.subplots_adjust(wspace=0.4, hspace=0.5)
+    plt.subplots_adjust(wspace=0.7, hspace=0.5)
     # go through and set all axes
     ax = ax.flatten()
     for i in range(0,len(ax)):
@@ -190,7 +190,7 @@ def plot_all_weight_dists(exp_dirs=save_inz_dirs,exp_season='spring'): # just fo
     sns.kdeplot(out_i_trained[out_i_trained!=0],color='darkorange',label='from i',ax=ax[1])
     ax[1].set_title('trained output',fontname='Ubuntu')
     plt.suptitle('Output Layer Weights',fontname='Ubuntu')
-    plt.subplots_adjust(wspace=0.4, hspace=0.5)
+    plt.subplots_adjust(wspace=0.7, hspace=0.5)
     plt.legend()
     # go through and set all axes
     ax = ax.flatten()
@@ -235,7 +235,7 @@ def plot_all_weight_dists(exp_dirs=save_inz_dirs,exp_season='spring'): # just fo
     ax[1].set_title('trained recurrent',fontname='Ubuntu')
 
     plt.suptitle('Main Recurrent Layer Weights',fontname='Ubuntu')
-    plt.subplots_adjust(wspace=0.4, hspace=0.5)
+    plt.subplots_adjust(wspace=0.7, hspace=0.5)
     plt.legend()
     # go through and set all axes
     ax = ax.flatten()
