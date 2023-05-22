@@ -117,13 +117,19 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
         np_dir = os.path.join(data_dir, xdir, "npz-data")
 
         # collect the truly naive weights
-        in_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","input_preweights.npy")))
+        if 'inputx5' in xdir:
+            in_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","input_preweights.npy")))
+        else:
+            in_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","input_preweights.npy"))*5)
         rec_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","main_preweights.npy")))
         out_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","output_preweights.npy")))
 
         # collect trained weights
         trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
-        in_trained.append(trained_data['tv0.postweights'][99])
+        if 'inputx5' in xdir:
+            in_trained.append(trained_data['tv0.postweights'][99])
+        else:
+            in_trained.append(trained_data['tv0.postweights'][99]*5)
         rec_trained.append(trained_data['tv1.postweights'][99])
         out_trained.append(trained_data['tv2.postweights'][99])
 
@@ -134,7 +140,6 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     rec_trained = np.array(rec_trained)
     out_naive = np.array(out_naive)
     out_trained = np.array(out_trained)
-
 
     # PLOT NONZERO INPUT WEIGHTS
     fig, ax = plt.subplots(nrows=2,ncols=1)
@@ -155,7 +160,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     for i in range(0,len(ax)):
         ax[i].set_facecolor('white')
         ax[i].legend(prop={"family":"Ubuntu"})
-        #ax[i].xlim(-min,max)
+        ax[i].xlim(-0.5,4.5)
         for tick in ax[i].get_xticklabels():
             tick.set_fontname("Ubuntu")
         for tick in ax[i].get_yticklabels():
@@ -189,7 +194,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     for i in range(0,len(ax)):
         ax[i].set_facecolor('white')
         ax[i].legend(prop={"family":"Ubuntu"})
-        #ax[i].xlim(-min,max)
+        ax[i].xlim(-2.0,0.5)
         for tick in ax[i].get_xticklabels():
             tick.set_fontname("Ubuntu")
         for tick in ax[i].get_yticklabels():
@@ -202,7 +207,6 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     # Teardown
     plt.clf()
     plt.close()
-
 
     # plot RECURRENT ee, ei, ie and ii separately, and only nonzero weight values
     fig, ax = plt.subplots(nrows=2,ncols=1)
@@ -235,7 +239,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     for i in range(0,len(ax)):
         ax[i].set_facecolor('white')
         ax[i].legend(prop={"family":"Ubuntu"})
-        #ax[i].xlim(-min,max)
+        ax[i].xlim(-40,10)
         for tick in ax[i].get_xticklabels():
             tick.set_fontname("Ubuntu")
         for tick in ax[i].get_yticklabels():
