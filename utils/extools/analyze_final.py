@@ -145,7 +145,7 @@ def plot_all_weight_dists(exp_dirs=save_inz_dirs,exp_season='spring'): # just fo
     out_trained = np.array(out_trained)
 
     # PLOT NONZERO INPUT WEIGHTS
-    fig, ax = plt.subplots(nrows=2,ncols=1,figsize=(5,5))
+    fig, ax = plt.subplots(nrows=2,ncols=1,figsize=(4,5))
     in_e_naive = in_naive[:,:,:e_end].flatten()
     in_i_naive = in_naive[:,:,e_end:].flatten()
     in_e_trained = in_trained[:,:,:e_end].flatten()
@@ -178,7 +178,7 @@ def plot_all_weight_dists(exp_dirs=save_inz_dirs,exp_season='spring'): # just fo
     plt.close()
 
     # PLOT NONZERO OUTPUT WEIGHTS
-    fig, ax = plt.subplots(nrows=2,ncols=1,figsize=(5,5))
+    fig, ax = plt.subplots(nrows=2,ncols=1,figsize=(4,5))
     out_e_naive = out_naive[:,:e_end].flatten()
     out_i_naive = out_naive[:,e_end:].flatten()
     out_e_trained = out_trained[:,:e_end].flatten()
@@ -212,7 +212,7 @@ def plot_all_weight_dists(exp_dirs=save_inz_dirs,exp_season='spring'): # just fo
     plt.close()
 
     # plot RECURRENT ee, ei, ie and ii separately, and only nonzero weight values
-    fig, ax = plt.subplots(nrows=2,ncols=1,figsize=(5,5))
+    fig, ax = plt.subplots(nrows=2,ncols=1,figsize=(4,5))
     rec_naive_ee = rec_naive[:,:e_end,:e_end].flatten()
     rec_naive_ei = rec_naive[:,:e_end,e_end:].flatten()
     rec_naive_ie = rec_naive[:,e_end:,:e_end].flatten()
