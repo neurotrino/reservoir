@@ -142,17 +142,18 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     in_i_naive = in_naive[:,:,e_end:].flatten()
     in_e_trained = in_trained[:,:,:e_end].flatten()
     in_i_trained = in_trained[:,:,e_end:].flatten()
-    sns.displot(in_e_naive[in_e_naive!=0],kind='kde',color='dodgerblue',label='to e',ax=ax[0])
-    sns.displot(in_i_naive[in_i_naive!=0],kind='kde',color='orangered',label='to i',ax=ax[0])
+    sns.kdeplot(in_e_naive[in_e_naive!=0],color='dodgerblue',label='to e',ax=ax[0])
+    sns.kdeplot(in_i_naive[in_i_naive!=0],color='orangered',label='to i',ax=ax[0])
     ax[0].set_title('naive input',fontname='Ubuntu')
-    sns.displot(in_e_trained[in_e_trained>0],kind='kde',color='dodgerblue',label='to e',ax=ax[1])
-    sns.displot(in_i_trained[in_i_trained!=0],kind='kde',color='orangered',label='to i',ax=ax[1])
+    sns.kdeplot(in_e_trained[in_e_trained>0],color='dodgerblue',label='to e',ax=ax[1])
+    sns.kdeplot(in_i_trained[in_i_trained!=0],color='orangered',label='to i',ax=ax[1])
     ax[1].set_title('trained input',fontname='Ubuntu')
     plt.suptitle('Input Layer Weights',fontname='Ubuntu')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
     # go through and set all axes
     ax = ax.flatten()
     for i in range(0,len(ax)):
+        ax[i].set_facecolor('white')
         ax[i].legend(prop={"family":"Ubuntu"})
         #ax[i].xlim(-min,max)
         for tick in ax[i].get_xticklabels():
@@ -174,11 +175,11 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     out_i_naive = out_naive[:,e_end:].flatten()
     out_e_trained = out_trained[:,:e_end].flatten()
     out_i_trained = out_trained[:,e_end:].flatten()
-    sns.displot(out_e_naive[out_e_naive!=0],kind='kde',color='dodgerblue',label='from e',ax=ax[0])
-    sns.displot(out_i_naive[out_i_naive!=0],kind='kde',color='orangered',label='from i',ax=ax[0])
+    sns.kdeplot(out_e_naive[out_e_naive!=0],color='dodgerblue',label='from e',ax=ax[0])
+    sns.kdeplot(out_i_naive[out_i_naive!=0],color='orangered',label='from i',ax=ax[0])
     ax[0].set_title('naive output',fontname='Ubuntu')
-    sns.displot(out_e_trained[out_e_trained!=0],kind='kde',color='dodgerblue',label='from e',ax=ax[1])
-    sns.displot(out_i_trained[out_i_trained!=0],kind='kde',color='orangered',label='from i',ax=ax[1])
+    sns.kdeplot(out_e_trained[out_e_trained!=0],color='dodgerblue',label='from e',ax=ax[1])
+    sns.kdeplot(out_i_trained[out_i_trained!=0],color='orangered',label='from i',ax=ax[1])
     ax[1].set_title('trained output',fontname='Ubuntu')
     plt.suptitle('Output Layer Weights',fontname='Ubuntu')
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
@@ -186,6 +187,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     # go through and set all axes
     ax = ax.flatten()
     for i in range(0,len(ax)):
+        ax[i].set_facecolor('white')
         ax[i].legend(prop={"family":"Ubuntu"})
         #ax[i].xlim(-min,max)
         for tick in ax[i].get_xticklabels():
@@ -213,16 +215,16 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     rec_trained_ie = rec_trained[:,e_end:,:e_end].flatten()
     rec_trained_ii = rec_trained[:,e_end:,e_end:].flatten()
 
-    sns.displot(rec_naive_ee[rec_naive_ee!=0],kind='kde',color='dodgerblue',label='ee',ax=ax[0])
-    sns.displot(rec_naive_ei[rec_naive_ei!=0],kind='kde',color='seagreen',label='ei',ax=ax[0])
-    sns.displot(rec_naive_ie[rec_naive_ie!=0],kind='kde',color='darkorange',label='ie',ax=ax[0])
-    sns.displot(rec_naive_ii[rec_naive_ii!=0],kind='kde',color='orangered',label='ii',ax=ax[0])
+    sns.kdeplot(rec_naive_ee[rec_naive_ee!=0],color='dodgerblue',label='ee',ax=ax[0])
+    sns.kdeplot(rec_naive_ei[rec_naive_ei!=0],color='seagreen',label='ei',ax=ax[0])
+    sns.kdeplot(rec_naive_ie[rec_naive_ie!=0],color='darkorange',label='ie',ax=ax[0])
+    sns.kdeplot(rec_naive_ii[rec_naive_ii!=0],color='orangered',label='ii',ax=ax[0])
     ax[0].set_title('naive recurrent',fontname='Ubuntu')
 
-    sns.displot(rec_trained_ee[rec_trained_ee!=0],kind='kde',color='dodgerblue',label='ee',ax=ax[1])
-    sns.displot(rec_trained_ei[rec_trained_ei!=0],kind='kde',color='seagreen',label='ei',ax=ax[1])
-    sns.displot(rec_trained_ie[rec_trained_ie!=0],kind='kde',color='darkorange',label='ie',ax=ax[1])
-    sns.displot(rec_trained_ii[rec_trained_ii!=0],kind='kde',color='orangered',label='ii',ax=ax[1])
+    sns.kdeplot(rec_trained_ee[rec_trained_ee!=0],color='dodgerblue',label='ee',ax=ax[1])
+    sns.kdeplot(rec_trained_ei[rec_trained_ei!=0],color='seagreen',label='ei',ax=ax[1])
+    sns.kdeplot(rec_trained_ie[rec_trained_ie!=0],color='darkorange',label='ie',ax=ax[1])
+    sns.kdeplot(rec_trained_ii[rec_trained_ii!=0],color='orangered',label='ii',ax=ax[1])
     ax[1].set_title('trained recurrent',fontname='Ubuntu')
 
     plt.suptitle('Main Recurrent Layer Weights',fontname='Ubuntu')
@@ -231,6 +233,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     # go through and set all axes
     ax = ax.flatten()
     for i in range(0,len(ax)):
+        ax[i].set_facecolor('white')
         ax[i].legend(prop={"family":"Ubuntu"})
         #ax[i].xlim(-min,max)
         for tick in ax[i].get_xticklabels():
