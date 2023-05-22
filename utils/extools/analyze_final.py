@@ -114,32 +114,33 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     out_naive = []
     out_trained = []
     for xdir in exp_data_dirs:
-        np_dir = os.path.join(data_dir, xdir, "npz-data")
-
-        # collect the truly naive weights
         if 'inputx5' in xdir:
-            in_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","input_preweights.npy")))
-        else:
-            in_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","input_preweights.npy"))*5)
-        rec_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","main_preweights.npy")))
-        out_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","output_preweights.npy")))
+            np_dir = os.path.join(data_dir, xdir, "npz-data")
 
-        # collect trained weights
-        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
-        if 'inputx5' in xdir:
-            in_trained.append(trained_data['tv0.postweights'][99])
-        else:
-            in_trained.append(trained_data['tv0.postweights'][99]*5)
-        rec_trained.append(trained_data['tv1.postweights'][99])
-        out_trained.append(trained_data['tv2.postweights'][99])
+            # collect the truly naive weights
+            if 'inputx5' in xdir:
+                in_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","input_preweights.npy")))
+            else:
+                in_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","input_preweights.npy"))*5)
+            rec_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","main_preweights.npy")))
+            out_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","output_preweights.npy")))
+
+            # collect trained weights
+            trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+            if 'inputx5' in xdir:
+                in_trained.append(trained_data['tv0.postweights'][99])
+            else:
+                in_trained.append(trained_data['tv0.postweights'][99]*5)
+            rec_trained.append(trained_data['tv1.postweights'][99])
+            out_trained.append(trained_data['tv2.postweights'][99])
 
     # convert to numpy arrays
     in_naive = np.array(in_naive)
     in_trained = np.array(in_trained)
     rec_naive = np.array(rec_naive)
     rec_trained = np.array(rec_trained)
-    # need to make smaller in order to plot
-    rec_trained = np.around(rec_trained,decimals=1)
+    # maybe need to make less precise in order to plot
+    #rec_trained = np.around(rec_trained,decimals=1)
     out_naive = np.array(out_naive)
     out_trained = np.array(out_trained)
 
