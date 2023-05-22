@@ -940,6 +940,9 @@ def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_task
     np.mean(coh0_e[:,100])/np.mean(coh0_i[:,100])
     np.mean(coh1_e[:,100])/np.mean(coh1_i[:,100])
 
+    # THIS IS WHAT IS ACTUALLY IN PLOTS: 
+    np.mean(coh0_e[:,0])/np.mean(coh1_e[:,0])
+
     """
 
     fig, ax = plt.subplots(nrows=3, ncols=1)
@@ -1835,10 +1838,12 @@ def tuned_rec_layer_over_training(exp_dirs=spec_nointoout_dirs_rate,exp_season='
     # quantify with naive vs trained ratios
     # within coherence i / between coherence i trained
     np.mean([het_ii[:,99],ero_ii[:,99],het_ie[:,99],ero_ie[:,99]])/np.mean([coh0_ii[:,99],coh0_ii[:,99],coh1_ie[:,99],coh1_ie[:,99]])
-    #1.904
-    # within coherence i / between coherence i trained
+    #1.904 dual trained
+    #1.005921052631579 rate trained
+    # within coherence i / between coherence i naive
     np.mean([het_ii[:,0],ero_ii[:,0],het_ie[:,0],ero_ie[:,0]])/np.mean([coh0_ii[:,0],coh0_ii[:,0],coh1_ie[:,0],coh1_ie[:,0]])
-    #1.196
+    #1.196 dual trained
+    #1.0576923076923077 rate trained
 
     """
 
