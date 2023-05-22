@@ -160,7 +160,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     for i in range(0,len(ax)):
         ax[i].set_facecolor('white')
         ax[i].legend(prop={"family":"Ubuntu"})
-        ax[i].xlim(-0.5,4.5)
+        ax[i].set_xlim(-0.5,4.5)
         for tick in ax[i].get_xticklabels():
             tick.set_fontname("Ubuntu")
         for tick in ax[i].get_yticklabels():
@@ -194,7 +194,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     for i in range(0,len(ax)):
         ax[i].set_facecolor('white')
         ax[i].legend(prop={"family":"Ubuntu"})
-        ax[i].xlim(-2.0,0.5)
+        ax[i].set_xlim(-2.0,0.5)
         for tick in ax[i].get_xticklabels():
             tick.set_fontname("Ubuntu")
         for tick in ax[i].get_yticklabels():
@@ -239,7 +239,7 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     for i in range(0,len(ax)):
         ax[i].set_facecolor('white')
         ax[i].legend(prop={"family":"Ubuntu"})
-        ax[i].xlim(-40,10)
+        ax[i].set_xlim(-40,10)
         for tick in ax[i].get_xticklabels():
             tick.set_fontname("Ubuntu")
         for tick in ax[i].get_yticklabels():
