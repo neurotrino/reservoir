@@ -212,7 +212,7 @@ def plot_all_weight_dists(exp_dirs=save_inz_dirs,exp_season='spring'): # just fo
     plt.close()
 
     # plot RECURRENT ee, ei, ie and ii separately, and only nonzero weight values
-    fig, ax = plt.subplots(nrows=2,ncols=1,figsize=(4.4,5))
+    fig, ax = plt.subplots(nrows=2,ncols=1,figsize=(4.4,6))
     rec_naive_ee = rec_naive[:,:e_end,:e_end].flatten()
     rec_naive_ei = rec_naive[:,:e_end,e_end:].flatten()
     rec_naive_ie = rec_naive[:,e_end:,:e_end].flatten()
