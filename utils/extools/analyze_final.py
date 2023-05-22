@@ -217,9 +217,9 @@ def plot_all_weight_dists(exp_dirs=save_inz_dirs,exp_season='spring'): # just fo
     rec_naive_ei = rec_naive[:,:e_end,e_end:].flatten()
     rec_naive_ie = rec_naive[:,e_end:,:e_end].flatten()
     rec_naive_ii = rec_naive[:,e_end:,e_end:].flatten()
-    rec_trained_ee = rec_trained[:,:e_end,:e_end].flatten()
+    rec_trained_ee = rec_trained[:9,:e_end,:e_end].flatten()
     rec_trained_ei = rec_trained[:,:e_end,e_end:].flatten()
-    rec_trained_ie = rec_trained[:,e_end:,:e_end].flatten()
+    rec_trained_ie = rec_trained[:10,e_end:,:e_end].flatten()
     rec_trained_ii = rec_trained[:,e_end:,e_end:].flatten()
 
     sns.kdeplot(rec_naive_ee[rec_naive_ee>0],color='slateblue',label='ee',ax=ax[0])
