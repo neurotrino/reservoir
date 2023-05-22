@@ -138,6 +138,8 @@ def plot_all_weight_dists(exp_dirs=spec_nointoout_dirs,exp_season='spring'): # j
     in_trained = np.array(in_trained)
     rec_naive = np.array(rec_naive)
     rec_trained = np.array(rec_trained)
+    # need to make smaller in order to plot
+    rec_trained = np.around(rec_trained,decimals=1)
     out_naive = np.array(out_naive)
     out_trained = np.array(out_trained)
 
