@@ -595,6 +595,103 @@ def all_losses_over_training(exp_dir=spec_nointoout_dirs,exp_season='spring'):
 # ONE PER HOUR, SUPER DOABLE
 
 
+def rates_over_training(exp_dirs=all_save_inz_dirs,exp_season='spring'):
+
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    if not os.path.isdir(spath):
+        os.makedirs(spath)
+
+    rec_0_e_rates = []
+    rec_0_i_rates = []
+    rec_1_i_rates = []
+    rec_0_i_rates = []
+
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        coh0_exp_rates = []
+        coh1_exp_rates = []
+        # eventually sized 100 x units
+
+        # rates over time
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            # too much to do anything more than the first (0th) batch in each file
+            spikes = data['spikes'][0]
+            # shaped [100 batches x 30 trials x 4080 timesteps x 300 units]
+            true_y = data['true_y'][0] # shaped [100 batches x 30 trials x 4080 timesteps]
+            for i in range(0,np.shape(true_y)[0]): # for each of 30 trials
+                coh0_idx = np.where(true_y[i]==0)[0]
+                coh1_idx = np.where(true_y[i]==1)[0]
+                if len(coh0_idx)>0:
+                    if not 'coh0_trial_rates' in locals():
+                        coh0_trial_rates = np.average(spikes[i][coh0_idx],0) # average across time, not units (yet)
+                    else:
+                        coh0_trial_rates = np.vstack([coh0_trial_rates,np.average(spikes[i][coh0_idx],0)]) # stack trials, mean across 4080 timesteps, but preserve units
+
+                if len(coh1_idx)>0:
+                    if not 'coh1_trial_rates' in locals():
+                        coh1_trial_rates = np.average(spikes[i][coh1_idx],0)
+                    else:
+                        coh1_trial_rates = np.vstack([coh1_trial_rates,np.average(spikes[i][coh1_idx],0)])
+
+            # average across coherence level trials in this file
+            coh0_exp_rates.append(np.mean(coh0_trial_rates,0)) # mean across trials, but preserve units; single vector of 300 per file (100 files)
+            coh1_exp_rates.append(np.mean(coh1_trial_rates,0))
+
+        rec_0_e_rates.append(coh0_exp_rates[:,:e_end])
+        rec_0_i_rates.append(coh0_exp_rates[:,e_end:])
+        rec_1_e_rates.append(coh1_exp_rates[:,:e_end])
+        rec_1_i_rates.append(coh1_exp_rates[:,e_end:])
+
+    return [rec_0_e_rates,rec_0_i_rates,rec_1_e_rates,rec_1_i_rates]
+
+    # plot rates over time
+    epochs=np.arange(0,np.shape(rec_0_e_rates)[1])
+    ax[0].plot(epochs,np.mean(rec_0_e_rates,(0,2)),label='e units',color='dodgerblue')
+    ax[0].fill_between(epochs,np.mean(rec_0_e_rates,(0,2))-np.std(rec_0_e_rates,(0,2)),np.mean(rec_0_e_rates,(0,2))+np.std(rec_0_e_rates,(0,2)),facecolor='slateblue',alpha=0.4)
+    ax[0].plot(epochs,np.mean(rec_0_i_rates,(0,2)),label='i units',color='darkorange')
+    ax[0].fill_between(epochs,np.mean(rec_0_i_rates,(0,2))-np.std(rec_0_i_rates,(0,2)),np.mean(rec_0_i_rates,(0,2))+np.std(rec_0_i_rates,(0,2)),facecolor='orangered',alpha=0.4)
+    ax[0].set_title('coherence 0 trials',fontname='Ubuntu')
+
+    ax[1].plot(epochs,np.mean(rec_1_e_rates,(0,2)),label='e units',color='dodgerblue')
+    ax[1].fill_between(epochs,np.mean(rec_1_e_rates,(0,2))-np.std(rec_1_e_rates,(0,2)),np.mean(rec_1_e_rates,(0,2))+np.std(rec_1_e_rates,(0,2)),facecolor='slateblue',alpha=0.4)
+    ax[1].plot(epochs,np.mean(rec_1_i_rates,(0,2)),label='i units',color='darkorange')
+    ax[1].fill_between(epochs,np.mean(rec_1_i_rates,(0,2))-np.std(rec_1_i_rates,(0,2)),np.mean(rec_1_i_rates,(0,2))+np.std(rec_1_i_rates,(0,2)),facecolor='orangered',alpha=0.4)
+    ax[1].set_title('coherence 1 trials',fontname='Ubuntu')
+
+    for j in range(0,len(ax)):
+        ax[j].set_ylabel('average rate',fontname='Ubuntu')
+        ax[j].set_xlabel('training epoch',fontname='Ubuntu')
+        ax[j].legend(prop={"family":"Ubuntu"})
+        for tick in ax[j].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[j].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+
+    plt.suptitle('Evolution of rates over training',fontname='Ubuntu')
+    plt.subplots_adjust(wspace=0.9, hspace=0.9)
+    plt.draw()
+
+    save_fname = spath+'/rates_over_training.png'
+    plt.savefig(save_fname,dpi=300)
+    # Teardown
+    plt.clf()
+    plt.close()
+
+
+def losses_over_training():
+
+
+
 def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring'):
     # check if folder exists, otherwise create it for saving files
     spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
