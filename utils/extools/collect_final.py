@@ -691,7 +691,7 @@ def rates_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
     plt.close()
 
 
-def losses_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+def losses_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
             exp_data_dirs = get_experiments(data_dir, exp_string)
@@ -743,11 +743,12 @@ def losses_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
             tick.set_fontname("Ubuntu")
         for tick in ax[j].get_yticklabels():
             tick.set_fontname("Ubuntu")
-    plt.suptitle('Evolution of loss over training',fontname='Ubuntu')
+    plt.suptitle('Evolution of loss over task-and-rate training',fontname='Ubuntu')
     plt.draw()
 
     save_fname = spath+'/losses_over_training.png'
     plt.savefig(save_fname,dpi=300)
+    plt.subplots_adjust(wspace=0.7, hspace=0.5)
     # Teardown
     plt.clf()
     plt.close()
