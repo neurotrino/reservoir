@@ -730,8 +730,8 @@ def losses_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
     epochs=np.arange(0,100)
     #ax[0].plot(epochs,task_loss,label='task loss',color='teal')
     #ax[0].plot(epochs,rate_loss,label='rate loss',color='blueviolet')
-    ax[0].plot(epochs,np.mean(task_losses,0),label='task loss',color='teal')
-    ax[0].fill_between(epochs,np.mean(task_losses,0)-np.std(task_losses,0),np.mean(task_losses,0)+np.std(task_losses,0),facecolor='mediumturquoise',alpha=0.4)
+    ax[0].plot(epochs,np.mean(task_losses,0),label='task loss',color='crimson')
+    ax[0].fill_between(epochs,np.mean(task_losses,0)-np.std(task_losses,0),np.mean(task_losses,0)+np.std(task_losses,0),facecolor='tomato',alpha=0.4)
     ax[0].plot(epochs,np.mean(rate_losses,0),label='rate loss',color='blueviolet')
     ax[0].fill_between(epochs,np.mean(rate_losses,0)-np.std(rate_losses,0),np.mean(rate_losses,0)+np.std(rate_losses,0),facecolor='mediumslateblue',alpha=0.4)
 
@@ -744,7 +744,7 @@ def losses_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
         for tick in ax[j].get_yticklabels():
             tick.set_fontname("Ubuntu")
     plt.suptitle('Evolution of loss over task-and-rate training',fontname='Ubuntu')
-    plt.subplots_adjust(wspace=0.7, hspace=0.7)
+    plt.subplots_adjust(wspace=0.7, hspace=0.5)
     plt.draw()
 
     save_fname = spath+'/losses_over_training.png'
