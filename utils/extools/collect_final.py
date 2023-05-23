@@ -706,33 +706,34 @@ def losses_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
         exp_path = xdir[-9:-1]
+        if exp_path!='06.03.22': # do not include that one awful experiment
 
-        task_loss = []
-        rate_loss = []
+            task_loss = []
+            rate_loss = []
 
-        for filename in data_files:
-            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
-            data = np.load(filepath)
-            # take mean why not
-            rate_loss.append(np.mean(data['step_rate_loss']))
-            task_loss.append(np.mean(data['step_task_loss']))
+            for filename in data_files:
+                filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+                data = np.load(filepath)
+                # take mean why not
+                rate_loss.append(np.mean(data['step_rate_loss']))
+                task_loss.append(np.mean(data['step_task_loss']))
 
-        # concat losses together
-        if not 'rate_losses' in locals():
-            rate_losses = rate_loss
-            task_losses = task_loss
-        else:
-            rate_losses = np.vstack([rate_losses,rate_loss])
-            task_losses = np.vstack([task_losses,task_loss])
+            # concat losses together
+            if not 'rate_losses' in locals():
+                rate_losses = rate_loss
+                task_losses = task_loss
+            else:
+                rate_losses = np.vstack([rate_losses,rate_loss])
+                task_losses = np.vstack([task_losses,task_loss])
 
         fig, ax = plt.subplots(nrows=2, ncols=1)
         epochs=np.arange(0,100)
-        ax[0].plot(epochs,task_loss,label='task loss',color='teal')
-        ax[0].plot(epochs,rate_loss,label='rate loss',color='blueviolet')
-        #ax[0].plot(epochs,np.mean(task_losses,0),label='task loss',color='teal')
-        #ax[0].fill_between(epochs,np.mean(task_losses,0)-np.std(task_losses,0),np.mean(task_losses,0)+np.std(task_losses,0),facecolor='mediumturquoise',alpha=0.4)
-        #ax[0].plot(epochs,np.mean(rate_losses,0),label='rate loss',color='blueviolet')
-        #ax[0].fill_between(epochs,np.mean(rate_losses,0)-np.std(rate_losses,0),np.mean(rate_losses,0)+np.std(rate_losses,0),facecolor='mediumslateblue',alpha=0.4)
+        #ax[0].plot(epochs,task_loss,label='task loss',color='teal')
+        #ax[0].plot(epochs,rate_loss,label='rate loss',color='blueviolet')
+        ax[0].plot(epochs,np.mean(task_losses,0),label='task loss',color='teal')
+        ax[0].fill_between(epochs,np.mean(task_losses,0)-np.std(task_losses,0),np.mean(task_losses,0)+np.std(task_losses,0),facecolor='mediumturquoise',alpha=0.4)
+        ax[0].plot(epochs,np.mean(rate_losses,0),label='rate loss',color='blueviolet')
+        ax[0].fill_between(epochs,np.mean(rate_losses,0)-np.std(rate_losses,0),np.mean(rate_losses,0)+np.std(rate_losses,0),facecolor='mediumslateblue',alpha=0.4)
 
         for j in range(0,len(ax)):
             ax[j].set_ylabel('loss',fontname='Ubuntu')
@@ -745,7 +746,7 @@ def losses_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         plt.suptitle('Evolution of loss over training',fontname='Ubuntu')
         plt.draw()
 
-        save_fname = spath+'/debug_losses_over_training_'+exp_path+'.png'
+        save_fname = spath+'/losses_over_training.png'
         plt.savefig(save_fname,dpi=300)
         # Teardown
         plt.clf()
