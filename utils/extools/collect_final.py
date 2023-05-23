@@ -730,10 +730,10 @@ def losses_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
     epochs=np.arange(0,100)
     #ax[0].plot(epochs,task_loss,label='task loss',color='teal')
     #ax[0].plot(epochs,rate_loss,label='rate loss',color='blueviolet')
-    ax[0].plot(epochs,np.mean(task_losses,0),label='task loss',color='forestgreen')
-    ax[0].fill_between(epochs,np.mean(task_losses,0)-np.std(task_losses,0),np.mean(task_losses,0)+np.std(task_losses,0),facecolor='yellowgreen',alpha=0.4)
-    ax[0].plot(epochs,np.mean(rate_losses,0),label='rate loss',color='slateblue')
-    ax[0].fill_between(epochs,np.mean(rate_losses,0)-np.std(rate_losses,0),np.mean(rate_losses,0)+np.std(rate_losses,0),facecolor='cornflowerblue',alpha=0.4)
+    ax[0].plot(epochs,np.mean(task_losses,0),label='task loss',color='orangered')
+    ax[0].fill_between(epochs,np.mean(task_losses,0)-np.std(task_losses,0),np.mean(task_losses,0)+np.std(task_losses,0),facecolor='orangered',alpha=0.4)
+    ax[0].plot(epochs,np.mean(rate_losses,0),label='rate loss',color='darkorange')
+    ax[0].fill_between(epochs,np.mean(rate_losses,0)-np.std(rate_losses,0),np.mean(rate_losses,0)+np.std(rate_losses,0),facecolor='darkorange',alpha=0.4)
 
     for j in range(0,len(ax)):
         ax[j].set_ylabel('loss',fontname='Ubuntu')
