@@ -725,7 +725,7 @@ def losses_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
             task_losses = np.vstack([task_losses,task_loss])
 
         fig, ax = plt.subplots(nrows=2, ncols=1)
-        epochs=np.arange(0,np.shape(rate_losses)[1])
+        epochs=np.arange(0,100)
         ax[0].plot(epochs,task_loss,label='task loss',color='teal')
         ax[0].plot(epochs,rate_loss,label='rate loss',color='blueviolet')
         #ax[0].plot(epochs,np.mean(task_losses,0),label='task loss',color='teal')
