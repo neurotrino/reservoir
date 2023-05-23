@@ -596,7 +596,7 @@ def all_losses_over_training(exp_dir=spec_nointoout_dirs,exp_season='spring'):
 # ONE PER HOUR, SUPER DOABLE
 
 
-def rates_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+def rates_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
 
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
@@ -691,7 +691,7 @@ def rates_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     plt.close()
 
 
-def losses_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
+def losses_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
             exp_data_dirs = get_experiments(data_dir, exp_string)
@@ -732,7 +732,7 @@ def losses_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     ax[0].fill_between(epochs,np.mean(rate_losses,0)-np.std(rate_losses,0),np.mean(rate_losses,0)+np.std(rate_losses,0),facecolor='mediumslateblue',alpha=0.4)
 
     for j in range(0,len(ax)):
-        ax[j].set_ylabel('average rate',fontname='Ubuntu')
+        ax[j].set_ylabel('loss',fontname='Ubuntu')
         ax[j].set_xlabel('training epoch',fontname='Ubuntu')
         ax[j].legend(prop={"family":"Ubuntu"})
         for tick in ax[j].get_xticklabels():
@@ -740,11 +740,11 @@ def losses_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         for tick in ax[j].get_yticklabels():
             tick.set_fontname("Ubuntu")
 
-    plt.suptitle('Evolution of rates over training',fontname='Ubuntu')
+    plt.suptitle('Evolution of loss over training',fontname='Ubuntu')
     plt.subplots_adjust(wspace=0.9, hspace=0.9)
     plt.draw()
 
-    save_fname = spath+'/rates_over_training.png'
+    save_fname = spath+'/losses_over_training.png'
     plt.savefig(save_fname,dpi=300)
     # Teardown
     plt.clf()
