@@ -719,8 +719,8 @@ def losses_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
             rate_losses = rate_loss
             task_losses = task_loss
         else:
-            rate_losses = np.vstack(rate_losses,rate_loss)
-            task_losses = np.vstack(task_losses,task_loss)
+            rate_losses = np.vstack([rate_losses,rate_loss])
+            task_losses = np.vstack([task_losses,task_loss])
 
     return [rate_losses, task_losses]
 
