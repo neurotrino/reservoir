@@ -729,20 +729,18 @@ def losses_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         ax[0].plot(epochs,task_loss,label='task loss',color='teal')
         ax[0].plot(epochs,rate_loss,label='rate loss',color='blueviolet')
         #ax[0].plot(epochs,np.mean(task_losses,0),label='task loss',color='teal')
-    #ax[0].fill_between(epochs,np.mean(task_losses,0)-np.std(task_losses,0),np.mean(task_losses,0)+np.std(task_losses,0),facecolor='mediumturquoise',alpha=0.4)
+        #ax[0].fill_between(epochs,np.mean(task_losses,0)-np.std(task_losses,0),np.mean(task_losses,0)+np.std(task_losses,0),facecolor='mediumturquoise',alpha=0.4)
         #ax[0].plot(epochs,np.mean(rate_losses,0),label='rate loss',color='blueviolet')
-    #ax[0].fill_between(epochs,np.mean(rate_losses,0)-np.std(rate_losses,0),np.mean(rate_losses,0)+np.std(rate_losses,0),facecolor='mediumslateblue',alpha=0.4)
+        #ax[0].fill_between(epochs,np.mean(rate_losses,0)-np.std(rate_losses,0),np.mean(rate_losses,0)+np.std(rate_losses,0),facecolor='mediumslateblue',alpha=0.4)
 
-    """
-    for j in range(0,len(ax)):
-        ax[j].set_ylabel('loss',fontname='Ubuntu')
-        ax[j].set_xlabel('training epoch',fontname='Ubuntu')
-        ax[j].legend(prop={"family":"Ubuntu"})
-        for tick in ax[j].get_xticklabels():
-            tick.set_fontname("Ubuntu")
-        for tick in ax[j].get_yticklabels():
-            tick.set_fontname("Ubuntu")"""
-
+        for j in range(0,len(ax)):
+            ax[j].set_ylabel('loss',fontname='Ubuntu')
+            ax[j].set_xlabel('training epoch',fontname='Ubuntu')
+            ax[j].legend(prop={"family":"Ubuntu"})
+            for tick in ax[j].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[j].get_yticklabels():
+                tick.set_fontname("Ubuntu")
         plt.suptitle('Evolution of loss over training',fontname='Ubuntu')
         plt.draw()
 
