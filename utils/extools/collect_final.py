@@ -688,8 +688,35 @@ def rates_over_training(exp_dirs=all_save_inz_dirs,exp_season='spring'):
     plt.close()
 
 
-def losses_over_training():
+def losses_over_training(exp_dirs=all_save_inz_dirs,exp_season='spring'):
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    if not os.path.isdir(spath):
+        os.makedirs(spath)
+
+
+
+    # split into change / no-change trials as a way to describe the performance? could be worthwhile
+
+def sample_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
+    # randomly go thru and try to pick a good naive and good trained example for display
+    # make the colors aesthetic, please
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    if not os.path.isdir(spath):
+        os.makedirs(spath)
 
 
 def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring'):
