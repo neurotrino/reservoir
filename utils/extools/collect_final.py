@@ -656,6 +656,8 @@ def rates_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     return [rec_0_e_rates,rec_0_i_rates,rec_1_e_rates,rec_1_i_rates]
 
     # plot rates over time
+    fig, ax = plt.subplots(nrows=2, ncols=1)
+
     epochs=np.arange(0,np.shape(rec_0_e_rates)[1])
     ax[0].plot(epochs,np.mean(rec_0_e_rates,(0,2)),label='e units',color='dodgerblue')
     ax[0].fill_between(epochs,np.mean(rec_0_e_rates,(0,2))-np.std(rec_0_e_rates,(0,2)),np.mean(rec_0_e_rates,(0,2))+np.std(rec_0_e_rates,(0,2)),facecolor='slateblue',alpha=0.4)
@@ -722,9 +724,34 @@ def losses_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
             rate_losses = np.vstack([rate_losses,rate_loss])
             task_losses = np.vstack([task_losses,task_loss])
 
-    return [rate_losses, task_losses]
+    fig, ax = plt.subplots(nrows=2, ncols=1)
+    epochs=np.arange(0,np.shape(rate_losses)[1])
+    ax[0].plot(epochs,np.mean(task_losses,0),label='task loss',color='teal')
+    ax[0].fill_between(epochs,np.mean(task_losses,0)-np.std(task_losses,0),np.mean(task_losses,0)+np.std(task_losses,0),facecolor='mediumturquoise',alpha=0.4)
+    ax[0].plot(epochs,np.mean(rate_losses,0),label='rate loss',color='blueviolet')
+    ax[0].fill_between(epochs,np.mean(rate_losses,0)-np.std(rate_losses,0),np.mean(rate_losses,0)+np.std(rate_losses,0),facecolor='mediumslateblue',alpha=0.4)
 
-def sample_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
+    for j in range(0,len(ax)):
+        ax[j].set_ylabel('average rate',fontname='Ubuntu')
+        ax[j].set_xlabel('training epoch',fontname='Ubuntu')
+        ax[j].legend(prop={"family":"Ubuntu"})
+        for tick in ax[j].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[j].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+
+    plt.suptitle('Evolution of rates over training',fontname='Ubuntu')
+    plt.subplots_adjust(wspace=0.9, hspace=0.9)
+    plt.draw()
+
+    save_fname = spath+'/rates_over_training.png'
+    plt.savefig(save_fname,dpi=300)
+    # Teardown
+    plt.clf()
+    plt.close()
+
+
+def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
     # randomly go thru and try to pick a good naive and good trained example for display
     # make the colors aesthetic, please
     for exp_string in exp_dirs:
