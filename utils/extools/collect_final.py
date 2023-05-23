@@ -677,7 +677,7 @@ def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring'):
     vplot_coh0_colors = ['YellowGreen','OliveDrab','LimeGreen','ForestGreen','MediumSeaGreen','LightSeaGreen','Teal','SteelBlue']
     vplot_coh1_colors = ['BlueViolet','Purple','MediumVioletRed','HotPink','DeepPink','Crimson','OrangeRed','DarkOrange']
     for i in range(0,len(coh0_channels)):
-        vplot = ax[i].violinplot(dataset=[coh0_channel_trial_rates[:,coh0_channels],coh1_channel_trial_rates[:,coh0_channels]], showmeans=True)
+        vplot = ax[i].violinplot(dataset=[coh0_channel_trial_rates[:,coh0_channels[i]],coh1_channel_trial_rates[:,coh0_channels[i]]], showmeans=True)
         for i, pc in enumerate(vplot["bodies"], 1):
             if i%2 != 0: # multiple colors for coherence level we are focusing on
                 pc.set_facecolor(vplot_coh0_colors[i])
@@ -693,7 +693,7 @@ def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring'):
         #ax[j].set_xlim(0.25, len(labels) + 0.75)
         #ax[j].set_ylim(min,max)
         ax[j].set_xlabel('coherence')
-        ax[j].legend(prop={"family":"Ubuntu"})
+        ax[j].set_title('channel '+str(coh0_channels[j]))
         for tick in ax[j].get_xticklabels():
             tick.set_fontname("Ubuntu")
         for tick in ax[j].get_yticklabels():
@@ -710,9 +710,42 @@ def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
     # do the same of coherence 1 tuned input channels
     # make sure to use the same y axis min and max as well
+    fig, ax = plt.subplots(nrows=2,ncols=4)
+    ax = ax.flatten()
+    for i in range(0,len(coh0_channels)):
+        vplot = ax[i].violinplot(dataset=[coh0_channel_trial_rates[:,coh1_channels[i]],coh1_channel_trial_rates[:,coh1_channels[i]]], showmeans=True)
+        for i, pc in enumerate(vplot["bodies"], 1):
+            if i%2 == 0: # multiple colors for coherence level we are focusing on
+                pc.set_facecolor(vplot_coh1_colors[i])
+            else: # same color for the non-preferred one
+                pc.set_facecolor('mediumaquamarine')
+            pc.set_edgecolor('black')
+
+    plt.suptitle('High-coherence-tuned input channel rates',fontname='Ubuntu')
+    labels = ['low', 'high']
+    for j in range(0,len(ax)):
+        ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
+        ax[j].set_xticklabels(labels)
+        #ax[j].set_xlim(0.25, len(labels) + 0.75)
+        #ax[j].set_ylim(min,max)
+        ax[j].set_xlabel('coherence')
+        ax[j].set_title('channel '+str(coh1_channels[j]))
+        for tick in ax[j].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[j].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+
+    save_fname = spath+'/input_channel_coh1_rates_violin.png'
+
+    plt.subplots_adjust(hspace=0.5,wspace=0.5)
+    plt.draw()
+    plt.savefig(save_fname,dpi=300)
+    # Teardown
+    plt.clf()
+    plt.close()
 
 
-def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plots=True):
+def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plots=False):
     # also bring in the rate trained ones too. just anything that contains saveinz; also the original CNN outputs too
 
     # check if folder exists, otherwise create it for saving files
