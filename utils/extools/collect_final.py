@@ -611,8 +611,8 @@ def rates_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
 
     rec_0_e_rates = []
     rec_0_i_rates = []
+    rec_1_e_rates = []
     rec_1_i_rates = []
-    rec_0_i_rates = []
 
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
