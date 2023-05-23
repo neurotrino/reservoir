@@ -872,8 +872,8 @@ def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring'):
         ax[j].set_title('channel '+str(coh0_channels[j]))
         for tick in ax[j].get_xticklabels():
             tick.set_fontname("Ubuntu")
-        for tick in ax[j].get_yticklabels():
-            tick.set_fontname("Ubuntu")
+        #for tick in ax[j].get_yticklabels():
+            #tick.set_fontname("Ubuntu")
 
     save_fname = spath+'/input_channel_coh0_rates_violin.png'
 
@@ -908,8 +908,8 @@ def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring'):
         ax[j].set_title('channel '+str(coh1_channels[j]))
         for tick in ax[j].get_xticklabels():
             tick.set_fontname("Ubuntu")
-        for tick in ax[j].get_yticklabels():
-            tick.set_fontname("Ubuntu")
+        #for tick in ax[j].get_yticklabels():
+            #tick.set_fontname("Ubuntu")
 
     save_fname = spath+'/input_channel_coh1_rates_violin.png'
 
