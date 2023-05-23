@@ -744,11 +744,11 @@ def losses_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
         for tick in ax[j].get_yticklabels():
             tick.set_fontname("Ubuntu")
     plt.suptitle('Evolution of loss over task-and-rate training',fontname='Ubuntu')
+    plt.subplots_adjust(wspace=0.7, hspace=0.7)
     plt.draw()
 
     save_fname = spath+'/losses_over_training.png'
     plt.savefig(save_fname,dpi=300)
-    plt.subplots_adjust(wspace=0.7, hspace=0.5)
     # Teardown
     plt.clf()
     plt.close()
