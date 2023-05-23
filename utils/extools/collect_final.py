@@ -617,36 +617,38 @@ def rates_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
 
-        coh0_exp_rates = []
-        coh1_exp_rates = []
-        # eventually sized 100 x units
+        if not '06.03.22' in np_dir: # do not include that one awful rate experiment
 
-        # rates over time
-        for filename in data_files:
-            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
-            data = np.load(filepath)
-            # too much to do anything more than the first (0th) batch in each file
-            spikes = data['spikes'][0]
-            # shaped [100 batches x 30 trials x 4080 timesteps x 300 units]
-            true_y = data['true_y'][0] # shaped [100 batches x 30 trials x 4080 timesteps]
-            for i in range(0,np.shape(true_y)[0]): # for each of 30 trials
-                coh0_idx = np.where(true_y[i]==0)[0]
-                coh1_idx = np.where(true_y[i]==1)[0]
-                if len(coh0_idx)>0:
-                    if not 'coh0_trial_rates' in locals():
-                        coh0_trial_rates = np.average(spikes[i][coh0_idx],0) # average across time, not units (yet)
-                    else:
-                        coh0_trial_rates = np.vstack([coh0_trial_rates,np.average(spikes[i][coh0_idx],0)]) # stack trials, mean across 4080 timesteps, but preserve units
+            coh0_exp_rates = []
+            coh1_exp_rates = []
+            # eventually sized 100 x units
 
-                if len(coh1_idx)>0:
-                    if not 'coh1_trial_rates' in locals():
-                        coh1_trial_rates = np.average(spikes[i][coh1_idx],0)
-                    else:
-                        coh1_trial_rates = np.vstack([coh1_trial_rates,np.average(spikes[i][coh1_idx],0)])
+            # rates over time
+            for filename in data_files:
+                filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+                data = np.load(filepath)
+                # too much to do anything more than the first (0th) batch in each file
+                spikes = data['spikes'][0]
+                # shaped [100 batches x 30 trials x 4080 timesteps x 300 units]
+                true_y = data['true_y'][0] # shaped [100 batches x 30 trials x 4080 timesteps]
+                for i in range(0,np.shape(true_y)[0]): # for each of 30 trials
+                    coh0_idx = np.where(true_y[i]==0)[0]
+                    coh1_idx = np.where(true_y[i]==1)[0]
+                    if len(coh0_idx)>0:
+                        if not 'coh0_trial_rates' in locals():
+                            coh0_trial_rates = np.average(spikes[i][coh0_idx],0) # average across time, not units (yet)
+                        else:
+                            coh0_trial_rates = np.vstack([coh0_trial_rates,np.average(spikes[i][coh0_idx],0)]) # stack trials, mean across 4080 timesteps, but preserve units
 
-            # average across coherence level trials in this file
-            coh0_exp_rates.append(np.mean(coh0_trial_rates,0)) # mean across trials, but preserve units; single vector of 300 per file (100 files)
-            coh1_exp_rates.append(np.mean(coh1_trial_rates,0))
+                    if len(coh1_idx)>0:
+                        if not 'coh1_trial_rates' in locals():
+                            coh1_trial_rates = np.average(spikes[i][coh1_idx],0)
+                        else:
+                            coh1_trial_rates = np.vstack([coh1_trial_rates,np.average(spikes[i][coh1_idx],0)])
+
+                # average across coherence level trials in this file
+                coh0_exp_rates.append(np.mean(coh0_trial_rates,0)) # mean across trials, but preserve units; single vector of 300 per file (100 files)
+                coh1_exp_rates.append(np.mean(coh1_trial_rates,0))
 
         rec_0_e_rates.append(coh0_exp_rates[:][:e_end])
         rec_0_i_rates.append(coh0_exp_rates[:][e_end:])
