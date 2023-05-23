@@ -101,10 +101,11 @@ spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
 spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz"]
 save_inz_dirs_rate = ["run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz"]
+save_inz_dirs_task = ["run-batch30-taskloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz"]
 spec_nointoout_dirs_rate = ["run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz","run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire","run-batch30-rateloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-rateloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 spec_nointoout_dirs_task = ["run-batch30-taskloss-specinput0.2-nointoout-noinoutrewire","run-batch30-taskloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-taskloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
 all_spring_dual_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz"]
-all_save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz","run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz"]
+all_save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz","run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz","run-batch30-taskloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz"]
 
 # this is all a general sort of thing, once you do one (mostly figure out shading and dist comparisons) it'll come easily
 
@@ -595,7 +596,7 @@ def all_losses_over_training(exp_dir=spec_nointoout_dirs,exp_season='spring'):
 # ONE PER HOUR, SUPER DOABLE
 
 
-def rates_over_training(exp_dirs=all_save_inz_dirs,exp_season='spring'):
+def rates_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
 
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
@@ -688,7 +689,7 @@ def rates_over_training(exp_dirs=all_save_inz_dirs,exp_season='spring'):
     plt.close()
 
 
-def losses_over_training(exp_dirs=all_save_inz_dirs,exp_season='spring'):
+def losses_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
             exp_data_dirs = get_experiments(data_dir, exp_string)
@@ -700,9 +701,28 @@ def losses_over_training(exp_dirs=all_save_inz_dirs,exp_season='spring'):
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
 
+        task_loss = []
+        rate_loss = []
 
-    # split into change / no-change trials as a way to describe the performance? could be worthwhile
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            # take mean why not
+            rate_loss.append(np.mean(data['step_rate_loss']))
+            task_loss.append(np.mean(data['step_task_loss']))
+
+        # concat losses together
+        if not 'rate_losses' in locals():
+            rate_losses = rate_loss
+            task_losses = task_loss
+        else:
+            rate_losses = np.vstack(rate_losses,rate_loss)
+            task_losses = np.vstack(task_losses,task_loss)
+
+    return [rate_losses, task_losses]
 
 def sample_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
     # randomly go thru and try to pick a good naive and good trained example for display
