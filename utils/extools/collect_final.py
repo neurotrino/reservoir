@@ -691,7 +691,7 @@ def rates_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
     plt.close()
 
 
-def losses_over_training(exp_dirs=spec_nointoout_dirs_rate,exp_season='spring'):
+def losses_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
             exp_data_dirs = get_experiments(data_dir, exp_string)
@@ -730,8 +730,8 @@ def losses_over_training(exp_dirs=spec_nointoout_dirs_rate,exp_season='spring'):
     epochs=np.arange(0,100)
     #ax[0].plot(epochs,task_loss,label='task loss',color='teal')
     #ax[0].plot(epochs,rate_loss,label='rate loss',color='blueviolet')
-    #ax[0].plot(epochs,np.mean(task_losses,0),label='task loss',color='orangered')
-    #ax[0].fill_between(epochs,np.mean(task_losses,0)-np.std(task_losses,0),np.mean(task_losses,0)+np.std(task_losses,0),facecolor='orangered',alpha=0.4)
+    ax[0].plot(epochs,np.mean(task_losses,0),label='task loss',color='orangered')
+    ax[0].fill_between(epochs,np.mean(task_losses,0)-np.std(task_losses,0),np.mean(task_losses,0)+np.std(task_losses,0),facecolor='orangered',alpha=0.4)
     ax[0].plot(epochs,np.mean(rate_losses,0),label='rate loss',color='darkorange')
     ax[0].fill_between(epochs,np.mean(rate_losses,0)-np.std(rate_losses,0),np.mean(rate_losses,0)+np.std(rate_losses,0),facecolor='darkorange',alpha=0.4)
 
@@ -744,11 +744,11 @@ def losses_over_training(exp_dirs=spec_nointoout_dirs_rate,exp_season='spring'):
             tick.set_fontname("Ubuntu")
         for tick in ax[j].get_yticklabels():
             tick.set_fontname("Ubuntu")
-    plt.suptitle('Evolution of loss over rate training',fontname='Ubuntu')
+    plt.suptitle('Evolution of loss over task-and-rate training',fontname='Ubuntu')
     plt.subplots_adjust(wspace=0.7, hspace=0.5)
     plt.draw()
 
-    save_fname = spath+'/losses_over_rate_training.png'
+    save_fname = spath+'/losses_over_training.png'
     plt.savefig(save_fname,dpi=300)
     # Teardown
     plt.clf()
