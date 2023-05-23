@@ -739,7 +739,7 @@ def losses_over_training(exp_dirs=spec_nointoout_dirs_task,exp_season='spring'):
         ax[j].set_ylabel('loss',fontname='Ubuntu')
         ax[j].set_xlabel('training epoch',fontname='Ubuntu')
         ax[j].legend(prop={"family":"Ubuntu"})
-        ax[j].set_ylim(-0.2,0.8)
+        ax[j].set_ylim(0.0,0.6)
         for tick in ax[j].get_xticklabels():
             tick.set_fontname("Ubuntu")
         for tick in ax[j].get_yticklabels():
