@@ -594,6 +594,124 @@ def all_losses_over_training(exp_dir=spec_nointoout_dirs,exp_season='spring'):
 # SEE IF YOU CAN COMPLETE ALL THE BELOW TODAY
 # ONE PER HOUR, SUPER DOABLE
 
+
+def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring'):
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    if not os.path.isdir(spath):
+        os.makedirs(spath)
+
+    # include input rates from CNN (original CNN output file)
+    spikes = load_npz('/data/datasets/CNN_outputs/spike_train_mixed_limlifetime_abs.npz')
+    x = np.array(spikes.todense()).reshape((-1, seq_len, n_input))
+    # determine each of the 16 channels' average rates over 600 x 4080 trials
+    # separate according to coherence level!
+    coherences = load_npz('/data/datasets/CNN_outputs/ch8_abs_ccd_coherences.npz')
+    y = np.array(coherences.todense().reshape((-1, seq_len)))[:, :, None]
+    y = np.squeeze(y)
+
+    # from actual experiment now
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # aggregate across all experiments and all trials
+    data_files = filenames(num_epochs, epochs_per_file)
+
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+
+            data = np.load(filepath)
+            # simply too many if we don't just take the final batch
+            in_spikes = data['inputs'][99]
+            true_y = data['true_y'][99]
+            if '-swaplabels' in xdir: # not unswaplabels
+                true_y = ~true_y.astype(int) + 2
+
+            true_y = np.reshape(true_y,[np.shape(true_y)[0],seq_len])
+            in_spikes = np.reshape(in_spikes,[np.shape(in_spikes)[0],seq_len,np.shape(in_spikes)[2]])
+
+            y=np.vstack([y,true_y])
+            x=np.vstack([x,in_spikes])
+
+    # for each of ALL trials (from CNN and experimental)
+    for i in range(0,np.shape(y)[0]):
+    # for each of 4080 time steps
+    # determine if coherence 1 or 0
+        coh0_idx = np.where(y[i]==0)[0]
+        coh1_idx = np.where(y[i]==1)[0]
+    # take average rates across that trial's timepoints for the same coherence level and append
+        if len(coh0_idx)>0:
+            if not 'coh0_channel_trial_rates' in locals():
+                coh0_channel_trial_rates = np.average(x[i][coh0_idx],0)
+            else:
+                coh0_channel_trial_rates = np.vstack([coh0_channel_trial_rates,np.average(x[i][coh0_idx],0)])
+
+        if len(coh1_idx)>0:
+            if not 'coh1_channel_trial_rates' in locals():
+                coh1_channel_trial_rates = np.average(x[i][coh1_idx],0)
+            else:
+                coh1_channel_trial_rates = np.vstack([coh1_channel_trial_rates,np.average(x[i][coh1_idx],0)])
+
+    # average across all trials for a given channel (16)
+    coh0_rates = np.average(coh0_channel_trial_rates,0)
+    coh1_rates = np.average(coh1_channel_trial_rates,0)
+
+    coh0_channels = np.where(coh1_rates<coh0_rates)[0]
+    coh1_channels = np.where(coh1_rates>coh0_rates)[0]
+
+    # make violin plots
+
+    fig, ax = plt.subplots(nrows=2,ncols=4)
+
+    # first do coh0_channels
+    # next do coh1_channels
+    # plot both coh0_channel_trial_rates' mean median std and same for coh1_channel_trial_rates in each subplot
+
+    ax = ax.flatten()
+    vplot_coh0_colors = ['YellowGreen','OliveDrab','LimeGreen','ForestGreen','MediumSeaGreen','LightSeaGreen','Teal','SteelBlue']
+    vplot_coh1_colors = ['BlueViolet','Purple','MediumVioletRed','HotPink','DeepPink','Crimson','OrangeRed','DarkOrange']
+    for i in range(0,len(coh0_channels)):
+        vplot = ax[i].violinplot(dataset=[coh0_channel_trial_rates[:,coh0_channels],coh1_channel_trial_rates[:,coh0_channels]], showmeans=True)
+        for i, pc in enumerate(vplot["bodies"], 1):
+            if i%2 != 0: # multiple colors for coherence level we are focusing on
+                pc.set_facecolor(vplot_coh0_colors[i])
+            else: # same color for the non-preferred one
+                pc.set_facecolor('salmon') # the other would be pc.set_facecolor('mediumaquamarine')
+            pc.set_edgecolor('black')
+
+    plt.suptitle('Low-coherence-tuned input channel rates',fontname='Ubuntu')
+    labels = ['low', 'high']
+    for j in range(0,len(ax)):
+        ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
+        ax[j].set_xticklabels(labels)
+        #ax[j].set_xlim(0.25, len(labels) + 0.75)
+        #ax[j].set_ylim(min,max)
+        ax[j].set_xlabel('coherence')
+        ax[j].legend(prop={"family":"Ubuntu"})
+        for tick in ax[j].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[j].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+
+    save_fname = spath+'/input_channel_coh0_rates_violin.png'
+
+    plt.subplots_adjust(hspace=0.5,wspace=0.5)
+    plt.draw()
+    plt.savefig(save_fname,dpi=300)
+    # Teardown
+    plt.clf()
+    plt.close()
+
+    # do the same of coherence 1 tuned input channels
+    # make sure to use the same y axis min and max as well
+
+
 def dists_of_input_rates(exp_dirs=all_save_inz_dirs,exp_season='spring',make_plots=True):
     # also bring in the rate trained ones too. just anything that contains saveinz; also the original CNN outputs too
 
@@ -940,7 +1058,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_task
     np.mean(coh0_e[:,100])/np.mean(coh0_i[:,100])
     np.mean(coh1_e[:,100])/np.mean(coh1_i[:,100])
 
-    # THIS IS WHAT IS ACTUALLY IN PLOTS: 
+    # THIS IS WHAT IS ACTUALLY IN PLOTS:
     np.mean(coh0_e[:,0])/np.mean(coh1_e[:,0])
 
     """
