@@ -616,12 +616,11 @@ def rates_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
 
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
+        coh0_exp_rates = []
+        coh1_exp_rates = []
+        # eventually sized 100 x units
 
         if not '06.03.22' in np_dir: # do not include that one awful rate experiment
-
-            coh0_exp_rates = []
-            coh1_exp_rates = []
-            # eventually sized 100 x units
 
             # rates over time
             for filename in data_files:
