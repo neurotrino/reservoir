@@ -705,6 +705,7 @@ def losses_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
 
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
+        exp_path = xdir[-9:-1]
 
         task_loss = []
         rate_loss = []
@@ -744,7 +745,7 @@ def losses_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         plt.suptitle('Evolution of loss over training',fontname='Ubuntu')
         plt.draw()
 
-        save_fname = spath+'/debug_losses_over_training_'+xdir+'.png'
+        save_fname = spath+'/debug_losses_over_training_'+exp_path+'.png'
         plt.savefig(save_fname,dpi=300)
         # Teardown
         plt.clf()
