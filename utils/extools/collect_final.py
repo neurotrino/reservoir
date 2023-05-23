@@ -648,10 +648,10 @@ def rates_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
             coh0_exp_rates.append(np.mean(coh0_trial_rates,0)) # mean across trials, but preserve units; single vector of 300 per file (100 files)
             coh1_exp_rates.append(np.mean(coh1_trial_rates,0))
 
-        rec_0_e_rates.append(coh0_exp_rates[:,:e_end])
-        rec_0_i_rates.append(coh0_exp_rates[:,e_end:])
-        rec_1_e_rates.append(coh1_exp_rates[:,:e_end])
-        rec_1_i_rates.append(coh1_exp_rates[:,e_end:])
+        rec_0_e_rates.append(coh0_exp_rates[:][:e_end])
+        rec_0_i_rates.append(coh0_exp_rates[:][e_end:])
+        rec_1_e_rates.append(coh1_exp_rates[:][:e_end])
+        rec_1_i_rates.append(coh1_exp_rates[:][e_end:])
 
     return [rec_0_e_rates,rec_0_i_rates,rec_1_e_rates,rec_1_i_rates]
 
