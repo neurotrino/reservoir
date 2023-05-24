@@ -2,6 +2,7 @@
 
 # ---- external imports -------------------------------------------------------
 import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 import numpy.ma as ma
 import os
