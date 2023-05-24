@@ -824,7 +824,6 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     for j in range(0,len(ax)):
                         ax[j].legend(prop={"family":"Ubuntu"})
                         ax[j].set_xlabel('time (ms)',fontname='Ubuntu')
-                        ax[j].set_title('channel '+str(coh0_channels[j]+1),fontname='Ubuntu')
                         for tick in ax[j].get_xticklabels():
                             tick.set_fontname("Ubuntu")
                         for tick in ax[j].get_yticklabels():
