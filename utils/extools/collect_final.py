@@ -770,7 +770,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
     spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
 
     # custom colormaps for e and i spike rasters
-    e_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["blue","white"])
+    e_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["dodgerblue","white"])
     i_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["orangered","white"])
 
     for xdir in exp_data_dirs: # loop through experiments
