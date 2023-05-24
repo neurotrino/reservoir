@@ -788,9 +788,14 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
             true_y = data['true_y'][0]
             for i in range(0,5): # just do the first few for now
                 if true_y[i][0]!=true_y[i][seq_len-1]: # i is a change trial
+                    true_y = true_y[i]
                     pred_y = data['pred_y'][0][i]
                     spikes = data['spikes'][0][i]
                     in_spikes = data['inputs'][0][i]
+                    diffs = np.diff(true_y,axis=0)
+                    # t_change is the first timestep of the new coherence level
+                    t_change = np.where(np.diff(true_y,axis=0)!=0)[0][0]+1
+
                     # plot input spikes, recurrent spikes, output overlaid with target
                     fig, ax = plt.subplots(nrows=4,ncols=1)
 
