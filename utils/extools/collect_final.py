@@ -756,7 +756,7 @@ def losses_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
     plt.close()
 
 
-def demo_input_spikes_output(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
+def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
     # randomly go thru and try to pick a good naive and good trained example for display
     # make the colors aesthetic, please
     for exp_string in exp_dirs:
@@ -774,7 +774,7 @@ def demo_input_spikes_output(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
     rec_1_i_rates = []
 
     for xdir in exp_data_dirs: # loop through experiments
-        if '20.27.16' in xdir: # choose arbitrary experiment for now 
+        if '20.27.16' in xdir: # choose arbitrary experiment for now
         #if not '06.03.22' in xdir: # do not include that one awful rate experiment
             exp_path = xdir[-9:-1]
             xpath = spath + '/' + exp_path
@@ -790,7 +790,7 @@ def demo_input_spikes_output(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
                 if true_y[i][0]!=true_y[i][seq_len-1]: # i is a change trial
                     pred_y = data['pred_y'][0][i]
                     spikes = data['spikes'][0][i]
-                    in_spikes = data['input'][0][i]
+                    in_spikes = data['inputs'][0][i]
                     # plot input spikes, recurrent spikes, output overlaid with target
                     fig, ax = plt.subplots(nrows=4,ncols=1)
 
