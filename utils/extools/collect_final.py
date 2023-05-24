@@ -865,11 +865,11 @@ def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring',fr
         vplot = ax[i].violinplot(dataset=[coh0_channel_trial_rates[:,coh0_channels[i]],coh1_channel_trial_rates[:,coh0_channels[i]]], showmeans=True)
         for i, pc in enumerate(vplot["bodies"], 1):
             if i%2 != 0: # multiple colors for coherence level we are focusing on
-                pc.set_facecolor('greenyellow')
+                pc.set_facecolor('limegreen')
             else: # same color for the non-preferred one
-                pc.set_facecolor('green') # the other would be pc.set_facecolor('mediumaquamarine')
+                pc.set_facecolor('teal') # the other would be pc.set_facecolor('mediumaquamarine')
             pc.set_edgecolor('dodgerblue')
-            pc.set_alpha(0.8)
+            pc.set_alpha(0.6)
 
     plt.suptitle('Low-coherence-tuned input channels',fontname='Ubuntu')
     #labels = ['low', 'high']
@@ -902,11 +902,11 @@ def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring',fr
         vplot = ax[i].violinplot(dataset=[coh0_channel_trial_rates[:,coh1_channels[i]],coh1_channel_trial_rates[:,coh1_channels[i]]], showmeans=True)
         for i, pc in enumerate(vplot["bodies"], 1):
             if i%2 != 0: # multiple colors for coherence level we are focusing on
-                pc.set_facecolor('royalblue')
+                pc.set_facecolor('dodgerblue')
             else: # same color for the non-preferred one
                 pc.set_facecolor('blueviolet')
             pc.set_edgecolor('dodgerblue')
-            pc.set_alpha(0.8)
+            pc.set_alpha(0.6)
 
     plt.suptitle('High-coherence-tuned input channels',fontname='Ubuntu')
     #labels = ['low', 'high']
