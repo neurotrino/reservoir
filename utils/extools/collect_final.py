@@ -774,7 +774,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
     rec_1_i_rates = []
 
     for xdir in exp_data_dirs: # loop through experiments
-        if '20.27.16' in xdir: # choose arbitrary experiment for now
+        if '15.34.00' in xdir: # choose arbitrary experiment for now
         #if not '06.03.22' in xdir: # do not include that one awful rate experiment
             exp_path = xdir[-9:-1]
             xpath = spath + '/' + exp_path
@@ -796,29 +796,30 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
 
                     # plot input spikes, recurrent spikes, output overlaid with target
-                    fig, ax = plt.subplots(nrows=4,ncols=1,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
+                    fig, ax = plt.subplots(nrows=2,ncols=2) #,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
+                    ax=ax.flatten()
 
                     sns.heatmap(np.transpose(in_spikes),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
 
-                    sns.heatmap(np.transpose(spikes[:,:e_end]),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
-                    ax[1].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
-                    ax[1].set_ylabel('e units',fontname='Ubuntu')
-                    ax[1].set_title('excitatory SNN spikes',fontname='Ubuntu')
+                    ax[1].plot(pred_y,color='dodgerblue',alpha=0.6,label='output')
+                    ax[1].plot(true_y[i],color='darkblue',alpha=0.6,label='target')
+                    ax[1].vlines(t_change,ymin=np.min(true_y[i]),ymax=np.max(true_y[i]),alpha=1.0,color='red',label='t change')
+                    ax[1].set_ylabel('coherence level',fontname='Ubuntu')
+                    ax[1].set_title('SNN output',fontname='Ubuntu')
+                    ax[1].legend(prop={"family":"Ubuntu"})
 
-                    sns.heatmap(np.transpose(spikes[:,e_end:]),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[2])
-                    ax[2].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
-                    ax[2].set_ylabel('i units',fontname='Ubuntu')
-                    ax[2].set_title('inhibitory SNN spikes',fontname='Ubuntu')
+                    sns.heatmap(np.transpose(spikes[:,:e_end]),cmap='crest',cbar=False,xticklabels=False,yticklabels=False,ax=ax[2])
+                    ax[2].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
+                    ax[2].set_ylabel('e units',fontname='Ubuntu')
+                    ax[2].set_title('excitatory SNN spikes',fontname='Ubuntu')
 
-                    ax[3].plot(pred_y,color='dodgerblue',alpha=0.7,label='output')
-                    ax[3].plot(true_y[i],color='darkblue',alpha=0.7,label='target')
-                    ax[3].vlines(t_change,ymin=np.min(true_y[i]),ymax=np.max(true_y[i]),alpha=1.0,color='red',label='t change')
-                    ax[3].set_ylabel('coherence level',fontname='Ubuntu')
-                    ax[3].set_title('SNN output',fontname='Ubuntu')
-                    ax[3].legend(prop={"family":"Ubuntu"})
+                    sns.heatmap(np.transpose(spikes[:,e_end:]),cmap='flare',cbar=False,xticklabels=False,yticklabels=False,ax=ax[3])
+                    ax[3].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
+                    ax[3].set_ylabel('i units',fontname='Ubuntu')
+                    ax[3].set_title('inhibitory SNN spikes',fontname='Ubuntu')
 
                     plt.suptitle('Example trial',fontname='Ubuntu')
                     for j in range(0,len(ax)):
@@ -830,7 +831,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
                     save_fname = xpath+'/'+exp_path+'_naive_trial'+str(i)+'.png'
 
-                    plt.subplots_adjust(hspace=1.0)
+                    plt.subplots_adjust(hspace=0.7,wspace=0.7)
                     plt.draw()
                     plt.savefig(save_fname,dpi=300)
                     # Teardown
@@ -850,29 +851,30 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
 
                     # plot input spikes, recurrent spikes, output overlaid with target
-                    fig, ax = plt.subplots(nrows=4,ncols=1,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
+                    fig, ax = plt.subplots(nrows=2,ncols=2) #,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
+                    ax=ax.flatten()
 
                     sns.heatmap(np.transpose(in_spikes),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
 
-                    sns.heatmap(np.transpose(spikes[:,:e_end]),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
-                    ax[1].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
-                    ax[1].set_ylabel('e units',fontname='Ubuntu')
-                    ax[1].set_title('excitatory SNN spikes',fontname='Ubuntu')
+                    ax[1].plot(pred_y,color='dodgerblue',alpha=0.6,label='output')
+                    ax[1].plot(true_y[i],color='darkblue',alpha=0.6,label='target')
+                    ax[1].vlines(t_change,ymin=np.min(true_y[i]),ymax=np.max(true_y[i]),alpha=1.0,color='red',label='t change')
+                    ax[1].set_ylabel('coherence level',fontname='Ubuntu')
+                    ax[1].set_title('SNN output',fontname='Ubuntu')
+                    ax[1].legend(prop={"family":"Ubuntu"})
 
-                    sns.heatmap(np.transpose(spikes[:,e_end:]),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[2])
-                    ax[2].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
-                    ax[2].set_ylabel('i units',fontname='Ubuntu')
-                    ax[2].set_title('inhibitory SNN spikes',fontname='Ubuntu')
+                    sns.heatmap(np.transpose(spikes[:,:e_end]),cmap='crest',cbar=False,xticklabels=False,yticklabels=False,ax=ax[2])
+                    ax[2].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
+                    ax[2].set_ylabel('e units',fontname='Ubuntu')
+                    ax[2].set_title('excitatory SNN spikes',fontname='Ubuntu')
 
-                    ax[3].plot(pred_y,color='dodgerblue',alpha=0.7,label='output')
-                    ax[3].plot(true_y[i],color='darkblue',alpha=0.7,label='target')
-                    ax[3].vlines(t_change,ymin=np.min(pred_y),ymax=np.max(pred_y),alpha=1.0,color='red',label='t change')
-                    ax[3].set_ylabel('coherence level',fontname='Ubuntu')
-                    ax[3].set_title('SNN output',fontname='Ubuntu')
-                    ax[3].legend(prop={"family":"Ubuntu"})
+                    sns.heatmap(np.transpose(spikes[:,e_end:]),cmap='flare',cbar=False,xticklabels=False,yticklabels=False,ax=ax[3])
+                    ax[3].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
+                    ax[3].set_ylabel('i units',fontname='Ubuntu')
+                    ax[3].set_title('inhibitory SNN spikes',fontname='Ubuntu')
 
                     plt.suptitle('Example trial',fontname='Ubuntu')
                     for j in range(0,len(ax)):
@@ -884,7 +886,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
                     save_fname = xpath+'/'+exp_path+'_trained_trial'+str(i)+'.png'
 
-                    plt.subplots_adjust(hspace=1.0)
+                    plt.subplots_adjust(hspace=0.7,wspace=0.7)
                     plt.draw()
                     plt.savefig(save_fname,dpi=300)
                     # Teardown
