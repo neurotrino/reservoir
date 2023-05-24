@@ -770,8 +770,8 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
     spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
 
     # custom colormaps for e and i spike rasters
-    e_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","blue"])
-    i_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","orangered"])
+    e_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["blue","white"])
+    i_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["orangered","white"])
 
     for xdir in exp_data_dirs: # loop through experiments
         if '15.34.00' in xdir: # choose arbitrary experiment for now
@@ -796,9 +796,9 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
 
                     # plot input spikes, recurrent spikes, output overlaid with target
-                    fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [1, 1]}) #,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
+                    fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [1, 2]}) #,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
 
-                    sns.heatmap(np.transpose(in_spikes),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
+                    sns.heatmap(np.transpose(in_spikes),cmap='Greys_r',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
@@ -872,9 +872,9 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
 
                     # plot input spikes, recurrent spikes, output overlaid with target
-                    fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [1, 1]}) #,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
+                    fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [1, 2]}) #,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
 
-                    sns.heatmap(np.transpose(in_spikes),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
+                    sns.heatmap(np.transpose(in_spikes),cmap='Greys_r',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
