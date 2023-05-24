@@ -799,8 +799,16 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     # plot input spikes, recurrent spikes, output overlaid with target
                     fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [1, 2]}) #,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
 
-                    ax[0].eventplot(np.transpose(in_spikes),colors='darkslategray')
-                    #ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
+                    spike_data = np.transpose(in_spikes)
+                    in_spike_times = []
+                    for j in range(0,np.shape(spike_data)[0]):
+                        if len(np.argwhere(spike_data[j,:]==1))>0:
+                            in_spike_times.append(np.argwhere(spike_data[i,:]==1))
+                        else:
+                            in_spike_times.append([])
+
+                    ax[0].eventplot(in_spike_times,colors='darkslategray')
+                    ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
 
@@ -819,7 +827,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                         for tick in ax[j].get_yticklabels():
                             tick.set_fontname("Ubuntu")
 
-                    save_fname = xpath+'/'+exp_path+'_naive_inout_trial'+str(i)+'.png'
+                    save_fname = xpath+'/'+exp_path+'_naive_inout_trial'+str(i)+'_testevent.png'
 
                     plt.subplots_adjust(hspace=0.4,wspace=0.7)
                     plt.draw()
@@ -828,19 +836,19 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     plt.clf()
                     plt.close()
 
-
+                    """
                     # separate figure for main e and i units
                     fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [4, 1]})
 
                     #sns.heatmap(np.transpose(spikes[:,:e_end]),cmap=e_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].eventplot(np.transpose(spikes[:,:e_end]),colors='dodgerblue')
-                    #ax[0].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
+                    ax[0].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
                     ax[0].set_ylabel('e units',fontname='Ubuntu')
                     ax[0].set_title('excitatory SNN spikes',fontname='Ubuntu')
 
                     #sns.heatmap(np.transpose(spikes[:,e_end:]),cmap=i_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
                     ax[1].eventplot(np.transpose(spikes[:,e_end:]),colors='orangered')
-                    #ax[1].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
+                    ax[1].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
                     ax[1].set_ylabel('i units',fontname='Ubuntu')
                     ax[1].set_title('inhibitory SNN spikes',fontname='Ubuntu')
 
@@ -860,8 +868,9 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     # Teardown
                     plt.clf()
                     plt.close()
+                    """
 
-
+            """
             # repeat for trained
             data = np.load(np_dir+'/91-100.npz')
             true_y = data['true_y'][99]
@@ -878,8 +887,15 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [1, 2]}) #,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
 
                     #sns.heatmap(np.transpose(in_spikes),cmap='Greys_r',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
-                    ax[0].eventplot(np.transpose(in_spikes),colors='darkslategray')
-                    #ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
+                    # convert to event times
+                    spike_data = np.transpose(in_spikes)
+                    spike_times = np.argwhere(spike_data[0,:]==1)
+                    for j in range(1,np.shape(spike_data)[0]):
+                        if len(np.argwhere(spike_data[j,:]==1))>0:
+                            spike_times = np.hstack([spike_times,np.argwhere(spike_data[j,:]==1)])
+
+                    ax[0].eventplot(spike_times,colors='darkslategray')
+                    ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
 
@@ -913,13 +929,13 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
                     #sns.heatmap(np.transpose(spikes[:,:e_end]),cmap=e_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].eventplot(np.transpose(spikes[:,:e_end]),colors='dodgerblue')
-                    #ax[0].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
+                    ax[0].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
                     ax[0].set_ylabel('e units',fontname='Ubuntu')
                     ax[0].set_title('excitatory SNN spikes',fontname='Ubuntu')
 
                     #sns.heatmap(np.transpose(spikes[:,e_end:]),cmap=i_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
                     ax[1].eventplot(np.transpose(spikes[:,e_end:]),colors='orangered')
-                    #ax[1].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
+                    ax[1].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
                     ax[1].set_ylabel('i units',fontname='Ubuntu')
                     ax[1].set_title('inhibitory SNN spikes',fontname='Ubuntu')
 
@@ -939,6 +955,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     # Teardown
                     plt.clf()
                     plt.close()
+                    """
 
 
 def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring',fromfile=True):
