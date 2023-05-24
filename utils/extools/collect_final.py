@@ -786,7 +786,8 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
             # load naive
             data = np.load(np_dir+'/1-10.npz')
             true_y = data['true_y'][0]
-            for i in range(0,len(true_y)): # just do the first few for now
+            #for i in range(0,len(true_y)): # just do the first few for now
+            for i in range(0,3):
                 if true_y[i][0]!=true_y[i][seq_len-1]: # i is a change trial
                     pred_y = data['pred_y'][0][i]
                     spikes = data['spikes'][0][i]
@@ -799,7 +800,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [1, 2]}) #,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
 
                     ax[0].eventplot(np.transpose(in_spikes),colors='darkslategray')
-                    ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
+                    #ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
 
@@ -833,13 +834,13 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
                     #sns.heatmap(np.transpose(spikes[:,:e_end]),cmap=e_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].eventplot(np.transpose(spikes[:,:e_end]),colors='dodgerblue')
-                    ax[0].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
+                    #ax[0].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
                     ax[0].set_ylabel('e units',fontname='Ubuntu')
                     ax[0].set_title('excitatory SNN spikes',fontname='Ubuntu')
 
                     #sns.heatmap(np.transpose(spikes[:,e_end:]),cmap=i_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
                     ax[1].eventplot(np.transpose(spikes[:,e_end:]),colors='orangered')
-                    ax[1].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
+                    #ax[1].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
                     ax[1].set_ylabel('i units',fontname='Ubuntu')
                     ax[1].set_title('inhibitory SNN spikes',fontname='Ubuntu')
 
@@ -878,7 +879,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
                     #sns.heatmap(np.transpose(in_spikes),cmap='Greys_r',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].eventplot(np.transpose(in_spikes),colors='darkslategray')
-                    ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
+                    #ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
 
@@ -912,13 +913,13 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
                     #sns.heatmap(np.transpose(spikes[:,:e_end]),cmap=e_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].eventplot(np.transpose(spikes[:,:e_end]),colors='dodgerblue')
-                    ax[0].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
+                    #ax[0].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
                     ax[0].set_ylabel('e units',fontname='Ubuntu')
                     ax[0].set_title('excitatory SNN spikes',fontname='Ubuntu')
 
                     #sns.heatmap(np.transpose(spikes[:,e_end:]),cmap=i_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
                     ax[1].eventplot(np.transpose(spikes[:,e_end:]),colors='orangered')
-                    ax[1].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
+                    #ax[1].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
                     ax[1].set_ylabel('i units',fontname='Ubuntu')
                     ax[1].set_title('inhibitory SNN spikes',fontname='Ubuntu')
 
