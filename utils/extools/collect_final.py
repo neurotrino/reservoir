@@ -815,7 +815,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
                     ax[3].plot(pred_y,color='dodgerblue',alpha=0.5,label='output')
                     ax[3].plot(true_y[i],color='mediumblue',alpha=0.5,label='target')
-                    ax[3].vlines(t_change,ymin=np.min(true_y[i]),ymax=np.max(true_y[i]),color='red',label='t change')
+                    ax[3].vlines(t_change,ymin=np.min(true_y[i]),ymax=np.max(true_y[i]),alpha=1.0,color='red',label='t change')
                     ax[3].set_ylabel('coherence level',fontname='Ubuntu')
                     ax[3].set_title('SNN output',fontname='Ubuntu')
 
