@@ -788,35 +788,34 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
             true_y = data['true_y'][0]
             for i in range(0,5): # just do the first few for now
                 if true_y[i][0]!=true_y[i][seq_len-1]: # i is a change trial
-                    true_y = true_y[i]
                     pred_y = data['pred_y'][0][i]
                     spikes = data['spikes'][0][i]
                     in_spikes = data['inputs'][0][i]
-                    diffs = np.diff(true_y,axis=0)
+                    diffs = np.diff(true_y[i],axis=0)
                     # t_change is the first timestep of the new coherence level
-                    t_change = np.where(np.diff(true_y,axis=0)!=0)[0][0]+1
+                    t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
 
                     # plot input spikes, recurrent spikes, output overlaid with target
                     fig, ax = plt.subplots(nrows=4,ncols=1)
 
-                    sns.heatmap(np.transpose(in_spikes),cmap='Greys',cbar=False,xticklabels=True,yticklabels=True,ax=ax[0])
+                    sns.heatmap(np.transpose(in_spikes),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
                     ax[0].set_ylabel('input channels',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
 
-                    sns.heatmap(np.transpose(spikes[:e_end,:]),cmap='GnBu',cbar=False,xticklabels=True,yticklabels=True,ax=ax[1])
+                    sns.heatmap(np.transpose(spikes[:e_end,:]),cmap='Blues',cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
                     ax[1].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
                     ax[1].set_ylabel('e units',fontname='Ubuntu')
                     ax[1].set_title('excitatory SNN spikes',fontname='Ubuntu')
 
-                    sns.heatmap(np.transpose(spikes[:e_end,:]),cmap='OrRd',cbar=False,xticklabels=True,yticklabels=True,ax=ax[2])
+                    sns.heatmap(np.transpose(spikes[:e_end,:]),cmap='Reds',cbar=False,xticklabels=False,yticklabels=False,ax=ax[2])
                     ax[2].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
                     ax[2].set_ylabel('i units',fontname='Ubuntu')
                     ax[2].set_title('inhibitory SNN spikes',fontname='Ubuntu')
 
                     ax[3].plot(pred_y,color='dodgerblue',alpha=0.5,label='output')
-                    ax[3].plot(true_y,color='mediumblue',alpha=0.5,label='target')
-                    ax[3].vlines(t_change,ymin=np.min(pred_y),ymax=np.max(pred_y),color='red',label='t change')
+                    ax[3].plot(true_y[i],color='mediumblue',alpha=0.5,label='target')
+                    ax[3].vlines(t_change,ymin=np.min(true_y[i]),ymax=np.max(true_y[i]),color='red',label='t change')
                     ax[3].set_ylabel('coherence level',fontname='Ubuntu')
                     ax[3].set_title('SNN output',fontname='Ubuntu')
 
