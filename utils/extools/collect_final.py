@@ -869,6 +869,7 @@ def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring',fr
             else: # same color for the non-preferred one
                 pc.set_facecolor('green') # the other would be pc.set_facecolor('mediumaquamarine')
             pc.set_edgecolor('dodgerblue')
+            pc.set_alpha(0.8)
 
     plt.suptitle('Low-coherence-tuned input channels',fontname='Ubuntu')
     #labels = ['low', 'high']
@@ -905,6 +906,7 @@ def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring',fr
             else: # same color for the non-preferred one
                 pc.set_facecolor('blueviolet')
             pc.set_edgecolor('dodgerblue')
+            pc.set_alpha(0.8)
 
     plt.suptitle('High-coherence-tuned input channels',fontname='Ubuntu')
     #labels = ['low', 'high']
