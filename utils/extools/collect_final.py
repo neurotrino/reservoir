@@ -874,10 +874,10 @@ def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring',fr
     #labels = ['low', 'high']
     for j in range(0,len(ax)):
         ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
-        ax[j].set_xticklabels(['low','high'],fontname='Ubuntu')
+        #ax[j].set_xticklabels(['low','high'],fontname='Ubuntu')
         #ax[j].set_xlim(0.25, len(labels) + 0.75)
-        #ax[j].set_ylim(min,max)
-        ax[j].set_xlabel('coherence',fontname='Ubuntu')
+        ax[j].set_ylim(0.0,0.7)
+        ax[j].set_xlabel('low  high',fontname='Ubuntu')
         ax[j].set_title('channel '+str(coh0_channels[j]),fontname='Ubuntu')
         for tick in ax[j].get_xticklabels():
             tick.set_fontname("Ubuntu")
@@ -900,7 +900,7 @@ def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring',fr
     for i in range(0,len(coh0_channels)):
         vplot = ax[i].violinplot(dataset=[coh0_channel_trial_rates[:,coh1_channels[i]],coh1_channel_trial_rates[:,coh1_channels[i]]], showmeans=True)
         for i, pc in enumerate(vplot["bodies"], 1):
-            if i%2 == 0: # multiple colors for coherence level we are focusing on
+            if i%2 != 0: # multiple colors for coherence level we are focusing on
                 pc.set_facecolor('limegreen')
             else: # same color for the non-preferred one
                 pc.set_facecolor('slateblue')
@@ -910,10 +910,10 @@ def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring',fr
     #labels = ['low', 'high']
     for j in range(0,len(ax)):
         ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
-        ax[j].set_xticklabels(['low','high'],fontname='Ubuntu')
+        #ax[j].set_xticklabels(['low','high'],fontname='Ubuntu')
         #ax[j].set_xlim(0.25, len(labels) + 0.75)
-        #ax[j].set_ylim(min,max)
-        ax[j].set_xlabel('coherence',fontname='Ubuntu')
+        ax[j].set_ylim(0.0,0.7)
+        ax[j].set_xlabel('low  high',fontname='Ubuntu')
         ax[j].set_title('channel '+str(coh1_channels[j]),fontname='Ubuntu')
         for tick in ax[j].get_xticklabels():
             tick.set_fontname("Ubuntu")
