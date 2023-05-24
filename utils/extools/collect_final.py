@@ -768,10 +768,9 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
     # check if folder exists, otherwise create it for saving files
     spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
 
-    rec_0_e_rates = []
-    rec_0_i_rates = []
-    rec_1_e_rates = []
-    rec_1_i_rates = []
+    # custom colormaps for e and i spike rasters
+    e_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","dodgerblue"])
+    i_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","orangered"])
 
     for xdir in exp_data_dirs: # loop through experiments
         if '15.34.00' in xdir: # choose arbitrary experiment for now
@@ -820,7 +819,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
                     save_fname = xpath+'/'+exp_path+'_naive_inout_trial'+str(i)+'.png'
 
-                    plt.subplots_adjust(hspace=0.7,wspace=0.7)
+                    plt.subplots_adjust(hspace=0.4,wspace=0.7)
                     plt.draw()
                     plt.savefig(save_fname,dpi=300)
                     # Teardown
@@ -831,12 +830,12 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     # separate figure for main e and i units
                     fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [1, 4]})
 
-                    sns.heatmap(np.transpose(spikes[:,:e_end]),cmap='crest',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
+                    sns.heatmap(np.transpose(spikes[:,:e_end]),cmap=e_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
                     ax[0].set_ylabel('e units',fontname='Ubuntu')
                     ax[0].set_title('excitatory SNN spikes',fontname='Ubuntu')
 
-                    sns.heatmap(np.transpose(spikes[:,e_end:]),cmap='flare',cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
+                    sns.heatmap(np.transpose(spikes[:,e_end:]),cmap=i_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
                     ax[1].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
                     ax[1].set_ylabel('i units',fontname='Ubuntu')
                     ax[1].set_title('inhibitory SNN spikes',fontname='Ubuntu')
@@ -851,7 +850,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
                     save_fname = xpath+'/'+exp_path+'_naive_main_trial'+str(i)+'.png'
 
-                    plt.subplots_adjust(hspace=0.7,wspace=0.7)
+                    plt.subplots_adjust(hspace=0.4,wspace=0.7)
                     plt.draw()
                     plt.savefig(save_fname,dpi=300)
                     # Teardown
@@ -896,7 +895,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
                     save_fname = xpath+'/'+exp_path+'_trained_inout_trial'+str(i)+'.png'
 
-                    plt.subplots_adjust(hspace=0.7,wspace=0.7)
+                    plt.subplots_adjust(hspace=0.4,wspace=0.7)
                     plt.draw()
                     plt.savefig(save_fname,dpi=300)
                     # Teardown
@@ -907,12 +906,12 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     # separate figure for main e and i units
                     fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [1, 4]})
 
-                    sns.heatmap(np.transpose(spikes[:,:e_end]),cmap='crest',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
+                    sns.heatmap(np.transpose(spikes[:,:e_end]),cmap=e_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
                     ax[0].set_ylabel('e units',fontname='Ubuntu')
                     ax[0].set_title('excitatory SNN spikes',fontname='Ubuntu')
 
-                    sns.heatmap(np.transpose(spikes[:,e_end:]),cmap='flare',cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
+                    sns.heatmap(np.transpose(spikes[:,e_end:]),cmap=i_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
                     ax[1].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
                     ax[1].set_ylabel('i units',fontname='Ubuntu')
                     ax[1].set_title('inhibitory SNN spikes',fontname='Ubuntu')
@@ -927,7 +926,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
                     save_fname = xpath+'/'+exp_path+'_trained_main_trial'+str(i)+'.png'
 
-                    plt.subplots_adjust(hspace=0.7,wspace=0.7)
+                    plt.subplots_adjust(hspace=0.4,wspace=0.7)
                     plt.draw()
                     plt.savefig(save_fname,dpi=300)
                     # Teardown
