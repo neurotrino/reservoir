@@ -756,7 +756,7 @@ def losses_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
     plt.close()
 
 
-def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
+def demo_input_spikes_output(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
     # randomly go thru and try to pick a good naive and good trained example for display
     # make the colors aesthetic, please
     for exp_string in exp_dirs:
@@ -767,8 +767,74 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
     # check if folder exists, otherwise create it for saving files
     spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
-    if not os.path.isdir(spath):
-        os.makedirs(spath)
+
+    rec_0_e_rates = []
+    rec_0_i_rates = []
+    rec_1_e_rates = []
+    rec_1_i_rates = []
+
+    for xdir in exp_data_dirs: # loop through experiments
+        if '20.27.16' in xdir: # choose arbitrary experiment for now 
+        #if not '06.03.22' in xdir: # do not include that one awful rate experiment
+            exp_path = xdir[-9:-1]
+            xpath = spath + '/' + exp_path
+            if not os.path.isdir(xpath):
+                os.makedirs(xpath)
+
+            np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+            # load naive
+            data = np.load(np_dir+'/1-10.npz')
+            true_y = data['true_y'][0]
+            for i in range(0,5): # just do the first few for now
+                if true_y[i][0]!=true_y[i][seq_len-1]: # i is a change trial
+                    pred_y = data['pred_y'][0][i]
+                    spikes = data['spikes'][0][i]
+                    in_spikes = data['input'][0][i]
+                    # plot input spikes, recurrent spikes, output overlaid with target
+                    fig, ax = plt.subplots(nrows=4,ncols=1)
+
+                    sns.heatmap(np.transpose(in_spikes),cmap='Greys',cbar=False,xticklabels=True,yticklabels=True,ax=ax[0])
+                    ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
+                    ax[0].set_ylabel('input channels',fontname='Ubuntu')
+                    ax[0].set_title('input spikes',fontname='Ubuntu')
+
+                    sns.heatmap(np.transpose(spikes[:e_end,:]),cmap='GnBu',cbar=False,xticklabels=True,yticklabels=True,ax=ax[1])
+                    ax[1].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
+                    ax[1].set_ylabel('e units',fontname='Ubuntu')
+                    ax[1].set_title('excitatory SNN spikes',fontname='Ubuntu')
+
+                    sns.heatmap(np.transpose(spikes[:e_end,:]),cmap='OrRd',cbar=False,xticklabels=True,yticklabels=True,ax=ax[2])
+                    ax[2].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
+                    ax[2].set_ylabel('i units',fontname='Ubuntu')
+                    ax[2].set_title('inhibitory SNN spikes',fontname='Ubuntu')
+
+                    ax[3].plot(pred_y,color='dodgerblue',alpha=0.5,label='output')
+                    ax[3].plot(true_y,color='mediumblue',alpha=0.5,label='target')
+                    ax[3].vlines(t_change,ymin=np.min(pred_y),ymax=np.max(pred_y),color='red',label='t change')
+                    ax[3].set_ylabel('coherence level',fontname='Ubuntu')
+                    ax[3].set_title('SNN output',fontname='Ubuntu')
+
+                    plt.suptitle('Example trial',fontname='Ubuntu')
+                    for j in range(0,len(ax)):
+                        ax[j].legend(prop={"family":"Ubuntu"})
+                        ax[j].set_xlabel('time (ms)',fontname='Ubuntu')
+                        ax[j].set_title('channel '+str(coh0_channels[j]+1),fontname='Ubuntu')
+                        for tick in ax[j].get_xticklabels():
+                            tick.set_fontname("Ubuntu")
+                        for tick in ax[j].get_yticklabels():
+                            tick.set_fontname("Ubuntu")
+
+                    save_fname = xpath+'/'+exp_path+'_naive_trial'+str(i)+'.png'
+
+                    plt.subplots_adjust(hspace=0.5,wspace=1.0)
+                    plt.draw()
+                    plt.savefig(save_fname,dpi=300)
+                    # Teardown
+                    plt.clf()
+                    plt.close()
+
+            # repeat for trained
 
 
 def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring',fromfile=True):
