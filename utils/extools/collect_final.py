@@ -796,7 +796,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
 
                     # plot input spikes, recurrent spikes, output overlaid with target
-                    fig, ax = plt.subplots(nrows=4,ncols=1)
+                    fig, ax = plt.subplots(nrows=4,ncols=1,gridspec_kw={'height_ratios': [1, 12, 3, 6]})
 
                     sns.heatmap(np.transpose(in_spikes),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
@@ -808,7 +808,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     ax[1].set_ylabel('e units',fontname='Ubuntu')
                     ax[1].set_title('excitatory SNN spikes',fontname='Ubuntu')
 
-                    sns.heatmap(np.transpose(spikes[:e_end,:]),cmap='Reds',cbar=False,xticklabels=False,yticklabels=False,ax=ax[2])
+                    sns.heatmap(np.transpose(spikes[e_end:,:]),cmap='Oranges',cbar=False,xticklabels=False,yticklabels=False,ax=ax[2])
                     ax[2].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
                     ax[2].set_ylabel('i units',fontname='Ubuntu')
                     ax[2].set_title('inhibitory SNN spikes',fontname='Ubuntu')
