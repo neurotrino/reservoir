@@ -807,7 +807,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                         else:
                             in_spike_times.append([])
 
-                    ax[0].eventplot(in_spike_times,colors='darkslategray')
+                    ax[0].eventplot(in_spike_times,colors='lightslategray')
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
@@ -836,18 +836,34 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     plt.clf()
                     plt.close()
 
-                    """
                     # separate figure for main e and i units
                     fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [4, 1]})
 
                     #sns.heatmap(np.transpose(spikes[:,:e_end]),cmap=e_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
-                    ax[0].eventplot(np.transpose(spikes[:,:e_end]),colors='dodgerblue')
+                    spike_data = np.transpose(spikes[:,:e_end])
+                    spike_times = []
+                    for j in range(0,np.shape(spike_data)[0]):
+                        if len(np.argwhere(spike_data[j,:]==1))>0:
+                            spike_times.append(np.concatenate(np.argwhere(spike_data[j,:]==1)).ravel().tolist())
+                        else:
+                            spike_times.append([])
+
+                    ax[0].eventplot(spike_times,colors='dodgerblue')
                     ax[0].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
                     ax[0].set_ylabel('e units',fontname='Ubuntu')
                     ax[0].set_title('excitatory SNN spikes',fontname='Ubuntu')
 
                     #sns.heatmap(np.transpose(spikes[:,e_end:]),cmap=i_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
-                    ax[1].eventplot(np.transpose(spikes[:,e_end:]),colors='orangered')
+
+                    spike_data = np.transpose(spikes[:,e_end:])
+                    spike_times = []
+                    for j in range(0,np.shape(spike_data)[0]):
+                        if len(np.argwhere(spike_data[j,:]==1))>0:
+                            spike_times.append(np.concatenate(np.argwhere(spike_data[j,:]==1)).ravel().tolist())
+                        else:
+                            spike_times.append([])
+
+                    ax[1].eventplot(spike_times,colors='orangered')
                     ax[1].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
                     ax[1].set_ylabel('i units',fontname='Ubuntu')
                     ax[1].set_title('inhibitory SNN spikes',fontname='Ubuntu')
@@ -868,13 +884,14 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     # Teardown
                     plt.clf()
                     plt.close()
-                    """
 
-            """
+
+
             # repeat for trained
             data = np.load(np_dir+'/91-100.npz')
             true_y = data['true_y'][99]
-            for i in range(0,len(true_y)): # just do the first few for now
+            #for i in range(0,len(true_y)): # just do the first few for now
+            for i in range(0,3):
                 if true_y[i][0]!=true_y[i][seq_len-1]: # i is a change trial
                     pred_y = data['pred_y'][99][i]
                     spikes = data['spikes'][99][i]
@@ -889,12 +906,14 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     #sns.heatmap(np.transpose(in_spikes),cmap='Greys_r',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     # convert to event times
                     spike_data = np.transpose(in_spikes)
-                    spike_times = np.argwhere(spike_data[0,:]==1)
-                    for j in range(1,np.shape(spike_data)[0]):
+                    in_spike_times = []
+                    for j in range(0,np.shape(spike_data)[0]):
                         if len(np.argwhere(spike_data[j,:]==1))>0:
-                            spike_times = np.hstack([spike_times,np.argwhere(spike_data[j,:]==1)])
+                            in_spike_times.append(np.concatenate(np.argwhere(spike_data[j,:]==1)).ravel().tolist())
+                        else:
+                            in_spike_times.append([])
 
-                    ax[0].eventplot(spike_times,colors='darkslategray')
+                    ax[0].eventplot(in_spike_times,colors='lightslategray')
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
@@ -928,13 +947,31 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [4, 1]})
 
                     #sns.heatmap(np.transpose(spikes[:,:e_end]),cmap=e_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
-                    ax[0].eventplot(np.transpose(spikes[:,:e_end]),colors='dodgerblue')
+
+                    spike_data = np.transpose(spikes[:,:e_end])
+                    spike_times = []
+                    for j in range(0,np.shape(spike_data)[0]):
+                        if len(np.argwhere(spike_data[j,:]==1))>0:
+                            spike_times.append(np.concatenate(np.argwhere(spike_data[j,:]==1)).ravel().tolist())
+                        else:
+                            spike_times.append([])
+
+                    ax[0].eventplot(spike_times,colors='dodgerblue')
                     ax[0].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
                     ax[0].set_ylabel('e units',fontname='Ubuntu')
                     ax[0].set_title('excitatory SNN spikes',fontname='Ubuntu')
 
                     #sns.heatmap(np.transpose(spikes[:,e_end:]),cmap=i_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
-                    ax[1].eventplot(np.transpose(spikes[:,e_end:]),colors='orangered')
+
+                    spike_data = np.transpose(spikes[:,e_end:])
+                    spike_times = []
+                    for j in range(0,np.shape(spike_data)[0]):
+                        if len(np.argwhere(spike_data[j,:]==1))>0:
+                            spike_times.append(np.concatenate(np.argwhere(spike_data[j,:]==1)).ravel().tolist())
+                        else:
+                            spike_times.append([])
+
+                    ax[1].eventplot(spike_times,colors='orangered')
                     ax[1].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
                     ax[1].set_ylabel('i units',fontname='Ubuntu')
                     ax[1].set_title('inhibitory SNN spikes',fontname='Ubuntu')
@@ -955,7 +992,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     # Teardown
                     plt.clf()
                     plt.close()
-                    """
+
 
 
 def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring',fromfile=True):
