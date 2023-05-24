@@ -803,9 +803,9 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     in_spike_times = []
                     for j in range(0,np.shape(spike_data)[0]):
                         if len(np.argwhere(spike_data[j,:]==1))>0:
-                            in_spike_times.append(np.argwhere(spike_data[i,:]==1).tolist())
+                            in_spike_times.append(np.concatenate(np.argwhere(spike_data[j,:]==1)).ravel().tolist())
                         else:
-                            in_spike_times.append([].tolist())
+                            in_spike_times.append([])
 
                     ax[0].eventplot(in_spike_times,colors='darkslategray')
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
