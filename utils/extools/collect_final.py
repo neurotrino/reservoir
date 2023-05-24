@@ -813,8 +813,8 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     ax[2].set_ylabel('i units',fontname='Ubuntu')
                     ax[2].set_title('inhibitory SNN spikes',fontname='Ubuntu')
 
-                    ax[3].plot(pred_y,color='dodgerblue',alpha=0.5,label='output')
-                    ax[3].plot(true_y[i],color='mediumblue',alpha=0.5,label='target')
+                    ax[3].plot(pred_y,color='dodgerblue',alpha=0.7,label='output')
+                    ax[3].plot(true_y[i],color='darkblue',alpha=0.7,label='target')
                     ax[3].vlines(t_change,ymin=np.min(true_y[i]),ymax=np.max(true_y[i]),alpha=1.0,color='red',label='t change')
                     ax[3].set_ylabel('coherence level',fontname='Ubuntu')
                     ax[3].set_title('SNN output',fontname='Ubuntu')
@@ -838,6 +838,58 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     plt.close()
 
             # repeat for trained
+            data = np.load(np_dir+'/91-100.npz')
+            true_y = data['true_y'][0]
+            for i in range(0,5): # just do the first few for now
+                if true_y[i][0]!=true_y[i][seq_len-1]: # i is a change trial
+                    pred_y = data['pred_y'][0][i]
+                    spikes = data['spikes'][0][i]
+                    in_spikes = data['inputs'][0][i]
+                    diffs = np.diff(true_y[i],axis=0)
+                    # t_change is the first timestep of the new coherence level
+                    t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
+
+                    # plot input spikes, recurrent spikes, output overlaid with target
+                    fig, ax = plt.subplots(nrows=4,ncols=1,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
+
+                    sns.heatmap(np.transpose(in_spikes),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
+                    ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
+                    ax[0].set_ylabel('inputs',fontname='Ubuntu')
+                    ax[0].set_title('input spikes',fontname='Ubuntu')
+
+                    sns.heatmap(np.transpose(spikes[:,:e_end]),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
+                    ax[1].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
+                    ax[1].set_ylabel('e units',fontname='Ubuntu')
+                    ax[1].set_title('excitatory SNN spikes',fontname='Ubuntu')
+
+                    sns.heatmap(np.transpose(spikes[:,e_end:]),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[2])
+                    ax[2].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
+                    ax[2].set_ylabel('i units',fontname='Ubuntu')
+                    ax[2].set_title('inhibitory SNN spikes',fontname='Ubuntu')
+
+                    ax[3].plot(pred_y,color='dodgerblue',alpha=0.7,label='output')
+                    ax[3].plot(true_y[i],color='darkblue',alpha=0.7,label='target')
+                    ax[3].vlines(t_change,ymin=np.min(pred_y),ymax=np.max(pred_y),alpha=1.0,color='red',label='t change')
+                    ax[3].set_ylabel('coherence level',fontname='Ubuntu')
+                    ax[3].set_title('SNN output',fontname='Ubuntu')
+                    ax[3].legend(prop={"family":"Ubuntu"})
+
+                    plt.suptitle('Example trial',fontname='Ubuntu')
+                    for j in range(0,len(ax)):
+                        ax[j].set_xlabel('time (ms)',fontname='Ubuntu')
+                        for tick in ax[j].get_xticklabels():
+                            tick.set_fontname("Ubuntu")
+                        for tick in ax[j].get_yticklabels():
+                            tick.set_fontname("Ubuntu")
+
+                    save_fname = xpath+'/'+exp_path+'_trained_trial'+str(i)+'.png'
+
+                    plt.subplots_adjust(hspace=1.0)
+                    plt.draw()
+                    plt.savefig(save_fname,dpi=300)
+                    # Teardown
+                    plt.clf()
+                    plt.close()
 
 
 def input_channel_violin_plots(exp_dirs=all_save_inz_dirs,exp_season='spring',fromfile=True):
