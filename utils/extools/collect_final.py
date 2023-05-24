@@ -796,11 +796,11 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
 
                     # plot input spikes, recurrent spikes, output overlaid with target
-                    fig, ax = plt.subplots(nrows=4,ncols=1,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(4,5))
+                    fig, ax = plt.subplots(nrows=4,ncols=1,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
 
                     sns.heatmap(np.transpose(in_spikes),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
-                    ax[0].set_ylabel('input channels',fontname='Ubuntu')
+                    ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
 
                     sns.heatmap(np.transpose(spikes[:,:e_end]),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[1])
@@ -818,10 +818,10 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     ax[3].vlines(t_change,ymin=np.min(true_y[i]),ymax=np.max(true_y[i]),alpha=1.0,color='red',label='t change')
                     ax[3].set_ylabel('coherence level',fontname='Ubuntu')
                     ax[3].set_title('SNN output',fontname='Ubuntu')
+                    ax[3].legend(prop={"family":"Ubuntu"})
 
                     plt.suptitle('Example trial',fontname='Ubuntu')
                     for j in range(0,len(ax)):
-                        ax[j].legend(prop={"family":"Ubuntu"})
                         ax[j].set_xlabel('time (ms)',fontname='Ubuntu')
                         for tick in ax[j].get_xticklabels():
                             tick.set_fontname("Ubuntu")
