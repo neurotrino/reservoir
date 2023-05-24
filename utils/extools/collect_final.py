@@ -770,7 +770,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
     spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
 
     # custom colormaps for e and i spike rasters
-    e_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","dodgerblue"])
+    e_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","blue"])
     i_cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","orangered"])
 
     for xdir in exp_data_dirs: # loop through experiments
@@ -786,7 +786,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
             # load naive
             data = np.load(np_dir+'/1-10.npz')
             true_y = data['true_y'][0]
-            for i in range(0,5): # just do the first few for now
+            for i in range(0,len(true_y)): # just do the first few for now
                 if true_y[i][0]!=true_y[i][seq_len-1]: # i is a change trial
                     pred_y = data['pred_y'][0][i]
                     spikes = data['spikes'][0][i]
@@ -796,7 +796,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
 
                     # plot input spikes, recurrent spikes, output overlaid with target
-                    fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [1, 2]}) #,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
+                    fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [1, 1]}) #,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
 
                     sns.heatmap(np.transpose(in_spikes),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
@@ -829,7 +829,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
 
                     # separate figure for main e and i units
-                    fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [1, 4]})
+                    fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [4, 1]})
 
                     sns.heatmap(np.transpose(spikes[:,:e_end]),cmap=e_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
@@ -862,7 +862,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
             # repeat for trained
             data = np.load(np_dir+'/91-100.npz')
             true_y = data['true_y'][99]
-            for i in range(0,5): # just do the first few for now
+            for i in range(0,len(true_y)): # just do the first few for now
                 if true_y[i][0]!=true_y[i][seq_len-1]: # i is a change trial
                     pred_y = data['pred_y'][99][i]
                     spikes = data['spikes'][99][i]
@@ -872,7 +872,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     t_change = np.where(np.diff(true_y[i],axis=0)!=0)[0][0]+1
 
                     # plot input spikes, recurrent spikes, output overlaid with target
-                    fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [1, 2]}) #,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
+                    fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [1, 1]}) #,gridspec_kw={'height_ratios': [1, 12, 3, 6]},figsize=(8,10))
 
                     sns.heatmap(np.transpose(in_spikes),cmap='Greys',cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
@@ -905,7 +905,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
 
                     # separate figure for main e and i units
-                    fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [1, 4]})
+                    fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [4, 1]})
 
                     sns.heatmap(np.transpose(spikes[:,:e_end]),cmap=e_cmap,cbar=False,xticklabels=False,yticklabels=False,ax=ax[0])
                     ax[0].vlines(t_change,ymin=0,ymax=240,color='red',label='t change')
