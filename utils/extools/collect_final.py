@@ -879,11 +879,12 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
             np_dir = os.path.join(data_dir, xdir, "npz-data")
 
+            """
             # load naive
             data = np.load(np_dir+'/1-10.npz')
             true_y = data['true_y'][0]
             #for i in range(0,len(true_y)): # just do the first few for now
-            for i in range(4,6):
+            for i in range(0,len(true_y)):
                 if true_y[i][0]!=true_y[i][seq_len-1]: # i is a change trial
                     pred_y = data['pred_y'][0][i]
                     spikes = data['spikes'][0][i]
@@ -931,6 +932,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     # Teardown
                     plt.clf()
                     plt.close()
+                    """
 
                     """
                     # separate figure for main e and i units
@@ -988,7 +990,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
             data = np.load(np_dir+'/991-1000.npz')
             true_y = data['true_y'][99]
             #for i in range(0,len(true_y)): # just do the first few for now
-            for i in range(20,22):
+            for i in range(0,len(true_y)):
                 if true_y[i][0]!=true_y[i][seq_len-1]: # i is a change trial
                     pred_y = data['pred_y'][99][i]
                     spikes = data['spikes'][99][i]
@@ -1089,7 +1091,6 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     # Teardown
                     plt.clf()
                     plt.close()
-
 
 
 
