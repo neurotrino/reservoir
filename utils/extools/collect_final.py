@@ -697,12 +697,12 @@ def plot_single_exp_rate_over_training(exp_dirs=all_spring_dual_dirs,exp_season=
                     trial_rates = np.mean(trial_spikes,1)
 
                     if true_y[i][0]==1:
-                        if not batch_rates_1 in locals():
+                        if not 'batch_rates_1' in locals():
                             batch_rates_1 = trial_rates
                         else:
                             batch_rates_1 = np.vstack([batch_rates_1,trial_rates])
                     else:
-                        if not batch_rates_0 in locals():
+                        if not 'batch_rates_0' in locals():
                             batch_rates_0 = trial_rates
                         else:
                             batch_rates_0 = np.vstack([batch_rates_0,trial_rates])
