@@ -737,6 +737,48 @@ def plot_rates_over_training(exp_season='spring'):
 
     """
 
+def get_truly_naive_rates(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    if not os.path.isdir(spath):
+        os.makedirs(spath)
+
+    rates_e_0 = []
+    rates_e_1 = []
+    rates_i_0 = []
+    rates_i_1 = []
+
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        if not '06.03.22' in np_dir: # do not include that one awful experiment
+            exp_path = xdir[-9:-1]
+
+            filepath = os.path.join(data_dir,xdir,"npz-data","1-10.npz")
+            data = np.load(filepath)
+            spikes = data['spikes'][0] # first batch ever
+            true_y = data['true_y'][0]
+
+            for i in np.shape(spikes)[0]:
+                if true_y[i][0]==true_y[i][seq_len-1]: # no coherence change trial
+                    coh_lvl = true_y[i][0]
+                    trial_spikes = np.transpose(spikes[i])
+                    trial_e_rates = np.mean(trial_spikes[:e_end,:])
+                    trial_i_rates = np.mean(trial_spikes[e_end:,:])
+                    if coh_lvl == 0:
+                        rates_e_0.append(trial_e_rates)
+                        rates_i_0.append(trial_i_rates)
+                    else:
+                        rates_e_1.append(trial_e_rates)
+                        rates_i_1.append(trial_i_rates)
+
+    return [rates_e_0,rates_e_1,rates_i_0,rates_i_1]
 
 def losses_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
     for exp_string in exp_dirs:
