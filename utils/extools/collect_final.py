@@ -677,42 +677,42 @@ def plot_rates_over_training(exp_season='spring'):
     i_rates_0 = rates_0[:,:,e_end:]
     i_rates_1 = rates_1[:,:,e_end:]
 
-    # plot rates over time
-    fig, ax = plt.subplots(nrows=2, ncols=1)
-
     epochs=np.arange(0,np.shape(e_rates_0)[1])
-    ax[0].plot(epochs,np.mean(e_rates_0,(0,2)),label='e units',color='blue')
-    ax[0].fill_between(epochs,np.mean(e_rates_0,(0,2))-np.std(e_rates_0,(0,2)),np.mean(e_rates_0,(0,2))+np.std(e_rates_0,(0,2)),facecolor='dodgerblue',alpha=0.4)
-    ax[0].plot(epochs,np.mean(i_rates_0,(0,2)),label='i units',color='orangered')
-    ax[0].fill_between(epochs,np.mean(i_rates_0,(0,2))-np.std(i_rates_0,(0,2)),np.mean(i_rates_0,(0,2))+np.std(i_rates_0,(0,2)),facecolor='darkorange',alpha=0.4)
-    ax[0].set_title('coherence 0 trials',fontname='Ubuntu')
 
-    ax[1].plot(epochs,np.mean(e_rates_1,(0,2)),label='e units',color='blue')
-    ax[1].fill_between(epochs,np.mean(e_rates_1,(0,2))-np.std(e_rates_1,(0,2)),np.mean(e_rates_1,(0,2))+np.std(e_rates_1,(0,2)),facecolor='dodgerblue',alpha=0.4)
-    ax[1].plot(epochs,np.mean(i_rates_1,(0,2)),label='i units',color='orangered')
-    ax[1].fill_between(epochs,np.mean(i_rates_1,(0,2))-np.std(i_rates_1,(0,2)),np.mean(i_rates_1,(0,2))+np.std(i_rates_1,(0,2)),facecolor='darkorange',alpha=0.4)
-    ax[1].set_title('coherence 1 trials',fontname='Ubuntu')
+    # plot separate examples per experiment, since it's too jumbled all together
+    for i in range(0,np.shape(e_rates_0)[0]):
+        # plot rates over time
+        fig, ax = plt.subplots(nrows=2, ncols=1)
+        ax[0].plot(epochs,np.mean(e_rates_0[i],1),label='e units',color='blue')
+        ax[0].fill_between(epochs,np.mean(e_rates_0[i],1)-np.std(e_rates_0[i],1),np.mean(e_rates_0[i],1)+np.std(e_rates_0[i],1),facecolor='dodgerblue',alpha=0.4)
+        ax[0].plot(epochs,np.mean(i_rates_0[i],1),label='i units',color='orangered')
+        ax[0].fill_between(epochs,np.mean(i_rates_0[i],1)-np.std(i_rates_0[i],1),np.mean(i_rates_0[i],1)+np.std(i_rates_0[i],1),facecolor='darkorange',alpha=0.4)
 
-    for j in range(0,len(ax)):
-        ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
-        ax[j].set_xlabel('training epoch',fontname='Ubuntu')
-        ax[j].legend(prop={"family":"Ubuntu"})
-        for tick in ax[j].get_xticklabels():
-            tick.set_fontname("Ubuntu")
-        for tick in ax[j].get_yticklabels():
-            tick.set_fontname("Ubuntu")
+        ax[1].plot(epochs,np.mean(e_rates_1[i],1),label='e units',color='blue')
+        ax[1].fill_between(epochs,np.mean(e_rates_1[i],1)-np.std(e_rates_1[i],1),np.mean(e_rates_1[i],1)+np.std(e_rates_1[i],1),facecolor='dodgerblue',alpha=0.4)
+        ax[1].plot(epochs,np.mean(i_rates_1[i],1),label='i units',color='orangered')
+        ax[1].fill_between(epochs,np.mean(i_rates_1[i],1)-np.std(i_rates_1[i],1),np.mean(i_rates_1[i],1)+np.std(i_rates_1[i],1),facecolor='darkorange',alpha=0.4)
 
-    plt.suptitle('Evolution of rates over training',fontname='Ubuntu')
-    plt.subplots_adjust(wspace=0.9, hspace=0.9)
-    plt.draw()
+        for j in range(0,len(ax)):
+            ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
+            ax[j].set_xlabel('training epoch',fontname='Ubuntu')
+            ax[j].legend(prop={"family":"Ubuntu"})
+            for tick in ax[j].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[j].get_yticklabels():
+                tick.set_fontname("Ubuntu")
 
-    save_fname = spath+'/all_rates_over_training.png'
-    plt.savefig(save_fname,dpi=300)
-    # Teardown
-    plt.clf()
-    plt.close()
+        plt.suptitle('Evolution of rates over training',fontname='Ubuntu')
+        plt.subplots_adjust(wspace=0.9, hspace=0.9)
+        plt.draw()
 
-    return [e_rates_0, i_rates_0, e_rates_1, i_rates_1]
+        save_fname = spath+'/rates_over_training_exp'+str(i)+'.png'
+        plt.savefig(save_fname,dpi=300)
+        # Teardown
+        plt.clf()
+        plt.close()
+
+    #return [e_rates_0, i_rates_0, e_rates_1, i_rates_1]
 
     """
     # do the statistics you want as well
