@@ -729,8 +729,8 @@ def losses_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
                     rate_losses = np.transpose(rate_loss)
                     task_losses = np.transpose(task_loss)
                 else:
-                    rate_losses = np.hstack([rate_losses,np.transpose(rate_loss)])
-                    task_losses = np.hstack([task_losses,np.transpose(task_loss)])
+                    rate_losses = np.vstack([rate_losses,np.transpose(rate_loss)])
+                    task_losses = np.vstack([task_losses,np.transpose(task_loss)])
 
                 print(np.shape(rate_losses))
 
