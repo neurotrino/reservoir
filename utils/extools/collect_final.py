@@ -707,46 +707,47 @@ def plot_single_exp_rate_over_training(exp_dirs=all_spring_dual_dirs,exp_season=
                         else:
                             batch_rates_0 = np.vstack([batch_rates_0,trial_rates])
 
-                    rates_0.append(batch_rates_0)
-                    rates_1.append(batch_rates_1)
-                    del batch_rates_0
-                    del batch_rates_1
-                    # ultimately this would stack us up at 100 epochs, variable # trials, 300 units
 
-            e_rates_0 = rates_0[:,:,:e_end]
-            e_rates_1 = rates_1[:,:,:e_end]
-            i_rates_0 = rates_0[:,:,e_end:]
-            i_rates_1 = rates_1[:,:,e_end:]
+            rates_1.append(batch_rates_1)
+            rates_0.append(batch_rates_0)
+            del batch_rates_0
+            del batch_rates_1
+            # ultimately this would stack us up at 100 epochs, variable # trials, 300 units
 
-            fig,ax = plt.subplots(nrows=2, ncols=1)
-            ax[0].plot(epochs,np.mean(e_rates_0,1),label='e units',color='blue')
-            ax[0].fill_between(epochs,np.mean(e_rates_0,1)-np.std(e_rates_0,1),np.mean(e_rates_0,1)+np.std(e_rates_0,1),facecolor='dodgerblue',alpha=0.4)
-            ax[0].plot(epochs,np.mean(i_rates_0,1),label='i units',color='orangered')
-            ax[0].fill_between(epochs,np.mean(i_rates_0,1)-np.std(i_rates_0,1),np.mean(i_rates_0,1)+np.std(i_rates_0,1),facecolor='darkorange',alpha=0.4)
+        e_rates_0 = rates_0[:,:,:e_end]
+        e_rates_1 = rates_1[:,:,:e_end]
+        i_rates_0 = rates_0[:,:,e_end:]
+        i_rates_1 = rates_1[:,:,e_end:]
 
-            ax[1].plot(epochs,np.mean(e_rates_1,1),label='e units',color='blue')
-            ax[1].fill_between(epochs,np.mean(e_rates_1,1)-np.std(e_rates_1,1),np.mean(e_rates_1,1)+np.std(e_rates_1,1),facecolor='dodgerblue',alpha=0.4)
-            ax[1].plot(epochs,np.mean(i_rates_1,1),label='i units',color='orangered')
-            ax[1].fill_between(epochs,np.mean(i_rates_1,1)-np.std(i_rates_1,1),np.mean(i_rates_1,1)+np.std(i_rates_1,1),facecolor='darkorange',alpha=0.4)
+        fig,ax = plt.subplots(nrows=2, ncols=1)
+        ax[0].plot(epochs,np.mean(e_rates_0,1),label='e units',color='blue')
+        ax[0].fill_between(epochs,np.mean(e_rates_0,1)-np.std(e_rates_0,1),np.mean(e_rates_0,1)+np.std(e_rates_0,1),facecolor='dodgerblue',alpha=0.4)
+        ax[0].plot(epochs,np.mean(i_rates_0,1),label='i units',color='orangered')
+        ax[0].fill_between(epochs,np.mean(i_rates_0,1)-np.std(i_rates_0,1),np.mean(i_rates_0,1)+np.std(i_rates_0,1),facecolor='darkorange',alpha=0.4)
 
-            for j in range(0,len(ax)):
-                ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
-                ax[j].set_xlabel('training epoch',fontname='Ubuntu')
-                ax[j].legend(prop={"family":"Ubuntu"})
-                for tick in ax[j].get_xticklabels():
-                    tick.set_fontname("Ubuntu")
-                for tick in ax[j].get_yticklabels():
-                    tick.set_fontname("Ubuntu")
+        ax[1].plot(epochs,np.mean(e_rates_1,1),label='e units',color='blue')
+        ax[1].fill_between(epochs,np.mean(e_rates_1,1)-np.std(e_rates_1,1),np.mean(e_rates_1,1)+np.std(e_rates_1,1),facecolor='dodgerblue',alpha=0.4)
+        ax[1].plot(epochs,np.mean(i_rates_1,1),label='i units',color='orangered')
+        ax[1].fill_between(epochs,np.mean(i_rates_1,1)-np.std(i_rates_1,1),np.mean(i_rates_1,1)+np.std(i_rates_1,1),facecolor='darkorange',alpha=0.4)
 
-            plt.suptitle('Evolution of rates over training',fontname='Ubuntu')
-            plt.subplots_adjust(wspace=0.9, hspace=0.9)
-            plt.draw()
+        for j in range(0,len(ax)):
+            ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
+            ax[j].set_xlabel('training epoch',fontname='Ubuntu')
+            ax[j].legend(prop={"family":"Ubuntu"})
+            for tick in ax[j].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[j].get_yticklabels():
+                tick.set_fontname("Ubuntu")
 
-            save_fname = spath+'/rates_over_training_'+exp_path+'.png'
-            plt.savefig(save_fname,dpi=300)
-            # Teardown
-            plt.clf()
-            plt.close()
+        plt.suptitle('Evolution of rates over training',fontname='Ubuntu')
+        plt.subplots_adjust(wspace=0.9, hspace=0.9)
+        plt.draw()
+
+        save_fname = spath+'/rates_over_training_'+exp_path+'.png'
+        plt.savefig(save_fname,dpi=300)
+        # Teardown
+        plt.clf()
+        plt.close()
 
 
             """
