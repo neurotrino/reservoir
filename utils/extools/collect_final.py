@@ -662,7 +662,7 @@ def plot_in_v_out_strength(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
     # Draw and save
     plt.draw()
     plt.subplots_adjust(wspace=0.4, hspace=0.7)
-    save_fname = spath'/input_v_output_all_quad.png'
+    save_fname = spath+'/input_v_output_all_quad.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
