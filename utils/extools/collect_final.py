@@ -689,7 +689,7 @@ def plot_rates_over_training(exp_season='spring'):
 
     ax[1].plot(epochs,np.mean(e_rates_1,(0,2)),label='e units',color='dodgerblue')
     ax[1].fill_between(epochs,np.mean(e_rates_1,(0,2))-np.std(e_rates_1,(0,2)),np.mean(e_rates_1,(0,2))+np.std(e_rates_1,(0,2)),facecolor='deepskyblue',alpha=0.4)
-    ax[1].plot(epochs,np.mean(rec_1_i_rates,(0,2)),label='i units',color='orangered')
+    ax[1].plot(epochs,np.mean(i_rates_1,(0,2)),label='i units',color='orangered')
     ax[1].fill_between(epochs,np.mean(i_rates_1,(0,2))-np.std(i_rates_1,(0,2)),np.mean(i_rates_1,(0,2))+np.std(i_rates_1,(0,2)),facecolor='darkorange',alpha=0.4)
     ax[1].set_title('coherence 1 trials',fontname='Ubuntu')
 
