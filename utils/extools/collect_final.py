@@ -765,7 +765,7 @@ def get_truly_naive_rates(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
             spikes = data['spikes'][0] # first batch ever
             true_y = data['true_y'][0]
 
-            for i in np.shape(spikes)[0]:
+            for i in range(0,len(true_y)):
                 if true_y[i][0]==true_y[i][seq_len-1]: # no coherence change trial
                     coh_lvl = true_y[i][0]
                     trial_spikes = np.transpose(spikes[i])
