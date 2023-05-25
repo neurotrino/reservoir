@@ -807,7 +807,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                         else:
                             in_spike_times.append([])
 
-                    ax[0].eventplot(in_spike_times,colors='lightslategray')
+                    ax[0].eventplot(in_spike_times,colors='MediumSeaGreen')
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
@@ -863,7 +863,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                         else:
                             spike_times.append([])
 
-                    ax[1].eventplot(spike_times,colors='orangered')
+                    ax[1].eventplot(spike_times,colors='darkorange')
                     ax[1].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
                     ax[1].set_ylabel('i units',fontname='Ubuntu')
                     ax[1].set_title('inhibitory SNN spikes',fontname='Ubuntu')
@@ -912,7 +912,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                         else:
                             in_spike_times.append([])
 
-                    ax[0].eventplot(in_spike_times,colors='lightslategray')
+                    ax[0].eventplot(in_spike_times,colors='MediumSeaGreen')
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
@@ -970,7 +970,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                         else:
                             spike_times.append([])
 
-                    ax[1].eventplot(spike_times,colors='orangered')
+                    ax[1].eventplot(spike_times,colors='darkorange')
                     ax[1].vlines(t_change,ymin=0,ymax=60,color='red',label='t change')
                     ax[1].set_ylabel('i units',fontname='Ubuntu')
                     ax[1].set_title('inhibitory SNN spikes',fontname='Ubuntu')
