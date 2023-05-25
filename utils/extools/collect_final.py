@@ -932,9 +932,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     # Teardown
                     plt.clf()
                     plt.close()
-                    """
 
-                    """
                     # separate figure for main e and i units
                     fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [4, 1]})
 
@@ -983,7 +981,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     # Teardown
                     plt.clf()
                     plt.close()
-                    """
+            """
 
 
             # repeat for trained
