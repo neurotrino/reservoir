@@ -681,14 +681,14 @@ def plot_rates_over_training(exp_season='spring'):
     fig, ax = plt.subplots(nrows=2, ncols=1)
 
     epochs=np.arange(0,np.shape(e_rates_0)[1])
-    ax[0].plot(epochs,np.mean(e_rates_0,(0,2)),label='e units',color='dodgerblue')
-    ax[0].fill_between(epochs,np.mean(e_rates_0,(0,2))-np.std(e_rates_0,(0,2)),np.mean(e_rates_0,(0,2))+np.std(e_rates_0,(0,2)),facecolor='deepskyblue',alpha=0.4)
+    ax[0].plot(epochs,np.mean(e_rates_0,(0,2)),label='e units',color='blue')
+    ax[0].fill_between(epochs,np.mean(e_rates_0,(0,2))-np.std(e_rates_0,(0,2)),np.mean(e_rates_0,(0,2))+np.std(e_rates_0,(0,2)),facecolor='dodgerblue',alpha=0.4)
     ax[0].plot(epochs,np.mean(i_rates_0,(0,2)),label='i units',color='orangered')
     ax[0].fill_between(epochs,np.mean(i_rates_0,(0,2))-np.std(i_rates_0,(0,2)),np.mean(i_rates_0,(0,2))+np.std(i_rates_0,(0,2)),facecolor='darkorange',alpha=0.4)
     ax[0].set_title('coherence 0 trials',fontname='Ubuntu')
 
-    ax[1].plot(epochs,np.mean(e_rates_1,(0,2)),label='e units',color='dodgerblue')
-    ax[1].fill_between(epochs,np.mean(e_rates_1,(0,2))-np.std(e_rates_1,(0,2)),np.mean(e_rates_1,(0,2))+np.std(e_rates_1,(0,2)),facecolor='deepskyblue',alpha=0.4)
+    ax[1].plot(epochs,np.mean(e_rates_1,(0,2)),label='e units',color='blue')
+    ax[1].fill_between(epochs,np.mean(e_rates_1,(0,2))-np.std(e_rates_1,(0,2)),np.mean(e_rates_1,(0,2))+np.std(e_rates_1,(0,2)),facecolor='dodgerblue',alpha=0.4)
     ax[1].plot(epochs,np.mean(i_rates_1,(0,2)),label='i units',color='orangered')
     ax[1].fill_between(epochs,np.mean(i_rates_1,(0,2))-np.std(i_rates_1,(0,2)),np.mean(i_rates_1,(0,2))+np.std(i_rates_1,(0,2)),facecolor='darkorange',alpha=0.4)
     ax[1].set_title('coherence 1 trials',fontname='Ubuntu')
@@ -760,10 +760,10 @@ def get_truly_naive_rates(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
         if not '06.03.22' in np_dir: # do not include that one awful experiment
             exp_path = xdir[-9:-1]
 
-            filepath = os.path.join(data_dir,xdir,"npz-data","1-10.npz")
+            filepath = os.path.join(data_dir,xdir,"npz-data","991-1000.npz")
             data = np.load(filepath)
-            spikes = data['spikes'][0] # first batch ever
-            true_y = data['true_y'][0]
+            spikes = data['spikes'][99] # first batch ever
+            true_y = data['true_y'][99]
 
             for i in range(0,len(true_y)):
                 if true_y[i][0]==true_y[i][seq_len-1]: # no coherence change trial
@@ -985,7 +985,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
 
             # repeat for trained
-            data = np.load(np_dir+'/91-100.npz')
+            data = np.load(np_dir+'/991-1000.npz')
             true_y = data['true_y'][99]
             #for i in range(0,len(true_y)): # just do the first few for now
             for i in range(20,22):
@@ -1039,7 +1039,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     plt.clf()
                     plt.close()
 
-                    """
+
                     # separate figure for main e and i units
                     fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [4, 1]})
 
@@ -1089,7 +1089,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     # Teardown
                     plt.clf()
                     plt.close()
-                    """
+
 
 
 
