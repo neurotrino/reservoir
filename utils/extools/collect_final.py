@@ -714,6 +714,8 @@ def plot_single_exp_rate_over_training(exp_dirs=all_spring_dual_dirs,exp_season=
             del batch_rates_1
             # ultimately this would stack us up at 100 epochs, variable # trials, 300 units
 
+        return [rates_0,rates_1]
+
         e_rates_0 = rates_0[:,:,:e_end]
         e_rates_1 = rates_1[:,:,:e_end]
         i_rates_0 = rates_0[:,:,e_end:]
