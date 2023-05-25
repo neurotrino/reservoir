@@ -786,8 +786,8 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
             # load naive
             data = np.load(np_dir+'/1-10.npz')
             true_y = data['true_y'][0]
-            #for i in range(0,len(true_y)): # just do the first few for now
-            for i in range(0,3):
+            for i in range(0,len(true_y)): # just do the first few for now
+            #for i in range(0,3):
                 if true_y[i][0]!=true_y[i][seq_len-1]: # i is a change trial
                     pred_y = data['pred_y'][0][i]
                     spikes = data['spikes'][0][i]
@@ -812,14 +812,14 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
 
-                    ax[1].plot(pred_y,color='dodgerblue',alpha=0.6,label='output')
-                    ax[1].plot(true_y[i],color='darkblue',alpha=0.6,label='target')
+                    ax[1].plot(pred_y,color='dodgerblue',alpha=0.4,label='output')
+                    ax[1].plot(true_y[i],color='darkblue',alpha=0.4,label='target')
                     ax[1].vlines(t_change,ymin=np.min(true_y[i]),ymax=np.max(true_y[i]),alpha=1.0,color='red',label='t change')
                     ax[1].set_ylabel('coherence level',fontname='Ubuntu')
                     ax[1].set_title('SNN output',fontname='Ubuntu')
                     ax[1].legend(prop={"family":"Ubuntu"})
 
-                    plt.suptitle('Example trial',fontname='Ubuntu')
+                    plt.suptitle('Example naive trial',fontname='Ubuntu')
                     for j in range(0,len(ax)):
                         ax[j].set_xlabel('time (ms)',fontname='Ubuntu')
                         for tick in ax[j].get_xticklabels():
@@ -827,9 +827,9 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                         for tick in ax[j].get_yticklabels():
                             tick.set_fontname("Ubuntu")
 
-                    save_fname = xpath+'/'+exp_path+'_naive_inout_trial'+str(i)+'_testevent.png'
+                    save_fname = xpath+'/'+exp_path+'_naive_inout_trial'+str(i)+'.png'
 
-                    plt.subplots_adjust(hspace=0.4,wspace=0.7)
+                    plt.subplots_adjust(hspace=0.5,wspace=0.7)
                     plt.draw()
                     plt.savefig(save_fname,dpi=300)
                     # Teardown
@@ -868,7 +868,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     ax[1].set_ylabel('i units',fontname='Ubuntu')
                     ax[1].set_title('inhibitory SNN spikes',fontname='Ubuntu')
 
-                    plt.suptitle('Example trial',fontname='Ubuntu')
+                    plt.suptitle('Example naive trial',fontname='Ubuntu')
                     for j in range(0,len(ax)):
                         ax[j].set_xlabel('time (ms)',fontname='Ubuntu')
                         for tick in ax[j].get_xticklabels():
@@ -878,7 +878,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
                     save_fname = xpath+'/'+exp_path+'_naive_main_trial'+str(i)+'.png'
 
-                    plt.subplots_adjust(hspace=0.4,wspace=0.7)
+                    plt.subplots_adjust(hspace=0.5,wspace=0.7)
                     plt.draw()
                     plt.savefig(save_fname,dpi=300)
                     # Teardown
@@ -886,12 +886,11 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     plt.close()
 
 
-
             # repeat for trained
             data = np.load(np_dir+'/91-100.npz')
             true_y = data['true_y'][99]
-            #for i in range(0,len(true_y)): # just do the first few for now
-            for i in range(0,3):
+            for i in range(0,len(true_y)): # just do the first few for now
+            #for i in range(0,3):
                 if true_y[i][0]!=true_y[i][seq_len-1]: # i is a change trial
                     pred_y = data['pred_y'][99][i]
                     spikes = data['spikes'][99][i]
@@ -925,7 +924,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     ax[1].set_title('SNN output',fontname='Ubuntu')
                     ax[1].legend(prop={"family":"Ubuntu"})
 
-                    plt.suptitle('Example trial',fontname='Ubuntu')
+                    plt.suptitle('Example trained trial',fontname='Ubuntu')
                     for j in range(0,len(ax)):
                         ax[j].set_xlabel('time (ms)',fontname='Ubuntu')
                         for tick in ax[j].get_xticklabels():
@@ -935,7 +934,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
                     save_fname = xpath+'/'+exp_path+'_trained_inout_trial'+str(i)+'.png'
 
-                    plt.subplots_adjust(hspace=0.4,wspace=0.7)
+                    plt.subplots_adjust(hspace=0.5,wspace=0.7)
                     plt.draw()
                     plt.savefig(save_fname,dpi=300)
                     # Teardown
@@ -976,7 +975,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     ax[1].set_ylabel('i units',fontname='Ubuntu')
                     ax[1].set_title('inhibitory SNN spikes',fontname='Ubuntu')
 
-                    plt.suptitle('Example trial',fontname='Ubuntu')
+                    plt.suptitle('Example trained trial',fontname='Ubuntu')
                     for j in range(0,len(ax)):
                         ax[j].set_xlabel('time (ms)',fontname='Ubuntu')
                         for tick in ax[j].get_xticklabels():
@@ -986,7 +985,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
 
                     save_fname = xpath+'/'+exp_path+'_trained_main_trial'+str(i)+'.png'
 
-                    plt.subplots_adjust(hspace=0.4,wspace=0.7)
+                    plt.subplots_adjust(hspace=0.5,wspace=0.7)
                     plt.draw()
                     plt.savefig(save_fname,dpi=300)
                     # Teardown
