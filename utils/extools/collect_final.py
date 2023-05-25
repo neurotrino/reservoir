@@ -596,6 +596,78 @@ def all_losses_over_training(exp_dir=spec_nointoout_dirs,exp_season='spring'):
 # SEE IF YOU CAN COMPLETE ALL THE BELOW TODAY
 # ONE PER HOUR, SUPER DOABLE
 
+def plot_in_v_out_strength(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
+
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    if not os.path.isdir(spath):
+        os.makedirs(spath)
+
+    fig,ax=plt.subplots(nrows=2, ncols=2)
+
+    experiments = get_experiments(data_dir, experiment_string)
+    for xdir in experiments:
+        # pool together for all experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        if not os.path.isfile(os.path.join(np_dir, "991-1000.npz")):
+            continue
+
+        naive_data = np.load(os.path.join(np_dir, "1-10.npz"))
+        early_data = np.load(os.path.join(np_dir, "41-50.npz"))
+        late_data = np.load(os.path.join(np_dir, "241-250.npz"))
+        trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+
+        naive_in = naive_data['tv0.postweights'][0]
+        early_in = early_data['tv0.postweights'][0]
+        late_in = late_data['tv0.postweights'][0]
+        trained_in = trained_data['tv0.postweights'][0]
+
+        naive_out = naive_data['tv2.postweights'][0]
+        early_out = early_data['tv2.postweights'][0]
+        late_out = late_data['tv2.postweights'][0]
+        trained_out = trained_data['tv2.postweights'][0]
+
+        # sum inputs for each unit
+
+        ax[0,0].scatter(np.sum(naive_in,0),naive_out.flatten(),s=2,color='mediumseagreen')
+        ax[0,1].scatter(np.sum(early_in,0),early_out.flatten(),s=2,color='mediumseagreen')
+        ax[1,0].scatter(np.sum(late_in,0),late_out.flatten(),s=2,color='mediumseagreen')
+        ax[1,1].scatter(np.sum(trained_in,0),trained_out.flatten(),s=2,color='mediumseagreen')
+
+    # Label and title
+    ax[0,0].set_title('epoch 0',fontname='Ubuntu')
+    ax[0,1].set_title('epoch 50',fontname='Ubuntu')
+    ax[1,0].set_title('epoch 250',fontname='Ubuntu')
+    ax[1,1].set_title('epoch 1000',fontname='Ubuntu')
+
+    ax = ax.flatten()
+    for j in range(0,len(ax)):
+        ax[j].set_ylabel('output weights',fontname='Ubuntu')
+        ax[j].set_xlabel('input weights',fontname='Ubuntu')
+        #ax[j].legend(prop={"family":"Ubuntu"})
+        for tick in ax[j].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[j].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+
+    plt.suptitle("Evolution of input vs output weights per neuron")
+
+    # Draw and save
+    plt.draw()
+    plt.subplots_adjust(wspace=0.4, hspace=0.7)
+    save_fname = spath'/input_v_output_all_quad.png'
+    plt.savefig(save_fname,dpi=300)
+
+    # Teardown
+    plt.clf()
+    plt.close()
 
 def rates_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
 
