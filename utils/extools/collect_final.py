@@ -713,6 +713,8 @@ def losses_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
 
             #task_loss = []
             #rate_loss = []
+            del rate_losses
+            del task_losses
 
             for filename in data_files:
                 filepath = os.path.join(data_dir, xdir, "npz-data", filename)
