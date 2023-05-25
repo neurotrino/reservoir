@@ -750,7 +750,7 @@ def plot_single_exp_rate_over_training(exp_dirs=all_spring_dual_dirs,exp_season=
         plt.close()
 
 
-            """
+        """
 
                 coh0_idx = np.where(true_y[i]==0)[0]
                 coh1_idx = np.where(true_y[i]==1)[0]
@@ -769,7 +769,7 @@ def plot_single_exp_rate_over_training(exp_dirs=all_spring_dual_dirs,exp_season=
             # average across coherence level trials in this file
             coh0_exp_rates.append(np.mean(coh0_trial_rates,0)) # mean across trials, but preserve units; single vector of 300 per file (100 files)
             coh1_exp_rates.append(np.mean(coh1_trial_rates,0))
-            """
+        """
 
 def plot_rates_over_training(exp_season='spring'):
 
