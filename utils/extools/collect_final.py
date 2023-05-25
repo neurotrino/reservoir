@@ -643,9 +643,9 @@ def plot_in_v_out_strength(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
 
     # Label and title
     ax[0,0].set_title('epoch 0',fontname='Ubuntu')
-    ax[0,1].set_title('epoch 50',fontname='Ubuntu')
-    ax[1,0].set_title('epoch 250',fontname='Ubuntu')
-    ax[1,1].set_title('epoch 1000',fontname='Ubuntu')
+    ax[0,1].set_title('epoch 5',fontname='Ubuntu')
+    ax[1,0].set_title('epoch 25',fontname='Ubuntu')
+    ax[1,1].set_title('epoch 100',fontname='Ubuntu')
 
     ax = ax.flatten()
     for j in range(0,len(ax)):
