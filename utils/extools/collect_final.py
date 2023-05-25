@@ -807,13 +807,13 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                         else:
                             in_spike_times.append([])
 
-                    ax[0].eventplot(in_spike_times,colors='MediumSeaGreen')
+                    ax[0].eventplot(in_spike_times,colors='silver')
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
 
-                    ax[1].plot(pred_y,color='dodgerblue',alpha=0.4,label='output')
-                    ax[1].plot(true_y[i],color='darkblue',alpha=0.4,label='target')
+                    ax[1].plot(pred_y,color='mediumseagreen',alpha=0.4,label='output')
+                    ax[1].plot(true_y[i],color='mediumblue',alpha=0.4,label='target')
                     ax[1].vlines(t_change,ymin=np.min(true_y[i]),ymax=np.max(true_y[i]),alpha=1.0,color='red',label='t change')
                     ax[1].set_ylabel('coherence level',fontname='Ubuntu')
                     ax[1].set_title('SNN output',fontname='Ubuntu')
@@ -836,6 +836,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     plt.clf()
                     plt.close()
 
+                    """
                     # separate figure for main e and i units
                     fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [4, 1]})
 
@@ -884,6 +885,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     # Teardown
                     plt.clf()
                     plt.close()
+                    """
 
 
             # repeat for trained
@@ -912,13 +914,13 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                         else:
                             in_spike_times.append([])
 
-                    ax[0].eventplot(in_spike_times,colors='MediumSeaGreen')
+                    ax[0].eventplot(in_spike_times,colors='silver')
                     ax[0].vlines(t_change,ymin=0,ymax=16,color='red',label='t change')
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
 
-                    ax[1].plot(pred_y,color='dodgerblue',alpha=0.6,label='output')
-                    ax[1].plot(true_y[i],color='darkblue',alpha=0.6,label='target')
+                    ax[1].plot(pred_y,color='mediumseagreen',alpha=0.6,label='output')
+                    ax[1].plot(true_y[i],color='mediumblue',alpha=0.6,label='target')
                     ax[1].vlines(t_change,ymin=np.min(pred_y),ymax=np.max(pred_y),alpha=1.0,color='red',label='t change')
                     ax[1].set_ylabel('coherence level',fontname='Ubuntu')
                     ax[1].set_title('SNN output',fontname='Ubuntu')
@@ -941,7 +943,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     plt.clf()
                     plt.close()
 
-
+                    """
                     # separate figure for main e and i units
                     fig, ax = plt.subplots(nrows=2,ncols=1,gridspec_kw={'height_ratios': [4, 1]})
 
@@ -991,6 +993,7 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     # Teardown
                     plt.clf()
                     plt.close()
+                    """
 
 
 
