@@ -636,10 +636,10 @@ def plot_in_v_out_strength(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
 
         # sum inputs for each unit
 
-        ax[0,0].scatter(np.sum(naive_in[:,e_end:],0),naive_out[:e_end].flatten(),s=2,color='gold')
-        ax[0,1].scatter(np.sum(early_in[:,e_end:],0),early_out[:e_end].flatten(),s=2,color='darkorange')
-        ax[1,0].scatter(np.sum(late_in[:,e_end:],0),late_out[:e_end].flatten(),s=2,color='orangered')
-        ax[1,1].scatter(np.sum(trained_in[:,e_end:],0),trained_out[:e_end].flatten(),s=2,color='crimson')
+        ax[0,0].scatter(np.sum(naive_in[:,e_end:],0),naive_out[e_end:].flatten(),s=2,color='gold')
+        ax[0,1].scatter(np.sum(early_in[:,e_end:],0),early_out[e_end:].flatten(),s=2,color='darkorange')
+        ax[1,0].scatter(np.sum(late_in[:,e_end:],0),late_out[e_end:].flatten(),s=2,color='orangered')
+        ax[1,1].scatter(np.sum(trained_in[:,e_end:],0),trained_out[e_end:].flatten(),s=2,color='crimson')
 
     # Label and title
     ax[0,0].set_title('epoch 0',fontname='Ubuntu')
