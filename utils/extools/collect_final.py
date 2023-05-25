@@ -786,8 +786,8 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
             # load naive
             data = np.load(np_dir+'/1-10.npz')
             true_y = data['true_y'][0]
-            for i in range(0,len(true_y)): # just do the first few for now
-            #for i in range(0,3):
+            #for i in range(0,len(true_y)): # just do the first few for now
+            for i in range(4,6):
                 if true_y[i][0]!=true_y[i][seq_len-1]: # i is a change trial
                     pred_y = data['pred_y'][0][i]
                     spikes = data['spikes'][0][i]
@@ -812,8 +812,8 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
                     ax[0].set_ylabel('inputs',fontname='Ubuntu')
                     ax[0].set_title('input spikes',fontname='Ubuntu')
 
-                    ax[1].plot(pred_y,color='mediumseagreen',alpha=0.4,label='output')
-                    ax[1].plot(true_y[i],color='mediumblue',alpha=0.4,label='target')
+                    ax[1].plot(pred_y,color='mediumseagreen',alpha=0.6,label='output')
+                    ax[1].plot(true_y[i],color='mediumblue',alpha=0.6,label='target')
                     ax[1].vlines(t_change,ymin=np.min(true_y[i]),ymax=np.max(true_y[i]),alpha=1.0,color='red',label='t change')
                     ax[1].set_ylabel('coherence level',fontname='Ubuntu')
                     ax[1].set_title('SNN output',fontname='Ubuntu')
@@ -891,8 +891,8 @@ def demo_input_spikes_output(exp_dirs=all_save_inz_dirs,exp_season='spring'):
             # repeat for trained
             data = np.load(np_dir+'/91-100.npz')
             true_y = data['true_y'][99]
-            for i in range(0,len(true_y)): # just do the first few for now
-            #for i in range(0,3):
+            #for i in range(0,len(true_y)): # just do the first few for now
+            for i in range(20,22):
                 if true_y[i][0]!=true_y[i][seq_len-1]: # i is a change trial
                     pred_y = data['pred_y'][99][i]
                     spikes = data['spikes'][99][i]
