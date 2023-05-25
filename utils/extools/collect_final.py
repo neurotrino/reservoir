@@ -663,7 +663,7 @@ def rates_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
     # np.savez(spath+'/rec_rates.npz',rates_0=rates_0,rates_1=rates_1)
     # data = np.load(spath+'/rec_rates.npz')
 
-def plot_rates_over_training():
+def plot_rates_over_training(exp_season='spring'):
 
     spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
     data = np.load(spath+'/rec_rates.npz')
