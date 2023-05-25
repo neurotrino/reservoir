@@ -657,24 +657,44 @@ def rates_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
 
     return [rec_0_e_rates,rec_0_i_rates,rec_1_e_rates,rec_1_i_rates]
 
+    # spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    # rates_0 = np.vstack([rec_0_e_rates[1:16],rec_0_e_rates[17:]])
+    # rates_1 = np.vstack([rec_1_e_rates[1:16],rec_1_e_rates[17:]])
+    # np.savez(spath+'/rec_rates.npz',rates_0=rates_0,rates_1=rates_1)
+    # data = np.load(spath+'/rec_rates.npz')
+
+def plot_rates_over_training():
+
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    data = np.load(spath+'/rec_rates.npz')
+    rates_0 = data['rates_0']
+    rates_1 = data['rates_1']
+
+    # just work with what you have
+    # each entry of rates_0 and rates_1 is shaped [100,300]
+    e_rates_0 = rates_0[:,:,:e_end]
+    e_rates_1 = rates_1[:,:,:e_end]
+    i_rates_0 = rates_0[:,:,e_end:]
+    i_rates_1 = rates_1[:,:,e_end:]
+
     # plot rates over time
     fig, ax = plt.subplots(nrows=2, ncols=1)
 
-    epochs=np.arange(0,np.shape(rec_0_e_rates)[1])
-    ax[0].plot(epochs,np.mean(rec_0_e_rates,(0,2)),label='e units',color='dodgerblue')
-    ax[0].fill_between(epochs,np.mean(rec_0_e_rates,(0,2))-np.std(rec_0_e_rates,(0,2)),np.mean(rec_0_e_rates,(0,2))+np.std(rec_0_e_rates,(0,2)),facecolor='slateblue',alpha=0.4)
-    ax[0].plot(epochs,np.mean(rec_0_i_rates,(0,2)),label='i units',color='darkorange')
-    ax[0].fill_between(epochs,np.mean(rec_0_i_rates,(0,2))-np.std(rec_0_i_rates,(0,2)),np.mean(rec_0_i_rates,(0,2))+np.std(rec_0_i_rates,(0,2)),facecolor='orangered',alpha=0.4)
+    epochs=np.arange(0,np.shape(e_rates_0)[1])
+    ax[0].plot(epochs,np.mean(e_rates_0,(0,2)),label='e units',color='dodgerblue')
+    ax[0].fill_between(epochs,np.mean(e_rates_0,(0,2))-np.std(e_rates_0,(0,2)),np.mean(e_rates_0,(0,2))+np.std(e_rates_0,(0,2)),facecolor='deepskyblue',alpha=0.4)
+    ax[0].plot(epochs,np.mean(i_rates_0,(0,2)),label='i units',color='orangered')
+    ax[0].fill_between(epochs,np.mean(i_rates_0,(0,2))-np.std(i_rates_0,(0,2)),np.mean(i_rates_0,(0,2))+np.std(i_rates_0,(0,2)),facecolor='darkorange',alpha=0.4)
     ax[0].set_title('coherence 0 trials',fontname='Ubuntu')
 
-    ax[1].plot(epochs,np.mean(rec_1_e_rates,(0,2)),label='e units',color='dodgerblue')
-    ax[1].fill_between(epochs,np.mean(rec_1_e_rates,(0,2))-np.std(rec_1_e_rates,(0,2)),np.mean(rec_1_e_rates,(0,2))+np.std(rec_1_e_rates,(0,2)),facecolor='slateblue',alpha=0.4)
-    ax[1].plot(epochs,np.mean(rec_1_i_rates,(0,2)),label='i units',color='darkorange')
-    ax[1].fill_between(epochs,np.mean(rec_1_i_rates,(0,2))-np.std(rec_1_i_rates,(0,2)),np.mean(rec_1_i_rates,(0,2))+np.std(rec_1_i_rates,(0,2)),facecolor='orangered',alpha=0.4)
+    ax[1].plot(epochs,np.mean(e_rates_1,(0,2)),label='e units',color='dodgerblue')
+    ax[1].fill_between(epochs,np.mean(e_rates_1,(0,2))-np.std(e_rates_1,(0,2)),np.mean(e_rates_1,(0,2))+np.std(e_rates_1,(0,2)),facecolor='deepskyblue',alpha=0.4)
+    ax[1].plot(epochs,np.mean(rec_1_i_rates,(0,2)),label='i units',color='orangered')
+    ax[1].fill_between(epochs,np.mean(i_rates_1,(0,2))-np.std(i_rates_1,(0,2)),np.mean(i_rates_1,(0,2))+np.std(i_rates_1,(0,2)),facecolor='darkorange',alpha=0.4)
     ax[1].set_title('coherence 1 trials',fontname='Ubuntu')
 
     for j in range(0,len(ax)):
-        ax[j].set_ylabel('average rate',fontname='Ubuntu')
+        ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
         ax[j].set_xlabel('training epoch',fontname='Ubuntu')
         ax[j].legend(prop={"family":"Ubuntu"})
         for tick in ax[j].get_xticklabels():
@@ -686,11 +706,36 @@ def rates_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
     plt.subplots_adjust(wspace=0.9, hspace=0.9)
     plt.draw()
 
-    save_fname = spath+'/rates_over_training.png'
+    save_fname = spath+'/all_rates_over_training.png'
     plt.savefig(save_fname,dpi=300)
     # Teardown
     plt.clf()
     plt.close()
+
+    return [e_rates_0, i_rates_0, e_rates_1, i_rates_1]
+
+    """
+    # do the statistics you want as well
+    naive_e_0 = np.mean(e_rates_0,(0,2))[0]
+    naive_i_0 = np.mean(i_rates_0,(0,2))[0]
+    naive_e_1 = np.mean(e_rates_1,(0,2))[0]
+    naive_i_1 = np.mean(i_rates_1,(0,2))[0]
+
+    trained_e_0 = np.mean(e_rates_0,(0,2))[99]
+    trained_i_0 = np.mean(i_rates_0,(0,2))[99]
+    trained_e_1 = np.mean(e_rates_1,(0,2))[99]
+    trained_i_1 = np.mean(i_rates_1,(0,2))[99]
+
+    # swap out the above to do std
+
+    # naive coherence response comparisons
+    [D,p] = scipy.stats.kstest(e_rates_0[:,0,:].flatten(),e_rates_1[:,0,:].flatten())
+    [D,p] = scipy.stats.kstest(i_rates_0[:,0,:].flatten(),i_rates_1[:,0,:].flatten())
+    # trained coherence response comparisons
+    [D,p] = scipy.stats.kstest(e_rates_0[:,99,:].flatten(),e_rates_1[:,99,:].flatten())
+    [D,p] = scipy.stats.kstest(i_rates_0[:,99,:].flatten(),i_rates_1[:,99,:].flatten())
+
+    """
 
 
 def losses_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
