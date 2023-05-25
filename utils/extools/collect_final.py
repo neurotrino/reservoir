@@ -651,7 +651,7 @@ def plot_in_v_out_strength(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
     for j in range(0,len(ax)):
         ax[j].set_ylabel('absolute output weights',fontname='Ubuntu')
         ax[j].set_xlabel('sum input weights',fontname='Ubuntu')
-        #ax[j].set_xlim(0,14)
+        ax[j].set_xlim(-4,8)
         #ax[j].legend(prop={"family":"Ubuntu"})
         for tick in ax[j].get_xticklabels():
             tick.set_fontname("Ubuntu")
