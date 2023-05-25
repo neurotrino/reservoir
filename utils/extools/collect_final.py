@@ -663,6 +663,113 @@ def rates_over_training(exp_dirs=save_inz_dirs,exp_season='spring'):
     # np.savez(spath+'/rec_rates.npz',rates_0=rates_0,rates_1=rates_1)
     # data = np.load(spath+'/rec_rates.npz')
 
+
+def plot_single_exp_rate_over_training(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    if not os.path.isdir(spath):
+        os.makedirs(spath)
+
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+        exp_path = xdir[-9:-1]
+
+        rates_0 = []
+        rates_1 = []
+
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            # too much to do anything more than the first (0th) batch in each file
+            spikes = data['spikes'][0]
+            # shaped [100 batches x 30 trials x 4080 timesteps x 300 units]
+            true_y = data['true_y'][0] # shaped [100 batches x 30 trials x 4080 timesteps]
+            for i in range(0,len(true_y)): # for each of 30 trials
+                if true_y[i][0]==true_y[i][seq_len-1]: # no change in this trial
+                    trial_spikes = np.transpose(spikes[i]) # now in shape units x 4080 timesteps
+                    # average over time for each unit
+                    trial_rates = np.mean(trial_spikes,1)
+
+                    if true_y[i][0]==1:
+                        if not batch_rates_1 in locals():
+                            batch_rates_1 = trial_rates
+                        else:
+                            batch_rates_1 = np.vstack([batch_rates_1,trial_rates])
+                    else:
+                        if not batch_rates_0 in locals():
+                            batch_rates_0 = trial_rates
+                        else:
+                            batch_rates_0 = np.vstack([batch_rates_0,trial_rates])
+
+                    rates_0.append(batch_rates_0)
+                    rates_1.append(batch_rates_1)
+                    del batch_rates_0
+                    del batch_rates_1
+                    # ultimately this would stack us up at 100 epochs, variable # trials, 300 units
+
+            e_rates_0 = rates_0[:,:,:e_end]
+            e_rates_1 = rates_1[:,:,:e_end]
+            i_rates_0 = rates_0[:,:,e_end:]
+            i_rates_1 = rates_1[:,:,e_end:]
+
+            fig,ax = plt.subplots(nrows=2, ncols=1)
+            ax[0].plot(epochs,np.mean(e_rates_0,1),label='e units',color='blue')
+            ax[0].fill_between(epochs,np.mean(e_rates_0,1)-np.std(e_rates_0,1),np.mean(e_rates_0,1)+np.std(e_rates_0,1),facecolor='dodgerblue',alpha=0.4)
+            ax[0].plot(epochs,np.mean(i_rates_0,1),label='i units',color='orangered')
+            ax[0].fill_between(epochs,np.mean(i_rates_0,1)-np.std(i_rates_0,1),np.mean(i_rates_0,1)+np.std(i_rates_0,1),facecolor='darkorange',alpha=0.4)
+
+            ax[1].plot(epochs,np.mean(e_rates_1,1),label='e units',color='blue')
+            ax[1].fill_between(epochs,np.mean(e_rates_1,1)-np.std(e_rates_1,1),np.mean(e_rates_1,1)+np.std(e_rates_1,1),facecolor='dodgerblue',alpha=0.4)
+            ax[1].plot(epochs,np.mean(i_rates_1,1),label='i units',color='orangered')
+            ax[1].fill_between(epochs,np.mean(i_rates_1,1)-np.std(i_rates_1,1),np.mean(i_rates_1,1)+np.std(i_rates_1,1),facecolor='darkorange',alpha=0.4)
+
+            for j in range(0,len(ax)):
+                ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
+                ax[j].set_xlabel('training epoch',fontname='Ubuntu')
+                ax[j].legend(prop={"family":"Ubuntu"})
+                for tick in ax[j].get_xticklabels():
+                    tick.set_fontname("Ubuntu")
+                for tick in ax[j].get_yticklabels():
+                    tick.set_fontname("Ubuntu")
+
+            plt.suptitle('Evolution of rates over training',fontname='Ubuntu')
+            plt.subplots_adjust(wspace=0.9, hspace=0.9)
+            plt.draw()
+
+            save_fname = spath+'/rates_over_training_'+exp_path+'.png'
+            plt.savefig(save_fname,dpi=300)
+            # Teardown
+            plt.clf()
+            plt.close()
+
+
+                """
+
+                coh0_idx = np.where(true_y[i]==0)[0]
+                coh1_idx = np.where(true_y[i]==1)[0]
+                if len(coh0_idx)>0:
+                    if not 'coh0_trial_rates' in locals():
+                        coh0_trial_rates = np.average(spikes[i][coh0_idx],0) # average across time, not units (yet)
+                    else:
+                        coh0_trial_rates = np.vstack([coh0_trial_rates,np.average(spikes[i][coh0_idx],0)]) # stack trials, mean across 4080 timesteps, but preserve units
+
+                if len(coh1_idx)>0:
+                    if not 'coh1_trial_rates' in locals():
+                        coh1_trial_rates = np.average(spikes[i][coh1_idx],0)
+                    else:
+                        coh1_trial_rates = np.vstack([coh1_trial_rates,np.average(spikes[i][coh1_idx],0)])
+
+            # average across coherence level trials in this file
+            coh0_exp_rates.append(np.mean(coh0_trial_rates,0)) # mean across trials, but preserve units; single vector of 300 per file (100 files)
+            coh1_exp_rates.append(np.mean(coh1_trial_rates,0))
+            """
+
 def plot_rates_over_training(exp_season='spring'):
 
     spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
