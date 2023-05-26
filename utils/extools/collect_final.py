@@ -820,6 +820,15 @@ def plot_single_exp_rate_over_training(exp_dirs=all_spring_dual_dirs,exp_season=
             i_1_means.append(np.mean(rates_1[i][:,e_end:]))
             i_1_stds.append(np.std(rates_1[i][:,e_end:]))
 
+        e_0_means = np.array(e_0_means)
+        e_0_stds = np.array(e_0_stds)
+        e_1_means = np.array(e_1_means)
+        e_1_stds = np.array(e_1_stds)
+        i_0_means = np.array(i_0_means)
+        i_0_stds = np.array(i_0_stds)
+        i_1_means = np.array(i_1_means)
+        i_1_stds = np.array(i_1_stds)
+
         fig,ax = plt.subplots(nrows=2, ncols=1)
         ax[0].plot(epochs,e_0_means,label='e units',color='blue')
         ax[0].fill_between(epochs,e_0_means-e_0_stds,e_0_means+e_0_stds,facecolor='dodgerblue',alpha=0.4)
