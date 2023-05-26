@@ -830,15 +830,17 @@ def plot_single_exp_rate_over_training(exp_dirs=all_spring_dual_dirs,exp_season=
         i_1_stds = np.array(i_1_stds)
 
         fig,ax = plt.subplots(nrows=2, ncols=1)
-        ax[0].plot(epochs,e_0_means,label='e units',color='blue')
+        ax[0].plot(epochs,e_0_means,label='e units',color='dodgerblue')
         ax[0].fill_between(epochs,e_0_means-e_0_stds,e_0_means+e_0_stds,facecolor='dodgerblue',alpha=0.4)
         ax[0].plot(epochs,i_0_means,label='i units',color='orangered')
         ax[0].fill_between(epochs,i_0_means-i_0_stds,i_0_means+i_0_stds,facecolor='darkorange',alpha=0.4)
+        ax[0].suptitle('coherence 0')
 
-        ax[1].plot(epochs,e_1_means,label='e units',color='blue')
+        ax[1].plot(epochs,e_1_means,label='e units',color='dodgerblue')
         ax[1].fill_between(epochs,e_1_means-e_1_stds,e_1_means+e_1_stds,facecolor='dodgerblue',alpha=0.4)
         ax[1].plot(epochs,i_1_means,label='i units',color='orangered')
         ax[1].fill_between(epochs,i_1_means-i_1_stds,i_1_means+i_1_stds,facecolor='darkorange',alpha=0.4)
+        ax[1].set_title('coherence 1')
 
         for j in range(0,len(ax)):
             ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
@@ -850,7 +852,7 @@ def plot_single_exp_rate_over_training(exp_dirs=all_spring_dual_dirs,exp_season=
                 tick.set_fontname("Ubuntu")
 
         plt.suptitle('Evolution of rates over training',fontname='Ubuntu')
-        plt.subplots_adjust(wspace=0.9, hspace=0.9)
+        plt.subplots_adjust(wspace=0.9, hspace=0.7)
         plt.draw()
 
         save_fname = spath+'/rates_over_training_'+exp_path+'.png'
@@ -931,28 +933,60 @@ def plot_collected_rates(exp_season='spring'):
     plt.clf()
     plt.close()
 
-    """
-    # make violin plots of rates
-    fig,ax = plt.subplots(nrows=1,ncols=2)
+def plot_naive_trained_rate_violins(exp_season='spring'):
+
+    [rates_e_0,rates_e_1,rates_i_0,rates_i_1] = get_truly_naive_rates(exp_dirs=all_spring_dual_dirs,exp_season='spring',naive=True)
+    naive_rates = [rates_e_0,rates_e_1,rates_i_0,rates_i_1]
+
+    [rates_e_0,rates_e_1,rates_i_0,rates_i_1] = get_truly_naive_rates(exp_dirs=all_spring_dual_dirs,exp_season='spring',naive=False)
+    trained_rates = [rates_e_0,rates_e_1,rates_i_0,rates_i_1]
+
+    # make violin plots of naive vs trained rates
+    fig,ax=plt.subplots(nrows=2, ncols=2)
+    ax = ax.flatten()
+    # plot naive vs trained for e
+    for j in range(0,len(ax)):
+        vplot = ax[j].violinplot(dataset=[naive_rates[j],trained_rates[j]],showmeans=True)
+        for i, pc in enumerate(vplot["bodies"], 1):
+            if i%2 != 0: # naive
+                if j>1: # inhibs
+                    pc.set_facecolor('darkorange')
+                else: # excits
+                    pc.set_facecolor('mediumseagreen')
+            else: # trained
+                if j>1:
+                    pc.set_facecolor('orangered')
+                else:
+                    pc.set_facecolor('dodgerblue')
+            if j>1:
+                pc.set_edgecolor('darkorchid')
+            else:
+                pc.set_edgecolor('slateblue')
+            pc.set_alpha(0.6)
+    ax[0].set_title('e responses to coherence 0')
+    ax[1].set_title('e responses to coherence 1')
+    ax[2].set_title('i responses to coherence 0')
+    ax[3].set_title('i responses to coherence 1')
+
+    plt.suptitle('SNN Activity by Coherence Label',fontname='Ubuntu')
+
     for j in range(0,len(ax)):
         ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
-        ax[j].set_xlabel('training epoch',fontname='Ubuntu')
-        ax[j].legend(prop={"family":"Ubuntu"})
+        #ax[j].set_ylim(0.0,0.7)
+        ax[j].set_xlabel('naive    trained',fontname='Ubuntu')
         for tick in ax[j].get_xticklabels():
             tick.set_fontname("Ubuntu")
-        for tick in ax[j].get_yticklabels():
-            tick.set_fontname("Ubuntu")
+        #for tick in ax[j].get_yticklabels():
+            #tick.set_fontname("Ubuntu")
 
-    plt.suptitle('Violin plots over training',fontname='Ubuntu')
-    plt.subplots_adjust(wspace=0.9, hspace=0.9)
+    save_fname = spath+'/naive_trained_rates_violin.png'
+
+    plt.subplots_adjust(hspace=0.7,wspace=0.7)
     plt.draw()
-
-    save_fname = spath+'/rates_over_training_all_violin.png'
     plt.savefig(save_fname,dpi=300)
     # Teardown
     plt.clf()
     plt.close()
-    """
 
 def plot_rates_over_training(exp_season='spring'):
 
@@ -1028,7 +1062,7 @@ def plot_rates_over_training(exp_season='spring'):
 
     """
 
-def get_truly_naive_rates(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
+def get_truly_naive_rates(exp_dirs=all_spring_dual_dirs,exp_season='spring',naive=True):
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
             exp_data_dirs = get_experiments(data_dir, exp_string)
@@ -1051,10 +1085,15 @@ def get_truly_naive_rates(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
         if not '06.03.22' in np_dir: # do not include that one awful experiment
             exp_path = xdir[-9:-1]
 
-            filepath = os.path.join(data_dir,xdir,"npz-data","991-1000.npz")
+            if naive:
+                filepath = os.path.join(data_dir,xdir,"npz-data","1-10.npz")
+                batch_id = 0
+            else:
+                filepath = os.path.join(data_dir,xdir,"npz-data","991-1000.npz")
+                batch_id = 99
             data = np.load(filepath)
-            spikes = data['spikes'][99] # first batch ever
-            true_y = data['true_y'][99]
+            spikes = data['spikes'][batch_id] # first batch ever
+            true_y = data['true_y'][batch_id]
 
             for i in range(0,len(true_y)):
                 if true_y[i][0]==true_y[i][seq_len-1]: # no coherence change trial
