@@ -949,31 +949,40 @@ def plot_naive_trained_rate_violins(exp_season='spring'):
         vplot = ax[j].violinplot(dataset=[naive_rates[j],trained_rates[j]],showmeans=True)
         for i, pc in enumerate(vplot["bodies"], 1):
             if i%2 != 0: # naive
-                if j>1: # inhibs
-                    pc.set_facecolor('darkorange')
-                else: # excits
+                if j==0: # e0, e1, i0, i1
                     pc.set_facecolor('mediumseagreen')
-            else: # trained
-                if j>1:
-                    pc.set_facecolor('orangered')
-                else:
+                if j==1:
                     pc.set_facecolor('dodgerblue')
+                if j==2:
+                    pc.set_facecolor('darkorange')
+                if j==3:
+                    pc.set_facecolor('orangered')
+                pc.set_alpha(0.4)
+            else: # trained
+                if j==0:
+                    pc.set_facecolor('mediumseagreen')
+                if j==1:
+                    pc.set_facecolor('dodgerblue')
+                if j==2:
+                    pc.set_facecolor('darkorange')
+                if j==3:
+                    pc.set_facecolor('orangered')
+                pc.set_alpha(0.7)
             if j>1:
                 pc.set_edgecolor('darkorchid')
             else:
                 pc.set_edgecolor('slateblue')
-            pc.set_alpha(0.6)
-    ax[0].set_title('e responses to coherence 0')
-    ax[1].set_title('e responses to coherence 1')
-    ax[2].set_title('i responses to coherence 0')
-    ax[3].set_title('i responses to coherence 1')
+    ax[0].set_title('e responses to coherence 0',fontname='Ubuntu')
+    ax[1].set_title('e responses to coherence 1',fontname='Ubuntu')
+    ax[2].set_title('i responses to coherence 0',fontname='Ubuntu')
+    ax[3].set_title('i responses to coherence 1',fontname='Ubuntu')
 
     plt.suptitle('SNN Activity by Coherence Label',fontname='Ubuntu')
 
     for j in range(0,len(ax)):
         ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
-        #ax[j].set_ylim(0.0,0.7)
-        ax[j].set_xlabel('naive    trained',fontname='Ubuntu')
+        ax[j].set_ylim(-0.005,0.07)
+        ax[j].set_xlabel('naive           trained',fontname='Ubuntu')
         for tick in ax[j].get_xticklabels():
             tick.set_fontname("Ubuntu")
         #for tick in ax[j].get_yticklabels():
