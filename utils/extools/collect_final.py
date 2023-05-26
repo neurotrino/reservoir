@@ -979,6 +979,7 @@ def plot_naive_trained_rate_violins(exp_season='spring'):
         #for tick in ax[j].get_yticklabels():
             #tick.set_fontname("Ubuntu")
 
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
     save_fname = spath+'/naive_trained_rates_violin.png'
 
     plt.subplots_adjust(hspace=0.7,wspace=0.7)
