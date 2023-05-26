@@ -806,7 +806,7 @@ def plot_single_exp_rate_over_training(exp_dirs=all_spring_dual_dirs,exp_season=
         i_1_means = []
         i_1_stds = []
 
-        epochs = len(rates_0)
+        epochs = np.arange(0,len(rates_0))
 
         for i in range(0,len(rates_0)): # for each of 100 epochs
             # meaning across units and across batches within that time slot
@@ -892,7 +892,7 @@ def plot_collected_rates(exp_season='spring'):
     collect_rates_i_1 = data['collect_rates_i_1']
 
     fig,ax = plt.subplots(nrows=2, ncols=1)
-    epochs = np.shape(collect_rates_e_0)[1]
+    epochs = np.arange(0,np.shape(collect_rates_e_0)[1])
     ax[0].plot(epochs,np.mean(collect_rates_e_0,0),label='e units',color='blue')
     ax[0].fill_between(epochs,np.mean(collect_rates_e_0,0)-np.std(collect_rates_e_0,0),np.mean(collect_rates_e_0,0)+np.std(collect_rates_e_0,0),facecolor='dodgerblue',alpha=0.4)
     ax[0].plot(epochs,np.mean(collect_rates_i_0,0),label='i units',color='orangered')
