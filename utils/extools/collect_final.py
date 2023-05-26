@@ -749,6 +749,11 @@ def plot_single_exp_rate_over_training(exp_dirs=all_spring_dual_dirs,exp_season=
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
+    collect_rates_e_0 = []
+    collect_rates_e_1 = []
+    collect_rates_i_0 = []
+    collect_rates_i_1 = []
+
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
         exp_path = xdir[-9:-1]
@@ -787,23 +792,44 @@ def plot_single_exp_rate_over_training(exp_dirs=all_spring_dual_dirs,exp_season=
             del batch_rates_1
             # ultimately this would stack us up at 100 epochs, variable # trials, 300 units
 
-        return [rates_0,rates_1]
+        #return [rates_0,rates_1]
 
-        e_rates_0 = rates_0[:,:,:e_end]
-        e_rates_1 = rates_1[:,:,:e_end]
-        i_rates_0 = rates_0[:,:,e_end:]
-        i_rates_1 = rates_1[:,:,e_end:]
+        # because of the variable number of trials per epoch, you may simply have to loop through
+        # and manually calculate the mean and the std for plotting
+        # that's not the worst thing
+        e_0_means = []
+        e_0_stds = []
+        e_1_means = []
+        e_1_stds = []
+        i_0_means = []
+        i_0_stds = []
+        i_1_means = []
+        i_1_stds = []
+
+        epochs = len(rates_0)
+
+        for i in range(0,len(rates_0)): # for each of 100 epochs
+            # meaning across units and across batches within that time slot
+            e_0_means.append(np.mean(rates_0[i][:,:e_end]))
+            e_0_stds.append(np.std(rates_0[i][:,:e_end]))
+            e_1_means.append(np.mean(rates_1[i][:,:e_end]))
+            e_1_stds.append(np.std(rates_1[i][:,:e_end]))
+
+            i_0_means.append(np.mean(rates_0[i][:,e_end:]))
+            i_0_stds.append(np.std(rates_0[i][:,e_end:]))
+            i_1_means.append(np.mean(rates_1[i][:,e_end:]))
+            i_1_stds.append(np.std(rates_1[i][:,e_end:]))
 
         fig,ax = plt.subplots(nrows=2, ncols=1)
-        ax[0].plot(epochs,np.mean(e_rates_0,1),label='e units',color='blue')
-        ax[0].fill_between(epochs,np.mean(e_rates_0,1)-np.std(e_rates_0,1),np.mean(e_rates_0,1)+np.std(e_rates_0,1),facecolor='dodgerblue',alpha=0.4)
-        ax[0].plot(epochs,np.mean(i_rates_0,1),label='i units',color='orangered')
-        ax[0].fill_between(epochs,np.mean(i_rates_0,1)-np.std(i_rates_0,1),np.mean(i_rates_0,1)+np.std(i_rates_0,1),facecolor='darkorange',alpha=0.4)
+        ax[0].plot(epochs,e_0_means,label='e units',color='blue')
+        ax[0].fill_between(epochs,e_0_means-e_0_stds,e_0_means+e_0_stds,facecolor='dodgerblue',alpha=0.4)
+        ax[0].plot(epochs,i_0_means,label='i units',color='orangered')
+        ax[0].fill_between(epochs,i_0_means-i_0_stds,i_0_means+i_0_stds,facecolor='darkorange',alpha=0.4)
 
-        ax[1].plot(epochs,np.mean(e_rates_1,1),label='e units',color='blue')
-        ax[1].fill_between(epochs,np.mean(e_rates_1,1)-np.std(e_rates_1,1),np.mean(e_rates_1,1)+np.std(e_rates_1,1),facecolor='dodgerblue',alpha=0.4)
-        ax[1].plot(epochs,np.mean(i_rates_1,1),label='i units',color='orangered')
-        ax[1].fill_between(epochs,np.mean(i_rates_1,1)-np.std(i_rates_1,1),np.mean(i_rates_1,1)+np.std(i_rates_1,1),facecolor='darkorange',alpha=0.4)
+        ax[1].plot(epochs,e_1_means,label='e units',color='blue')
+        ax[1].fill_between(epochs,e_1_means-e_1_stds,e_1_means+e_1_stds,facecolor='dodgerblue',alpha=0.4)
+        ax[1].plot(epochs,i_1_means,label='i units',color='orangered')
+        ax[1].fill_between(epochs,i_1_means-i_1_stds,i_1_means+i_1_stds,facecolor='darkorange',alpha=0.4)
 
         for j in range(0,len(ax)):
             ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
@@ -824,6 +850,15 @@ def plot_single_exp_rate_over_training(exp_dirs=all_spring_dual_dirs,exp_season=
         plt.clf()
         plt.close()
 
+        collect_rates_e_0.append(e_0_means)
+        collect_rates_i_0.append(i_0_means)
+        collect_rates_e_1.append(e_1_means)
+        collect_rates_i_1.append(i_1_means)
+
+    return [collect_rates_e_0,collect_rates_e_1,collect_rates_i_0,collect_rates_i_1] # each shaped [18 experiments x 100 epochs]
+
+    # should probably make a violin plot of e naive vs trained and another of i naive vs trained for the two coherence levels.
+    # that's why you are collecting the rates, okay.
 
         """
 
