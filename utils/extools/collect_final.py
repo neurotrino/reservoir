@@ -855,6 +855,8 @@ def plot_single_exp_rate_over_training(exp_dirs=all_spring_dual_dirs,exp_season=
         collect_rates_e_1.append(e_1_means)
         collect_rates_i_1.append(i_1_means)
 
+    np.savez(spath+'/collected_rates.npz',collect_rates_e_0=collect_rates_e_0,collect_rates_e_1=collect_rates_e_1,collect_rates_i_0=collect_rates_i_0,collect_rates_i_1=collect_rates_i_1)
+
     return [collect_rates_e_0,collect_rates_e_1,collect_rates_i_0,collect_rates_i_1] # each shaped [18 experiments x 100 epochs]
 
     # should probably make a violin plot of e naive vs trained and another of i naive vs trained for the two coherence levels.
@@ -879,6 +881,68 @@ def plot_single_exp_rate_over_training(exp_dirs=all_spring_dual_dirs,exp_season=
             # average across coherence level trials in this file
             coh0_exp_rates.append(np.mean(coh0_trial_rates,0)) # mean across trials, but preserve units; single vector of 300 per file (100 files)
             coh1_exp_rates.append(np.mean(coh1_trial_rates,0))
+    """
+
+def plot_collected_rates(exp_season='spring'):
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    data = np.load(spath+'/collected_rates.npz')
+    collect_rates_e_0 = data['collect_rates_e_0']
+    collect_rates_i_0 = data['collect_rates_i_0']
+    collect_rates_e_1 = data['collect_rates_e_1']
+    collect_rates_i_1 = data['collect_rates_i_1']
+
+    fig,ax = plt.subplots(nrows=2, ncols=1)
+    epochs = np.shape(collect_rates_e_0)[1]
+    ax[0].plot(epochs,np.mean(collect_rates_e_0,0),label='e units',color='blue')
+    ax[0].fill_between(epochs,np.mean(collect_rates_e_0,0)-np.std(collect_rates_e_0,0),np.mean(collect_rates_e_0,0)+np.std(collect_rates_e_0,0),facecolor='dodgerblue',alpha=0.4)
+    ax[0].plot(epochs,np.mean(collect_rates_i_0,0),label='i units',color='orangered')
+    ax[0].fill_between(epochs,np.mean(collect_rates_i_0,0)-np.std(collect_rates_i_0,0),np.mean(collect_rates_i_0,0)+np.std(collect_rates_i_0,0),facecolor='darkorange',alpha=0.4)
+
+    ax[1].plot(epochs,np.mean(collect_rates_e_1,0),label='e units',color='blue')
+    ax[1].fill_between(epochs,np.mean(collect_rates_e_1,0)-np.std(collect_rates_e_1,0),np.mean(collect_rates_e_1,0)+np.std(collect_rates_e_1,0),facecolor='dodgerblue',alpha=0.4)
+    ax[1].plot(epochs,np.mean(collect_rates_i_1,0),label='i units',color='orangered')
+    ax[1].fill_between(epochs,np.mean(collect_rates_i_1,0)-np.std(collect_rates_i_1,0),np.mean(collect_rates_i_1,0)+np.std(collect_rates_i_1,0),facecolor='darkorange',alpha=0.4)
+
+    for j in range(0,len(ax)):
+        ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
+        ax[j].set_xlabel('training epoch',fontname='Ubuntu')
+        ax[j].legend(prop={"family":"Ubuntu"})
+        for tick in ax[j].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[j].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+
+    plt.suptitle('Evolution of rates over training',fontname='Ubuntu')
+    plt.subplots_adjust(wspace=0.9, hspace=0.9)
+    plt.draw()
+
+    save_fname = spath+'/rates_over_training_all.png'
+    plt.savefig(save_fname,dpi=300)
+    # Teardown
+    plt.clf()
+    plt.close()
+
+    """
+    # make violin plots of rates
+    fig,ax = plt.subplots(nrows=1,ncols=2)
+    for j in range(0,len(ax)):
+        ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
+        ax[j].set_xlabel('training epoch',fontname='Ubuntu')
+        ax[j].legend(prop={"family":"Ubuntu"})
+        for tick in ax[j].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[j].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+
+    plt.suptitle('Violin plots over training',fontname='Ubuntu')
+    plt.subplots_adjust(wspace=0.9, hspace=0.9)
+    plt.draw()
+
+    save_fname = spath+'/rates_over_training_all_violin.png'
+    plt.savefig(save_fname,dpi=300)
+    # Teardown
+    plt.clf()
+    plt.close()
     """
 
 def plot_rates_over_training(exp_season='spring'):
