@@ -2108,7 +2108,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_task
     # that's a good start
 
 
-def characterize_tuned_rec_populations(exp_dirs=spec_nointoout_dirs_rate,exp_season='spring',mix_tuned_indices=False,plot_counts=True):
+def characterize_tuned_rec_populations(exp_dirs=spec_nointoout_dirs,exp_season='spring',mix_tuned_indices=False,plot_counts=True):
     # determine tuning of each recurrent unit across each of these experiments
     # according to trials of single coherence level only
     # include save inz as well into these spring experimental categories, okay
@@ -2243,6 +2243,7 @@ def characterize_tuned_rec_populations(exp_dirs=spec_nointoout_dirs_rate,exp_sea
             all_coh1_i_rates = np.hstack([all_coh1_i_rates,coh1_rec_rates[:,e_end:].flatten()])"""
 
     trained_ct = [coh1_e_ct,coh1_i_ct,coh0_e_ct,coh0_i_ct]
+    return trained_ct
 
     fig, ax = plt.subplots(nrows=2,ncols=2)
     ax = ax.flatten()
