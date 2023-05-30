@@ -138,9 +138,9 @@ def get_unspec_info(exp_dirs=unspec_dirs):
         trained_out_w = data['tv2.postweights'][99]
 
         # mean difference between weights
-        in_diff.append(np.abs(trained_in_w - naive_in_w).flatten())
-        rec_diff.append(np.abs(trained_w - naive_w).flatten())
-        out_diff.append(np.abs(trained_out_w - naive_out_w).flatten())
+        in_diff.append(np.abs(np.mean(trained_in_w - naive_in_w)))
+        rec_diff.append(np.abs(np.mean(trained_w - naive_w)))
+        out_diff.append(np.abs(np.mean(trained_out_w - naive_out_w)))
 
     return [in_diff,rec_diff,out_diff]
 
