@@ -1142,10 +1142,10 @@ def get_all_final_losses(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
         if not '06.03.22' in np_dir: # do not include that one awful experiment
             exp_path = xdir[-9:-1]
 
-            filepath = os.path.join(data_dir, xdir, "npz-data", "991-1000.npz")
+            filepath = os.path.join(data_dir, xdir, "npz-data", "1-10.npz")
             data = np.load(filepath)
-            rate_loss.append(np.mean(data['step_rate_loss']))
-            task_loss.append(np.mean(data['step_task_loss']))
+            rate_loss.append(data['step_rate_loss'][0])
+            task_loss.append(data['step_task_loss'][0])
 
     return [rate_loss, task_loss]
 
