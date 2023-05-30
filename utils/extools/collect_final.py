@@ -110,7 +110,7 @@ all_save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-
 
 # this is all a general sort of thing, once you do one (mostly figure out shading and dist comparisons) it'll come easily
 
-def tracking_top_weights(exp_dir=all_spring_dual_dirs,exp_season='spring',percentile=0.90):
+def tracking_top_weights(exp_dirs=all_spring_dual_dirs,exp_season='spring',percentile=0.90):
     # track top decile of weights
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
