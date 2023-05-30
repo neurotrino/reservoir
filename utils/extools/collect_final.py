@@ -117,7 +117,32 @@ def get_unspec_info(exp_dirs=unspec_dirs):
             exp_data_dirs = get_experiments(data_dir, exp_string)
         else:
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
-    return len(exp_data_dirs)
+
+    in_diff = []
+    rec_diff = []
+    out_diff = []
+
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        filepath = os.path.join(data_dir, xdir, "npz-data", "1-10.npz")
+        data = np.load(filepath)
+        naive_in_w = data['tv0.postweights'][0]
+        naive_w = data['tv1.postweights'][0]
+        naive_out_w = data['tv2.postweights'][0]
+
+        filepath = os.path.join(data_dir, xdir, "npz-data", "991-1000.npz")
+        data = np.load(filepath)
+        trained_in_w = data['tv0.postweights'][99]
+        trained_w = data['tv1.postweights'][99]
+        trained_out_w = data['tv2.postweights'][99]
+
+        # mean difference between weights
+        in_diff.append(np.abs(trained_in_w - naive_in_w))
+        rec_diff.append(np.abs(trained_w - naive_w))
+        out_diff.append(np.abs(trained_out_w - naive_out_w))
+
+    return [in_diff,rec_diff,out_diff]
 
 def tracking_top_weights(exp_dirs=all_spring_dual_dirs,exp_season='spring',percentile=0.90):
     # track top decile of weights
