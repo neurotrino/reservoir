@@ -1145,7 +1145,7 @@ def get_all_final_losses(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
             filepath = os.path.join(data_dir, xdir, "npz-data", "991-1000.npz")
             data = np.load(filepath)
             rate_loss.append(np.mean(data['step_rate_loss']))
-            task_loss.append(np.mean('step_task_loss']))
+            task_loss.append(np.mean(data['step_task_loss']))
 
     return [rate_loss, task_loss]
 
