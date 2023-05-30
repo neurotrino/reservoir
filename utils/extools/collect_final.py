@@ -110,6 +110,48 @@ all_save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-
 
 # this is all a general sort of thing, once you do one (mostly figure out shading and dist comparisons) it'll come easily
 
+def tracking_top_weights(exp_dir=all_spring_dual_dirs,exp_season='spring',percentile=0.90):
+    # track top decile of weights
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    if not os.path.isdir(spath):
+        os.makedirs(spath)
+
+    # collectors
+    p_same = []
+
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        if not '06.03.22' in np_dir: # do not include that one awful experiment
+            exp_path = xdir[-9:-1]
+
+            # get truly naive weights
+            filepath = os.path.join(data_dir,xdir,"npz-data","main_preweights.npy")
+            w = np.load(filepath)
+            thresh = np.quantile(np.abs(w[w > 0]), percentile)
+            naive_idx = np.argwhere(w>=thresh)
+
+            filepath = os.path.join(data_dir, xdir, "npz-data", "991-1000.npz")
+            data = np.load(filepath)
+            w = data['tv1.postweights'][99]
+            # get top decile
+            thresh = np.quantile(np.abs(w[w > 0]), percentile)
+            trained_idx = np.argwhere(w>=thresh)
+
+            aset = set([tuple(x) for x in naive_idx])
+            bset = set([tuple(x) for x in trained_idx])
+            sames = np.array([x for x in aset & bset])
+            p_same.append(len(sames)/len(naive_idx)*100)
+
+    return p_same
+
 def dists_of_all_weights(dual_exp_dir=spec_nointoout_dirs_task,exp_season='spring_task'):
     # aggregate over all experiments of this type
     # plot distributions in naive state
