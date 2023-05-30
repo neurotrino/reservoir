@@ -1120,7 +1120,7 @@ def get_truly_naive_rates(exp_dirs=all_spring_dual_dirs,exp_season='spring',naiv
 
     return [rates_e_0,rates_e_1,rates_i_0,rates_i_1]
 
-def get_all_final_losses(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
+def get_all_final_losses(exp_dirs=save_inz_dirs_rate,exp_season='spring'):
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
             exp_data_dirs = get_experiments(data_dir, exp_string)
@@ -1142,7 +1142,7 @@ def get_all_final_losses(exp_dirs=all_spring_dual_dirs,exp_season='spring'):
         if not '06.03.22' in np_dir: # do not include that one awful experiment
             exp_path = xdir[-9:-1]
 
-            filepath = os.path.join(data_dir, xdir, "npz-data", "1-10.npz")
+            filepath = os.path.join(data_dir, xdir, "npz-data", "91-1000.npz")
             data = np.load(filepath)
             rate_loss.append(data['step_rate_loss'][0])
             task_loss.append(data['step_task_loss'][0])
