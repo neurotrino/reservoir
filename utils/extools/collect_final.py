@@ -97,6 +97,7 @@ for xdir in data_dirs:
 data_files = filenames(num_epochs, epochs_per_file)
 
 #ALL DUAL TRAINED TO BEGIN WITH:
+unspec_dirs = ["fwd-pipeline-inputspikeregen"]
 spec_output_dirs = ["run-batch30-specout-onlinerate0.1-savey","run-batch30-dualloss-silence","run-batch30-dualloss-swaplabels"]
 spec_input_dirs = ["run-batch30-dualloss-specinput0.3-rewire"]
 spec_nointoout_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5"]
@@ -109,6 +110,14 @@ all_spring_dual_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewi
 all_save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz","run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz","run-batch30-taskloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz"]
 
 # this is all a general sort of thing, once you do one (mostly figure out shading and dist comparisons) it'll come easily
+
+def get_unspec_info(exp_dirs=unspec_dirs):
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+    return len(exp_data_dirs)
 
 def tracking_top_weights(exp_dirs=all_spring_dual_dirs,exp_season='spring',percentile=0.90):
     # track top decile of weights
