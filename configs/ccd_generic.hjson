@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Mandatory variable.
-        exp_dir: /data/experiments/run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz
+        exp_dir: /data/experiments/run-batch30-dualloss-noinoutrewiretype-nodales-test
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -124,6 +124,8 @@
             type: ExInALIF
 
             freewiring: false   // now the term for our original unprincipled use of "rewiring"
+
+            no_dales: true // only for the update of the recurrent and output layer for now
 
             rewiring: true   // now the term for permitting a new connection to grow if/when an existing connection disappears
 
@@ -378,7 +380,7 @@
 
         silencing_threshold: 1
 
-        include_task_loss: false
+        include_task_loss: true
 
         include_rate_loss: true
 

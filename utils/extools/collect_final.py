@@ -131,7 +131,7 @@ def get_unspec_info(exp_dirs=unspec_dirs):
         naive_w = data['tv1.postweights'][0]
         naive_out_w = data['tv2.postweights'][0]
 
-        filepath = os.path.join(data_dir, xdir, "npz-data", "991-1000.npz")
+        filepath = os.path.join(data_dir, xdir, "npz-data", "491-500.npz")
         data = np.load(filepath)
         trained_in_w = data['tv0.postweights'][99]
         trained_w = data['tv1.postweights'][99]

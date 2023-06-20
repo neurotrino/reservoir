@@ -358,7 +358,7 @@ class Trainer(BaseTrainer):
         # this step is needed to explicitly ensure self-recurrent
         # connections remain zero otherwise (if sparsity IS enforced)
         # that is taken care of through the rec_sign application below
-        if self.cfg["model"].cell.freewiring:  # TODO: document in HJSON
+        if self.cfg["model"].cell.freewiring or self.cfg["model"].cell.no_dales:  # TODO: document in HJSON
             # Make sure all self-connections remain 0
             self.model.cell.recurrent_weights.assign(
                 tf.where(
@@ -368,20 +368,23 @@ class Trainer(BaseTrainer):
                 )
             )
 
+
         # If the sign of a weight changed from the original or the
         # weight (previously 0) is no longer 0, make the weight 0.
         #
         # Reminder that rec_sign contains 0's for initial 0's when
         # rewiring = true whereas it contains +1's or -1's (for excit
         # or inhib) for initial 0's when rewiring = false (freewiring = true)
-        self.model.cell.recurrent_weights.assign(
-            tf.where(
-                self.model.cell.rec_sign * self.model.cell.recurrent_weights
-                > 0,
-                self.model.cell.recurrent_weights,
-                0,
+        if not self.cfg["model"].cell.no_dales:
+            self.model.cell.recurrent_weights.assign(
+                tf.where(
+                    self.model.cell.rec_sign * self.model.cell.recurrent_weights
+                    > 0,
+                    self.model.cell.recurrent_weights,
+                    0,
+                )
             )
-        )
+
 
         # THIS SECTION parallels how sparsity is maintained for the RSNN even in the absence of rewiring
         # If the sign of an input or output weight changed from the original (or updated from last step)
