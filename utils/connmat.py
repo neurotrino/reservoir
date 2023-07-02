@@ -17,11 +17,12 @@ import tensorflow as tf
 
 class ExInOutputMatrixGenerator(object):
     def __init__(
-        self, n_excit, n_inhib, n_out, p_from_e, p_from_i, mu, sigma
+        self, n_excit, n_inhib, n_out, inhib_multiplier, p_from_e, p_from_i, mu, sigma
     ):
 
         self.n_excit = n_excit
         self.n_inhib = n_inhib
+        self.inhib_multiplier = inhib_multiplier
         self.n_in = n_excit + n_inhib
         self.n_out = n_out
         self.p_from_e = p_from_e
@@ -93,7 +94,7 @@ class ExInOutputMatrixGenerator(object):
                             self.mu, self.sigma
                         )
                         if self.n_in > i > (self.n_in - self.n_inhib):
-                            self.output_weight[i][j] *= -10
+                            self.output_weight[i][j] *= self.inhib_multiplier
             return True
 
         except Exception as e:
@@ -265,12 +266,14 @@ class ConnectivityMatrixGenerator(object):
 
 
 class ExInConnectivityMatrixGenerator(object):
-    def __init__(self, n_excite, n_inhib, p_ee, p_ei, p_ie, p_ii, mu, sigma):
+    def __init__(self, n_excite, n_inhib, inhib_multiplier, p_ee, p_ei, p_ie, p_ii, mu, sigma):
 
         # Determine numbers of neurons
         self.n_excite = n_excite
         self.n_inhib = n_inhib
         self.n_neurons = n_excite + n_inhib
+
+        self.inhib_multiplier = inhib_multiplier
 
         self.mu = mu
         self.sigma = sigma
@@ -380,7 +383,7 @@ class ExInConnectivityMatrixGenerator(object):
                             > i
                             > (self.n_neurons - self.n_inhib)
                         ):
-                            self.weight_mat[i][j] *= -10
+                            self.weight_mat[i][j] *= self.inhib_multiplier
 
             return True
 

@@ -96,6 +96,7 @@ class ModifiedDense(tf.keras.layers.Layer):
                 n_excit=self.ecount,
                 n_inhib=self.icount,
                 n_out=self.n_out,
+                inhib_multiplier=self.inhib_multiplier,
                 p_from_e=self.p_eo,
                 p_from_i=self.p_io,
                 mu=self.mu,
@@ -180,7 +181,7 @@ class ModifiedDense(tf.keras.layers.Layer):
             # [!] Eventually prefer to use .in_mask instead of a loop
             for i in range(len(zero_indices)):
                 if zero_indices[i][0] >= self.ecount:
-                    new_weights[i] *= -10
+                    new_weights[i] *= self.inhib_multiplier
 
             # Update recurrent weights
             x = tf.tensor_scatter_nd_update(

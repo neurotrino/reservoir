@@ -180,6 +180,8 @@
 
             output_multiplier: 1
 
+            inhib_multiplier: -1.5
+
             // ...
 
             beta: 0.16

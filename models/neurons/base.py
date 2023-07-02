@@ -189,6 +189,7 @@ class ExIn(object):
             self.p_ei = self.cfg["cell"].p_ei
             self.p_ie = self.cfg["cell"].p_ie
             self.p_ii = self.cfg["cell"].p_ii
+            self.inhib_multiplier = self.cfg["cell"].inhib_multiplier
             # Read input connectivity parameters
             self.p_input = self.cfg["cell"].p_input
 
@@ -206,6 +207,7 @@ class ExIn(object):
             self.connmat_generator = ExInCMG(
                 self.num_ex,
                 self.num_in,
+                self.inhib_multiplier,
                 self.p_ee,
                 self.p_ei,
                 self.p_ie,
@@ -276,7 +278,7 @@ class ExIn(object):
             # [!] Eventually prefer to use .in_mask instead of a loop
             for i in range(len(zero_indices)):
                 if zero_indices[i][0] >= self.num_ex:
-                    new_weights[i] *= -10
+                    new_weights[i] *= self.inhib_multiplier
 
             # Update recurrent weights
             x = tf.tensor_scatter_nd_update(
