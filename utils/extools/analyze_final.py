@@ -144,6 +144,8 @@ def plot_all_weight_dists(exp_dirs=save_inz_dirs,exp_season='spring'): # just fo
     out_naive = np.array(out_naive)
     out_trained = np.array(out_trained)
 
+    """
+
     # PLOT NONZERO INPUT WEIGHTS
     fig, ax = plt.subplots(nrows=2,ncols=1,figsize=(4.4,5))
     in_e_naive = in_naive[:,:,:e_end].flatten()
@@ -210,6 +212,7 @@ def plot_all_weight_dists(exp_dirs=save_inz_dirs,exp_season='spring'): # just fo
     # Teardown
     plt.clf()
     plt.close()
+    """
 
     # plot RECURRENT ee, ei, ie and ii separately, and only nonzero weight values
     fig, ax = plt.subplots(nrows=2,ncols=1,figsize=(3,5))
@@ -242,7 +245,7 @@ def plot_all_weight_dists(exp_dirs=save_inz_dirs,exp_season='spring'): # just fo
     for i in range(0,len(ax)):
         ax[i].set_facecolor('white')
         ax[i].legend(prop={"family":"Ubuntu"})
-        ax[i].set_xlim(-40,10)
+        ax[i].set_xlim(-10,2)
         for tick in ax[i].get_xticklabels():
             tick.set_fontname("Ubuntu")
         for tick in ax[i].get_yticklabels():
@@ -250,7 +253,7 @@ def plot_all_weight_dists(exp_dirs=save_inz_dirs,exp_season='spring'): # just fo
         ax[i].set_xlabel('synaptic current (nA)',fontname='Ubuntu')
         ax[i].set_ylabel('density',fontname='Ubuntu')
     plt.draw()
-    save_fname = savepath+'/set_plots/'+exp_season+'_all_main_weights_test.png'
+    save_fname = savepath+'/set_plots/'+exp_season+'_all_main_weights_xlim_adjust.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
