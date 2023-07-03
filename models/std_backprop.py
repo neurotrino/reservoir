@@ -66,6 +66,7 @@ class ModifiedDense(tf.keras.layers.Layer):
             self.n_out = 2
         else:
             self.n_out = 1
+        self.inhib_multiplier = inhib_multiplier
         self.p_eo = p_eo
         self.p_io = p_io
         self.frac_e = frac_e
