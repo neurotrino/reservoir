@@ -261,6 +261,7 @@ class Model(BaseModel):
             self.dense1 = ModifiedDense(
                 self.cfg,
                 cell_cfg.units,
+                cell_cfg.inhib_multiplier,
                 cell_cfg.p_eo,
                 cell_cfg.p_io,
                 cell_cfg.frac_e,
