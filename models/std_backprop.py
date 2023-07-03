@@ -46,7 +46,7 @@ class ModifiedDense(tf.keras.layers.Layer):
         self,
         cfg,
         num_neurons,
-        input_multiplier,
+        inhib_multiplier,
         p_eo,
         p_io,
         frac_e,  # architecture
