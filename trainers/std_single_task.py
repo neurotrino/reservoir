@@ -1039,6 +1039,42 @@ class Trainer(BaseTrainer):
                     rec_vals[out_id,:] = 0
                     self.model.cell.recurrent_weights.assign(rec_vals)
 
+                # silencing cross-tuned inhibitory connections
+                if self.cfg["train"].silence_cross_tuned_inhib:
+                    # determine which units are tuned to which coherence
+                    coh0_rec_rates = []
+                    coh1_rec_rates = []
+
+                    # need to load in data from npz??
+                    true_y = batch_y.numpy()
+                    for i in range(0,np.shape(true_y)[0]):
+                        for j in range(0,np.shape(true_y)[1]):
+                            if true_y[i][j][0]==true_y[i][j][seq_len-1]:
+                                if true_y[i][j][0]==0:
+                                    coh0_rec_rates.append(np.mean(spikes[i][j],0))
+                                else:
+                                    coh1_rec_rates.append(np.mean(spikes[i][j],0))
+
+                    # find which of the 300 recurrent units respond more on average to one coherence level over the other
+                    coh1_rec_idx = np.where(np.mean(coh1_rec_rates,0)>np.mean(coh0_rec_rates,0))[0]
+                    coh0_rec_idx = np.where(np.mean(coh1_rec_rates,0)<np.mean(coh0_rec_rates,0))[0]
+
+                    # inhib indices specifically
+                    coh1_i = np.array(coh1_rec_idx[coh1_rec_idx>=e_end])
+                    coh0_i = np.array(coh0_rec_idx[coh0_rec_idx>=e_end])
+
+                    # silence the top 25% of those cross-inhib connections
+                    het_ie = w[coh0_i,:][:,coh1_e]
+                    het_ii = w[coh0_i,:][:,coh1_i]
+                    ero_ie = w[coh1_i,:][:,coh0_e]
+                    ero_ii = w[coh1_i,:][:,coh0_i]
+
+                    thr = np.quantile(w_diff, 0.75)
+                    greatest_delta_ws = np.where(het_ie[het_ief>thr])[0]
+
+
+                    self.model.cell.recurrent_weights.assign(rec_vals)
+
             action_list = (
                 self.logger.on_epoch_begin()
             )  # put profiler in here?
