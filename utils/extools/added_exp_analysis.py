@@ -260,7 +260,7 @@ def mod_plot_all_weight_dists(exp_dirs=lowerinhib_data_dirs,exp_season='summer/l
         ax[i].set_xlabel('synaptic current (nA)',fontname='Ubuntu')
         ax[i].set_ylabel('density',fontname='Ubuntu')
     plt.draw()
-    save_fname = savepath+'/set_plots/'+exp_season+'/all_output_weights.png'
+    save_fname = savepath+'set_plots/'+exp_season+'/all_output_weights.png'
     plt.savefig(save_fname,dpi=300)
     # Teardown
     plt.clf()
@@ -306,7 +306,7 @@ def mod_plot_all_weight_dists(exp_dirs=lowerinhib_data_dirs,exp_season='summer/l
         ax[i].set_xlabel('synaptic current (nA)',fontname='Ubuntu')
         ax[i].set_ylabel('density',fontname='Ubuntu')
     plt.draw()
-    save_fname = savepath+'/set_plots/'+exp_season+'/all_main_weights.png'
+    save_fname = savepath+'set_plots/'+exp_season+'/all_main_weights.png'
     plt.savefig(save_fname,dpi=300)
 
     # Teardown
