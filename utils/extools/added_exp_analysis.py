@@ -333,6 +333,7 @@ def dales_over_training(exp_dirs=nodales_data_dirs,exp_season='summer'):
 
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
+        exp_path = xdir[-9:-1]
 
         i_swap=[]
         i_swap_scale=[]
