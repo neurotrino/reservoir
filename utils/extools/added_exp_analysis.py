@@ -347,7 +347,7 @@ def dales_over_training(exp_dirs=nodales_data_dirs,exp_season='summer'):
             #task_loss.append(np.mean(data['step_task_loss']))
             # modify to be single experiment
             w = data['tv1.postweights']
-            for in in range(0,len(w)):
+            for i in range(0,len(w)):
                 inhib = w[i][e_end:,:]
                 excit = w[i][:e_end,:]
                 i_swap.append(len(inhib[inhib>0])/len(inhib[inhib<0]))
