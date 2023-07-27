@@ -73,7 +73,7 @@ all_save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-
 
 
 lowerinhib_data_dirs = ["2023-07-03 21.12.39","2023-07-08 17.53.59"]
-nodales_data_dirs = ["2023-07-02 19.37.04"]
+nodales_data_dirs = ["2023-06-30 09.37.50","2023-06-28 00.01.42","2023-06-25 14.24.22"]
 
 
 # plot losses for a single example experiment over time; error bar shading is for spread within epoch
