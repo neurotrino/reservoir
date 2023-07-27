@@ -77,7 +77,7 @@ nodales_data_dirs = ["2023-07-02 19.37.04"]
 
 
 # plot losses for a single example experiment over time; error bar shading is for spread within epoch
-def mod_losses_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='summer'):
+def mod_losses_over_training(exp_dirs=nodales_data_dirs,exp_season='summer'):
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
             exp_data_dirs = get_experiments(data_dir, exp_string)
@@ -85,7 +85,7 @@ def mod_losses_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='summer'):
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
     # check if folder exists, otherwise create it for saving files
-    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/lowerinhib'
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/nodales'
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
@@ -138,7 +138,7 @@ def mod_losses_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='summer'):
                     tick.set_fontname("Ubuntu")
                 for tick in ax[j].get_yticklabels():
                     tick.set_fontname("Ubuntu")
-            plt.suptitle('Example evolution of loss for lower inhibition (2x)',fontname='Ubuntu')
+            plt.suptitle("Example evolution of loss without Dale's law",fontname='Ubuntu')
             plt.subplots_adjust(wspace=0.7, hspace=0.5)
             plt.draw()
 
