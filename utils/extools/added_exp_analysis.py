@@ -151,6 +151,169 @@ def mod_losses_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='summer'):
             del rate_losses
             del task_losses
 
+def mod_plot_all_weight_dists(exp_dirs=lowerinhib_data_dirs,exp_season='summer/lowerinhib'): # just for dual-training for now
+
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+    # go through all dirs and grab the weight distributions of the first and last epochs
+    data_files = filenames(num_epochs, epochs_per_file) # useful for plotting evolution over the entire course of training
+    in_naive = []
+    in_trained = []
+    rec_naive = []
+    rec_trained = []
+    out_naive = []
+    out_trained = []
+    for xdir in exp_data_dirs:
+        if 'inputx5' in xdir:
+            np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+            # collect the truly naive weights
+            if 'inputx5' in xdir:
+                in_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","input_preweights.npy")))
+            else:
+                in_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","input_preweights.npy"))*5)
+            rec_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","main_preweights.npy")))
+            out_naive.append(np.load(os.path.join(data_dir,xdir,"npz-data","output_preweights.npy")))
+
+            # collect trained weights
+            trained_data = np.load(os.path.join(np_dir, "991-1000.npz"))
+            if 'inputx5' in xdir:
+                in_trained.append(trained_data['tv0.postweights'][99])
+            else:
+                in_trained.append(trained_data['tv0.postweights'][99]*5)
+            rec_trained.append(trained_data['tv1.postweights'][99])
+            out_trained.append(trained_data['tv2.postweights'][99])
+
+    # convert to numpy arrays
+    in_naive = np.array(in_naive)
+    in_trained = np.array(in_trained)
+    rec_naive = np.array(rec_naive)
+    rec_trained = np.array(rec_trained)
+    # maybe need to make less precise in order to plot
+    #rec_trained = np.around(rec_trained,decimals=1)
+    out_naive = np.array(out_naive)
+    out_trained = np.array(out_trained)
+
+    """
+
+    # PLOT NONZERO INPUT WEIGHTS
+    fig, ax = plt.subplots(nrows=2,ncols=1,figsize=(4.4,5))
+    in_e_naive = in_naive[:,:,:e_end].flatten()
+    in_i_naive = in_naive[:,:,e_end:].flatten()
+    in_e_trained = in_trained[:,:,:e_end].flatten()
+    in_i_trained = in_trained[:,:,e_end:].flatten()
+    sns.kdeplot(in_e_naive[in_e_naive!=0],color='dodgerblue',label='to e',ax=ax[0])
+    sns.kdeplot(in_i_naive[in_i_naive!=0],color='darkorange',label='to i',ax=ax[0])
+    ax[0].set_title('naive input',fontname='Ubuntu')
+    sns.kdeplot(in_e_trained[in_e_trained>0],color='dodgerblue',label='to e',ax=ax[1])
+    sns.kdeplot(in_i_trained[in_i_trained!=0],color='darkorange',label='to i',ax=ax[1])
+    ax[1].set_title('trained input',fontname='Ubuntu')
+    plt.suptitle('Input Layer Weights',fontname='Ubuntu')
+    plt.subplots_adjust(wspace=0.7, hspace=0.5)
+    # go through and set all axes
+    ax = ax.flatten()
+    for i in range(0,len(ax)):
+        ax[i].set_facecolor('white')
+        ax[i].legend(prop={"family":"Ubuntu"})
+        ax[i].set_xlim(-0.5,4.5)
+        for tick in ax[i].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[i].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+        ax[i].set_xlabel('synaptic current (nA)',fontname='Ubuntu')
+        ax[i].set_ylabel('density',fontname='Ubuntu')
+    plt.draw()
+    save_fname = savepath+'/set_plots/'+exp_season+'/all_input_weights.png'
+    plt.savefig(save_fname,dpi=300)
+    # Teardown
+    plt.clf()
+    plt.close()
+    """
+
+    # PLOT NONZERO OUTPUT WEIGHTS
+    fig, ax = plt.subplots(nrows=2,ncols=1,figsize=(4.4,5))
+    out_e_naive = out_naive[:,:e_end].flatten()
+    out_i_naive = out_naive[:,e_end:].flatten()
+    out_e_trained = out_trained[:,:e_end].flatten()
+    out_i_trained = out_trained[:,e_end:].flatten()
+    sns.kdeplot(out_e_naive[out_e_naive!=0],color='dodgerblue',label='from e',ax=ax[0])
+    sns.kdeplot(out_i_naive[out_i_naive!=0],color='darkorange',label='from i',ax=ax[0])
+    ax[0].set_title('naive output',fontname='Ubuntu')
+    sns.kdeplot(out_e_trained[out_e_trained!=0],color='dodgerblue',label='from e',ax=ax[1])
+    sns.kdeplot(out_i_trained[out_i_trained!=0],color='darkorange',label='from i',ax=ax[1])
+    ax[1].set_title('trained output',fontname='Ubuntu')
+    plt.suptitle('Lower Inhib: Output Layer Weights',fontname='Ubuntu')
+    plt.subplots_adjust(wspace=0.7, hspace=0.5)
+    plt.legend()
+    # go through and set all axes
+    ax = ax.flatten()
+    for i in range(0,len(ax)):
+        ax[i].set_facecolor('white')
+        ax[i].legend(prop={"family":"Ubuntu"})
+        ax[i].set_xlim(-2.0,0.5)
+        for tick in ax[i].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[i].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+        ax[i].set_xlabel('synaptic current (nA)',fontname='Ubuntu')
+        ax[i].set_ylabel('density',fontname='Ubuntu')
+    plt.draw()
+    save_fname = savepath+'/set_plots/'+exp_season+'/all_output_weights.png'
+    plt.savefig(save_fname,dpi=300)
+    # Teardown
+    plt.clf()
+    plt.close()
+
+
+    # plot RECURRENT ee, ei, ie and ii separately, and only nonzero weight values
+    fig, ax = plt.subplots(nrows=2,ncols=1,figsize=(3,5))
+    rec_naive_ee = rec_naive[:,:e_end,:e_end].flatten()
+    rec_naive_ei = rec_naive[:,:e_end,e_end:].flatten()
+    rec_naive_ie = rec_naive[:,e_end:,:e_end].flatten()
+    rec_naive_ii = rec_naive[:,e_end:,e_end:].flatten()
+    rec_trained_ee = rec_trained[:9,:e_end,:e_end].flatten()
+    rec_trained_ei = rec_trained[:,:e_end,e_end:].flatten()
+    rec_trained_ie = rec_trained[:10,e_end:,:e_end].flatten()
+    rec_trained_ii = rec_trained[:,e_end:,e_end:].flatten()
+
+    sns.kdeplot(rec_naive_ee[rec_naive_ee>0],color='slateblue',alpha=0.7,label='ee',ax=ax[0])
+    sns.kdeplot(rec_naive_ei[rec_naive_ei>0],color='mediumseagreen',alpha=0.7,label='ei',ax=ax[0])
+    sns.kdeplot(rec_naive_ie[rec_naive_ie<0],color='orange',alpha=0.7,label='ie',ax=ax[0])
+    sns.kdeplot(rec_naive_ii[rec_naive_ii<0],color='orangered',alpha=0.7,label='ii',ax=ax[0])
+    ax[0].set_title('naive recurrent',fontname='Ubuntu')
+
+    sns.kdeplot(rec_trained_ee[rec_trained_ee>0],color='slateblue',alpha=0.7,label='ee',ax=ax[1])
+    sns.kdeplot(rec_trained_ei[rec_trained_ei>0],color='mediumseagreen',alpha=0.7,label='ei',ax=ax[1])
+    sns.kdeplot(rec_trained_ie[rec_trained_ie<0],color='orange',alpha=0.7,label='ie',ax=ax[1])
+    sns.kdeplot(rec_trained_ii[rec_trained_ii<0],color='orangered',alpha=0.7,label='ii',ax=ax[1])
+    ax[1].set_title('trained recurrent',fontname='Ubuntu')
+
+    plt.suptitle('Lower Inhib: Main Recurrent Layer Weights',fontname='Ubuntu')
+    plt.subplots_adjust(wspace=0.7, hspace=0.5)
+    plt.legend()
+    # go through and set all axes
+    ax = ax.flatten()
+    for i in range(0,len(ax)):
+        ax[i].set_facecolor('white')
+        ax[i].legend(prop={"family":"Ubuntu"})
+        ax[i].set_xlim(-5,1)
+        for tick in ax[i].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        for tick in ax[i].get_yticklabels():
+            tick.set_fontname("Ubuntu")
+        ax[i].set_xlabel('synaptic current (nA)',fontname='Ubuntu')
+        ax[i].set_ylabel('density',fontname='Ubuntu')
+    plt.draw()
+    save_fname = savepath+'/set_plots/'+exp_season+'/all_main_weights.png'
+    plt.savefig(save_fname,dpi=300)
+
+    # Teardown
+    plt.clf()
+    plt.close()
+
 
 #def dales_over_training(exp_dirs=nodales_data_dirs):
     # plot over the course of training the number of e connections [:e_end,:] that become negative
