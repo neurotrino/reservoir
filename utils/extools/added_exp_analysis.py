@@ -151,7 +151,7 @@ def mod_losses_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='summer'):
             del rate_losses
             del task_losses
 
-def mod_plot_all_weight_dists(exp_dirs=lowerinhib_data_dirs,exp_season='summer/lowerinhib'): # just for dual-training for now
+def mod_plot_all_weight_dists(exp_dirs=lowerinhib_data_dirs,exp_season='summer/final/lowerinhib'): # just for dual-training for now
 
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
