@@ -351,16 +351,16 @@ def dales_over_training(exp_dirs=nodales_data_dirs,exp_season='summer'):
             for i in range(0,len(w)):
                 inhib = w[i][e_end:,:]
                 excit = w[i][:e_end,:]
-                i_swap.append(len(inhib[inhib>0])/len(inhib[inhib<0]))
-                e_swap.append(len(excit[excit<0])/len(excit[excit>0]))
+                i_swap.append(len(inhib[inhib>0])/len(inhib[inhib!=0]))
+                e_swap.append(len(excit[excit<0])/len(excit[excit!=0]))
                 i_swap_scale.append(np.abs(np.mean(inhib[inhib>0])/np.mean(inhib[inhib<0])))
                 e_swap_scale.append(np.abs(np.mean(excit[excit<0])/np.mean(excit[excit>0])))
 
         fig, ax = plt.subplots(nrows=3, ncols=1)
         epochs=np.arange(0,len(i_swap))/100
-        ax[0].plot(epochs,e_swap,label='e that became -',color='mediumseagreen')
-        ax[0].plot(epochs,i_swap,label='i that became +',color='darkorange')
-        ax[0].set_title('proportion of units that swapped sign',fontname='Ubuntu')
+        ax[0].plot(epochs,e_swap,label='e that are -',color='mediumseagreen')
+        ax[0].plot(epochs,i_swap,label='i that are +',color='darkorange')
+        ax[0].set_title('proportion of nonzero edges that swapped sign',fontname='Ubuntu')
 
         ax[1].plot(epochs,e_swap_scale,color='mediumseagreen')
         ax[1].set_title('relative strength of swapped e edges',fontname='Ubuntu')
