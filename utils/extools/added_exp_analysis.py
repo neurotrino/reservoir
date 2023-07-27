@@ -615,7 +615,7 @@ def mod_input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_
     # that's a good start
 
 
-def mod_tuned_rec_layer_over_training(exp_dirs=spec_nointoout_dirs_rate,exp_season='spring_rate'):
+def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='summer'):
     # plot over the course of training with shaded error bars
     # plot the average weight within and between coherence tuning of recurrent layer units
     # make sure all axes are comparable
@@ -630,7 +630,7 @@ def mod_tuned_rec_layer_over_training(exp_dirs=spec_nointoout_dirs_rate,exp_seas
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
     # check if folder exists, otherwise create it for saving files
-    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/lowerinhib'
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
@@ -912,8 +912,8 @@ def mod_tuned_rec_layer_over_training(exp_dirs=spec_nointoout_dirs_rate,exp_seas
         for tick in ax[j].get_yticklabels():
             tick.set_fontname("Ubuntu")
 
-    plt.suptitle('Recurrent Connectivity by Coherence Tuning: Rate Trained',fontname='Ubuntu')
-    save_fname = spath+'/rec_weights_by_tuning_over_ratetraining.png'
+    plt.suptitle('Recurrent Connectivity by Coherence Tuning: Lower Inhib (2x)',fontname='Ubuntu')
+    save_fname = spath+'/rec_weights_by_tuning.png'
     plt.subplots_adjust(hspace=0.8,wspace=0.8)
     plt.draw()
     plt.savefig(save_fname,dpi=300)
