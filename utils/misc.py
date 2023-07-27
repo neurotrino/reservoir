@@ -50,7 +50,7 @@ def get_experiments(data_dir, experiment_string, final_npz=None):
     null_date = "2022-07-25"
     for fname in os.listdir(data_dir):
         #if not fname.startswith(experiment_string):
-        if not fname.contains(experiment_string):
+        if not experiment_string in fname:
             continue
         if null_date in fname:
             continue
