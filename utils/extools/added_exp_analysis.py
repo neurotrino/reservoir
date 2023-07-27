@@ -314,11 +314,79 @@ def mod_plot_all_weight_dists(exp_dirs=nodales_data_dirs,exp_season='summer/fina
     plt.close()
 
 
-#def dales_over_training(exp_dirs=nodales_data_dirs):
+def dales_over_training(exp_dirs=nodales_data_dirs,exp_season='summer'):
     # plot over the course of training the number of e connections [:e_end,:] that become negative
     # and the number of i units [e_end:,:] that become positive
     # this helps us visualize whether e and i units stabilize at some point
 
+    # do so separately for each experiment
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/nodales'
+    if not os.path.isdir(spath):
+        os.makedirs(spath)
+
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+
+        i_swap=[]
+        i_swap_scale=[]
+        e_swap=[]
+        e_swap_scale=[]
+
+        for filename in data_files:
+            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
+            data = np.load(filepath)
+            # mean across epochs/batches in this file
+            #rate_loss.append(np.mean(data['step_rate_loss']))
+            #task_loss.append(np.mean(data['step_task_loss']))
+            # modify to be single experiment
+            w = data['tv1.postweights']
+            for in in range(0,len(w)):
+                inhib = w[i][e_end:,:]
+                excit = w[i][:e_end,:]
+                i_swap.append(len(inhib[inhib>0])/len(inhib[inhib<0]))
+                e_swap.append(len(excit[excit<0])/len(excit[excit>0]))
+                i_swap_scale.append(np.abs(np.mean(inhib[inhib>0])/np.mean(inhib[inhib<0])))
+                e_swap_scale.append(np.abs(np.mean(excit[excit<0])/np.mean(excit[excit>0])))
+
+        fig, ax = plt.subplots(nrows=3, ncols=1)
+        #epochs=np.arange(0,len(i_swap))
+        ax[0].plot(e_swap,label='e that became -',color='slateblue')
+        ax[0].plot(i_swap,label='i that became +',color='orangered')
+        ax[0].set_ylabel('proportion of units that swapped sign',fontname='Ubuntu')
+        ax[0].set_title('sign changes',fontname='Ubuntu')
+
+        ax[1].plot(e_swap_scale,color='slateblue')
+        ax[1].set_ylabel('relative strength of swapped edges',fontname='Ubuntu')
+        ax[1].set_title('strength of excitatory sign changes to -',fontname='Ubuntu')
+
+        ax[2].plot(i_swap_scale,color='orangered')
+        ax[2].set_ylabel('relative strength of swapped edges',fontname='Ubuntu')
+        ax[2].set_title('strength of inhibitory sign changes to +',fontname='Ubuntu')
+
+        for j in range(0,len(ax)):
+            #ax[j].set_ylabel('',fontname='Ubuntu')
+            ax[j].set_xlabel('batch',fontname='Ubuntu')
+            ax[j].legend(prop={"family":"Ubuntu"})
+            for tick in ax[j].get_xticklabels():
+                tick.set_fontname("Ubuntu")
+            for tick in ax[j].get_yticklabels():
+                tick.set_fontname("Ubuntu")
+        plt.suptitle("Changes in weights without Dale's law",fontname='Ubuntu')
+        #plt.subplots_adjust(wspace=0.7, hspace=0.5)
+        plt.draw()
+
+        save_fname = spath+'/sign_swaps_'+exp_path+'.png'
+        plt.savefig(save_fname,dpi=300)
+        # Teardown
+        plt.clf()
+        plt.close()
 
     # to begin with, very straightforwardly define tuning according to prior protocol,
     # which is to look at the final trained state.
