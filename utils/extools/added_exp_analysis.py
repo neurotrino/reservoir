@@ -358,14 +358,14 @@ def dales_over_training(exp_dirs=nodales_data_dirs,exp_season='summer'):
 
         fig, ax = plt.subplots(nrows=3, ncols=1)
         epochs=np.arange(0,len(i_swap))/100
-        ax[0].plot(e_swap,label='e that became -',color='mediumseablue')
-        ax[0].plot(i_swap,label='i that became +',color='darkorange')
+        ax[0].plot(epochs,e_swap,label='e that became -',color='mediumseagreen')
+        ax[0].plot(epochs,i_swap,label='i that became +',color='darkorange')
         ax[0].set_title('proportion of units that swapped sign',fontname='Ubuntu')
 
-        ax[1].plot(e_swap_scale,color='mediumseagreen')
+        ax[1].plot(epochs,e_swap_scale,color='mediumseagreen')
         ax[1].set_title('relative strength of swapped e edges',fontname='Ubuntu')
 
-        ax[2].plot(i_swap_scale,color='darkorange')
+        ax[2].plot(epochs,i_swap_scale,color='darkorange')
         ax[2].set_title('relative strength of swapped i edges',fontname='Ubuntu')
 
         for j in range(0,len(ax)):
