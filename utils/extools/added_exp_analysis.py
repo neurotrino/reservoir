@@ -587,7 +587,7 @@ def mod_input_layer_over_training_by_coherence(dual_exp_dir=lowerinhib_data_dirs
 
     #return [coh1_e,coh0_e,coh1_i,coh0_i]
 
-def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='summer'):
+def mod_tuned_rec_layer_over_training(exp_dirs=nodales_data_dirs,exp_season='summer'):
     # plot over the course of training with shaded error bars
     # plot the average weight within and between coherence tuning of recurrent layer units
     # make sure all axes are comparable
@@ -602,7 +602,7 @@ def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
     # check if folder exists, otherwise create it for saving files
-    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/lowerinhib'
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/nodales'
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
@@ -636,6 +636,7 @@ def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='
         data = np.load(os.path.join(np_dir,'991-1000.npz'))
         spikes=data['spikes']
         true_y=data['true_y']
+        w = data['tv1.postweights'][99]
 
         # find which units respond more to input of a certain coh level in the trained state
         coh0_rec_rates = []
@@ -661,15 +662,17 @@ def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='
         print('there are '+str(len(coh0_rec_idx[coh0_rec_idx>=e_end]))+' coh0-tuned i units')
         """
 
+        trained_e_idx = np.argwhere(w>0)[0]
+        trained_i_idx = np.argwhere(w<0)[0]
+
         coh0_rec_rates = np.array(coh0_rec_rates)
         coh1_rec_rates = np.array(coh1_rec_rates)
 
         # just average weights to begin with?
-        coh1_e = np.array(coh1_rec_idx[coh1_rec_idx<e_end])
-        coh1_i = np.array(coh1_rec_idx[coh1_rec_idx>=e_end])
-        coh0_e = np.array(coh0_rec_idx[coh0_rec_idx<e_end])
-        coh0_i = np.array(coh0_rec_idx[coh0_rec_idx>=e_end])
-
+        coh1_e = np.intersect1d(coh1_rec_idx,trained_e_idx)
+        coh1_i = np.intersect1d(coh1_rec_idx,trained_i_idx)
+        coh0_e = np.intersect1d(coh0_rec_idx,trained_e_idx)
+        coh0_i = np.intersect1d(coh0_rec_idx,trained_i_idx)
 
         # collect weights over all of training
         temporal_w = []
@@ -884,7 +887,7 @@ def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='
         for tick in ax[j].get_yticklabels():
             tick.set_fontname("Ubuntu")
 
-    plt.suptitle('Recurrent Connectivity by Coherence Tuning: Lower Inhib (2x)',fontname='Ubuntu')
+    plt.suptitle('Recurrent Connectivity by Trained Coherence Tuning: No Dales',fontname='Ubuntu')
     save_fname = spath+'/rec_weights_by_tuning.png'
     plt.subplots_adjust(hspace=0.8,wspace=0.8)
     plt.draw()
