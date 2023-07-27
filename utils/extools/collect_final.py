@@ -1919,7 +1919,7 @@ def get_input_tuning_single_exp(xdir):
 
     return [coh0_idx,coh1_idx]
 
-def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_task,exp_season='spring_task'):
+def input_layer_over_training_by_coherence(dual_exp_dir=lowerinhib_data_dirs,exp_season='summer'):
     # characterize the connectivity from the input layer to recurrent
     # plot over the course of training with shaded error bars
     # compare for rate- and dual-trained
@@ -1934,7 +1934,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_task
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
     # check if folder exists, otherwise create it for saving files
-    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/lowerinhib'
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
@@ -2101,17 +2101,17 @@ def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_task
         for tick in ax[j].get_yticklabels():
             tick.set_fontname("Ubuntu")
 
-    plt.suptitle('Evolution of input weights over task-training',fontname='Ubuntu')
+    plt.suptitle('Evolution of input weights: lower inhib (2x)',fontname='Ubuntu')
     plt.subplots_adjust(wspace=1.0, hspace=1.0)
     plt.draw()
 
-    save_fname = spath+'/corrected_inputs_to_ei_task.png'
+    save_fname = spath+'/corrected_inputs_to_ei.png'
     plt.savefig(save_fname,dpi=300)
     # Teardown
     plt.clf()
     plt.close()
 
-    return [coh1_e,coh0_e,coh1_i,coh0_i]
+    #return [coh1_e,coh0_e,coh1_i,coh0_i]
 
     """
         for filename in data_files:
