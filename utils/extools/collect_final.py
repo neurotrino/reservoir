@@ -109,6 +109,8 @@ spec_nointoout_dirs_task = ["run-batch30-taskloss-specinput0.2-nointoout-noinout
 all_spring_dual_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire","run-batch30-dualloss-specinput0.2-nointoout-twopopsbyrate-noinoutrewire-inputx5","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz"]
 all_save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz","run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz","run-batch30-taskloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz"]
 
+lowerinhib_data_dirs = ["2023-07-03 21.12.39","2023-07-08 17.53.59"]
+
 # this is all a general sort of thing, once you do one (mostly figure out shading and dist comparisons) it'll come easily
 
 def get_unspec_info(exp_dirs=unspec_dirs):

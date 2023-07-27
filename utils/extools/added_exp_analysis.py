@@ -28,6 +28,7 @@ from utils.extools.MI import *
 from utils.extools.analyze_structure import _nets_from_weights
 from utils.extools.analyze_dynamics import *
 from utils.extools.analyze_final import *
+from utils.extools.collect_final import *
 
 # ---- global variables -------------------------------------------------------
 data_dir = '/data/experiments/'
