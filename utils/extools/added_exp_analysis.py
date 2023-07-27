@@ -392,7 +392,7 @@ def dales_over_training(exp_dirs=nodales_data_dirs,exp_season='summer'):
     # think about this a little harder this afternoon.
 
 
-def mod_input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_task,exp_season='spring_task'):
+def mod_input_layer_over_training_by_coherence(dual_exp_dir=lowerinhib_data_dirs,exp_season='summer'):
     # characterize the connectivity from the input layer to recurrent
     # plot over the course of training with shaded error bars
     # compare for rate- and dual-trained
@@ -407,7 +407,7 @@ def mod_input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
     # check if folder exists, otherwise create it for saving files
-    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/lowerinhib'
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
@@ -574,46 +574,17 @@ def mod_input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_
         for tick in ax[j].get_yticklabels():
             tick.set_fontname("Ubuntu")
 
-    plt.suptitle('Evolution of input weights over task-training',fontname='Ubuntu')
+    plt.suptitle('Evolution of input weights: lower inhib (2x)',fontname='Ubuntu')
     plt.subplots_adjust(wspace=1.0, hspace=1.0)
     plt.draw()
 
-    save_fname = spath+'/corrected_inputs_to_ei_task.png'
+    save_fname = spath+'/corrected_inputs_to_ei.png'
     plt.savefig(save_fname,dpi=300)
     # Teardown
     plt.clf()
     plt.close()
 
-    return [coh1_e,coh0_e,coh1_i,coh0_i]
-
-    """
-        for filename in data_files:
-            filepath = os.path.join(data_dir, xdir, "npz-data", filename)
-
-            data = np.load(filepath)
-            spikes = data['spikes']
-            true_y = data['true_y']
-
-            # aggregate the mean connectivity strength from the two tuned input populations to e and i units
-            # maybe it's too much to do it over more than just the last batch trial for each file
-            # that's still 100 datapoints
-            for i in range(0,np.shape(true_y)[0]):
-                for j in range(0,np.shape(true_y)[1]):
-
-            # ratio of weights; get naive vs. trained distributions and also see how they evolve over training too
-            coh0in_to_e/coh0in_to_i
-            coh1in_to_e/coh1in_to_i
-            # aggregate over all experiments
-    """
-
-    # get a number distribution to quantify this, maybe for each experiment
-    # the ratio between avg weight from input coh0 and coh1 to e and i recurrent units at the beginning and at the end of training
-    # 0_to_e/0_to_i = 1 at beginning
-    # 1_to_e/1_to_i = 1 at beginning
-    # 0_to_e/0_to_i < 1 at end
-    # 1_to_e/1_to_e > 1 at end
-    # that's a good start
-
+    #return [coh1_e,coh0_e,coh1_i,coh0_i]
 
 def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='summer'):
     # plot over the course of training with shaded error bars
