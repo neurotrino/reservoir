@@ -357,30 +357,27 @@ def dales_over_training(exp_dirs=nodales_data_dirs,exp_season='summer'):
                 e_swap_scale.append(np.abs(np.mean(excit[excit<0])/np.mean(excit[excit>0])))
 
         fig, ax = plt.subplots(nrows=3, ncols=1)
-        #epochs=np.arange(0,len(i_swap))
-        ax[0].plot(e_swap,label='e that became -',color='slateblue')
-        ax[0].plot(i_swap,label='i that became +',color='orangered')
-        ax[0].set_ylabel('proportion of units that swapped sign',fontname='Ubuntu')
-        ax[0].set_title('sign changes',fontname='Ubuntu')
+        epochs=np.arange(0,len(i_swap))/100
+        ax[0].plot(e_swap,label='e that became -',color='mediumseablue')
+        ax[0].plot(i_swap,label='i that became +',color='darkorange')
+        ax[0].set_title('proportion of units that swapped sign',fontname='Ubuntu')
 
-        ax[1].plot(e_swap_scale,color='slateblue')
-        ax[1].set_ylabel('relative strength of swapped edges',fontname='Ubuntu')
-        ax[1].set_title('strength of excitatory sign changes to -',fontname='Ubuntu')
+        ax[1].plot(e_swap_scale,color='mediumseagreen')
+        ax[1].set_title('relative strength of swapped e edges',fontname='Ubuntu')
 
-        ax[2].plot(i_swap_scale,color='orangered')
-        ax[2].set_ylabel('relative strength of swapped edges',fontname='Ubuntu')
-        ax[2].set_title('strength of inhibitory sign changes to +',fontname='Ubuntu')
+        ax[2].plot(i_swap_scale,color='darkorange')
+        ax[2].set_title('relative strength of swapped i edges',fontname='Ubuntu')
 
         for j in range(0,len(ax)):
             #ax[j].set_ylabel('',fontname='Ubuntu')
-            ax[j].set_xlabel('batch',fontname='Ubuntu')
+            ax[j].set_xlabel('training epoch',fontname='Ubuntu')
             ax[j].legend(prop={"family":"Ubuntu"})
             for tick in ax[j].get_xticklabels():
                 tick.set_fontname("Ubuntu")
             for tick in ax[j].get_yticklabels():
                 tick.set_fontname("Ubuntu")
         plt.suptitle("Changes in weights without Dale's law",fontname='Ubuntu')
-        #plt.subplots_adjust(wspace=0.7, hspace=0.5)
+        plt.subplots_adjust(wspace=0.7, hspace=0.9)
         plt.draw()
 
         save_fname = spath+'/sign_swaps_'+exp_path+'.png'
