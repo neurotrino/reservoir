@@ -163,8 +163,8 @@ def mod_losses_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='summer'):
     # of course, units will no longer be excit and inhib in the same way
     # think about this a little harder this afternoon.
 
-"""
-def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_task,exp_season='spring_task'):
+
+def mod_input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_task,exp_season='spring_task'):
     # characterize the connectivity from the input layer to recurrent
     # plot over the course of training with shaded error bars
     # compare for rate- and dual-trained
@@ -387,7 +387,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_task
     # that's a good start
 
 
-def tuned_rec_layer_over_training(exp_dirs=spec_nointoout_dirs_rate,exp_season='spring_rate'):
+def mod_tuned_rec_layer_over_training(exp_dirs=spec_nointoout_dirs_rate,exp_season='spring_rate'):
     # plot over the course of training with shaded error bars
     # plot the average weight within and between coherence tuning of recurrent layer units
     # make sure all axes are comparable
@@ -692,4 +692,3 @@ def tuned_rec_layer_over_training(exp_dirs=spec_nointoout_dirs_rate,exp_season='
     # Teardown
     plt.clf()
     plt.close()
-"""
