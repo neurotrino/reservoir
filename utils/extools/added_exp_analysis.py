@@ -895,3 +895,69 @@ def mod_tuned_rec_layer_over_training(exp_dirs=nodales_data_dirs,exp_season='sum
     # Teardown
     plt.clf()
     plt.close()
+
+
+def mod_plot_naive_trained_rate_violins(exp_dirs=lowerinhib_data_dirs,exp_season='summer'):
+
+    [rates_e_0,rates_e_1,rates_i_0,rates_i_1] = get_truly_naive_rates(exp_dirs=exp_dirs,exp_season=exp_season,naive=True)
+    naive_rates = [rates_e_0,rates_e_1,rates_i_0,rates_i_1]
+
+    [rates_e_0,rates_e_1,rates_i_0,rates_i_1] = get_truly_naive_rates(exp_dirs=exp_dirs,exp_season=exp_season,naive=False)
+    trained_rates = [rates_e_0,rates_e_1,rates_i_0,rates_i_1]
+
+    # make violin plots of naive vs trained rates
+    fig,ax=plt.subplots(nrows=2, ncols=2)
+    ax = ax.flatten()
+    # plot naive vs trained for e
+    for j in range(0,len(ax)):
+        vplot = ax[j].violinplot(dataset=[naive_rates[j],trained_rates[j]],showmeans=True)
+        for i, pc in enumerate(vplot["bodies"], 1):
+            if i%2 != 0: # naive
+                if j==0: # e0, e1, i0, i1
+                    pc.set_facecolor('mediumseagreen')
+                if j==1:
+                    pc.set_facecolor('dodgerblue')
+                if j==2:
+                    pc.set_facecolor('darkorange')
+                if j==3:
+                    pc.set_facecolor('orangered')
+                pc.set_alpha(0.4)
+            else: # trained
+                if j==0:
+                    pc.set_facecolor('mediumseagreen')
+                if j==1:
+                    pc.set_facecolor('dodgerblue')
+                if j==2:
+                    pc.set_facecolor('darkorange')
+                if j==3:
+                    pc.set_facecolor('orangered')
+                pc.set_alpha(0.7)
+            if j>1:
+                pc.set_edgecolor('darkorchid')
+            else:
+                pc.set_edgecolor('slateblue')
+    ax[0].set_title('e responses to coherence 0',fontname='Ubuntu')
+    ax[1].set_title('e responses to coherence 1',fontname='Ubuntu')
+    ax[2].set_title('i responses to coherence 0',fontname='Ubuntu')
+    ax[3].set_title('i responses to coherence 1',fontname='Ubuntu')
+
+    plt.suptitle('SNN Activity by Coherence Label: Lower Inhib (2x)',fontname='Ubuntu')
+
+    for j in range(0,len(ax)):
+        ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
+        ax[j].set_ylim(-0.005,0.07)
+        ax[j].set_xlabel('naive           trained',fontname='Ubuntu')
+        for tick in ax[j].get_xticklabels():
+            tick.set_fontname("Ubuntu")
+        #for tick in ax[j].get_yticklabels():
+            #tick.set_fontname("Ubuntu")
+
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/lowerinhib'
+    save_fname = spath+'/naive_trained_rates_violin.png'
+
+    plt.subplots_adjust(hspace=0.7,wspace=0.7)
+    plt.draw()
+    plt.savefig(save_fname,dpi=300)
+    # Teardown
+    plt.clf()
+    plt.close()
