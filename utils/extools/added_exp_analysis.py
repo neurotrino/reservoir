@@ -897,7 +897,7 @@ def mod_tuned_rec_layer_over_training(exp_dirs=nodales_data_dirs,exp_season='sum
     plt.close()
 
 
-def mod_plot_naive_trained_rate_violins(exp_dirs=lowerinhib_data_dirs,exp_season='summer'):
+def mod_plot_naive_trained_rate_violins(exp_dirs=nodales_data_dirs,exp_season='summer'):
 
     [rates_e_0,rates_e_1,rates_i_0,rates_i_1] = get_truly_naive_rates(exp_dirs=exp_dirs,exp_season=exp_season,naive=True)
     naive_rates = [rates_e_0,rates_e_1,rates_i_0,rates_i_1]
@@ -941,7 +941,7 @@ def mod_plot_naive_trained_rate_violins(exp_dirs=lowerinhib_data_dirs,exp_season
     ax[2].set_title('i responses to coherence 0',fontname='Ubuntu')
     ax[3].set_title('i responses to coherence 1',fontname='Ubuntu')
 
-    plt.suptitle('SNN Activity by Coherence Label: Lower Inhib (2x)',fontname='Ubuntu')
+    plt.suptitle('SNN Activity by Coherence Label: No Dales Law',fontname='Ubuntu')
 
     for j in range(0,len(ax)):
         ax[j].set_ylabel('rate (spikes/ms)',fontname='Ubuntu')
@@ -952,7 +952,7 @@ def mod_plot_naive_trained_rate_violins(exp_dirs=lowerinhib_data_dirs,exp_season
         #for tick in ax[j].get_yticklabels():
             #tick.set_fontname("Ubuntu")
 
-    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/lowerinhib'
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/nodales'
     save_fname = spath+'/naive_trained_rates_violin.png'
 
     plt.subplots_adjust(hspace=0.7,wspace=0.7)
