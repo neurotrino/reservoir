@@ -662,17 +662,22 @@ def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='
         print('there are '+str(len(coh0_rec_idx[coh0_rec_idx>=e_end]))+' coh0-tuned i units')
         """
 
-        trained_e_idx = np.argwhere(w>0)[0]
-        trained_i_idx = np.argwhere(w<0)[0]
-
         coh0_rec_rates = np.array(coh0_rec_rates)
         coh1_rec_rates = np.array(coh1_rec_rates)
 
         # just average weights to begin with?
-        coh1_e = np.intersect1d(coh1_rec_idx,trained_e_idx)
-        coh1_i = np.intersect1d(coh1_rec_idx,trained_i_idx)
-        coh0_e = np.intersect1d(coh0_rec_idx,trained_e_idx)
-        coh0_i = np.intersect1d(coh0_rec_idx,trained_i_idx)
+        if exp_dirs==lowerinhib_data_dirs:
+            trained_e_idx = np.argwhere(w>0)[0]
+            trained_i_idx = np.argwhere(w<0)[0]
+            coh1_e = np.intersect1d(coh1_rec_idx,trained_e_idx)
+            coh1_i = np.intersect1d(coh1_rec_idx,trained_i_idx)
+            coh0_e = np.intersect1d(coh0_rec_idx,trained_e_idx)
+            coh0_i = np.intersect1d(coh0_rec_idx,trained_i_idx)
+        else:
+            coh1_e = np.array(coh1_rec_idx[coh1_rec_idx<e_end])
+            coh1_i = np.array(coh1_rec_idx[coh1_rec_idx>=e_end])
+            coh0_e = np.array(coh0_rec_idx[coh0_rec_idx<e_end])
+            coh0_i = np.array(coh0_rec_idx[coh0_rec_idx>=e_end])
 
         # collect weights over all of training
         temporal_w = []
