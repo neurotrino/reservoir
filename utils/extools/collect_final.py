@@ -2597,7 +2597,7 @@ def characterize_tuned_rec_populations(exp_dirs=spec_nointoout_dirs,exp_season='
 
 # plot over the course of training how MANY units become tuned
 
-def tuned_rec_layer_over_training(exp_dirs=spec_nointoout_dirs_rate,exp_season='spring_rate'):
+def tuned_rec_layer_over_training(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
     # plot over the course of training with shaded error bars
     # plot the average weight within and between coherence tuning of recurrent layer units
     # make sure all axes are comparable
@@ -2810,6 +2810,7 @@ def tuned_rec_layer_over_training(exp_dirs=spec_nointoout_dirs_rate,exp_season='
             else:
                 ero_ii = np.vstack([ero_ii, ero_ii_])
 
+    """
     fig, ax = plt.subplots(nrows=4,ncols=1,figsize=(8,10))
 
     epochs = np.shape(coh0_ee)[1]
@@ -2902,6 +2903,7 @@ def tuned_rec_layer_over_training(exp_dirs=spec_nointoout_dirs_rate,exp_season='
     # Teardown
     plt.clf()
     plt.close()
+    """
 
     return [coh0_ee,coh0_ei,coh0_ie,coh0_ii,coh1_ee,coh1_ei,coh1_ie,coh1_ii,het_ee,het_ei,het_ie,het_ii,ero_ee,ero_ei,ero_ie,ero_ii]
 
@@ -2944,14 +2946,20 @@ def tuned_rec_layer_over_training(exp_dirs=spec_nointoout_dirs_rate,exp_season='
     [D,p] = scipy.stats.kstest(btwn_ii,btwn_ie)
 
     # quantify with naive vs trained ratios
-    # within coherence i / between coherence i trained
+    # across coherence i / within coherence i trained
     np.mean([het_ii[:,99],ero_ii[:,99],het_ie[:,99],ero_ie[:,99]])/np.mean([coh0_ii[:,99],coh0_ii[:,99],coh1_ie[:,99],coh1_ie[:,99]])
     #1.904 dual trained
     #1.005921052631579 rate trained
-    # within coherence i / between coherence i naive
+
+    # across coherence i / within coherence i naive
     np.mean([het_ii[:,0],ero_ii[:,0],het_ie[:,0],ero_ie[:,0]])/np.mean([coh0_ii[:,0],coh0_ii[:,0],coh1_ie[:,0],coh1_ie[:,0]])
     #1.196 dual trained
     #1.0576923076923077 rate trained
+
+    # across coherence e / within coherence e naive
+    np.mean([het_ee[:,0],het_ei[:,0],ero_ee[:,0],ero_ei[:,0]])/np.mean([coh0_ee[:,0],coh0_ei[:,0],coh1_ee[:,0],coh1_ei[:,0]])
+    # across coherence e / within coherence e trained
+    np.mean([het_ee[:,99],het_ei[:,99],ero_ee[:,99],ero_ei[:,99]])/np.mean([coh0_ee[:,99],coh0_ei[:,99],coh1_ee[:,99],coh1_ei[:,99]])
 
     """
 
