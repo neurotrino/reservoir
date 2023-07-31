@@ -666,7 +666,7 @@ def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='
         coh1_rec_rates = np.array(coh1_rec_rates)
 
         # just average weights to begin with?
-        if exp_dirs==lowerinhib_data_dirs:
+        if exp_dirs==nodales_data_dirs:
             trained_e_idx = np.argwhere(w>0)[0]
             trained_i_idx = np.argwhere(w<0)[0]
             coh1_e = np.intersect1d(coh1_rec_idx,trained_e_idx)
