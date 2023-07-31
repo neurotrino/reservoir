@@ -805,7 +805,7 @@ def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='
 
     fig, ax = plt.subplots(nrows=4,ncols=1,figsize=(8,10))
 
-    epochs = np.shape(coh0_ee)[1]
+    epochs = np.shape(ero_ie)[1]
 
     coh0_ee_mean = np.mean(coh0_ee,0)
     coh0_ee_std = np.std(coh0_ee,0)
