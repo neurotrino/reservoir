@@ -587,7 +587,7 @@ def mod_input_layer_over_training_by_coherence(dual_exp_dir=lowerinhib_data_dirs
 
     #return [coh1_e,coh0_e,coh1_i,coh0_i]
 
-def mod_tuned_rec_layer_over_training(exp_dirs=nodales_data_dirs,exp_season='summer'):
+def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='summer'):
     # plot over the course of training with shaded error bars
     # plot the average weight within and between coherence tuning of recurrent layer units
     # make sure all axes are comparable
@@ -602,7 +602,7 @@ def mod_tuned_rec_layer_over_training(exp_dirs=nodales_data_dirs,exp_season='sum
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
     # check if folder exists, otherwise create it for saving files
-    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/nodales'
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/lowerinhib'
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
@@ -803,7 +803,6 @@ def mod_tuned_rec_layer_over_training(exp_dirs=nodales_data_dirs,exp_season='sum
             else:
                 ero_ii = np.vstack([ero_ii, ero_ii_])
 
-    """
     fig, ax = plt.subplots(nrows=4,ncols=1,figsize=(8,10))
 
     epochs = np.shape(coh0_ee)[1]
@@ -896,7 +895,6 @@ def mod_tuned_rec_layer_over_training(exp_dirs=nodales_data_dirs,exp_season='sum
     # Teardown
     plt.clf()
     plt.close()
-    """
 
     return [coh0_ee,coh0_ei,coh0_ie,coh0_ii,coh1_ee,coh1_ei,coh1_ie,coh1_ii,het_ee,het_ei,het_ie,het_ii,ero_ee,ero_ei,ero_ie,ero_ii]
 
