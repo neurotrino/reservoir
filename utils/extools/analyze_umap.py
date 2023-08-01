@@ -5,8 +5,8 @@ Intended for use within ava's scikit-learn virtual environment with
 """
 
 # external ----
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+#from sklearn.model_selection import train_test_split
+#from sklearn.preprocessing import StandardScaler
 #from sklearn.datasets import load_digits
 
 import matplotlib.pyplot as plt
