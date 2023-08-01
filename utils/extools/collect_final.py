@@ -2935,31 +2935,41 @@ def tuned_rec_layer_over_training(exp_dirs=spec_nointoout_dirs,exp_season='sprin
         btwn_Ds.append(D)
         btwn_ps.append(p)
 
-    within_ii = np.hstack([coh0_ii[:,99],coh1_ii[:,99]])
-    within_ie = np.hstack([coh0_ie[:,99],coh1_ie[:,99]])
-    btwn_ii = np.hstack([het_ii[:,99],ero_ii[:,99]])
-    btwn_ie = np.hstack([het_ie[:,99],ero_ie[:,99]])
+within_ii = np.hstack([coh0_ii[:,99],coh1_ii[:,99]])
+within_ie = np.hstack([coh0_ie[:,99],coh1_ie[:,99]])
+btwn_ii = np.hstack([het_ii[:,99],ero_ii[:,99]])
+btwn_ie = np.hstack([het_ie[:,99],ero_ie[:,99]])
 
-    [D,p] = scipy.stats.kstest(within_ii,btwn_ii)
-    [D,p] = scipy.stats.kstest(within_ii,within_ie)
-    [D,p] = scipy.stats.kstest(within_ie,btwn_ie)
-    [D,p] = scipy.stats.kstest(btwn_ii,btwn_ie)
+within_ee = np.hstack([coh0_ee[:,99],coh1_ee[:,99]])
+within_ei = np.hstack([coh0_ei[:,99],coh1_ei[:,99]])
+btwn_ee = np.hstack([het_ee[:,99],ero_ee[:,99]])
+btwn_ei = np.hstack([het_ei[:,99],ero_ei[:,99]])
+
+[D,p] = scipy.stats.kstest(within_ii,btwn_ii)
+[D,p] = scipy.stats.kstest(within_ii,within_ie)
+[D,p] = scipy.stats.kstest(within_ie,btwn_ie)
+[D,p] = scipy.stats.kstest(btwn_ii,btwn_ie)
 
     # quantify with naive vs trained ratios
-    # across coherence i / within coherence i trained
-    np.mean([het_ii[:,99],ero_ii[:,99],het_ie[:,99],ero_ie[:,99]])/np.mean([coh0_ii[:,99],coh0_ii[:,99],coh1_ie[:,99],coh1_ie[:,99]])
-    #1.904 dual trained
-    #1.005921052631579 rate trained
 
     # across coherence i / within coherence i naive
-    np.mean([het_ii[:,0],ero_ii[:,0],het_ie[:,0],ero_ie[:,0]])/np.mean([coh0_ii[:,0],coh0_ii[:,0],coh1_ie[:,0],coh1_ie[:,0]])
-    #1.196 dual trained
-    #1.0576923076923077 rate trained
+    np.mean([het_ii[:,0],ero_ii[:,0],het_ie[:,0],ero_ie[:,0]])/np.mean([coh0_ii[:,0],coh0_ie[:,0],coh1_ii[:,0],coh1_ie[:,0]])
+    #1.196 dual trained CORRECTED TO 1.215
+    #1.0576923076923077 rate trained CORRECTED TO 1.035 (need update text)
+
+    # across coherence i / within coherence i trained
+    np.mean([het_ii[:,99],ero_ii[:,99],het_ie[:,99],ero_ie[:,99]])/np.mean([coh0_ii[:,99],coh0_ie[:,99],coh1_ii[:,99],coh1_ie[:,99]])
+    #1.904 dual trained CORRECTED TO 1.979
+    #1.005921052631579 rate trained CORRECTED TO 1.027 (need update text)
 
     # across coherence e / within coherence e naive
     np.mean([het_ee[:,0],het_ei[:,0],ero_ee[:,0],ero_ei[:,0]])/np.mean([coh0_ee[:,0],coh0_ei[:,0],coh1_ee[:,0],coh1_ei[:,0]])
+    #0.928
+    previously, rate-trained 0.9956
     # across coherence e / within coherence e trained
     np.mean([het_ee[:,99],het_ei[:,99],ero_ee[:,99],ero_ei[:,99]])/np.mean([coh0_ee[:,99],coh0_ei[:,99],coh1_ee[:,99],coh1_ei[:,99]])
+    #0.4995
+    previously, rate_trained 1.051
 
     """
 
