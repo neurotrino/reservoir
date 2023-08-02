@@ -379,22 +379,6 @@ class Trainer(BaseTrainer):
                 )
             )
 
-        # If the sign of a weight changed from the original or the
-        # weight (previously 0) is no longer 0, make the weight 0.
-        #
-        # Reminder that rec_sign contains 0's for initial 0's when
-        # rewiring = true whereas it contains +1's or -1's (for excit
-        # or inhib) for initial 0's when rewiring = false (freewiring = true)
-        if not self.cfg["model"].cell.no_dales:
-            self.model.cell.recurrent_weights.assign(
-                tf.where(
-                    self.model.cell.rec_sign * self.model.cell.recurrent_weights
-                    > 0,
-                    self.model.cell.recurrent_weights,
-                    0,
-                )
-            )
-
 
         # THIS SECTION parallels how sparsity is maintained for the RSNN even in the absence of rewiring
         # If the sign of an input or output weight changed from the original (or updated from last step)
@@ -449,6 +433,23 @@ class Trainer(BaseTrainer):
             # 3. all new zeros get a value in rewire()
             # 4. loops through again in next update, thus canceling out all new zeros
             # Thus this script now ONLY happens if rewiring = false (initial zeros must stay zero)
+
+        # If the sign of a weight changed from the original or the
+        # weight (previously 0) is no longer 0, make the weight 0.
+        #
+        # Reminder that rec_sign contains 0's for initial 0's when
+        # rewiring = true whereas it contains +1's or -1's (for excit
+        # or inhib) for initial 0's when rewiring = false (freewiring = true)
+        if not self.cfg["model"].cell.no_dales:
+            self.model.cell.recurrent_weights.assign(
+                tf.where(
+                    self.model.cell.rec_sign * self.model.cell.recurrent_weights
+                    > 0,
+                    self.model.cell.recurrent_weights,
+                    0,
+                )
+            )
+            # placed here, this way rec_sign has been properly updated 
 
         # rewire output weights
         if (
