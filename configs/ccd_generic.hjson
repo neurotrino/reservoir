@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Mandatory variable.
-        exp_dir: /data/experiments/run-batch30-dualloss-noinoutrewiretype-lowerinhib
+        exp_dir: /data/experiments/run-batch30-dualloss-noinoutrewiretype-nodales-corrected
 
         // Collection of directories which will be placed inside exp_dir
         //
@@ -125,7 +125,7 @@
 
             freewiring: false   // now the term for our original unprincipled use of "rewiring"
 
-            no_dales: false // only for the update of the recurrent and output layer for now
+            no_dales: true // only for the update of the recurrent and output layer for now
 
             rewiring: true   // now the term for permitting a new connection to grow if/when an existing connection disappears
 

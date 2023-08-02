@@ -368,6 +368,16 @@ class Trainer(BaseTrainer):
                 )
             )
 
+        if self.cfg["model"].cell.no_dales:
+            # ensure zeros are maintained:
+            self.model.cell.recurrent_weights.assign(
+                tf.where(
+                    self.model.cell.rec_sign * self.model.cell.recurrent_weights
+                    == 0,
+                    self.model.cell.recurrent_weights,
+                    0,
+                )
+            )
 
         # If the sign of a weight changed from the original or the
         # weight (previously 0) is no longer 0, make the weight 0.
