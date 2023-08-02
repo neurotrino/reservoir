@@ -412,7 +412,7 @@ class Trainer(BaseTrainer):
         # [!] prefer to have something like "for cell in model.cells,
         #     if cell.rewiring then cell.rewire" to better generalize;
         #     would involve adding a 'cells' attribute to model
-        if self.model.cell.rewiring and not self.model.cell.no_dales:
+        if self.model.cell.rewiring and not self.cfg["model"].cell.no_dales:
             self.model.cell.rewire()
             # correction to note as of Oct 8, 2021:
             # else statement removed (reverted to original sequence of execution)
