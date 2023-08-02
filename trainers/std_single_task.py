@@ -368,12 +368,18 @@ class Trainer(BaseTrainer):
                 )
             )
 
-        if self.cfg["model"].cell.no_dales:
-            # ensure zeros are maintained:
+
+        # If the sign of a weight changed from the original or the
+        # weight (previously 0) is no longer 0, make the weight 0.
+        #
+        # Reminder that rec_sign contains 0's for initial 0's when
+        # rewiring = true whereas it contains +1's or -1's (for excit
+        # or inhib) for initial 0's when rewiring = false (freewiring = true)
+        if not self.cfg["model"].cell.no_dales:
             self.model.cell.recurrent_weights.assign(
                 tf.where(
                     self.model.cell.rec_sign * self.model.cell.recurrent_weights
-                    == 0,
+                    > 0,
                     self.model.cell.recurrent_weights,
                     0,
                 )
@@ -434,23 +440,18 @@ class Trainer(BaseTrainer):
             # 4. loops through again in next update, thus canceling out all new zeros
             # Thus this script now ONLY happens if rewiring = false (initial zeros must stay zero)
 
-        # If the sign of a weight changed from the original or the
-        # weight (previously 0) is no longer 0, make the weight 0.
-        #
-        # Reminder that rec_sign contains 0's for initial 0's when
-        # rewiring = true whereas it contains +1's or -1's (for excit
-        # or inhib) for initial 0's when rewiring = false (freewiring = true)
-        if not self.cfg["model"].cell.no_dales:
+        if self.cfg["model"].cell.no_dales:
+            # ensure zeros are maintained:
             self.model.cell.recurrent_weights.assign(
                 tf.where(
                     self.model.cell.rec_sign * self.model.cell.recurrent_weights
-                    > 0,
+                    == 0,
                     self.model.cell.recurrent_weights,
                     0,
                 )
             )
-            # placed here, this way rec_sign has been properly updated 
-
+            # placed here correctly to catch the right rec_sign
+            
         # rewire output weights
         if (
             self.cfg["train"].output_trainable
