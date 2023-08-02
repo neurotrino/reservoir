@@ -256,6 +256,10 @@ class LIF(Neuron):
                 initial_weights_mat,
             )
 
+            # under no dales law, don't actually need rewiring, just need to know which must be 0
+            if self.cfg["cell"].no_dales:
+                self.rec_sign = tf.sign(initial_weights_mat)
+
             """if self.cfg["cell"].specify_input:
                 # just set main weights, as input weights were set earlier
                 self.recurrent_weights.assign_add(initial_weights_mat)

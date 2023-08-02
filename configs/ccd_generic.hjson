@@ -36,7 +36,7 @@
         // Full path: {exp_dir}
         //
         // Mandatory variable.
-        exp_dir: /data/experiments/run-batch30-dualloss-noinoutrewiretype-nodales-correctedagain
+        exp_dir: /data/experiments/run-batch30-dualloss-noinoutrewiretype-nodales-uncorrected
 
         // Collection of directories which will be placed inside exp_dir
         //
