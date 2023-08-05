@@ -359,12 +359,25 @@ class Trainer(BaseTrainer):
         # connections remain zero otherwise (if sparsity IS enforced)
         # that is taken care of through the rec_sign application below
         if self.cfg["model"].cell.freewiring or self.cfg["model"].cell.no_dales:  # TODO: document in HJSON
-            # Make sure all self-connections remain 0
+            # Make sure al
+
+            l self-connections remain 0
             self.model.cell.recurrent_weights.assign(
                 tf.where(
                     self.model.cell.disconnect_mask,
                     tf.zeros_like(self.model.cell.recurrent_weights),
                     self.model.cell.recurrent_weights,
+                )
+            )
+
+        if self.cfg["model"].cell.no_dales:
+            # ensure zeros are maintained:
+            self.model.cell.recurrent_weights.assign(
+                tf.where(
+                    self.model.cell.rec_sign
+                    == 0,
+                    self.model.cell.recurrent_weights,
+                    0,
                 )
             )
 
@@ -412,7 +425,7 @@ class Trainer(BaseTrainer):
         # [!] prefer to have something like "for cell in model.cells,
         #     if cell.rewiring then cell.rewire" to better generalize;
         #     would involve adding a 'cells' attribute to model
-        if self.model.cell.rewiring and not self.cfg["model"].cell.no_dales:
+        if self.model.cell.rewiring# and not self.cfg["model"].cell.no_dales:
             self.model.cell.rewire()
             # correction to note as of Oct 8, 2021:
             # else statement removed (reverted to original sequence of execution)
@@ -438,17 +451,6 @@ class Trainer(BaseTrainer):
             # 3. all new zeros get a value in rewire()
             # 4. loops through again in next update, thus canceling out all new zeros
             # Thus this script now ONLY happens if rewiring = false (initial zeros must stay zero)
-
-        if self.cfg["model"].cell.no_dales:
-            # ensure zeros are maintained:
-            self.model.cell.recurrent_weights.assign(
-                tf.where(
-                    self.model.cell.rec_sign
-                    == 0,
-                    self.model.cell.recurrent_weights,
-                    0,
-                )
-            )
 
         # rewire output weights
         if (
