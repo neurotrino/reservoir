@@ -359,9 +359,7 @@ class Trainer(BaseTrainer):
         # connections remain zero otherwise (if sparsity IS enforced)
         # that is taken care of through the rec_sign application below
         if self.cfg["model"].cell.freewiring or self.cfg["model"].cell.no_dales:  # TODO: document in HJSON
-            # Make sure al
-
-            l self-connections remain 0
+            # Make sure all self-connections remain 0
             self.model.cell.recurrent_weights.assign(
                 tf.where(
                     self.model.cell.disconnect_mask,
