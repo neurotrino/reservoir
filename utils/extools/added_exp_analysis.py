@@ -74,7 +74,101 @@ all_save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-
 
 
 lowerinhib_data_dirs = ["2023-07-03 21.12.39","2023-07-08 17.53.59"]
-nodales_data_dirs = ["2023-06-30 09.37.50","2023-06-28 00.01.42","2023-06-25 14.24.22"]
+#nodales_data_dirs = ["2023-06-30 09.37.50","2023-06-28 00.01.42","2023-06-25 14.24.22"]
+nodales_data_dirs = ["initialcorrected"]
+
+
+# for the version of experiment run without dales law (albeit rewiring is now messed up),
+# 1. find the units tuned to each coherence at the beginning
+# 2. do they mostly preserve their tuning at the end?
+# 3. if so, do they mainly grow inhibitory connections to units of the opposite tuning?
+# 4. do they mainly grow excitatory connections to units of the same tuning?
+
+# this same question can actually be asked of the prior experiments as well.
+# and you should do so.
+
+def tuned_unit_wiring_changes(exp_dirs=nodales_data_dirs,exp_season='summer'):
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/nodales'
+    if not os.path.isdir(spath):
+        os.makedirs(spath)
+
+    same_tuning_cts = []
+
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+        exp_path = xdir[-9:-1]
+
+        # determine tuning in naive state
+        filepath = os.path.join(data_dir, xdir, "npz-data", '1-10.npz')
+        data = np.load(filepath)
+        true_y = data['true_y']
+        spikes = data['spikes']
+
+        #for i in range(0,np.shape(true_y)[0]):
+        i = 0
+        for j in range(0,np.shape(true_y)[1]):
+            if true_y[i][j][0]==true_y[i][j][seq_len-1]:
+                if true_y[i][j][0]==0:
+                    coh0_rec_rates.append(np.mean(spikes[i][j],0))
+                else:
+                    coh1_rec_rates.append(np.mean(spikes[i][j],0))
+
+        # find which of the 300 recurrent units respond more on average to one coherence level over the other in this naive state
+        coh1_naive_idx = np.where(np.mean(coh1_rec_rates,0)>np.mean(coh0_rec_rates,0))[0]
+        coh0_naive_idx = np.where(np.mean(coh1_rec_rates,0)<np.mean(coh0_rec_rates,0))[0]
+
+        # find units' tuning at the end
+        filepath = os.path.join(data_dir, xdir, "npz-data", '991-1000.npz')
+        data = np.load(filepath)
+        true_y = data['true_y']
+        spikes = data['spikes']
+        w = data['tv1.postweights'][99]
+
+        #for i in range(0,np.shape(true_y)[0]):
+        i = 99
+        for j in range(0,np.shape(true_y)[1]):
+            if true_y[i][j][0]==true_y[i][j][seq_len-1]:
+                if true_y[i][j][0]==0:
+                    coh0_rec_rates.append(np.mean(spikes[i][j],0))
+                else:
+                    coh1_rec_rates.append(np.mean(spikes[i][j],0))
+
+        # find which of the 300 recurrent units respond more on average to one coherence level over the other in this naive state
+        coh1_trained_idx = np.where(np.mean(coh1_rec_rates,0)>np.mean(coh0_rec_rates,0))[0]
+        coh0_trained_idx = np.where(np.mean(coh1_rec_rates,0)<np.mean(coh0_rec_rates,0))[0]
+
+        coh1_same_idx = np.intersect1d(coh1_naive_idx,coh1_trained_idx)
+        coh0_same_idx = np.intersect1d(coh0_naive_idx,coh0_trained_idx)
+
+        same_tuning_cts.append([len(coh0_same_idx),len(coh1_same_idx)])
+
+        # do initial units mostly grow inhib connections to units of the opposite tuning?
+        coh1_inhib_targets = np.argwhere(w[coh1_naive_idx,:]<0)[1]
+        coh0_inhib_targets = np.argwhere(w[coh0_naive_idx,:]<0)[1]
+        coh1_excit_targets = np.argwhere(w[coh1_naive_idx,:]>0)[1]
+        coh0_excit_targets = np.argwhere(w[coh0_naive_idx,:]>0)[1]
+
+        # to what extent are initial 1-tuned units now targeting inhibitory units of the same tuning?
+        len(np.intersect1d(coh1_inhib_targets,coh1_trained_idx))
+        # ct of initial 1-tuned units targeting inhibitory units of different tuning? (HYPOTHESIS)
+        len(np.intersect1d(coh1_inhib_targets,coh0_trained_idx))
+        # ct of initial 1-tuned units targeting excitatory units of the same tuning? (HYPOTHESIS)
+        len(np.intersect1d(coh1_excit_targets,coh1_trained_idx))
+        # ct of initial 1-tuned units targeting excitatory units of the opposite tuning?
+        len(np.intersect1d(coh1_excit_targets,coh0_trained_idx))
+
+        # repeat this pattern for initial 0-tuned units
+
+
+
+    return same_tuning_cts
 
 
 # plot losses for a single example experiment over time; error bar shading is for spread within epoch
