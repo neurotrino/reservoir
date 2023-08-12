@@ -99,7 +99,14 @@ def tuned_unit_wiring_changes(exp_dirs=nodales_data_dirs,exp_season='summer'):
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
+    naive_cts = []
+    trained_cts = []
     same_tuning_cts = []
+    same_tuning_ratios = []
+    coh1_init_targs = [] # units that began as tuned to 1, are they now targeting [i same tuning, i diff tuning, e same tuning, e diff tuning]?
+    coh0_init_targs = []
+    coh1_trained_targs = [] # units that are tuned to 1 at the end of training, how much are they targeting [i same tuning, i diff tuning, e same tuning, e diff tuning]?
+
 
     for xdir in exp_data_dirs: # loop through experiments
         np_dir = os.path.join(data_dir, xdir, "npz-data")
@@ -127,6 +134,8 @@ def tuned_unit_wiring_changes(exp_dirs=nodales_data_dirs,exp_season='summer'):
         coh1_naive_idx = np.where(np.mean(coh1_rec_rates,0)>np.mean(coh0_rec_rates,0))[0]
         coh0_naive_idx = np.where(np.mean(coh1_rec_rates,0)<np.mean(coh0_rec_rates,0))[0]
 
+        naive_cts.append([len(coh0_naive_idx),len(coh1_naive_idx)])
+
         # find units' tuning at the end
         filepath = os.path.join(data_dir, xdir, "npz-data", '991-1000.npz')
         data = np.load(filepath)
@@ -150,31 +159,42 @@ def tuned_unit_wiring_changes(exp_dirs=nodales_data_dirs,exp_season='summer'):
         coh1_trained_idx = np.where(np.mean(coh1_rec_rates,0)>np.mean(coh0_rec_rates,0))[0]
         coh0_trained_idx = np.where(np.mean(coh1_rec_rates,0)<np.mean(coh0_rec_rates,0))[0]
 
+        trained_cts.append([len(coh0_trained_idx),len(coh1_trained_idx)])
+
         coh1_same_idx = np.intersect1d(coh1_naive_idx,coh1_trained_idx)
         coh0_same_idx = np.intersect1d(coh0_naive_idx,coh0_trained_idx)
 
         same_tuning_cts.append([len(coh0_same_idx),len(coh1_same_idx)])
+        same_tuning_ratios.append([len(coh0_same_idx)/len(coh0_naive_idx),len(coh1_same_idx)/len(coh1_naive_idx)])
 
-        # do initial units mostly grow inhib connections to units of the opposite tuning?
-        coh1_inhib_targets = np.argwhere(w[coh1_naive_idx,:]<0)[1]
-        coh0_inhib_targets = np.argwhere(w[coh0_naive_idx,:]<0)[1]
-        coh1_excit_targets = np.argwhere(w[coh1_naive_idx,:]>0)[1]
-        coh0_excit_targets = np.argwhere(w[coh0_naive_idx,:]>0)[1]
+        """
+        # do initial units mostly grow inhib connections to units of the opposite initial tuning?
+        coh1_inhib_targets = np.argwhere(w[coh1_naive_idx,:]<0)[1] # these are the units that receive trained negative edges from units that were initially tuned to 1
+        coh0_inhib_targets = np.argwhere(w[coh0_naive_idx,:]<0)[1] # these are the units that receive trained negative edges from all uniits initially tuned to 0
+        coh1_excit_targets = np.argwhere(w[coh1_naive_idx,:]>0)[1] # units that receive trained positive edges from units initially tuned to 1
+        coh0_excit_targets = np.argwhere(w[coh0_naive_idx,:]>0)[1] # units that receive trained positive edges from units initially tuned to 0
 
+        collector = []
         # to what extent are initial 1-tuned units now targeting inhibitory units of the same tuning?
-        len(np.intersect1d(coh1_inhib_targets,coh1_trained_idx))
+        collector.append(len(np.intersect1d(coh1_inhib_targets,coh1_trained_idx)))
         # ct of initial 1-tuned units targeting inhibitory units of different tuning? (HYPOTHESIS)
-        len(np.intersect1d(coh1_inhib_targets,coh0_trained_idx))
+        collector.append(len(np.intersect1d(coh1_inhib_targets,coh0_trained_idx)))
         # ct of initial 1-tuned units targeting excitatory units of the same tuning? (HYPOTHESIS)
-        len(np.intersect1d(coh1_excit_targets,coh1_trained_idx))
+        collector.append(len(np.intersect1d(coh1_excit_targets,coh1_trained_idx)))
         # ct of initial 1-tuned units targeting excitatory units of the opposite tuning?
-        len(np.intersect1d(coh1_excit_targets,coh0_trained_idx))
+        collector.append(len(np.intersect1d(coh1_excit_targets,coh0_trained_idx)))
+        coh1_init_changes.append(collector)
 
         # repeat this pattern for initial 0-tuned units
+        collector = []
+        collector.append(len(np.intersect1d(coh0_inhib_targets,coh0_trained_idx)))
+        collector.append(len(np.intersect1d(coh0_inhib_targets,coh1_trained_idx)))
+        collector.append(len(np.intersect1d(coh0_excit_targets,coh0_trained_idx)))
+        """
 
 
 
-    return same_tuning_cts
+    return [naive_cts, trained_cts, same_tuning_cts, same_tuning_ratios] # coh0_init_changes, coh1_init_changes]
 
 
 # plot losses for a single example experiment over time; error bar shading is for spread within epoch
