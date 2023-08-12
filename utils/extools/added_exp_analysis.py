@@ -73,9 +73,9 @@ all_spring_dual_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewi
 all_save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-swaplabels-saveinz","run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz","run-batch30-rateloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz","run-batch30-taskloss-specinput0.2-nointoout-noinoutrewire-inputx5-saveinz"]
 
 
-lowerinhib_data_dirs = ["2023-07-03 21.12.39","2023-07-08 17.53.59"]
+lowerinhib_data_dirs = ["2023-07-03 21.12.39","2023-07-08 17.53.59","2023-08-01 02.50.00"]
 #nodales_data_dirs = ["2023-06-30 09.37.50","2023-06-28 00.01.42","2023-06-25 14.24.22"]
-nodales_data_dirs = ["initialcorrected"]
+nodales_data_dirs = ["run-batch30-dualloss-noinoutrewiretype-nodales-initialcorrected [2023-08-05 18.27.46]", "run-batch30-dualloss-noinoutrewiretype-nodales-initialcorrected [2023-08-08 12.01.42]"]
 
 
 # for the version of experiment run without dales law (albeit rewiring is now messed up),
@@ -111,6 +111,9 @@ def tuned_unit_wiring_changes(exp_dirs=nodales_data_dirs,exp_season='summer'):
         true_y = data['true_y']
         spikes = data['spikes']
 
+        coh0_rec_rates = []
+        coh1_rec_rates = []
+
         #for i in range(0,np.shape(true_y)[0]):
         i = 0
         for j in range(0,np.shape(true_y)[1]):
@@ -130,6 +133,9 @@ def tuned_unit_wiring_changes(exp_dirs=nodales_data_dirs,exp_season='summer'):
         true_y = data['true_y']
         spikes = data['spikes']
         w = data['tv1.postweights'][99]
+
+        coh0_rec_rates = []
+        coh1_rec_rates = []
 
         #for i in range(0,np.shape(true_y)[0]):
         i = 99
