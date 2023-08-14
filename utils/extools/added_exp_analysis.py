@@ -1088,7 +1088,7 @@ def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='
 
     for j in range(0,len(ax)):
         ax[j].set_xlim(left=-5,right=105)
-        ax[j].set_ylim(bottom=-0.8,top=0.5)
+        ax[j].set_ylim(bottom=-0.6,top=0.35)
         ax[j].set_xlabel('training epoch')
         ax[j].legend(prop={"family":"Ubuntu"})
         for tick in ax[j].get_xticklabels():
