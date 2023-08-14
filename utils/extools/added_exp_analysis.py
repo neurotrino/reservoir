@@ -465,7 +465,7 @@ def mod_plot_all_weight_dists(exp_dirs=nodales_data_dirs,exp_season='summer/fina
         ax[i].set_xlabel('synaptic current (nA)',fontname='Ubuntu')
         ax[i].set_ylabel('density',fontname='Ubuntu')
     plt.draw()
-    save_fname = savepath+'set_plots/'+exp_season+'/all_output_weights.png'
+    save_fname = savepath+'set_plots/'+exp_season+'/all_output_weights_range.png'
     plt.savefig(save_fname,dpi=300)
     # Teardown
     plt.clf()
