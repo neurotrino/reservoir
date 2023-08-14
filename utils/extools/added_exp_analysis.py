@@ -356,7 +356,7 @@ def mod_losses_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='summer'):
             del rate_losses
             del task_losses
 
-def mod_plot_all_weight_dists(exp_dirs=nodales_data_dirs,exp_season='summer/final/nodales'): # just for dual-training for now
+def mod_plot_all_weight_dists(exp_dirs=lowerinhib_data_dirs,exp_season='summer/final/lowerinhib'): # just for dual-training for now
 
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
@@ -495,7 +495,7 @@ def mod_plot_all_weight_dists(exp_dirs=nodales_data_dirs,exp_season='summer/fina
     sns.kdeplot(rec_trained_ii[rec_trained_ii<0],color='orangered',alpha=0.7,label='ii',ax=ax[1])
     ax[1].set_title('trained recurrent',fontname='Ubuntu')
 
-    plt.suptitle('No Dales: Main Recurrent Layer Weights',fontname='Ubuntu')
+    plt.suptitle('Lower Inhibition: Main Recurrent Layer Weights',fontname='Ubuntu')
     plt.subplots_adjust(wspace=0.7, hspace=0.5)
     plt.legend()
     # go through and set all axes
