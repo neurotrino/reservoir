@@ -282,7 +282,7 @@ def tuned_unit_wiring_changes(exp_dirs=nodales_data_dirs,exp_season='summer'):
 
 
 # plot losses for a single example experiment over time; error bar shading is for spread within epoch
-def mod_losses_over_training(exp_dirs=nodales_data_dirs,exp_season='summer'):
+def mod_losses_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='summer'):
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
             exp_data_dirs = get_experiments(data_dir, exp_string)
@@ -343,7 +343,7 @@ def mod_losses_over_training(exp_dirs=nodales_data_dirs,exp_season='summer'):
                     tick.set_fontname("Ubuntu")
                 for tick in ax[j].get_yticklabels():
                     tick.set_fontname("Ubuntu")
-            plt.suptitle("Example evolution of loss without Dale's law",fontname='Ubuntu')
+            plt.suptitle("Example evolution of loss with lowered inhibition",fontname='Ubuntu')
             plt.subplots_adjust(wspace=0.7, hspace=0.5)
             plt.draw()
 

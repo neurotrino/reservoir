@@ -1921,7 +1921,7 @@ def get_input_tuning_single_exp(xdir):
 
     return [coh0_idx,coh1_idx]
 
-def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs,exp_season='spring'):
+def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_rate,exp_season='spring_rate'):
     # characterize the connectivity from the input layer to recurrent
     # plot over the course of training with shaded error bars
     # compare for rate- and dual-trained
@@ -2107,7 +2107,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs,exp_
     plt.subplots_adjust(wspace=1.0, hspace=1.0)
     plt.draw()
 
-    save_fname = spath+'/corrected_inputs_to_ei_mod.png'
+    save_fname = spath+'/corrected_inputs_to_ei_mod_rate.png'
     plt.savefig(save_fname,dpi=300)
     # Teardown
     plt.clf()
