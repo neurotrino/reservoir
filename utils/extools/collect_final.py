@@ -1921,7 +1921,7 @@ def get_input_tuning_single_exp(xdir):
 
     return [coh0_idx,coh1_idx]
 
-def input_layer_over_training_by_coherence(dual_exp_dir=lowerinhib_data_dirs,exp_season='summer'):
+def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointooutdirs,exp_season='spring'):
     # characterize the connectivity from the input layer to recurrent
     # plot over the course of training with shaded error bars
     # compare for rate- and dual-trained
@@ -1936,7 +1936,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=lowerinhib_data_dirs,exp
             exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
 
     # check if folder exists, otherwise create it for saving files
-    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/lowerinhib'
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final'
     if not os.path.isdir(spath):
         os.makedirs(spath)
 
@@ -2061,9 +2061,9 @@ def input_layer_over_training_by_coherence(dual_exp_dir=lowerinhib_data_dirs,exp
 
     epochs = np.shape(coh1_e)[1]
 
-    ax[0].plot(np.arange(0,epochs),coh1_e_mean, label='coh 1 tuned inputs', color='slateblue')
+    ax[0].plot(np.arange(0,epochs),coh1_e_mean, label='1 modulated inputs', color='slateblue')
     ax[0].fill_between(np.arange(0,epochs),coh1_e_mean-coh1_e_std, coh1_e_mean+coh1_e_std, alpha=0.4, facecolor='slateblue')
-    ax[0].plot(np.arange(0,epochs),coh0_e_mean, label='coh 0 tuned inputs', color='mediumseagreen')
+    ax[0].plot(np.arange(0,epochs),coh0_e_mean, label='0 modulated inputs', color='mediumseagreen')
     ax[0].fill_between(np.arange(0,epochs),coh0_e_mean-coh0_e_std, coh0_e_mean+coh0_e_std, alpha=0.4, facecolor='mediumseagreen')
     ax[0].set_title('input weights to excitatory units',fontname='Ubuntu')
 
@@ -2072,9 +2072,9 @@ def input_layer_over_training_by_coherence(dual_exp_dir=lowerinhib_data_dirs,exp
     coh0_i_mean = np.mean(coh0_i,0)
     coh0_i_std = np.std(coh0_i,0)
 
-    ax[1].plot(np.arange(0,epochs),coh1_i_mean, label='coh 1 tuned inputs', color='darkorange')
+    ax[1].plot(np.arange(0,epochs),coh1_i_mean, label='1 modulated inputs', color='darkorange')
     ax[1].fill_between(np.arange(0,epochs),coh1_i_mean-coh1_i_std, coh1_i_mean+coh1_i_std, alpha=0.4, facecolor='darkorange')
-    ax[1].plot(np.arange(0,epochs),coh0_i_mean, label='coh 0 tuned inputs', color='orangered')
+    ax[1].plot(np.arange(0,epochs),coh0_i_mean, label='0 modulated inputs', color='orangered')
     ax[1].fill_between(np.arange(0,epochs),coh0_i_mean-coh0_i_std, coh0_i_mean+coh0_i_std, alpha=0.4, facecolor='orangered')
     ax[1].set_title('input weights to inhibitory units',fontname='Ubuntu')
 
@@ -2103,11 +2103,11 @@ def input_layer_over_training_by_coherence(dual_exp_dir=lowerinhib_data_dirs,exp
         for tick in ax[j].get_yticklabels():
             tick.set_fontname("Ubuntu")
 
-    plt.suptitle('Evolution of input weights: lower inhib (2x)',fontname='Ubuntu')
+    plt.suptitle('Evolution of input weights over training',fontname='Ubuntu')
     plt.subplots_adjust(wspace=1.0, hspace=1.0)
     plt.draw()
 
-    save_fname = spath+'/corrected_inputs_to_ei.png'
+    save_fname = spath+'/corrected_inputs_to_ei_mod.png'
     plt.savefig(save_fname,dpi=300)
     # Teardown
     plt.clf()

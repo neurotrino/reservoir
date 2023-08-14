@@ -75,7 +75,18 @@ all_save_inz_dirs = ["run-batch30-dualloss-specinput0.2-nointoout-noinoutrewire-
 
 lowerinhib_data_dirs = ["2023-07-03 21.12.39","2023-07-08 17.53.59","2023-08-01 02.50.00"]
 #nodales_data_dirs = ["2023-06-30 09.37.50","2023-06-28 00.01.42","2023-06-25 14.24.22"]
-nodales_data_dirs = ["run-batch30-dualloss-noinoutrewiretype-nodales-initialcorrected [2023-08-05 18.27.46]", "run-batch30-dualloss-noinoutrewiretype-nodales-initialcorrected [2023-08-08 12.01.42]"]
+nodales_data_dirs = ["run-batch30-dualloss-noinoutrewiretype-nodales-initialcorrected [2023-08-05 18.27.46]", "run-batch30-dualloss-noinoutrewiretype-nodales-initialcorrected [2023-08-08 12.01.42]","[2023-08-11 05.30.29]"]
+
+
+
+# tomorrow:
+# 0. set up more of your office x
+# 1. run the weight and rate plots; tweak them accordingly
+# 2. run the lower inhib script and get numbers and write it in and think of how to show it by appropriate scale
+# 3. run the no dales script to get the ratios you want, then write it in
+# 4. assemble a figure of some sort? minimally, mostly focusing on other things
+# 5. maybe a violin plot of all three types of networks' ratios. that's annoying but can be done.
+# 5. complete the edits to other figures for coherence, including the one Mufeng pointed out x
 
 
 # for the version of experiment run without dales law (albeit rewiring is now messed up),
@@ -86,6 +97,79 @@ nodales_data_dirs = ["run-batch30-dualloss-noinoutrewiretype-nodales-initialcorr
 
 # this same question can actually be asked of the prior experiments as well.
 # and you should do so.
+
+
+def count_nodales_tuning(exp_dirs=nodales_data_dirs,exp_season='summer'):
+    for exp_string in exp_dirs:
+        if not 'exp_data_dirs' in locals():
+            exp_data_dirs = get_experiments(data_dir, exp_string)
+        else:
+            exp_data_dirs = np.hstack([exp_data_dirs,get_experiments(data_dir, exp_string)])
+
+    # check if folder exists, otherwise create it for saving files
+    spath = '/data/results/experiment1/set_plots/'+exp_season+'/final/nodales'
+    if not os.path.isdir(spath):
+        os.makedirs(spath)
+
+    e_within = []
+    e_across = []
+    i_within = []
+    i_across = []
+    # aggregate these across experiments
+
+    for xdir in exp_data_dirs: # loop through experiments
+        np_dir = os.path.join(data_dir, xdir, "npz-data")
+        exp_path = xdir[-9:-1]
+
+        # find units' tuning at the end of training
+        filepath = os.path.join(data_dir, xdir, "npz-data", '991-1000.npz')
+        data = np.load(filepath)
+        true_y = data['true_y']
+        spikes = data['spikes']
+        w = data['tv1.postweights'][99]
+
+        coh0_rec_rates = []
+        coh1_rec_rates = []
+
+        #for i in range(0,np.shape(true_y)[0]):
+        i = 99
+        for j in range(0,np.shape(true_y)[1]):
+            if true_y[i][j][0]==true_y[i][j][seq_len-1]:
+                if true_y[i][j][0]==0:
+                    coh0_rec_rates.append(np.mean(spikes[i][j],0))
+                else:
+                    coh1_rec_rates.append(np.mean(spikes[i][j],0))
+
+        # find which of the 300 recurrent units respond more on average to one coherence level over the other
+        coh1_trained_idx = np.where(np.mean(coh1_rec_rates,0)>np.mean(coh0_rec_rates,0))[0]
+        coh0_trained_idx = np.where(np.mean(coh1_rec_rates,0)<np.mean(coh0_rec_rates,0))[0]
+
+        tuning_vector = np.zeros([i_end,1])
+        tuning_vector[coh1_trained_idx] = 1
+
+        for i in range(0,i_end):
+            for j in range(0,i_end):
+                if w[i][j] < 0: # negative weight
+                    if tuning_vector[i]==tuning_vector[j]:
+                        i_within.append(w[i][j])
+                    else:
+                        i_across.append(w[i][j])
+                elif w[i][j] > 0: # positive weight
+                    if tuning_vector[i]==tuning_vector[j]:
+                        e_within.append(w[i][j])
+                    else:
+                        e_across.append(w[i][j])
+
+    # get averages and stds
+    avgs = [np.mean(e_within), np.mean(e_across), np.mean(i_within), np.mean(i_across)]
+    stds = [np.std(e_within), np.std(e_across), np.std(i_within), np.mean(i_across)]
+
+    # get ratios as before
+    ratios = [avgs[1]/avgs[0],avgs[3]/avgs[2]]
+
+    return [avgs, stds, ratios]
+
+
 
 def tuned_unit_wiring_changes(exp_dirs=nodales_data_dirs,exp_season='summer'):
     for exp_string in exp_dirs:
@@ -175,9 +259,9 @@ def tuned_unit_wiring_changes(exp_dirs=nodales_data_dirs,exp_season='summer'):
         coh0_excit_targets = np.argwhere(w[coh0_naive_idx,:]>0)[1] # units that receive trained positive edges from units initially tuned to 0
 
         collector = []
-        # to what extent are initial 1-tuned units now targeting inhibitory units of the same tuning?
-        collector.append(len(np.intersect1d(coh1_inhib_targets,coh1_trained_idx)))
-        # ct of initial 1-tuned units targeting inhibitory units of different tuning? (HYPOTHESIS)
+        # to what extent are initial 1-tuned units now inhibitorily targeting units of the same tuning?
+        collector.append(len(np.intersect1d(coh1_inhib_targets,coh1_trained_idx))) # more specifically, of the units that receive trained negative edges from iniitially 1-tuned units, how many of them are also tuned (in their trained state) to coherence 1?
+        # ct of initial 1-tuned units inhibitorily targeting units of different tuning? (HYPOTHESIS)
         collector.append(len(np.intersect1d(coh1_inhib_targets,coh0_trained_idx)))
         # ct of initial 1-tuned units targeting excitatory units of the same tuning? (HYPOTHESIS)
         collector.append(len(np.intersect1d(coh1_excit_targets,coh1_trained_idx)))
