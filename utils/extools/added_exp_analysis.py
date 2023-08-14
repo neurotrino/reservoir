@@ -1012,7 +1012,6 @@ def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='
             else:
                 ero_ii = np.vstack([ero_ii, ero_ii_])
 
-    """
     fig, ax = plt.subplots(nrows=4,ncols=1,figsize=(8,10))
 
     epochs = np.shape(ero_ie)[1]
@@ -1037,7 +1036,7 @@ def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='
     ax[0].plot(np.arange(0,epochs),coh0_ii_mean,color='orangered',label='ii')
     ax[0].fill_between(np.arange(0,epochs),coh0_ii_mean-coh0_ii_std, coh0_ii_mean+coh0_ii_std, alpha=0.4, facecolor='orangered')
 
-    ax[0].set_title('coherence 0 tuned recurrent connections',fontname='Ubuntu')
+    ax[0].set_title('0 modulated recurrent connections',fontname='Ubuntu')
     ax[0].set_ylabel('average weight',fontname='Ubuntu')
 
 
@@ -1053,7 +1052,7 @@ def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='
     ax[1].plot(np.arange(0,epochs),np.mean(coh1_ii,0),color='orangered',label='ii')
     ax[1].fill_between(np.arange(0,epochs),np.mean(coh1_ii,0)-np.std(coh1_ii,0), np.mean(coh1_ii,0)+np.std(coh1_ii,0), alpha=0.4, facecolor='orangered')
 
-    ax[1].set_title('coherence 1 tuned recurrent connections',fontname='Ubuntu')
+    ax[1].set_title('1 modulated recurrent connections',fontname='Ubuntu')
     ax[1].set_ylabel('average weight',fontname='Ubuntu')
 
 
@@ -1069,7 +1068,7 @@ def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='
     ax[2].plot(np.arange(0,epochs),np.mean(het_ii,0),color='orangered',label='ii')
     ax[2].fill_between(np.arange(0,epochs),np.mean(het_ii,0)-np.std(het_ii,0), np.mean(het_ii,0)+np.std(het_ii,0), alpha=0.4, facecolor='orangered')
 
-    ax[2].set_title('coherence 0 to coherence 1 tuned recurrent connections',fontname='Ubuntu')
+    ax[2].set_title('0 modulated to 1 modulated recurrent connections',fontname='Ubuntu')
     ax[2].set_ylabel('average weight',fontname='Ubuntu')
 
     ax[3].plot(np.arange(0,epochs),np.mean(ero_ee,0),color='slateblue',label='ee')
@@ -1084,12 +1083,12 @@ def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='
     ax[3].plot(np.arange(0,epochs),np.mean(ero_ii,0),color='orangered',label='ii')
     ax[3].fill_between(np.arange(0,epochs),np.mean(ero_ii,0)-np.std(ero_ii,0), np.mean(ero_ii,0)+np.std(ero_ii,0), alpha=0.4, facecolor='orangered')
 
-    ax[3].set_title('coherence 1 to coherence 0 tuned recurrent connections',fontname='Ubuntu')
+    ax[3].set_title('1 modulated to 0 modulated recurrent connections',fontname='Ubuntu')
     ax[3].set_ylabel('average weight',fontname='Ubuntu')
 
     for j in range(0,len(ax)):
         ax[j].set_xlim(left=-5,right=105)
-        ax[j].set_ylim(bottom=-1.5,top=0.25)
+        ax[j].set_ylim(bottom=-0.8,top=0.5)
         ax[j].set_xlabel('training epoch')
         ax[j].legend(prop={"family":"Ubuntu"})
         for tick in ax[j].get_xticklabels():
@@ -1097,7 +1096,7 @@ def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='
         for tick in ax[j].get_yticklabels():
             tick.set_fontname("Ubuntu")
 
-    plt.suptitle('Recurrent Connectivity by Trained Coherence Tuning: No Dales',fontname='Ubuntu')
+    plt.suptitle('Recurrent Connectivity by Trained Coherence Tuning: Lower Initial Inhibition',fontname='Ubuntu')
     save_fname = spath+'/rec_weights_by_tuning.png'
     plt.subplots_adjust(hspace=0.8,wspace=0.8)
     plt.draw()
@@ -1105,9 +1104,9 @@ def mod_tuned_rec_layer_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='
     # Teardown
     plt.clf()
     plt.close()
-    """
 
-    return [coh0_ee,coh0_ei,coh0_ie,coh0_ii,coh1_ee,coh1_ei,coh1_ie,coh1_ii,het_ee,het_ei,het_ie,het_ii,ero_ee,ero_ei,ero_ie,ero_ii]
+
+    #return [coh0_ee,coh0_ei,coh0_ie,coh0_ii,coh1_ee,coh1_ei,coh1_ie,coh1_ii,het_ee,het_ei,het_ie,het_ii,ero_ee,ero_ei,ero_ie,ero_ii]
 
     # quantify with naive vs trained ratios
     # within coherence i / between coherence i trained
