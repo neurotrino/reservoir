@@ -503,7 +503,7 @@ def mod_plot_all_weight_dists(exp_dirs=lowerinhib_data_dirs,exp_season='summer/f
     for i in range(0,len(ax)):
         ax[i].set_facecolor('white')
         ax[i].legend(prop={"family":"Ubuntu"})
-        ax[i].set_xlim(-5,5)
+        ax[i].set_xlim(-20,20)
         for tick in ax[i].get_xticklabels():
             tick.set_fontname("Ubuntu")
         for tick in ax[i].get_yticklabels():
