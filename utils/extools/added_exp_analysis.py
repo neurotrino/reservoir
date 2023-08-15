@@ -356,7 +356,7 @@ def mod_losses_over_training(exp_dirs=lowerinhib_data_dirs,exp_season='summer'):
             del rate_losses
             del task_losses
 
-def mod_plot_all_weight_dists(exp_dirs=lowerinhib_data_dirs,exp_season='summer/final/lowerinhib'): # just for dual-training for now
+def mod_plot_all_weight_dists(exp_dirs=nodales_data_dirs,exp_season='summer/final/nodales'): # just for dual-training for now
 
     for exp_string in exp_dirs:
         if not 'exp_data_dirs' in locals():
@@ -478,12 +478,18 @@ def mod_plot_all_weight_dists(exp_dirs=lowerinhib_data_dirs,exp_season='summer/f
     rec_naive_ei = rec_naive[:,:e_end,e_end:].flatten()
     rec_naive_ie = rec_naive[:,e_end:,:e_end].flatten()
     rec_naive_ii = rec_naive[:,e_end:,e_end:].flatten()
-    rec_trained_ee = rec_trained[:9,:e_end,:e_end].flatten()
+    rec_trained_ee = rec_trained[:,:e_end,:e_end].flatten()
     rec_trained_ei = rec_trained[:,:e_end,e_end:].flatten()
-    rec_trained_ie = rec_trained[:10,e_end:,:e_end].flatten()
+    rec_trained_ie = rec_trained[:,e_end:,:e_end].flatten()
     rec_trained_ii = rec_trained[:,e_end:,e_end:].flatten()
 
-    return [rec_trained_ee, rec_trained_ei, rec_trained_ie, rec_trained_ii]
+    # following bit just for dales
+    trained_e = rec_trained[rec_trained>0].flatten()
+    trained_i = rec_trained[rec_trained<0].flatten()
+    naive_e = rec_naive[rec_naive>0].flatten()
+    naive_i = rec_naive[rec_naive<0].flatten()
+
+    return [trained_e,trained_i,naive_e,naive_i]
 
     sns.kdeplot(rec_naive_ee[rec_naive_ee>0],color='slateblue',alpha=0.7,label='ee',ax=ax[0])
     sns.kdeplot(rec_naive_ei[rec_naive_ei>0],color='mediumseagreen',alpha=0.7,label='ei',ax=ax[0])
