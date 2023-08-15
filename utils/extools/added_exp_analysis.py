@@ -1170,6 +1170,8 @@ def mod_plot_naive_trained_rate_violins(exp_dirs=lowerinhib_data_dirs,exp_season
     [rates_e_0,rates_e_1,rates_i_0,rates_i_1] = get_truly_naive_rates(exp_dirs=exp_dirs,exp_season=exp_season,naive=False)
     trained_rates = [rates_e_0,rates_e_1,rates_i_0,rates_i_1]
 
+    return [naive_rates, trained_rates]
+    
     # make violin plots of naive vs trained rates
     fig,ax=plt.subplots(nrows=2, ncols=2)
     ax = ax.flatten()
