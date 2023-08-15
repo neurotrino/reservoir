@@ -483,6 +483,8 @@ def mod_plot_all_weight_dists(exp_dirs=lowerinhib_data_dirs,exp_season='summer/f
     rec_trained_ie = rec_trained[:10,e_end:,:e_end].flatten()
     rec_trained_ii = rec_trained[:,e_end:,e_end:].flatten()
 
+    return [rec_trained_ee, rec_trained_ei, rec_trained_ie, rec_trained_ii]
+
     sns.kdeplot(rec_naive_ee[rec_naive_ee>0],color='slateblue',alpha=0.7,label='ee',ax=ax[0])
     sns.kdeplot(rec_naive_ei[rec_naive_ei>0],color='mediumseagreen',alpha=0.7,label='ei',ax=ax[0])
     sns.kdeplot(rec_naive_ie[rec_naive_ie<0],color='orange',alpha=0.7,label='ie',ax=ax[0])
@@ -1171,7 +1173,7 @@ def mod_plot_naive_trained_rate_violins(exp_dirs=lowerinhib_data_dirs,exp_season
     trained_rates = [rates_e_0,rates_e_1,rates_i_0,rates_i_1]
 
     return [naive_rates, trained_rates]
-    
+
     # make violin plots of naive vs trained rates
     fig,ax=plt.subplots(nrows=2, ncols=2)
     ax = ax.flatten()
