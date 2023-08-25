@@ -2008,6 +2008,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_rate
         else:
             coh0_i = np.vstack([coh0_i, coh0_i_exp])
 
+
         if not "epoch_task_loss" in locals():
             epoch_task_loss = epoch_task_loss_exp
         else:
@@ -2078,6 +2079,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_rate
     ax[1].fill_between(np.arange(0,epochs),coh0_i_mean-coh0_i_std, coh0_i_mean+coh0_i_std, alpha=0.4, facecolor='orangered')
     ax[1].set_title('input weights to inhibitory units',fontname='Ubuntu')
 
+
     epochs = np.shape(epoch_task_loss)[1]
 
     task_mean = np.mean(epoch_task_loss,0)
@@ -2092,6 +2094,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=spec_nointoout_dirs_rate
 
     ax[2].set_ylabel('loss',fontname='Ubuntu')
     ax[2].set_title('losses')
+
 
     for j in range(0,len(ax)):
         if j < 2:
