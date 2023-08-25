@@ -1921,7 +1921,7 @@ def get_input_tuning_single_exp(xdir):
 
     return [coh0_idx,coh1_idx]
 
-def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,exp_season='spring'):
+def input_layer_over_training_by_coherence(dual_exp_dir=save_inz_dirs,exp_season='spring'):
     # characterize the connectivity from the input layer to recurrent
     # plot over the course of training with shaded error bars
     # compare for rate- and dual-trained
