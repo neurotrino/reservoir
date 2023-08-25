@@ -2062,9 +2062,9 @@ def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,exp
 
     epochs = np.shape(coh1_e)[1]
 
-    ax[0].plot(np.arange(0,epochs),coh1_e_mean, label='1 modulated inputs', color='slateblue')
+    ax[0].plot(np.arange(0,epochs),coh1_e_mean, label='1 mod inputs', color='slateblue')
     ax[0].fill_between(np.arange(0,epochs),coh1_e_mean-coh1_e_std, coh1_e_mean+coh1_e_std, alpha=0.4, facecolor='slateblue')
-    ax[0].plot(np.arange(0,epochs),coh0_e_mean, label='0 modulated inputs', color='mediumseagreen')
+    ax[0].plot(np.arange(0,epochs),coh0_e_mean, label='0 mod inputs', color='mediumseagreen')
     ax[0].fill_between(np.arange(0,epochs),coh0_e_mean-coh0_e_std, coh0_e_mean+coh0_e_std, alpha=0.4, facecolor='mediumseagreen')
     ax[0].set_title('input weights to excitatory units',fontname='Ubuntu')
 
@@ -2073,9 +2073,9 @@ def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,exp
     coh0_i_mean = np.mean(coh0_i,0)
     coh0_i_std = np.std(coh0_i,0)
 
-    ax[1].plot(np.arange(0,epochs),coh1_i_mean, label='1 modulated inputs', color='darkorange')
+    ax[1].plot(np.arange(0,epochs),coh1_i_mean, label='1 mod inputs', color='darkorange')
     ax[1].fill_between(np.arange(0,epochs),coh1_i_mean-coh1_i_std, coh1_i_mean+coh1_i_std, alpha=0.4, facecolor='darkorange')
-    ax[1].plot(np.arange(0,epochs),coh0_i_mean, label='0 modulated inputs', color='orangered')
+    ax[1].plot(np.arange(0,epochs),coh0_i_mean, label='0 mod inputs', color='orangered')
     ax[1].fill_between(np.arange(0,epochs),coh0_i_mean-coh0_i_std, coh0_i_mean+coh0_i_std, alpha=0.4, facecolor='orangered')
     ax[1].set_title('input weights to inhibitory units',fontname='Ubuntu')
 
