@@ -2147,7 +2147,7 @@ def input_layer_over_training_by_coherence(dual_exp_dir=all_spring_dual_dirs,exp
     # that's a good start
 
 
-def characterize_tuned_rec_populations(exp_dirs=spec_nointoout_dirs,exp_season='spring',mix_tuned_indices=False,plot_counts=True):
+def characterize_tuned_rec_populations(exp_dirs=save_inz_dirs,exp_season='spring',mix_tuned_indices=False,plot_counts=True):
     # determine tuning of each recurrent unit across each of these experiments
     # according to trials of single coherence level only
     # include save inz as well into these spring experimental categories, okay
