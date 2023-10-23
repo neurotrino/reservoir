@@ -1964,7 +1964,7 @@ def plot_all_rates(exp_dirs=spec_nointoout_dirs,exp_season='spring'):
         ax[i].set_xlabel('unitwise rate (Hz)',fontname='Ubuntu')
         ax[i].set_ylabel('density',fontname='Ubuntu')
 
-    plt.draw()
+    plt.draw() # draw plot
 
     save_fname = savepath+'/set_plots/'+exp_season+'_inoutrec_rates_test.png'
     plt.savefig(save_fname,dpi=300)
