@@ -7,7 +7,8 @@ setup = setup(
     version="2.1.0",
     packages=find_packages(),
     install_requires=[
-        "h5py >= 2.8" "keras-tuner >= 1.1",  # kt
+        "h5py >= 2.8",
+        "keras-tuner >= 1.1",  # kt
         "matplotlib >= 3.5",  # plt (matplotlib.pyplot)
         "numpy >= 1.22",  # np
         "scikit-learn >= 1.0",  # sklearn
